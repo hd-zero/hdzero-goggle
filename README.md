@@ -1,4 +1,4 @@
-# Initial setep
+# Initial setup
 
 ## 1. Extract supporting libraries and head files
 
