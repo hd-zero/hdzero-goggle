@@ -4,6 +4,7 @@
 
 ```
 ~/hdz_goggle/code$ tar xzvf linux-4.9.tar.gz
+~/hdz_goggle/code$ cat media.tar.gzaa media.tar.gzab > media.tar.gz
 ~/hdz_goggle/code$ tar xzvf media.tar.gz
 ~/hdz_goggle/code$ tar xzvf toolchain.tar.gz
 ```
@@ -13,8 +14,6 @@
 ```
 ~/hdz_goggle/workspace/code$./setup.sh
 ```
-
-
 
 # Build code
 

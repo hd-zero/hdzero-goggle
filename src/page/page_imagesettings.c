@@ -103,21 +103,23 @@ void page_ims_click(page_pack_t *pp)
 				progress_bar.start  = 1;
 				HDZero_open();
 				switch_to_video(true);	
+				g_bShowIMS = true;
 				break;
 
 			case 1: //no image setting support for HDMI in 
                 g_menu_op = OPLEVEL_SUBMENU;
+				g_bShowIMS = false;
 				break;
 
 			case 2:
 				switch_to_analog(0);
+				g_bShowIMS = true;
 				break;
 
 			case 3:
 				switch_to_analog(1);
+				g_bShowIMS = true;
 				break;
 		}
-		Printf("->image settimg, lelve=11\n");
-		g_bShowIMS = true;
 	}	
 }
