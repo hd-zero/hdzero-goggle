@@ -12,14 +12,14 @@
 ## 2. Setup cmake environment
 
 ```
-~/hdz_goggle/workspace/code$./setup.sh
+~/hdz_goggle/code$ ./setup.sh
 ```
 
 # Build code
 
 ```
- ~/hdz_goggle/code/$cd build
- ~/hdz_goggle/code/build$make clean all
+ ~/hdz_goggle/code/$ cd build
+ ~/hdz_goggle/code/build$ make clean all
 ```
 
 the firmware is generated on ~/hdz_goggle/code/out
