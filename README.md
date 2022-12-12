@@ -1,26 +1,6 @@
-# Initial setep
+## HDZero Goggle SoC Firmware
 
-## 1. Extract supporting libraries and head files
+-- to be added.
 
-```
-~/hdz_goggle/code$ tar xzvf linux-4.9.tar.gz
-~/hdz_goggle/code$ tar xzvf media.tar.gz
-~/hdz_goggle/code$ tar xzvf toolchain.tar.gz
-```
-
-## 2. Setup cmake environment
-
-```
-~/hdz_goggle/workspace/code$./setup.sh
-```
-
-
-
-# Build code
-
-```
- ~/hdz_goggle/code/$cd build
- ~/hdz_goggle/code/build$make clean all
-```
-
-the firmware is generated on ~/hdz_goggle/code/out
+## HDZero Goggle CAD
+-- Download in hdzero-tooling repo https://github.com/hd-zero/hdzero-tooling
