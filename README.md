@@ -22,4 +22,5 @@
  ~/hdz_goggle/code/build$make clean all
 ```
 
-the firmware is generated on ~/hdz_goggle/code/out
+the firmware is generated on ~/hdz_goggle/code/out/HDZERO_GOGGLE-x.x.x.bin
+Where x.x.x is the OTA_VER.RX_VER.VA_VER
