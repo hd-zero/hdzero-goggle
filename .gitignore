@@ -1,0 +1,8 @@
+build
+linux-4.9
+media
+toolchain
+mkapp/image
+mkapp/ota_app
+out
+media.tar.gz
