@@ -1,0 +1,4 @@
+#!/bin/sh
+
+bash mkapp_ota.sh
+

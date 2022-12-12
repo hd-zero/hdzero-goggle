@@ -1,0 +1,31 @@
+
+i2cget -y 2 0x64 0xff
+
+i2cdetect -y 2
+
+//I2C devices
+//
+//Name   Ports      Device    Address
+//R_I2C	 1          IT66121   0x4C
+//	            MCP3021   0x4D
+//	            BMI270    0x68
+//	            NCT75     0x48
+//
+//M_I2C	 2      Main FPGA     0x64        
+//	            AL FPGA   0x65
+//	            GM7150    0x5D
+//	            NCT75     0x48
+//
+//L_I2C	 3      IT66021	    0x49 (HDMI IN)
+//	          NCT75	    0x48
+
+
+
+// How to increase size rootfs_extra of partition
+z:\workspace\hdzero_goggle\workspace\device\config\chips\v536\configs\cdr\linux\sys_partition_nor.fex
+
+[partition]
+    name         = rootfs
+    size         = 23808  <-- reported from make 
+    downloadfile = "rootfs.fex"
+    user_type    = 0x8000

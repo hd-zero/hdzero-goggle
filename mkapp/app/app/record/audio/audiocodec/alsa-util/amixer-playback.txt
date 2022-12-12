@@ -1,0 +1,255 @@
+amixer cset name='Lineout Switch' 1
+amixer cset name='LINEOUTL Mux' 1
+amixer cset name='LINEOUTR Mux' 1
+amixer cset name='DACL Mixer AIF1DA0L Switch' 1
+amixer cset name='DACR Mixer AIF1DA0R Switch' 1
+amixer cset name='Left Output Mixer DACL Switch' 1
+amixer cset name='Right Output Mixer DACR Switch' 1
+
+aplay -D hw:audiocodec Square_16Bit_48KHz.wav
+aplay -D hw:audiocodec Sine_16Bit_48KHz.wav
+
+
+
+
+
+root@tina:/mnt/extsd# amixer contents
+numid=20,iface=MIXER,name='Lineout Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=on
+numid=17,iface=MIXER,name='ADC input gain control'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=3
+  | dBscale-min=-4.50dB,step=1.50dB,mute=0
+numid=7,iface=MIXER,name='ADC volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=19,iface=MIXER,name='I2S HUB FUNC'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=30,iface=MIXER,name='AIF1 AD0L Mixer ADCL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=29,iface=MIXER,name='AIF1 AD0L Mixer AIF1 DA0L Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=32,iface=MIXER,name='AIF1 AD0R Mixer ADCR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=31,iface=MIXER,name='AIF1 AD0R Mixer AIF1 DA0R Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=33,iface=MIXER,name='AIF1 AD1L Mixer ADCL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=34,iface=MIXER,name='AIF1 AD1R Mixer ADCR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=5,iface=MIXER,name='AIF1 ADC timeslot 0 mixer gain'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=15,step=0
+  : values=0,0
+  | dBscale-min=-6.00dB,step=6.00dB,mute=0
+numid=1,iface=MIXER,name='AIF1 ADC timeslot 0 volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=6,iface=MIXER,name='AIF1 ADC timeslot 1 mixer gain'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=3,step=0
+  : values=0,0
+  | dBscale-min=-6.00dB,step=6.00dB,mute=0
+numid=2,iface=MIXER,name='AIF1 ADC timeslot 1 volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=3,iface=MIXER,name='AIF1 DAC timeslot 0 volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=4,iface=MIXER,name='AIF1 DAC timeslot 1 volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=25,iface=MIXER,name='AIF1IN0L Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_DA0L'
+  ; Item #1 'AIF1_DA0R'
+  ; Item #2 'SUM_AIF1DA0L_AIF1DA0R'
+  ; Item #3 'AVE_AIF1DA0L_AIF1DA0R'
+  : values=0
+numid=26,iface=MIXER,name='AIF1IN0R Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_DA0R'
+  ; Item #1 'AIF1_DA0L'
+  ; Item #2 'SUM_AIF1DA0L_AIF1DA0R'
+  ; Item #3 'AVE_AIF1DA0L_AIF1DA0R'
+  : values=0
+numid=27,iface=MIXER,name='AIF1IN1L Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_DA1L'
+  ; Item #1 'AIF1_DA1R'
+  ; Item #2 'SUM_AIF1DA1L_AIF1DA1R'
+  ; Item #3 'AVE_AIF1DA1L_AIF1DA1R'
+  : values=0
+numid=28,iface=MIXER,name='AIF1IN1R Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_DA1R'
+  ; Item #1 'AIF1_DA1L'
+  ; Item #2 'SUM_AIF1DA1L_AIF1DA1R'
+  ; Item #3 'AVE_AIF1DA1L_AIF1DA1R'
+  : values=0
+numid=21,iface=MIXER,name='AIF1OUT0L Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_AD0L'
+  ; Item #1 'AIF1_AD0R'
+  ; Item #2 'SUM_AIF1AD0L_AIF1AD0R'
+  ; Item #3 'AVE_AIF1AD0L_AIF1AD0R'
+  : values=0
+numid=22,iface=MIXER,name='AIF1OUT0R Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_AD0R'
+  ; Item #1 'AIF1_AD0L'
+  ; Item #2 'SUM_AIF1AD0L_AIF1AD0R'
+  ; Item #3 'AVE_AIF1AD0L_AIF1AD0R'
+  : values=0
+numid=23,iface=MIXER,name='AIF1OUT1L Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_AD1L'
+  ; Item #1 'AIF1_AD1R'
+  ; Item #2 'SUM_AIF1ADC1L_AIF1ADC1R'
+  ; Item #3 'AVE_AIF1ADC1L_AIF1ADC1R'
+  : values=0
+numid=24,iface=MIXER,name='AIF1OUT1R Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=4
+  ; Item #0 'AIF1_AD1R'
+  ; Item #1 'AIF1_AD1L'
+  ; Item #2 'SUM_AIF1ADC1L_AIF1ADC1R'
+  ; Item #3 'AVE_AIF1ADC1L_AIF1ADC1R'
+  : values=0
+numid=9,iface=MIXER,name='DAC mixer gain'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=15,step=0
+  : values=0,0
+  | dBscale-min=-6.00dB,step=6.00dB,mute=0
+numid=8,iface=MIXER,name='DAC volume'
+  ; type=INTEGER,access=rw---R--,values=2,min=0,max=255,step=0
+  : values=160,160
+  | dBscale-min=-119.25dB,step=0.75dB,mute=0
+numid=35,iface=MIXER,name='DACL Mixer ADCL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=37,iface=MIXER,name='DACL Mixer AIF1DA0L Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=on
+numid=36,iface=MIXER,name='DACL Mixer AIF1DA1L Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=38,iface=MIXER,name='DACR Mixer ADCR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=40,iface=MIXER,name='DACR Mixer AIF1DA0R Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=on
+numid=39,iface=MIXER,name='DACR Mixer AIF1DA1R Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=55,iface=MIXER,name='LADC input Mixer LINEINL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=53,iface=MIXER,name='LADC input Mixer MIC1 boost Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=54,iface=MIXER,name='LADC input Mixer MIC2 boost Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=56,iface=MIXER,name='LADC input Mixer l_output mixer Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=57,iface=MIXER,name='LADC input Mixer r_output mixer Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=16,iface=MIXER,name='LINEINL/R to L_R output mixer gain'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=3
+  | dBscale-min=-4.50dB,step=1.50dB,mute=0
+numid=51,iface=MIXER,name='LINEOUTL Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=2
+  ; Item #0 'LOMIX'
+  ; Item #1 'OMIX_LR_SUM'
+  : values=1
+numid=52,iface=MIXER,name='LINEOUTR Mux'
+  ; type=ENUMERATED,access=rw------,values=1,items=2
+  ; Item #0 'ROMIX'
+  ; Item #1 'OMIX_LR_SUM'
+  : values=1
+numid=42,iface=MIXER,name='Left Output Mixer DACL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=41,iface=MIXER,name='Left Output Mixer DACR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=43,iface=MIXER,name='Left Output Mixer LINEINL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=45,iface=MIXER,name='Left Output Mixer MIC1Booststage Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=44,iface=MIXER,name='Left Output Mixer MIC2Booststage Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=13,iface=MIXER,name='MIC1 boost AMP gain control'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=4
+  | dBscale-min=0.00dB,step=2.00dB,mute=0
+numid=12,iface=MIXER,name='MIC1_G boost stage output mixer control'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=3
+  | dBscale-min=-4.50dB,step=1.50dB,mute=0
+numid=14,iface=MIXER,name='MIC2 BST stage to L_R outp mixer gain'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=3
+  | dBscale-min=-4.50dB,step=1.50dB,mute=0
+numid=15,iface=MIXER,name='MIC2 boost AMP gain control'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=7,step=0
+  : values=4
+  | dBscale-min=0.00dB,step=2.00dB,mute=0
+numid=60,iface=MIXER,name='RADC input Mixer LINEINR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=58,iface=MIXER,name='RADC input Mixer MIC1 boost Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=59,iface=MIXER,name='RADC input Mixer MIC2 boost Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=62,iface=MIXER,name='RADC input Mixer l_output mixer Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=61,iface=MIXER,name='RADC input Mixer r_output mixer Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=46,iface=MIXER,name='Right Output Mixer DACL Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=47,iface=MIXER,name='Right Output Mixer DACR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=on
+numid=48,iface=MIXER,name='Right Output Mixer LINEINR Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=50,iface=MIXER,name='Right Output Mixer MIC1Booststage Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=49,iface=MIXER,name='Right Output Mixer MIC2Booststage Switch'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=18,iface=MIXER,name='Speaker PA shutdown pin high level'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=off
+numid=10,iface=MIXER,name='digital volume'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=63,step=0
+  : values=0
+  | dBscale-min=-73.08dB,step=1.16dB,mute=0
+numid=11,iface=MIXER,name='lineout volume'
+  ; type=INTEGER,access=rw---R--,values=1,min=0,max=31,step=0
+  : values=31
+  | dBscale-min=-4.50dB,step=1.50dB,mute=0

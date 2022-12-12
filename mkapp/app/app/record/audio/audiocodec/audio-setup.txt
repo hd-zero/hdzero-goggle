@@ -1,0 +1,45 @@
+1. add alsa-lib & alsa-utils
+   make menuconfig
+  
+   check
+   Utilities > alsa-utils
+  
+   check
+   Libraries > alsa-lib
+
+2. config playback with amixer
+
+amixer cset name='Lineout Switch' 1
+amixer cset name='LINEOUTL Mux' 1
+amixer cset name='LINEOUTR Mux' 1
+amixer cset name='DACL Mixer AIF1DA0L Switch' 1
+amixer cset name='DACR Mixer AIF1DA0R Switch' 1
+amixer cset name='Left Output Mixer DACL Switch' 1
+amixer cset name='Right Output Mixer DACR Switch' 1
+
+3. playback test with aplay
+
+aplay -D hw:audiocodec Square_16Bit_48KHz.wav
+aplay -D hw:audiocodec Sine_16Bit_48KHz.wav
+
+4. config record with amixer
+
+for MIC1:
+amixer cset name='AIF1 AD0L Mixer ADCL Switch' 1
+amixer cset name='LADC input Mixer MIC1 boost Switch' 1
+amixer cset name='RADC input Mixer MIC1 boost Switch' 1
+
+for MIC2:
+amixer cset name='AIF1 AD0R Mixer ADCR Switch' 1
+amixer cset name='LADC input Mixer MIC2 boost Switch' 1
+amixer cset name='RADC input Mixer MIC2 boost Switch' 1
+
+for LINEIN:
+amixer cset name='AIF1 AD0L Mixer ADCL Switch' 1
+amixer cset name='AIF1 AD0R Mixer ADCR Switch' 1
+amixer cset name='LADC input Mixer LINEINL Switch' 1
+amixer cset name='RADC input Mixer LINEINR Switch' 1
+
+4. record test with arecord
+
+arecord -Dhw:audiocodec -t wav -f S16_LE -c2 -r 48000 -d 10 t.wav

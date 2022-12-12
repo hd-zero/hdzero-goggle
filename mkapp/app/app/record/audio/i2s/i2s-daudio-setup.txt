@@ -1,0 +1,41 @@
+1. make kernel_menuconfig to enable daudio module
+   Device Drivers > Sound card support > Advanced Linux Sound Architecture > ALSA for SoC audio support > Allwinner SoC Audio Support 
+
+   check
+   Allwinner Digital Audio Support
+
+   check the following for debug
+   AIO debugfs driver for mpp
+   Allwinner Audio Debug Support
+
+2. cofnigure daudio in sys_config.fex
+
+[snddaudo0]
+snddaudio0_used = 1
+
+[daudio0]
+daudio0_used		= 1
+daudio_master		= 1
+audio_format		= 1
+signal_inversion	= 1
+slot_width_select 	= 32
+pcm_lrck_period		= 32
+word_select_size	= 16
+msb_lsb_first		= 0
+sign_extend 		= 0
+frametype 			= 0
+mclk_div			= 0
+tdm_config			= 1
+tx_data_mode 		= 0
+rx_data_mode 		= 0
+
+3. enbable daudio0 & daudio2 in linux dts
+   modify lichee/linux-4.9/arch/arm/boot/dts/sun8iw16p1.dtsi
+   change daudio0 & daudio2 status to "okay"
+
+4. must do: set i2s0 format to i2s(not pcm) menuually
+   write register 0x05090000 to 0x00060010:
+   aww 0x05090000 0x00060010
+
+   this should be done by driver, because we have conigured in dts and sys_config.fex both, but it didn't!!
+
