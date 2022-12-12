@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 3.10)
 project(HDZGOGGLE VERSION 1.1)
 
 set(OS_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app)
+set(COMMON_COMPILE_OPTIONS 
+	-O3
+	-march=armv7-a
+	-mtune=cortex-a7
+	-mfpu=neon
+	-mfloat-abi=hard
+	-Wno-unused-function
+	-Wno-unused-variable
+	-ffunction-sections -fdata-sections -Wl,-gc-sections
+)
 
 FILE(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 FILE(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
@@ -12,8 +22,10 @@ FILE(GLOB SRC_FILES_PAGE   "src/page/*.c" "src/page/*.h")
 FILE(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 FILE(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
 FILE(GLOB SRC_FILES_MINIINI   "src/minIni/minIni.c" "src/minIni/*.h")
+FILE(GLOB_RECURSE SRC_FILES_LVGL "src/lvgl/*.c" "src/lvgl/*.h")
 
 add_library(media ${SRC_FILES_PLAYER})
+add_library(lvgl ${SRC_FILES_LVGL})
 add_executable(${PROJECT_NAME}  
 				${SRC_FILES_CORE} 
 				${SRC_FILES_DRIVER} 
@@ -25,6 +37,7 @@ add_executable(${PROJECT_NAME}
 				)
 
 target_compile_options(media PRIVATE 
+	${COMMON_COMPILE_OPTIONS}
     -lsample_confparser 
 	-lc
    	-lstdc++
@@ -84,16 +97,14 @@ target_compile_options(media PRIVATE
 	-Lsrc/player/media/lib 
 	-Lsrc/player/media/lib/eyesee-mpp
 	)
+target_link_options(media PRIVATE ${COMMON_COMPILE_OPTIONS})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -O3
-  	-march=armv7-a
-   	-mtune=cortex-a7
-   	-mfpu=neon
- 	-mfloat-abi=hard
- 	-Wno-unused-function
-   	-Wno-unused-variable
-	-ffunction-sections -fdata-sections -Wl,-gc-sections
-	)
+target_compile_options(lvgl PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_options(lvgl PRIVATE ${COMMON_COMPILE_OPTIONS})
+
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
+target_link_options(${PROJECT_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
+
 
 target_include_directories(media PRIVATE media/eyesee-mpp/system/public/include )
 target_include_directories(media PRIVATE media/eyesee-mpp/system/public/include/vo )
@@ -118,8 +129,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE src/player/media/app)
 target_include_directories(${PROJECT_NAME} PRIVATE src/window)
 
 target_link_libraries(${PROJECT_NAME}
-	liblvgl.a
-	libmedia.a
+	media
+	lvgl
 	m
 	pthread
     sample_confparser 
@@ -176,10 +187,8 @@ target_link_libraries(${PROJECT_NAME}
 	cdc_base 
 	_ise_mo 
 	)
-
 target_link_directories(${PROJECT_NAME} PRIVATE 
 	build
-	src/lvgl/build/lib 
 	media/lib 
 	media/lib/eyesee-mpp
 	)
@@ -188,7 +197,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 											COMMAND size -A ${PROJECT_NAME}
 											COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out
 											COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
-											COMMAND cd ${OS_APP_PATH} && cd ../../ && rm -f ./ota_app/hdzgoggle_app_ota*.tar && ./mkapp_ota && ./make_fw.sh
+											COMMAND cd ${OS_APP_PATH} && cd ../../ && rm -f ./ota_app/hdzgoggle_app_ota*.tar && ./mkapp_ota.sh && ./make_fw.sh
 											COMMAND mv ${PROJECT_SOURCE_DIR}/mkapp/HDZERO_GOGGLE-*.bin ${PROJECT_SOURCE_DIR}/out
 											)
 
