@@ -178,8 +178,9 @@ void start_running(void)
 			switch_to_analog(1);
 			g_source_info.source = 3;
 		}
-		else {
+		else { //HDMI in
 			sleep(1);
+			g_source_info.hdmi_in_status = IT66021_Sig_det();
 			if(g_source_info.hdmi_in_status) {
 				Source_HDMI_in();
 				g_source_info.source = 1;
@@ -246,8 +247,9 @@ int main(int argc, char* argv[])
 
 	osd_init(); 
 	ims_init();
-    create_threads();
+	
 	start_running(); //start to run from saved settings
+    create_threads();
 
 	for(;;)
 	{

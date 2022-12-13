@@ -27,7 +27,7 @@ void self_test()
     char* msg[2] = {"[Error]", "[Pass] "}; 
     
     if(!g_test_en) return;
-
+    
     Printf("==== Self Test ======================\n");
     //1. Read FPGA
      i = I2C_Read(ADDR_FPGA,  0xFF);
@@ -77,6 +77,10 @@ void self_test()
     Printf("%sDM6302 (Left)  = 0x%x \n",msg[(dat0==0x18)],dat0);
     Printf("%sDM6302 (Right) = 0x%x \n",msg[(dat1==0x18)],dat1);
     DM5680_ResetRF(0);
+
+    //8. HAN Status
+    i =  Get_HAN_status() & 1;
+    Printf("%sHAN Status. \n",msg[i]);
 
     Printf("==== Log  ======================\n");
 }

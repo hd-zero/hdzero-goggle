@@ -111,6 +111,7 @@ void esp32_rx()
                     Printf("[Pass] ESP32\n");
                     beep();
                 }
+				set_gpio(GPIO_ESP32_EN,0); //disable ESP32
             }
         }
         uart3_rptr++;
