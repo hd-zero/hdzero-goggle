@@ -6,4 +6,4 @@ then
 else
 	rm build/* -rf
 fi
-cd build && cmake .. --toolchain=../toolchain.cmake
+cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake

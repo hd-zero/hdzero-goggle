@@ -60,7 +60,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_label_item(cont, "<Back", 1, 7, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
-   	lv_label_set_text(label2, "*Expension module is required.");
+   	lv_label_set_text(label2, "*Expansion module is required.");
 	lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
 	lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);

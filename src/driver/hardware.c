@@ -465,3 +465,22 @@ int Get_VideoLatancy_status() // ret: 0=unlocked, 1=locked
     
     return rdat;
 }
+
+int Get_HAN_status() //ret: 0=error; 1=ok
+{
+    uint8_t rdat;
+
+    I2C_Write(ADDR_FPGA, 0x81, 0x01);
+    sleep(1);
+
+    rdat = I2C_Read(ADDR_FPGA, 0x19);
+
+    if(rdat > 0x9C && rdat < 0xA3)
+        rdat =  1;
+    else
+        rdat =  0;
+
+    I2C_Write(ADDR_FPGA, 0x81, 0x00);
+
+    return rdat;
+}
