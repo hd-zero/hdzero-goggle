@@ -119,7 +119,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE src/window)
 
 target_link_libraries(${PROJECT_NAME}
 	liblvgl.a
-	libmedia.a
+	media
 	m
 	pthread
     sample_confparser 
