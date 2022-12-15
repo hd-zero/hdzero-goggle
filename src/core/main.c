@@ -122,7 +122,9 @@ static void load_ini_setting(void)
 	if(!g_setting.ht.enable) 
 			disable_ht();
 
-	//Check 
+	g_setting.elrs.enable = ini_getl("elrs", "enable", 0, SETTING_INI);
+
+	//Check
     g_test_en = false;
     log_file = fopen(LOG_FILE,"r");
     if(log_file) {
@@ -195,6 +197,9 @@ void start_running(void)
 	set_voltage(g_setting.power.voltage);
 	set_display_voltage(g_setting.power.display_voltage);
 	set_warning_type(g_setting.power.warning_type);
+
+	if (g_setting.elrs.enable)
+		enable_esp32();
 }
 
 static void device_init(void)
@@ -247,7 +252,7 @@ int main(int argc, char* argv[])
 
 	osd_init(); 
 	ims_init();
-	
+
 	start_running(); //start to run from saved settings
     create_threads();
 
