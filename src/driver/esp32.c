@@ -24,6 +24,7 @@
 #include "dm5680.h"
 #include "uart.h"
 #include "esp32.h"
+#include "msp.h"
 #include "../esp32/serial_io.h"
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -121,20 +122,34 @@ void esp32_tx(uint8_t* cmd, uint8_t cmd_len)
 void esp32_rx()
 {
     static uint8_t i=0;
-    static char hello[80];
+    static char buffer[80];
 
     while(uart3_rptr != uart3_wptr) {
         if(g_test_en) {
-            hello[i++] = uart3_buffer[uart3_rptr];
-            if(hello[i-1]=='\n' || i==80) {
-                hello[i-1] = 0;
-				Printf("[ESP] %s\n", hello);
+			bool processed = msp_process_byte(uart3_buffer[uart3_rptr]);
+			if (!processed) {
+	            buffer[i++] = uart3_buffer[uart3_rptr];
+				if(buffer[i-1]=='\n' || i==80) {
+					buffer[i-1] = 0;
+					Printf("[ESP] %s\n", buffer);
+					i = 0;
+				}
+			}
+			else if (i>0) {
+				buffer[i-1] = 0;
+				Printf("[ESP] %s\n", buffer);
 				i = 0;
-            }
+			}
         }
         uart3_rptr++;
     }
 }
+
+void msp_process_packet(mspPacket_t *packet)
+{
+	// TODO process packets
+}
+
 
 void loader_port_enter_bootloader(void)
 {
