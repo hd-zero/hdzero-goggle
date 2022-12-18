@@ -115,7 +115,7 @@ int uart_read(int fd, uint8_t* data, int len)
     return bytes_read;
 }
 
-static int uart_write(int fd, uint8_t* data, int len)
+int uart_write(int fd, uint8_t* data, int len)
 {
     int bytes_written  = 0;  	/* Value for storing the number of bytes written to the port */
 

@@ -148,8 +148,20 @@ void esp32_rx()
 void msp_process_packet(mspPacket_t *packet)
 {
 	// TODO process packets
+	beep();
 }
 
+
+void msp_send_packet(uint16_t function, uint16_t payload_size, uint8_t *payload)
+{
+	uint8_t buffer[16] = {'$', 'X', '<', 0x00, function & 0xFF, function >> 8, payload_size & 0xFF, payload_size >> 8};
+    memcpy(buffer + 8, payload, payload_size);
+	uint8_t crc = 0;
+	for (int i=3 ; i<payload_size + 8 ; i++)
+		crc = msp_crc8_dvb_s2(crc, buffer[i]);
+	buffer[payload_size + 8] = crc;
+	uart_write(fd_esp32, buffer, payload_size + 9);
+}
 
 void loader_port_enter_bootloader(void)
 {

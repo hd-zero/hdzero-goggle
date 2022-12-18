@@ -12,4 +12,6 @@ void esp32_rx();
 esp_loader_error_t loader_port_init();
 void loader_port_close();
 
+void msp_send_packet(uint16_t function, uint16_t payload_size, uint8_t *payload);
+
 #endif //__ESP32_H__

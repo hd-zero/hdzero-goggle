@@ -14,13 +14,14 @@
 #include <sys/time.h>
 #include "../minIni/minIni.h"
 #include "../driver/esp32.h"
+#include "../driver/msp.h"
 #include "../esp32/esp_loader.h"
 #include "../esp32/serial_io.h"
 #include "../core/common.hh"
 
 
 static lv_coord_t col_dsc[] = {180,200,160,160,160,160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60,60,40,40,40,60,40,40,60,60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_flash;
 static btn_group_t elrs_group;
 static lv_obj_t *elrs_bar = NULL;
@@ -56,15 +57,16 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_label_item(cont,  "ESP Firmware", 1, 1, 1);
 	btn_group_t btn_group;
 	btn_flash = create_label_item(cont, "Update Via SD", 2, 1, 1);
-	create_label_item(cont, "Update Via WIFI", 2, 2, 1);
-	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  3);
-	create_label_item(cont,  "Wifi Settings", 1, 4, 1);
-	create_label_item(cont,  "Configure", 2, 4, 1);
-	create_label_item(cont,  "SSD: HDZero", 2, 5, 1);
+	create_label_item(cont, "Start WIFI", 2, 2, 1);
+	create_label_item(cont, "Start Binding", 2, 3, 1);
+	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  4);
+	create_label_item(cont,  "Wifi Settings", 1, 5, 1);
+	create_label_item(cont,  "Configure", 2, 5, 1);
+	create_label_item(cont,  "SSD: HDZero", 2, 6, 1);
 	//create_label_item(cont,  "Pass: hdzero123", 2, 7, 1);
-	create_label_item(cont,  "broadcast ID: Yes", 2, 6, 1);
+	create_label_item(cont,  "broadcast ID: Yes", 2, 7, 1);
 
-	create_label_item(cont, "<Back", 1, 7, 1);
+	create_label_item(cont, "<Back", 1, 8, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
    	lv_label_set_text(label2, "*Expansion module is required.");
@@ -74,7 +76,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	lv_obj_set_style_pad_top(label2, 12, 0);
 	lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
 	lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-						 LV_GRID_ALIGN_START, 8, 2);
+						 LV_GRID_ALIGN_START, 9, 2);
 
 	elrs_bar = lv_bar_create(cont);
     lv_obj_set_size(elrs_bar, 260, 20);
@@ -173,7 +175,7 @@ void connect_function(int sel)
 		else
 			disable_esp32();
 	}
-	else if(sel == 1)
+	else if(sel == 1) // flash ESP via SD
 	{
 		lv_obj_clear_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
 		lv_label_set_text(btn_flash, "Flashing...");
@@ -184,5 +186,13 @@ void connect_function(int sel)
 			lv_label_set_text(btn_flash, "Success");
 		else
 			lv_label_set_text(btn_flash, "Failed");
+	}
+	else if(sel == 2) // start ESP Wifi
+	{
+		msp_send_packet(MSP_SET_MODE, 1, (uint8_t *)"W");
+	}
+	else if(sel == 3) // start ESP bind
+	{
+		msp_send_packet(MSP_SET_MODE, 1, (uint8_t *)"B");
 	}
 }

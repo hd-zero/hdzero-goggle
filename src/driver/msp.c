@@ -29,7 +29,7 @@ static uint8_t     input_buffer[MSP_PORT_INBUF_SIZE];
 static mspPacket_t packet;
 static uint8_t     crc;
 
-uint8_t msp_crc8_dvb_s2(uint8_t crc, unsigned char a)
+uint8_t msp_crc8_dvb_s2(uint8_t crc, uint8_t a)
 {
     crc ^= a;
     for (int ii = 0; ii < 8; ++ii) {
