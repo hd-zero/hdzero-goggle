@@ -1,3 +1,5 @@
+#pragma once
+
 typedef enum {
     MSP_IDLE,
     MSP_HEADER_START,
@@ -11,9 +13,9 @@ typedef enum {
 } mspState_e;
 
 typedef enum {
-    MSP_PACKET_UNKNOWN,
-    MSP_PACKET_COMMAND,
-    MSP_PACKET_RESPONSE
+    MSP_PACKET_UNKNOWN = '!',
+    MSP_PACKET_COMMAND = '<',
+    MSP_PACKET_RESPONSE = '>'
 } mspPacketType_e;
 
 typedef struct {

@@ -26,6 +26,7 @@
 #include "../driver/it66121.h"
 #include "../driver/mcp3021.h"
 #include "../driver/i2c.h"
+#include "../driver/esp32.h"
 #include "../page/page_scannow.h"
 #include "../page/page_power.h"
 #include "../page/page_source.h"
@@ -252,6 +253,8 @@ int main(int argc, char* argv[])
 
 	osd_init(); 
 	ims_init();
+
+	esp32_init();
 
 	start_running(); //start to run from saved settings
     create_threads();

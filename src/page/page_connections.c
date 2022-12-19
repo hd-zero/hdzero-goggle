@@ -23,6 +23,8 @@
 static lv_coord_t col_dsc[] = {180,200,160,160,160,160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60,60,40,40,40,60,40,40,60,60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_flash;
+static lv_obj_t *btn_wifi;
+static lv_obj_t *btn_bind;
 static btn_group_t elrs_group;
 static lv_obj_t *elrs_bar = NULL;
 
@@ -57,8 +59,8 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_label_item(cont,  "ESP Firmware", 1, 1, 1);
 	btn_group_t btn_group;
 	btn_flash = create_label_item(cont, "Update Via SD", 2, 1, 1);
-	create_label_item(cont, "Start WIFI", 2, 2, 1);
-	create_label_item(cont, "Start Binding", 2, 3, 1);
+	btn_wifi = create_label_item(cont, "Start WIFI", 2, 2, 1);
+	btn_bind = create_label_item(cont, "Start Binding", 2, 3, 1);
 	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  4);
 	create_label_item(cont,  "Wifi Settings", 1, 5, 1);
 	create_label_item(cont,  "Configure", 2, 5, 1);
@@ -189,10 +191,28 @@ void connect_function(int sel)
 	}
 	else if(sel == 2) // start ESP Wifi
 	{
-		msp_send_packet(MSP_SET_MODE, 1, (uint8_t *)"W");
+		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
+		lv_label_set_text(btn_wifi, "Starting...");
+		lv_timer_handler();
+		if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000)) {
+			lv_label_set_text(btn_wifi, "Failed");
+			return;
+		}
+		lv_label_set_text(btn_wifi, "Success");
 	}
 	else if(sel == 3) // start ESP bind
 	{
-		msp_send_packet(MSP_SET_MODE, 1, (uint8_t *)"B");
+		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
+		lv_label_set_text(btn_bind, "Binding...");
+		lv_timer_handler();
+		if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000)) {
+			lv_label_set_text(btn_bind, "Failed");
+			return;
+		}
+		if(!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000)) {
+			lv_label_set_text(btn_bind, "Timeout");
+		} else {
+			lv_label_set_text(btn_bind, "Success");
+		}
 	}
 }
