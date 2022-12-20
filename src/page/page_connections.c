@@ -15,8 +15,7 @@
 #include "../minIni/minIni.h"
 #include "../driver/esp32.h"
 #include "../driver/msp.h"
-#include "../esp32/esp_loader.h"
-#include "../esp32/serial_io.h"
+#include "../core/esp32_flash.h"
 #include "../core/common.hh"
 
 
