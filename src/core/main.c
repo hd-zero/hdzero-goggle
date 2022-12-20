@@ -16,6 +16,7 @@
 #include "thread.h"
 #include "imagesetting.h"
 #include "ht.h"
+#include "elrs.h"
 #include "../driver/hardware.h"
 #include "../driver/porting.h"
 #include "../driver/fans.h"
@@ -255,6 +256,7 @@ int main(int argc, char* argv[])
 	ims_init();
 
 	esp32_init();
+	elrs_init();
 
 	start_running(); //start to run from saved settings
     create_threads();

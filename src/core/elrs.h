@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __ELRS_H__
+#define __ELRS_H__
 
 typedef enum {
     MSP_IDLE,
@@ -51,7 +52,9 @@ typedef struct {
     bool            read_error;
 } mspPacket_t;
 
-uint8_t msp_crc8_dvb_s2(uint8_t crc, uint8_t a);
-bool msp_process_byte(uint8_t c);
-void msp_process_packet(mspPacket_t *packet);
-void msp_reset_packet(mspPacket_t *packet);
+void elrs_init();
+
+void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
+bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms);
+
+#endif //__ELRS_H__

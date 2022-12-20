@@ -14,9 +14,9 @@
 #include <sys/time.h>
 #include "../minIni/minIni.h"
 #include "../driver/esp32.h"
-#include "../driver/msp.h"
-#include "../core/esp32_flash.h"
 #include "../core/common.hh"
+#include "../core/esp32_flash.h"
+#include "../core/elrs.h"
 
 
 static lv_coord_t col_dsc[] = {180,200,160,160,160,160, LV_GRID_TEMPLATE_LAST};

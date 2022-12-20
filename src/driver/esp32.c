@@ -21,17 +21,10 @@
 #include <semaphore.h>
 
 #include "../core/common.hh"
-
-#include "dm5680.h"
-#include "esp32.h"
-#include "mcp3021.h"
-#include "msp.h"
-#include "osd.h"
-#include "uart.h"
-
 #include "../page/page_common.h"
-#include "../page/page_scannow.h"
-#include "../page/page_version.h"
+
+#include "esp32.h"
+#include "uart.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 static int       fd_esp32 = -1;
@@ -39,14 +32,6 @@ static uint8_t   uart3_buffer[256];
 static uint8_t   uart3_rptr,uart3_wptr;
 static pthread_t tid;
 static volatile int stopping = false;
-
-static sem_t response_semaphore;
-static mspPacket_t response_packet;
-
-static const uint16_t freq_table[] = {
-    5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R
-    5740, 5760 // F
-};
 
 static void *pthread_recv_esp32(void *arg)
 {
@@ -98,7 +83,6 @@ static void *pthread_recv_esp32(void *arg)
 
 void esp32_init()
 {
-	sem_init(&response_semaphore, 0, 0);
 }
 
 void enable_esp32()
@@ -111,6 +95,7 @@ void enable_esp32()
 		pthread_create(&tid, NULL, pthread_recv_esp32, NULL);
 		usleep(50000);
 		set_gpio(GPIO_ESP32_EN,1);
+		esp32_handler_set_uart(fd_esp32);
 	}
 }
 
@@ -143,7 +128,7 @@ void esp32_rx()
 
     while(uart3_rptr != uart3_wptr) {
         if(g_test_en) {
-			bool processed = msp_process_byte(uart3_buffer[uart3_rptr]);
+			bool processed = esp32_handler_process_byte(uart3_buffer[uart3_rptr]);
 			if (!processed) {
 	            buffer[i++] = uart3_buffer[uart3_rptr];
 				if(buffer[i-1]=='\n' || i==80) {
@@ -160,127 +145,4 @@ void esp32_rx()
         }
         uart3_rptr++;
     }
-}
-
-void msp_process_packet(mspPacket_t *packet)
-{
-	beep();
-	if (packet->type == MSP_PACKET_COMMAND) {
-		switch (packet->function) {
-			case MSP_GET_BAND_CHAN:
-				{
-					uint8_t chan;
-					if (g_setting.scan.channel > 8) {
-						chan = g_setting.scan.channel-9 + 3*8;	// Map F1/2
-					} else {
-						chan = g_setting.scan.channel-1 + 4*8;	// Map R1..8
-					}
-					msp_send_packet(MSP_GET_BAND_CHAN, MSP_PACKET_RESPONSE, 1, &chan);
-				}
-				break;
-			case MSP_SET_BAND_CHAN:
-				{
-					uint8_t chan = packet->payload[0];
-					if (chan > 4*8) {
-						g_setting.scan.channel = chan - 4*8 + 1;	// Map R1..8
-					} else {
-						g_setting.scan.channel = chan - 3*8 + 9;	// Map F1/2
-					}
-					switch_to_video(true);
-				}
-				break;
-			case MSP_GET_FREQ:
-				{
-					uint16_t freq = freq_table[g_setting.scan.channel - 1];
-					uint8_t buf[2] = { freq & 0xFF, freq >> 8 };
-					msp_send_packet(MSP_GET_FREQ, MSP_PACKET_RESPONSE, sizeof(buf), buf);
-				}
-				break;
-			case MSP_SET_FREQ:
-				{
-					uint16_t freq = packet->payload[0] | (uint16_t)packet->payload[1] << 8;
-					for (int i=0 ; i<10 ; i++) {
-						if (freq == freq_table[i]) {
-							g_setting.scan.channel = i+1;
-							switch_to_video(true);
-							break;
-						}
-					}
-				}
-				break;
-			case MSP_GET_REC_STATE:
-				{
-					uint8_t buf = is_recording ? 1 : 0;
-					msp_send_packet(MSP_GET_REC_STATE, MSP_PACKET_RESPONSE, 1, &buf);
-				}
-				break;
-			case MSP_SET_REC_STATE:
-				{
-					// TODO delay
-					rbtn_click(true, packet->payload[0] == 0 ? 1 : 2);
-				}
-				break;
-			case MSP_GET_VRX_MODE:
-				break;
-			case MSP_SET_VRX_MODE:
-				break;
-			case MSP_GET_RSSI:
-				{
-					uint8_t buf[5] = { 4, rx_status[0].rx_rssi[0], rx_status[0].rx_rssi[1], rx_status[1].rx_rssi[0], rx_status[1].rx_rssi[1] };
-					msp_send_packet(MSP_GET_VERSION, MSP_PACKET_RESPONSE, sizeof(buf), buf);
-				}
-				break;
-			case MSP_GET_BAT_VOLTS:
-				{
-					uint8_t buf[2] = { g_battery.voltage & 0xFF, g_battery.voltage >> 8 };
-					msp_send_packet(MSP_GET_BAT_VOLTS, MSP_PACKET_RESPONSE, sizeof(buf), buf);
-				}
-				break;
-			case MSP_GET_VERSION:
-				{
-					sys_version_t sys_version;
-					if (generate_current_version(&sys_version) == 0) {
-						uint8_t buf[4] = { 3, sys_version.app, sys_version.rx, sys_version.va };
-						msp_send_packet(MSP_GET_VERSION, MSP_PACKET_RESPONSE, sizeof(buf), buf);
-					} else {
-						msp_send_packet(MSP_GET_VERSION, MSP_PACKET_UNKNOWN, 0, NULL);
-					}
-				}
-				break;
-			case MSP_SET_BUZZER:
-				beep();
-				break;
-			case MSP_SET_OSD_ELEM:
-				break;
-		}
-	} else if (packet->type == MSP_PACKET_RESPONSE) {
-		response_packet = *packet;
-		sem_post(&response_semaphore);
-	}
-}
-
-bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms)
-{
-	struct timespec ts = { timeout_ms / 1000, (timeout_ms % 1000) * 1000000 };
-	while(sem_timedwait(&response_semaphore, &ts) == 0) {
-		if (response_packet.function == function) {
-			if (response_packet.payload_size >= payload_size &&
-					memcmp(response_packet.payload, payload, payload_size) == 0) {
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
-}
-
-void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload)
-{
-	uint8_t buffer[16] = {'$', 'X', type, 0x00, function & 0xFF, function >> 8, payload_size & 0xFF, payload_size >> 8};
-    memcpy(buffer + 8, payload, payload_size);
-	uint8_t crc = 0;
-	for (int i=3 ; i<payload_size + 8 ; i++)
-		crc = msp_crc8_dvb_s2(crc, buffer[i]);
-	buffer[payload_size + 8] = crc;
-	uart_write(fd_esp32, buffer, payload_size + 9);
 }

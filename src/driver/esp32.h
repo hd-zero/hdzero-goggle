@@ -2,7 +2,6 @@
 #define __ESP32_H__
 
 #include <stdint.h>
-#include "msp.h"
 #include "../esp32/esp_loader.h"
 
 void esp32_init();
@@ -11,7 +10,8 @@ void disable_esp32();
 void esp32_tx(uint8_t* cmd, uint8_t cmd_len);
 void esp32_rx();
 
-void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
-bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms);
+// Functions that need to be implemented by the serial handler connected to the ESP32
+void esp32_handler_set_uart(uint32_t fd_uart);
+bool esp32_handler_process_byte(uint8_t byte);
 
 #endif //__ESP32_H__

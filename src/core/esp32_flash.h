@@ -8,4 +8,4 @@
 esp_loader_error_t loader_port_init();
 void loader_port_close();
 
-#endif
+#endif //__ESP32_FLASH_H__
