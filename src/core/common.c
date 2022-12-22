@@ -11,6 +11,7 @@
 //globals
 pthread_mutex_t lvgl_mutex;
 atomic_int g_key = 0;
+atomic_int g_init_done = 0;
 ///////////////////////////////////////////////////////////////////////////////
 
 uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt)
@@ -235,7 +236,8 @@ void set_gpio(int port_num, int isHigh)
 	system(buf); //printf("%s\n",buf);
 }
 
-void beep()
+
+void beep_n(int dur_us)
 {
     static bool bInit = true;
     if(bInit) {
@@ -243,7 +245,7 @@ void beep()
         open_gpio(GPIO_BEEP);
     }
     set_gpio(GPIO_BEEP,1);
-    usleep(500);
+    usleep(dur_us);
     set_gpio(GPIO_BEEP,0);
 }
 

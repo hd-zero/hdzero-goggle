@@ -43,7 +43,7 @@ page_pack_t pp_imagesettings = {
 page_pack_t pp_power = {
 	.p_arr = {
 		.cur = 0,
-		.max = 5,
+		.max = 4,
 	}
 };
 page_pack_t pp_fans = {
@@ -61,7 +61,7 @@ page_pack_t pp_record = {
 page_pack_t pp_autoscan = {
 	.p_arr = {
 		.cur = 0,
-		.max = 3,
+		.max = 4,
 	}
 };
 page_pack_t pp_connections = {
@@ -187,6 +187,10 @@ void submenu_enter(void)
 	else if(pp == &pp_version) {
 		version_update_title();
 	}
+	else if(pp==&pp_imagesettings) {
+		page_ims_click();
+	}
+
 	pp->p_arr.cur = 0;
 	set_select_item(&pp->p_arr, pp->p_arr.cur);
 }
@@ -256,9 +260,6 @@ void submenu_fun(void)
 		g_menu_op = OPLEVEL_VIDEO;
 		switch_to_video(false);	
 	}
-	else if(pp == &pp_imagesettings) {
-		page_ims_click(pp);
-	}
 	else if(pp == &pp_playback) {
 		pb_key(DIAL_KEY_CLICK);
 	}
@@ -310,20 +311,21 @@ void submenu_fun(void)
 		}
 
 	}
-	
 }
 
 void menu_nav(uint8_t key)
 {
-	static uint8_t selected = 0;
-	//Printf("menu_nav: key = %d,sel = %d\n", key, selected);
+	static int8_t selected = 0;
+	printf("menu_nav: key = %d,sel = %d\n", key, selected);
 	if(key == DIAL_KEY_DOWN) {
-		if(selected)
-			selected--;
+		selected--;
+		if(selected <0)
+			selected += MAIN_MENU_ITEMS;
 	}
 	else if(key == DIAL_KEY_UP) {
-		if(selected < (MAIN_MENU_ITEMS-1))
-			selected++;
+		selected++;
+		if(selected >= MAIN_MENU_ITEMS)
+			selected -= MAIN_MENU_ITEMS;
 	}
 	lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
 }
@@ -401,7 +403,7 @@ static void ui_create_rootpage(lv_obj_t * parent)
 	lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
     lv_menu_set_load_page_event(parent, cont, pp_playback.page);
 
-    create_text(&s, section, true, "About", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    create_text(&s, section, true, "Firmware", LV_MENU_ITEM_BUILDER_VARIANT_1);
 	pp_version.icon = s.icon;
 	cont = s.cont;
 	lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);

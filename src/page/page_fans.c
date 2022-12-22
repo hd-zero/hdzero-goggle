@@ -226,7 +226,7 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe,uint8_t is_left)
 		}
 	}
 	else if(tempe < FAN_TEMPERATURE_THR_L) {
-		if(new_speed != 1) {
+		if(new_speed != 0) {
 			new_speed--;
 			respeeding[is_left] = true;  respeed_cnt[is_left] = 0;
 		}
@@ -240,7 +240,7 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe,uint8_t is_left)
 
 void fans_auto_ctrl_core(bool is_left,int tempe, bool binit)
 {
-	static uint8_t speed[2]={3,3};
+	static uint8_t speed[2]={1,1};
 	uint8_t new_spd;
 
 	//////////////////////////////////////////////////////////////////////////////////

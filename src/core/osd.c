@@ -27,25 +27,34 @@
 //Global
 bool is_recording = false;
 
+//local
+static pthread_mutex_t dvr_mutex;
+
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
 
 
 ///////////////////////////////////////////////////////////////////
-bool 	confirm_recording()
+//-1=error;
+// 0=idle,1=recording,2=stopped,3=No SD card,4=recorf file path error,
+// 5=SD card Full,6=Encoder error
+void confirm_recording()
 {
-	bool ret;
-	FILE   *stream;  
-	char   buf[10]; 
-	memset( buf, '\0', sizeof(buf) );
-	stream = popen( "cat /tmp/record.dat" , "r" );
-	fread( buf, sizeof(char), sizeof(buf),  stream);  
-	pclose( stream ); 
-	ret = (strcmp(buf, "1") == 0);
-	if(!ret) {
-		Printf("rec_start failed: %s.\n",buf);
+	int    ret = -1;
+	FILE*  fp;  
+	pthread_mutex_lock(&dvr_mutex);
+	if(is_recording) {
+		
+		fp = fopen("/tmp/record.dat","r");  
+		if(fp) {
+			fscanf(fp,"%d",&ret);
+			fclose(fp);
+			//printf("SD card %d\n",ret);
+		}
+		if(ret != 1)
+			osd_rec_update(false);
 	}
-	return ret;
+	pthread_mutex_unlock(&dvr_mutex);
 }
 
 void enable_line_out(bool bEnable)
@@ -122,7 +131,6 @@ void update_record_conf()
 //  = 0 to toggle 
 //  = 1 to stop
 //  = 2 to start
-static pthread_mutex_t dvr_mutex;
 void rbtn_click(bool is_short, int mode)
 {
 	bool start_rec;
@@ -131,7 +139,7 @@ void rbtn_click(bool is_short, int mode)
 
 	if(is_short) { // short press right button
 		if(!g_sdcard_enable) return;
-
+		
 		pthread_mutex_lock(&dvr_mutex);
 		if(mode == 1)
 			start_rec = false;
@@ -148,14 +156,11 @@ void rbtn_click(bool is_short, int mode)
 			}
 		}
 		else{	
-			if(!is_recording) {
+			if((!is_recording) && (g_sdcard_size >= 103))  {
 				update_record_conf();
 				osd_rec_update(true);
 				system(REC_START);
 				sleep(2); //wait for record process 
-				if(!confirm_recording()){
-					osd_rec_update(false);
-				}	
 			}
 		}
 		pthread_mutex_unlock(&dvr_mutex);
@@ -350,92 +355,6 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index)
 	lv_obj_set_pos(*obj, x, 0);
 }
 
-int osd_init(void)
-{
-	char buf[128];
-
-	pthread_mutex_init(&dvr_mutex, NULL);
-	load_osd_file(OSD_FILE);
-
-	scr_main = lv_scr_act();
-	scr_osd = lv_obj_create(scr_main);
-	lv_obj_clear_flag(scr_main, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_clear_flag(scr_osd, LV_OBJ_FLAG_SCROLLABLE);
-
-	lv_obj_set_size(scr_osd, 1280, 720);
-	lv_obj_add_flag(scr_osd, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_add_style(scr_osd, &style_osd, 0);
-	for(int i=0; i<HD_VMAX; i++)
-	{
-		for(int j=0; j<HD_HMAX; j++)
-		{
-			pthread_mutex_lock(&lvgl_mutex);
-    		img_arr[i][j] = lv_img_create(scr_osd);
-    		lv_obj_set_size(img_arr[i][j], OSD_WIDTH, OSD_HEIGHT);
-    		lv_obj_set_pos(img_arr[i][j], j*OSD_WIDTH+4, i*OSD_HEIGHT+64);
-			pthread_mutex_unlock(&lvgl_mutex);
-		}
-	}
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,fan1_bmp);
-	create_osd_object(&g_osd_hdzero.topfan_speed, buf, 0);  
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,VtxTemp1_bmp);
-	create_osd_object(&g_osd_hdzero.vtx_temp, buf, 1);
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,lowBattery_gif);
-	create_osd_object(&g_osd_hdzero.battery,  buf, 2);
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
-	create_osd_object(&g_osd_hdzero.vrx_temp, buf, 3);
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
-	create_osd_object(&g_osd_hdzero.latency_lock, buf, 4);
-		
-	g_osd_hdzero.ch = lv_label_create(scr_osd);
-    lv_label_set_text(g_osd_hdzero.ch, "CH:-- ");
-	lv_obj_set_pos(g_osd_hdzero.ch, 0, 0);
-	lv_obj_align(g_osd_hdzero.ch, LV_ALIGN_TOP_MID, 0, 0);
-	lv_obj_set_style_text_color(g_osd_hdzero.ch, lv_color_make(255,255,255), 0);
-	lv_obj_set_style_text_font(g_osd_hdzero.ch, &lv_font_montserrat_26, 0);
-	lv_obj_set_style_bg_color(g_osd_hdzero.ch, lv_color_hex(0x010101), LV_PART_MAIN);
-	lv_obj_set_style_radius(g_osd_hdzero.ch,50, 0);
-	channel_osd_mode = 0;
-	
-	sprintf(buf,"%s%s",RESOURCE_PATH,noSdcard_bmp);
-	create_osd_object(&g_osd_hdzero.sd_rec,  buf, 5);
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,VLQ1_bmp);
-	create_osd_object(&g_osd_hdzero.vlq,   buf, 6);
-
-	sprintf(buf,"%s%s",RESOURCE_PATH,ant1_bmp);
-	create_osd_object(&g_osd_hdzero.ant0,     buf, 7);
-	create_osd_object(&g_osd_hdzero.ant1,     buf, 8);
-	create_osd_object(&g_osd_hdzero.ant2,     buf, 9);
-	create_osd_object(&g_osd_hdzero.ant3,     buf, 10);
-	
-	if(g_test_en){
-		g_osd_hdzero.osd_tempe[0] = lv_label_create(scr_osd);
-		lv_label_set_text(g_osd_hdzero.osd_tempe[0], "TOP:-.- oC");
-		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[0], lv_color_make(255,255,255), 0);
-		lv_obj_set_pos(g_osd_hdzero.osd_tempe[0], 170, 50);
-		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[0], &lv_font_montserrat_26, 0);
-
-		g_osd_hdzero.osd_tempe[1] = lv_label_create(scr_osd);
-		lv_label_set_text(g_osd_hdzero.osd_tempe[1], "LEFT:-.- oC");
-		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[1], lv_color_make(255,255,255), 0);
-		lv_obj_set_pos(g_osd_hdzero.osd_tempe[1], 270, 50);
-		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[1], &lv_font_montserrat_26, 0);
-
-		g_osd_hdzero.osd_tempe[2] = lv_label_create(scr_osd);
-		lv_label_set_text(g_osd_hdzero.osd_tempe[2], "RIGHT:-.- oC");
-		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[2], lv_color_make(255,255,255), 0);
-		lv_obj_set_pos(g_osd_hdzero.osd_tempe[2], 370, 50);
-		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[2], &lv_font_montserrat_26, 0);
-	}
-
-	return 0;
-}
 
 void osd_show(bool show)
 {
@@ -544,9 +463,114 @@ int draw_osd_on_screen(uint8_t row, uint8_t col)
 	return 0;
 }
 
+
+static void embedded_osd_init(void)
+{
+	char buf[128];
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,fan1_bmp);
+	create_osd_object(&g_osd_hdzero.topfan_speed, buf, 0);  
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,VtxTemp1_bmp);
+	create_osd_object(&g_osd_hdzero.vtx_temp, buf, 1);
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,lowBattery_gif);
+	create_osd_object(&g_osd_hdzero.battery,  buf, 2);
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
+	create_osd_object(&g_osd_hdzero.vrx_temp, buf, 3);
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
+	create_osd_object(&g_osd_hdzero.latency_lock, buf, 4);
+		
+	g_osd_hdzero.ch = lv_label_create(scr_osd);
+    lv_label_set_text(g_osd_hdzero.ch, "CH:-- ");
+	lv_obj_set_pos(g_osd_hdzero.ch, 0, 0);
+	lv_obj_align(g_osd_hdzero.ch, LV_ALIGN_TOP_MID, 0, 0);
+	lv_obj_set_style_text_color(g_osd_hdzero.ch, lv_color_make(255,255,255), 0);
+	lv_obj_set_style_text_font(g_osd_hdzero.ch, &lv_font_montserrat_26, 0);
+	lv_obj_set_style_bg_color(g_osd_hdzero.ch, lv_color_hex(0x010101), LV_PART_MAIN);
+	lv_obj_set_style_radius(g_osd_hdzero.ch,50, 0);
+	channel_osd_mode = 0;
+	
+	sprintf(buf,"%s%s",RESOURCE_PATH,noSdcard_bmp);
+	create_osd_object(&g_osd_hdzero.sd_rec,  buf, 5);
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,VLQ1_bmp);
+	create_osd_object(&g_osd_hdzero.vlq,   buf, 6);
+
+	sprintf(buf,"%s%s",RESOURCE_PATH,ant1_bmp);
+	create_osd_object(&g_osd_hdzero.ant0,     buf, 7);
+	create_osd_object(&g_osd_hdzero.ant1,     buf, 8);
+	create_osd_object(&g_osd_hdzero.ant2,     buf, 9);
+	create_osd_object(&g_osd_hdzero.ant3,     buf, 10);
+	
+	if(g_test_en){
+		g_osd_hdzero.osd_tempe[0] = lv_label_create(scr_osd);
+		lv_label_set_text(g_osd_hdzero.osd_tempe[0], "TOP:-.- oC");
+		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[0], lv_color_make(255,255,255), 0);
+		lv_obj_set_pos(g_osd_hdzero.osd_tempe[0], 170, 50);
+		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[0], &lv_font_montserrat_26, 0);
+
+		g_osd_hdzero.osd_tempe[1] = lv_label_create(scr_osd);
+		lv_label_set_text(g_osd_hdzero.osd_tempe[1], "LEFT:-.- oC");
+		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[1], lv_color_make(255,255,255), 0);
+		lv_obj_set_pos(g_osd_hdzero.osd_tempe[1], 270, 50);
+		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[1], &lv_font_montserrat_26, 0);
+
+		g_osd_hdzero.osd_tempe[2] = lv_label_create(scr_osd);
+		lv_label_set_text(g_osd_hdzero.osd_tempe[2], "RIGHT:-.- oC");
+		lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[2], lv_color_make(255,255,255), 0);
+		lv_obj_set_pos(g_osd_hdzero.osd_tempe[2], 370, 50);
+		lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[2], &lv_font_montserrat_26, 0);
+	}
+}
+
+static void fc_osd_init(void)
+{
+	const uint16_t OFFSET_X = 20;
+	const uint16_t OFFSET_Y = 40;
+
+	load_fc_osd_font();
+
+	for(int i=0; i<HD_VMAX; i++)
+	{
+		for(int j=0; j<HD_HMAX; j++)
+		{
+			pthread_mutex_lock(&lvgl_mutex);
+    		img_arr[i][j] = lv_img_create(scr_osd);
+    		lv_obj_set_size(img_arr[i][j], OSD_WIDTH, OSD_HEIGHT);
+    		lv_obj_set_pos(img_arr[i][j], j*OSD_WIDTH+OFFSET_X, i*OSD_HEIGHT + OFFSET_Y);
+			pthread_mutex_unlock(&lvgl_mutex);
+		}
+	}
+}
+
+static void create_osd_scr(void)
+{
+	scr_main = lv_scr_act();
+	scr_osd = lv_obj_create(scr_main);
+	lv_obj_clear_flag(scr_main, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_clear_flag(scr_osd, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_size(scr_osd, 1280, 720);
+	lv_obj_add_flag(scr_osd, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_style(scr_osd, &style_osd, 0);
+
+}
+
+int osd_init(void)
+{
+	create_osd_scr();
+
+	fc_osd_init();
+	embedded_osd_init();
+
+	return 0;
+}
 ///////////////////////////////////////////////////////////////////////////////
 // load_osd_file
-int load_osd_file(const char *file)
+// load_fc_osd_font
+int load_fc_osd_font_bmp(const char *file)
 {
 	char *buf;
 	struct stat stFile;
@@ -554,7 +578,7 @@ int load_osd_file(const char *file)
 	int boundry_width;
 	int line_size;
 
-	Printf("load_osd_file ...\n");
+	Printf("load_fc_osd_font_bmp: %s...", file);
 	fd = open(file, O_RDONLY);
 	if(fd < 0) return -1;
 	
@@ -628,6 +652,26 @@ int load_osd_file(const char *file)
 	return 0;
 }
 
+void load_fc_osd_font(void)
+{
+	char fp[3][256];
+	int i;
+
+	sprintf(fp[0], "%s%s_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
+	sprintf(fp[1], "%s%s_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
+	sprintf(fp[2], "%sBTFL_000.bmp", FC_OSD_LOCAL_PATH);
+
+	for(i=0;i<3;i++)
+	{
+		if(!load_fc_osd_font_bmp(fp[i]))
+		{
+			Printf(" succecss!\n");
+			return;
+		}
+		else
+			Printf(" failed!\n");
+	}
+}
 ///////////////////////////////////////////////////////////////////////////////
 // Threads for updating FC OSD
 void *thread_osd(void *ptr)

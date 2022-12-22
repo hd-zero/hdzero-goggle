@@ -57,6 +57,17 @@ lv_obj_t *page_record_create(lv_obj_t *parent, struct panel_arr *arr)
 	btn_group_set_sel(&btn_group3, g_setting.record.audio ? 0 : 1);
 	btn_group_set_sel(&btn_group4, g_setting.record.audio_source );
 
+	lv_obj_t *label2 = lv_label_create(cont);
+   	lv_label_set_text(label2, "MP4 format requires closing file properly or leads to corrupted files. \nTS format is highly recommended.");
+	lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
+	lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
+	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
+	lv_obj_set_style_pad_top(label2, 12, 0);
+	lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
+	lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
+						 LV_GRID_ALIGN_START, 7, 3);
+
+
 	return page;
 }
 

@@ -31,6 +31,7 @@
 #include "../page/page_source.h"
 #include "../minIni/minIni.h"
 #include "../bmi270/accel_gyro.h"
+#include "thread.h"
 
 static void load_ini_setting(void)
 {
@@ -60,18 +61,11 @@ static void load_ini_setting(void)
 		g_setting.autoscan.status = false;
 	}
 	g_setting.autoscan.source = ini_getl("autoscan", "source", 0, SETTING_INI);
+	g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", 1, SETTING_INI);
 	
-
 	//power
-  	ini_gets("power", "voltage", "36", str, sizeof(str), SETTING_INI);
+  	ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
 	g_setting.power.voltage = atoi(str);
-  	ini_gets("power", "display_voltage", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
-	{
-		g_setting.power.display_voltage = true;
-	}else{
-		g_setting.power.display_voltage = false;
-	}
   	ini_gets("power", "warning_type", "0", str, sizeof(str), SETTING_INI);
 	g_setting.power.warning_type = atoi(str);
   	ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
@@ -159,13 +153,23 @@ return NULL;
 
 void start_running(void)
 {
-	if(g_setting.autoscan.source == 0) {//HDZero
+	int source;
+	if(g_setting.autoscan.source == 0) 
+		source = g_setting.autoscan.last_source;
+	else
+		source = g_setting.autoscan.source;
+		
+	if(source == 1) {//HDZero
 		g_source_info.source = 0;
 		HDZero_open();
 		if(g_setting.autoscan.status) {//autoscan =1
+			/* //Auto scan Disabled per request 
 			pthread_t pid;
 			g_autoscan_exit = false;
 			pthread_create(&pid,NULL,thread_autoscan,NULL);
+			*/
+			g_source_info.source = 0;
+			g_menu_op = OPLEVEL_MAINMENU;
 		}
 		else{ //auto scan disabled, go directly to last saved channel
 			g_menu_op = OPLEVEL_VIDEO;
@@ -174,12 +178,16 @@ void start_running(void)
 	}
 	else {
 		g_menu_op = OPLEVEL_VIDEO;
-		if(g_setting.autoscan.source == 1) {//module Bay
+		if(source == 2) {//module Bay
 			switch_to_analog(1);
 			g_source_info.source = 3;
 		}
+		else if(source == 3) {//AV in
+			switch_to_analog(0);
+			g_source_info.source = 2;
+		}
 		else { //HDMI in
-			sleep(1);
+			sleep(2);
 			g_source_info.hdmi_in_status = IT66021_Sig_det();
 			if(g_source_info.hdmi_in_status) {
 				Source_HDMI_in();
@@ -193,7 +201,6 @@ void start_running(void)
 	}
 
 	set_voltage(g_setting.power.voltage);
-	set_display_voltage(g_setting.power.display_voltage);
 	set_warning_type(g_setting.power.warning_type);
 }
 
@@ -205,7 +212,6 @@ static void device_init(void)
 	IT66121_init();
 	TP2825_Config(0, 0);
 	g_battery.type = 2;
-	input_device_open();
 	DM5680_req_ver(); 
 	fans_top_setspeed(g_setting.fans.top_speed);
 	fans_left_setspeed(g_setting.fans.left_speed);
@@ -236,6 +242,13 @@ int main(int argc, char* argv[])
 	statusbar_init();
 	lv_timer_handler();
 	
+	g_menu_op = OPLEVEL_MAINMENU;
+	input_device_open(); 
+	{
+		pthread_t pid;
+		pthread_create(&pid,NULL,thread_dialpad,NULL);
+	}
+
 	iic_init();
 	OLED_Startup();
 	Display_UI_init();
@@ -249,8 +262,8 @@ int main(int argc, char* argv[])
 	ims_init();
 	
 	start_running(); //start to run from saved settings
-    create_threads();
-
+	create_threads();
+	g_init_done = 1;
 	for(;;)
 	{
 		pthread_mutex_lock(&lvgl_mutex);

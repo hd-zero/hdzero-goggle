@@ -66,11 +66,16 @@ static void *thread_imu(void *ptr)
 	return NULL;
 }
 
-static void *thread_dialpad(void *ptr)
+void *thread_dialpad(void *ptr)
 {
 	for(;;)
 	{
 		input_device_loop();
+		if(!g_init_done) {
+			pthread_mutex_lock(&lvgl_mutex);
+			lv_timer_handler();
+			pthread_mutex_unlock(&lvgl_mutex);
+		}
 	}
 	return NULL;
 }
@@ -80,7 +85,7 @@ static void *thread_dialpad(void *ptr)
 // Signal loss|accquire processing
 #define SIGNAL_LOSS_DURATION_THR  20 //25=4 seconds, 
 #define SIGNAL_ACCQ_DURATION_THR  10 
-static void check_hdzero_signal(int vtmg_change)  //fix me. ntant, Need to consider source is HDMI or analog
+static void check_hdzero_signal(int vtmg_change) 
 {
 	static uint8_t cnt = 0;
 	uint8_t is_valid;
@@ -97,24 +102,26 @@ static void check_hdzero_signal(int vtmg_change)  //fix me. ntant, Need to consi
 	//exit if HDMI in
 	if(g_source_info.source == 1) return; 
 
-	//Analog
+	//Analog VTMG change -> Restart recording
 	if(g_source_info.source >= 2) {
 		if(vtmg_change && is_recording) {
 			Printf("AV VTMG change\n");
 			rbtn_click(1,1);
 			rbtn_click(1,2);
 		}
-		return; 
 	}
 
-	is_valid = rx_status[0].rx_valid || rx_status[1].rx_valid;
-
-	if(vtmg_change) {
-		Printf("VTMG change\n");
+	//HDZero VTMG change -> stop recording first
+	if((g_source_info.source == 0) && vtmg_change) {
+		Printf("HDZero VTMG change\n");
 		rbtn_click(1,1);
 		cnt = 0;
 	}
 
+	is_valid = (g_source_info.source == 2)? g_source_info.av_in_status: \
+			   (g_source_info.source == 3)? g_source_info.av_bay_status: \
+			   								(rx_status[0].rx_valid || rx_status[1].rx_valid);
+	
 	if(is_recording) { //in-recording
 		if(!is_valid) {
 			cnt++;
@@ -160,6 +167,7 @@ static void *thread_peripheral(void *ptr)
 				g_temperature.top = nct_read_temperature(NCT_TOP);
 				g_temperature.left = nct_read_temperature(NCT_LEFT);
 				g_temperature.right= nct_read_temperature(NCT_RIGHT);
+				confirm_recording();
 			}
             // detect HDZERO
 			record_vtmg_change = HDZERO_detect();
@@ -191,11 +199,10 @@ static threads_obj_t threads_obj;
 
 static void threads_instance(threads_obj_t *obj)
 {
-	obj->instance[0] =  thread_dialpad;
-	obj->instance[1] =  thread_peripheral;
-	obj->instance[2] =  thread_version;
-	obj->instance[3] =  thread_osd;
-	obj->instance[4] =  thread_imu;
+	obj->instance[0] =  thread_peripheral;
+	obj->instance[1] =  thread_version;
+	obj->instance[2] =  thread_osd;
+	obj->instance[3] =  thread_imu;
 }
 
 int create_threads()

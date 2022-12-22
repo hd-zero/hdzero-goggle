@@ -7,6 +7,13 @@ extern "C"{
 
 #define MAX_FILE_PATH_LEN  (128)
 
+#define AUDIO_defChannels   2
+#define AUDIO_defSampleRate 48000
+#define AUDIO_defSampleBits 16
+#define AUDIO_defCodecType  PT_AACLC
+
+typedef void (*CB_onDmxEof)(void* context);
+
 typedef struct
 {
     char srcFile[MAX_FILE_PATH_LEN];
@@ -16,18 +23,25 @@ typedef struct
     uint32_t msDuration; //unit: ms
 
     DEMUX_CHN dmxChn;
-    VDEC_CHN  vdecChn;
     CLOCK_CHN clkChn;
 
     int       videoNum;
     uint16_t  width;
     uint16_t  height;
     PAYLOAD_TYPE_E codecType;
+
+    int       audioNum;
+    uint16_t  channels;
+    uint16_t  bitsPerSample;
+    uint16_t  sampleRate;
+    PAYLOAD_TYPE_E aCodecType;
+
+    CB_onDmxEof cbOnEof;
+    void*     cbOnEofContext;
 } AwdmxContext_t;
 
-AwdmxContext_t* awdmx_open(char* sFile);
+AwdmxContext_t* awdmx_open(char* sFile, CB_onDmxEof cbOnEof, void* context);
 void      awdmx_close(AwdmxContext_t* dmxCtx);
-ERRORTYPE awdmx_bindVdecAndClock(AwdmxContext_t* dmxCtx, VDEC_CHN vdecChn, CLOCK_CHN clkChn);
 ERRORTYPE awdmx_start(AwdmxContext_t *dmxCtx);
 ERRORTYPE awdmx_pause(AwdmxContext_t *dmxCtx);
 ERRORTYPE awdmx_stop(AwdmxContext_t *dmxCtx);

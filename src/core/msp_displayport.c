@@ -34,7 +34,7 @@ uint8_t crc8tab[256] = {
 };
 
 video_resolution_t CAM_MODE = VR_720P60; 
-uint8_t fc_variant[4] = {"BTFL"}; // 4 char ASCII from FC
+char fc_variant[5] = "BTFL"; // 4 char ASCII from FC
 uint8_t link_quality = 0;   // bit[7:0]: LQ(8~0)
 uint8_t vtxTempInfo = 0;    // bit[7]: temp enbale
                             // bit[6:0]: temp(0~9)
@@ -54,8 +54,8 @@ static osd_resolution_t resolution_last = HD_5018;
 uint8_t lq_err_cnt = 0;
 uint8_t lq_rcv_cnt = 0;
 
-uint16_t osd_buf[HD_VMAX][SD_HMAX_EXT];
-uint16_t osd_buf_shadow[HD_VMAX][SD_HMAX_EXT];
+uint16_t osd_buf[HD_VMAX][HD_HMAX];
+uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 uint8_t osd_init_done = 0;
 uint8_t fc_init_done = 0;
 
@@ -270,16 +270,21 @@ void camTypeDetect(uint8_t rData)
 void fcTypeDetect(uint8_t* rData)
 {
     uint8_t i;
+    char fc_variant_rcv[5] = "    ";
     
     for(i=0;i<4;i++)
-        fc_variant[i] = rData[i];
-    #if(0)
-    //printf("\r\nfc:");
-    _outchar(fc_variant[0]);
-    _outchar(fc_variant[1]);
-    _outchar(fc_variant[2]);
-    _outchar(fc_variant[3]);
-    #endif
+        fc_variant_rcv[i] = rData[i];
+    
+    if(strcmp(fc_variant_rcv, fc_variant))
+    {
+        for(i=0;i<4;i++)
+            fc_variant[i] = fc_variant_rcv[i];
+        
+        load_fc_osd_font();
+    }
+#if(0)
+    printf("\r\nfc_variant_rcv:%s", fc_variant_rcv);
+#endif
 }
 
 void lqDetect(uint8_t rData)
@@ -369,14 +374,14 @@ void parser_config(uint8_t *rx_buf)
 }
 
 /*
-    scaler from hmax30 to hmax53
+    scaler from hmax30 to hmax50
 */
 uint8_t scalerX(uint8_t iX)
 {
     uint16_t iX_u16 = (uint16_t)iX;
     uint16_t oX_u16;
     
-    oX_u16 = (iX_u16 * 904) >> 9;
+    oX_u16 = (iX_u16 * 427) >> 8;
     
     return (uint8_t)oX_u16;
 }
@@ -387,11 +392,11 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
     uint16_t ch;
     uint8_t i,j,ptr;
     uint8_t mask[7] = {0};
-    uint16_t line_buf[SD_HMAX_EXT];
+    uint16_t line_buf[HD_HMAX];
     uint8_t hmax;
     uint8_t len_mask;
     uint32_t loc_buf = 0;
-    uint8_t page_buf[7];
+    uint8_t page_buf[7]={0};
     uint8_t chNum = 0;
     uint8_t pageNum = 0;
     static uint8_t row_last = 0;
@@ -422,7 +427,7 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
     }
     
     //init line_buf
-    for(i=0;i<SD_HMAX_EXT;i++)
+    for(i=0;i<HD_HMAX;i++)
         line_buf[i] = 0x20;
 
     //parse mask
@@ -451,27 +456,32 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
     //parse one line osd to line_buf
     uint8_t waddr = 0;
     j = 0;
-    for(i=0;i<hmax;i++){
+    for(i=0;i<hmax;i++)
+    {
         //parse ch
         if((mask[i>>3]>>(i&7))&0x01)
-		{
+        {
             ch = rx_buf[ptr++];
-            if((page_buf[j>>3] >> (j&0x07)) & 1){
+            if((page_buf[j>>3] >> (j&7))&1)
                 ch += 256;
-                j++;
-            }
-		}
+            j++;
+        }
         else
-		{
             ch = 0x20;
-		}
-        //parse waddr
-        if((loc_buf >> i) & 1)
-            waddr = scalerX(i);
+
+        if(resolution == SD_3016)
+        {
+            if((loc_buf >> i) & 1)
+                waddr = scalerX(i);
+            
+            line_buf[waddr++] = ch;
+            if(waddr >= HD_HMAX)
+                waddr = 0;
+        }
         else
-            waddr++;
-        
-        line_buf[waddr] = ch;
+        {
+            line_buf[i] = ch;
+        }
     }
     update_osd(line_buf, row);
 }
@@ -480,7 +490,7 @@ void clear_screen()
 {
 	for(int i=0; i<HD_VMAX; i++)
 	{
-		for(int j=0; j<SD_HMAX_EXT; j++)
+		for(int j=0; j<HD_HMAX; j++)
 		{
 			osd_buf[i][j] = 0x20;
 		}
@@ -493,14 +503,13 @@ void update_osd(uint16_t* line_buf, uint8_t row)
 {
     uint8_t i;
 
-    for(i=0;i<SD_HMAX_EXT;i++)
+    for(i=0;i<HD_HMAX;i++)
 	{
 		if(osd_buf[row][i] != line_buf[i])
 		{
         	osd_buf[row][i] = line_buf[i];
 			///draw_osd_on_screen(row, i);
 		}
-
 	}
 //	draw_osd_on_console();
 //	draw_osd_on_screen();

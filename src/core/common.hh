@@ -17,6 +17,7 @@
 #define RIGHT_KEY_PRESS 6
 
 extern atomic_int g_key;
+extern atomic_int g_init_done;
 extern pthread_mutex_t lvgl_mutex;
 
 #define TRACE() printf("[func]%s\n", __FUNCTION__)
@@ -28,7 +29,9 @@ bool file_compare(char* f1,char* f2);
 void    gpio_init();
 void    open_gpio(int port_num);
 void    set_gpio(int port_num, int isHigh);
-void    beep();
+
+void    beep_n(int dur_us);
+#define beep()            beep_n(500)
 
 void    Putchar(char ch);
 void    Printf(const char *fmt, ...);

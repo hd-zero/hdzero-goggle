@@ -157,6 +157,19 @@ int gogglemsg_recvData( GoggleMsgType_e mtype, void* data, int len )
 	return nSize;
 }
 
+int gogglemsg_flush( GoggleMsgType_e mtype )
+{
+	CommandMsg_t msg = {0, 0};
+
+	while( msgrcv(gGoggleMsg, &msg, CommandMSG_SIZE(), mtype, IPC_NOWAIT) == 0 )
+	{
+		msg.cmd = 0;
+		msg.mtype = 0;
+	}
+
+	return 0;
+}
+
 #if defined (__cplusplus)
 }
 #endif

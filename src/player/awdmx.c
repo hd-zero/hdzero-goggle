@@ -14,6 +14,7 @@
 #include <mpi_vdec.h>
 #include <mpi_clock.h>
 #include <mpi_sys.h>
+#include <ClockCompPortIndex.h>
 #include "awdmx.h"
 
 static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
@@ -23,11 +24,11 @@ static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYP
     if (pChn->mModId == MOD_ID_DEMUX) {
         switch (event) {
         case MPP_EVENT_NOTIFY_EOF:
-            printf("\n--------------demux to end of file\n");
-            if (dmxCtx->vdecChn >= 0) {
-                AW_MPI_VDEC_SetStreamEof(dmxCtx->vdecChn, 1);
-            }
+            alogd("demux to end of file");
             dmxCtx->bEof = true;
+            if(dmxCtx->cbOnEof != NULL) {
+                dmxCtx->cbOnEof(dmxCtx->cbOnEofContext);
+            }
             break;
 
         default:
@@ -44,7 +45,51 @@ static void awdmx_configDmxChnAttr(AwdmxContext_t *dmxCtx, DEMUX_CHN_ATTR_S* dmx
     dmxChnAttr->mSourceType = SOURCETYPE_FD;
     dmxChnAttr->mSourceUrl = NULL;
     dmxChnAttr->mFd = dmxCtx->srcFd;
-    dmxChnAttr->mDemuxDisableTrack = DEMUX_DISABLE_SUBTITLE_TRACK|DEMUX_DISABLE_AUDIO_TRACK;
+    dmxChnAttr->mDemuxDisableTrack = DEMUX_DISABLE_SUBTITLE_TRACK;
+}
+
+static ERRORTYPE awdmx_createClockChn(AwdmxContext_t *dmxCtx)
+{
+    ERRORTYPE ret;
+    BOOL bSuccessFlag = FALSE;
+
+    CLOCK_CHN_ATTR_S clkChnAttr;
+    CLOCK_CHN clkChn = 0;
+
+    dmxCtx->clkChn = 0;
+    clkChnAttr.nWaitMask = 0;
+
+    if(dmxCtx->videoNum > 0) {
+        clkChnAttr.nWaitMask |= 1<<CLOCK_PORT_INDEX_VIDEO;
+    }
+
+    if(dmxCtx->audioNum > 0) {
+        clkChnAttr.nWaitMask |= 1<<CLOCK_PORT_INDEX_AUDIO;
+    }
+
+    while (clkChn < CLOCK_MAX_CHN_NUM) {
+        ret = AW_MPI_CLOCK_CreateChn(clkChn, &clkChnAttr);
+        if (SUCCESS == ret) {
+            bSuccessFlag = TRUE;
+            alogd("create clock channel[%d] success!", clkChn);
+            break;
+        } else if (ERR_CLOCK_EXIST == ret) {
+            alogd("clock channel[%d] is exist, find next!", clkChn);
+            clkChn++;
+        } else {
+            alogd("create clock channel[%d] ret[0x%x]!", clkChn, ret);
+            break;
+        }
+    }
+
+    if (FALSE == bSuccessFlag) {
+        dmxCtx->clkChn = MM_INVALID_CHN;
+        aloge("fatal error! create clock channel fail!");
+        return FAILURE;
+    }
+    dmxCtx->clkChn = clkChn;
+
+    return SUCCESS;
 }
 
 static ERRORTYPE awdmx_createDemuxChn(AwdmxContext_t *dmxCtx)
@@ -85,10 +130,11 @@ static ERRORTYPE awdmx_createDemuxChn(AwdmxContext_t *dmxCtx)
     }
 }
 
-AwdmxContext_t* awdmx_open(char* sFile)
+AwdmxContext_t* awdmx_open(char* sFile, CB_onDmxEof cbOnEof, void* context)
 {
     AwdmxContext_t *dmxCtx = (AwdmxContext_t*)malloc(sizeof(AwdmxContext_t));
     ERRORTYPE ret;
+    int nIndex = 0;
     DEMUX_MEDIA_INFO_S DemuxMediaInfo = {0};
 
     if( dmxCtx == NULL ) {
@@ -98,9 +144,12 @@ AwdmxContext_t* awdmx_open(char* sFile)
 
     memset(dmxCtx, 0, sizeof(AwdmxContext_t));
     dmxCtx->dmxChn = MM_INVALID_CHN;
-    dmxCtx->vdecChn = MM_INVALID_CHN;
+    dmxCtx->clkChn = MM_INVALID_CHN;
     dmxCtx->bEof = false;
     dmxCtx->videoNum = 0;
+    dmxCtx->audioNum = 0;
+    dmxCtx->cbOnEof = cbOnEof;
+    dmxCtx->cbOnEofContext = context;
 
     alogd("open file");
     strcpy(dmxCtx->srcFile, sFile);
@@ -130,12 +179,48 @@ AwdmxContext_t* awdmx_open(char* sFile)
         goto failed;
     }
 
+    nIndex = DemuxMediaInfo.mVideoIndex;
     dmxCtx->videoNum = DemuxMediaInfo.mVideoNum;
-    dmxCtx->width = DemuxMediaInfo.mVideoStreamInfo[0].mWidth;
-    dmxCtx->height = DemuxMediaInfo.mVideoStreamInfo[0].mHeight;
-    dmxCtx->codecType = DemuxMediaInfo.mVideoStreamInfo[0].mCodecType;
+    dmxCtx->width = DemuxMediaInfo.mVideoStreamInfo[nIndex].mWidth;
+    dmxCtx->height = DemuxMediaInfo.mVideoStreamInfo[nIndex].mHeight;
+    dmxCtx->codecType = DemuxMediaInfo.mVideoStreamInfo[nIndex].mCodecType;
     dmxCtx->msDuration = DemuxMediaInfo.mDuration;
-    alogd("stream info %dx%d", DemuxMediaInfo.mVideoStreamInfo[0].mWidth, DemuxMediaInfo.mVideoStreamInfo[0].mHeight);
+    alogd("stream info %dx%d", DemuxMediaInfo.mVideoStreamInfo[nIndex].mWidth, DemuxMediaInfo.mVideoStreamInfo[nIndex].mHeight);
+
+    if( DemuxMediaInfo.mAudioNum > 0 ) {
+        nIndex = DemuxMediaInfo.mAudioIndex;
+        dmxCtx->audioNum = DemuxMediaInfo.mAudioNum;
+        dmxCtx->aCodecType = DemuxMediaInfo.mAudioStreamInfo[nIndex].mCodecType;
+        dmxCtx->channels = DemuxMediaInfo.mAudioStreamInfo[nIndex].mChannelNum;
+        dmxCtx->bitsPerSample = DemuxMediaInfo.mAudioStreamInfo[nIndex].mBitsPerSample;
+        dmxCtx->sampleRate = DemuxMediaInfo.mAudioStreamInfo[nIndex].mSampleRate;
+        alogd("stream info %dHz,%dch,%dbits,codec=%d", dmxCtx->sampleRate,
+              dmxCtx->channels,
+              dmxCtx->bitsPerSample,
+              dmxCtx->aCodecType);
+
+        if( dmxCtx->sampleRate == 0 ) {
+            dmxCtx->channels = AUDIO_defChannels;
+            dmxCtx->bitsPerSample = AUDIO_defSampleBits;
+            dmxCtx->sampleRate = AUDIO_defSampleRate;
+            alogd("stream info filled: %dHz,%dch,%dbits,codec=%d", dmxCtx->sampleRate,
+                  dmxCtx->channels,
+                  dmxCtx->bitsPerSample,
+                  dmxCtx->aCodecType);
+        }
+    }
+
+    ret = awdmx_createClockChn(dmxCtx);
+    if( ret != SUCCESS ) {
+        aloge("create clock chn fail");
+        goto failed;
+    }
+
+    MPP_CHN_S DmxChn = {MOD_ID_DEMUX, 0, dmxCtx->dmxChn};
+    MPP_CHN_S ClockChn = {MOD_ID_CLOCK, 0, dmxCtx->clkChn};
+
+    ret = AW_MPI_SYS_Bind(&ClockChn, &DmxChn);
+    alogd("bind demux %d & clock %d: %x", dmxCtx->dmxChn, dmxCtx->clkChn, ret);
 
     return dmxCtx;
 
@@ -159,6 +244,11 @@ void awdmx_close(AwdmxContext_t* dmxCtx)
         dmxCtx->dmxChn = MM_INVALID_CHN;
     }
 
+    if (dmxCtx->clkChn >= 0) {
+        AW_MPI_CLOCK_DestroyChn(dmxCtx->clkChn);
+        dmxCtx->clkChn = MM_INVALID_CHN;
+    }
+
     close(dmxCtx->srcFd);
     dmxCtx->srcFd = -1;
     dmxCtx->videoNum = 0;
@@ -171,15 +261,14 @@ ERRORTYPE awdmx_bindVdecAndClock(AwdmxContext_t* dmxCtx, VDEC_CHN vdecChn, CLOCK
     ERRORTYPE ret = SUCCESS;
 
     if (dmxCtx->videoNum >0) {
-        dmxCtx->vdecChn = vdecChn;
         dmxCtx->clkChn = clkChn;
 
         MPP_CHN_S DmxChn = {MOD_ID_DEMUX, 0, dmxCtx->dmxChn};
-        MPP_CHN_S VdecChn = {MOD_ID_VDEC, 0, dmxCtx->vdecChn};
+        MPP_CHN_S VdecChn = {MOD_ID_VDEC, 0, vdecChn};
         MPP_CHN_S ClockChn = {MOD_ID_CLOCK, 0, dmxCtx->clkChn};
 
         ret = AW_MPI_SYS_Bind(&DmxChn, &VdecChn);
-        alogd("bind demux %d & vdec %d: %x", dmxCtx->dmxChn, dmxCtx->vdecChn, ret);
+        alogd("bind demux %d & vdec %d: %x", dmxCtx->dmxChn, vdecChn, ret);
 
         ret = AW_MPI_SYS_Bind(&ClockChn, &DmxChn);
         alogd("bind demux %d & clock %d: %x", dmxCtx->dmxChn, dmxCtx->clkChn, ret);
@@ -193,15 +282,14 @@ ERRORTYPE awdmx_unbindVdecAndClock(AwdmxContext_t* dmxCtx, VDEC_CHN vdecChn, CLO
     ERRORTYPE ret = SUCCESS;
 
     if (dmxCtx->videoNum >0) {
-        dmxCtx->vdecChn = vdecChn;
         dmxCtx->clkChn = clkChn;
 
         MPP_CHN_S DmxChn = {MOD_ID_DEMUX, 0, dmxCtx->dmxChn};
-        MPP_CHN_S VdecChn = {MOD_ID_VDEC, 0, dmxCtx->vdecChn};
+        MPP_CHN_S VdecChn = {MOD_ID_VDEC, 0, vdecChn};
         MPP_CHN_S ClockChn = {MOD_ID_CLOCK, 0, dmxCtx->clkChn};
 
         ret = AW_MPI_SYS_UnBind(&DmxChn, &VdecChn);
-        alogd("unbind demux %d & vdec %d: %x", dmxCtx->dmxChn, dmxCtx->vdecChn, ret);
+        alogd("unbind demux %d & vdec %d: %x", dmxCtx->dmxChn, vdecChn, ret);
 
         ret = AW_MPI_SYS_UnBind(&ClockChn, &DmxChn);
         alogd("unbind demux %d & clock %d: %x", dmxCtx->dmxChn, dmxCtx->clkChn, ret);
@@ -219,6 +307,10 @@ ERRORTYPE awdmx_start(AwdmxContext_t *dmxCtx)
         alogd("start: %x", ret);
     }
 
+    if (dmxCtx->clkChn >= 0) {
+        ret = AW_MPI_CLOCK_Start(dmxCtx->clkChn);
+    }
+
     dmxCtx->bEof = false;
 
     return ret;
@@ -231,6 +323,17 @@ ERRORTYPE awdmx_pause(AwdmxContext_t *dmxCtx)
     if (dmxCtx->dmxChn >= 0) {
         ret = AW_MPI_DEMUX_Pause(dmxCtx->dmxChn);
         alogd("pause: %x", ret);
+
+        if(ret == FAILURE) {
+            ret = SUCCESS;
+        }
+    }
+
+    if (dmxCtx->clkChn >= 0) {
+        ret = AW_MPI_CLOCK_Pause(dmxCtx->clkChn);
+    }
+    if ((ret==ERR_CLOCK_INCORRECT_STATE_TRANSITION) && dmxCtx->bEof) {
+        ret = SUCCESS;
     }
 
     return ret;
@@ -243,6 +346,14 @@ ERRORTYPE awdmx_stop(AwdmxContext_t *dmxCtx)
     if (dmxCtx->dmxChn >= 0) {
         ret = AW_MPI_DEMUX_Stop(dmxCtx->dmxChn);
         alogd("stop: %x", ret);
+
+        if(ret == FAILURE) {
+            ret = SUCCESS;
+        }
+    }
+
+    if (dmxCtx->clkChn >= 0) {
+        ret = AW_MPI_CLOCK_Stop(dmxCtx->clkChn);
     }
 
     return ret;
@@ -258,6 +369,11 @@ ERRORTYPE awdmx_seekTo(AwdmxContext_t *dmxCtx, int seekTime)
         if( ret == SUCCESS ) {
             dmxCtx->seekTime = seekTime;
         }
+    }
+
+    if(dmxCtx->clkChn >= 0)
+    {
+        AW_MPI_CLOCK_Seek(dmxCtx->clkChn);
     }
 
     return ret;
