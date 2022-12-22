@@ -36,6 +36,8 @@ static uint8_t     crc;
 static int fd_esp32 = -1;
 static sem_t response_semaphore;
 static mspPacket_t response_packet;
+static int record_state;
+static uint32_t record_time = 0;
 
 void msp_process_packet();
 
@@ -181,6 +183,14 @@ bool esp32_handler_process_byte(uint8_t c)
     return false;
 }
 
+void esp32_handler_timeout()
+{
+	if (record_time != 0 && record_time <= time(NULL)) {
+		record_time = 0;
+		rbtn_click(true, record_state);
+	}
+}
+
 void msp_process_packet()
 {
 	if (packet.type == MSP_PACKET_COMMAND) {
@@ -248,8 +258,12 @@ void msp_process_packet()
 				break;
 			case MSP_SET_REC_STATE:
 				{
-					// TODO delay
-					rbtn_click(true, packet.payload[0] == 0 ? 1 : 2);
+					record_state = packet.payload[0] == 0 ? 1 : 2;
+					uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2]<<8;
+					if (delay == 0)
+						rbtn_click(true, record_state);
+					else
+						record_time = time(NULL) + delay;
 				}
 				break;
 			case MSP_GET_VRX_MODE:

@@ -13,5 +13,6 @@ void esp32_rx();
 // Functions that need to be implemented by the serial handler connected to the ESP32
 void esp32_handler_set_uart(uint32_t fd_uart);
 bool esp32_handler_process_byte(uint8_t byte);
+void esp32_handler_timeout();   // handle a character read timeout
 
 #endif //__ESP32_H__

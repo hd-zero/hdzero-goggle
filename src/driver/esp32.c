@@ -77,6 +77,7 @@ static void *pthread_recv_esp32(void *arg)
 			if(len)
 				esp32_rx();
 		}
+		else esp32_handler_timeout();
 	}
 	return NULL;
 }
