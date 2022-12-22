@@ -15,6 +15,7 @@
 
 
 #include "common.hh"
+#include "hardware.h"
 #include "elrs.h"
 #include "osd.h"
 
@@ -36,7 +37,7 @@ static int fd_esp32 = -1;
 static sem_t response_semaphore;
 static mspPacket_t response_packet;
 
-void msp_process_packet(mspPacket_t *packet);
+void msp_process_packet();
 
 static const uint16_t freq_table[] = {
     5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R
@@ -46,6 +47,7 @@ static const uint16_t freq_table[] = {
 void elrs_init()
 {
 	sem_init(&response_semaphore, 0, 0);
+	input_state = MSP_IDLE;
 }
 
 void esp32_handler_set_uart(uint32_t fd_uart)
@@ -130,12 +132,15 @@ bool esp32_handler_process_byte(uint8_t c)
             if (offset == sizeof(mspHeaderV2_t)) {
                 // Copy header values into packet
                 mspHeaderV2_t* header = (mspHeaderV2_t*)&input_buffer[0];
-                packet.payload_size = header->payload_size;
-                packet.function = header->function;
+                packet.payload_size = le16toh(header->payload_size);
+                packet.function = le16toh(header->function);
                 packet.flags = header->flags;
                 // reset the offset iterator for re-use in payload below
                 offset = 0;
-                input_state = MSP_PAYLOAD_V2_NATIVE;
+				if (packet.payload_size == 0)
+                	input_state = MSP_CHECKSUM_V2_NATIVE;
+				else
+                	input_state = MSP_PAYLOAD_V2_NATIVE;
             }
             break;
 
@@ -156,11 +161,12 @@ bool esp32_handler_process_byte(uint8_t c)
             input_state = MSP_IDLE;
             // Assert that the checksums match
             if (crc == c) {
-                msp_process_packet(&packet);
+                msp_process_packet();
             }
             else {
                 Printf("CRC failure on MSP packet - Got %d expected %d", c, crc);
             }
+			input_state = MSP_IDLE;
             break;
 
         default:
@@ -169,48 +175,44 @@ bool esp32_handler_process_byte(uint8_t c)
     }
 
     if (processed_byte || input_state != MSP_IDLE) {
+		// Printf("Processed %02x %d\n", c, input_state);
         return true;
     }
     return false;
 }
 
-mspPacket_t* msp_get_received_packet()
+void msp_process_packet()
 {
-    return &packet;
-}
-
-void msp_mark_packet_received()
-{
-    // Set input state to idle, ready to receive the next packet
-    // The current packet data will be discarded internally
-    input_state = MSP_IDLE;
-}
-
-void msp_process_packet(mspPacket_t *packet)
-{
-	beep();
-	if (packet->type == MSP_PACKET_COMMAND) {
-		switch (packet->function) {
+	if (packet.type == MSP_PACKET_COMMAND) {
+		switch (packet.function) {
 			case MSP_GET_BAND_CHAN:
 				{
 					uint8_t chan;
-					if (g_setting.scan.channel > 8) {
-						chan = g_setting.scan.channel-9 + 3*8;	// Map F1/2
+					if (g_setting.scan.channel <= 8) {
+						chan = g_setting.scan.channel - 1 + 4*8;	// Map R1..8
 					} else {
-						chan = g_setting.scan.channel-1 + 4*8;	// Map R1..8
+						chan = (g_setting.scan.channel - 9) * 2 + 3*8 + 1;	// Map F2/4
 					}
 					msp_send_packet(MSP_GET_BAND_CHAN, MSP_PACKET_RESPONSE, 1, &chan);
 				}
 				break;
 			case MSP_SET_BAND_CHAN:
 				{
-					uint8_t chan = packet->payload[0];
+					uint8_t chan = packet.payload[0];
 					if (chan > 4*8) {
-						g_setting.scan.channel = chan - 4*8 + 1;	// Map R1..8
+						chan = chan - 4*8 + 1;	// Map R1..8
 					} else {
-						g_setting.scan.channel = chan - 3*8 + 9;	// Map F1/2
+						chan = (chan - 3*8 - 1) / 2 + 9;	// Map F2/4
 					}
-					switch_to_video(true);
+					if ((chan != g_setting.scan.channel || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {
+						g_setting.scan.channel = chan;
+						beep();
+						pthread_mutex_lock(&lvgl_mutex);
+						HDZero_open();
+						switch_to_video(true);
+						g_menu_op = OPLEVEL_VIDEO;
+						pthread_mutex_unlock(&lvgl_mutex);
+					}
 				}
 				break;
 			case MSP_GET_FREQ:
@@ -222,11 +224,17 @@ void msp_process_packet(mspPacket_t *packet)
 				break;
 			case MSP_SET_FREQ:
 				{
-					uint16_t freq = packet->payload[0] | (uint16_t)packet->payload[1] << 8;
+					uint16_t freq = packet.payload[0] | (uint16_t)packet.payload[1] << 8;
 					for (int i=0 ; i<10 ; i++) {
-						if (freq == freq_table[i]) {
-							g_setting.scan.channel = i+1;
+						int chan = i+1;
+						if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {
+							g_setting.scan.channel = chan;
+							beep();
+							pthread_mutex_lock(&lvgl_mutex);
+							HDZero_open();
 							switch_to_video(true);
+							g_menu_op = OPLEVEL_VIDEO;
+							pthread_mutex_unlock(&lvgl_mutex);
 							break;
 						}
 					}
@@ -241,7 +249,7 @@ void msp_process_packet(mspPacket_t *packet)
 			case MSP_SET_REC_STATE:
 				{
 					// TODO delay
-					rbtn_click(true, packet->payload[0] == 0 ? 1 : 2);
+					rbtn_click(true, packet.payload[0] == 0 ? 1 : 2);
 				}
 				break;
 			case MSP_GET_VRX_MODE:
@@ -272,20 +280,35 @@ void msp_process_packet(mspPacket_t *packet)
 				}
 				break;
 			case MSP_SET_BUZZER:
-				beep();
+				//TODO after merge
+				//beep_n((packet.payload[0] | packet.payload[1]<<8) * 1000);
 				break;
 			case MSP_SET_OSD_ELEM:
+				// TODO
 				break;
 		}
-	} else if (packet->type == MSP_PACKET_RESPONSE) {
-		response_packet = *packet;
+	} else if (packet.type == MSP_PACKET_RESPONSE) {
+		memcpy(&response_packet, &packet, sizeof(response_packet));
 		sem_post(&response_semaphore);
 	}
 }
 
 bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms)
 {
-	struct timespec ts = { timeout_ms / 1000, (timeout_ms % 1000) * 1000000 };
+	struct timespec ts;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+		Printf("clock_gettime failed");
+		return false;
+	}
+
+	// relative time to absolute time
+	ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+	if (ts.tv_nsec >= 1000000000) {
+		ts.tv_sec++;
+		ts.tv_nsec %= 1000000000;
+	}
+	ts.tv_sec += timeout_ms / 1000;
+
 	while(sem_timedwait(&response_semaphore, &ts) == 0) {
 		if (response_packet.function == function) {
 			if (response_packet.payload_size >= payload_size &&

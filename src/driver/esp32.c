@@ -127,22 +127,14 @@ void esp32_rx()
     static char buffer[80];
 
     while(uart3_rptr != uart3_wptr) {
-        if(g_test_en) {
-			bool processed = esp32_handler_process_byte(uart3_buffer[uart3_rptr]);
-			if (!processed) {
-	            buffer[i++] = uart3_buffer[uart3_rptr];
-				if(buffer[i-1]=='\n' || i==80) {
-					buffer[i-1] = 0;
-					Printf("[ESP] %s\n", buffer);
-					i = 0;
-				}
-			}
-			else if (i>0) {
-				buffer[i-1] = 0;
-				Printf("[ESP] %s\n", buffer);
-				i = 0;
-			}
-        }
-        uart3_rptr++;
+		uint8_t ch = uart3_buffer[uart3_rptr++];
+		bool processed = esp32_handler_process_byte(ch);
+		if (!processed)
+			buffer[i++] = ch;
+		if ((processed && i>0) || buffer[i-1]=='\n' || i==80) {
+			buffer[i-1] = 0;
+			Printf("[ESP] %s\n", buffer);
+			i = 0;
+		}
     }
 }

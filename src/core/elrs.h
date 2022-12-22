@@ -19,7 +19,7 @@ typedef enum {
     MSP_PACKET_RESPONSE = '>'
 } mspPacketType_e;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t  flags;
     uint16_t function;
     uint16_t payload_size;
