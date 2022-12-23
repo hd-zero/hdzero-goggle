@@ -35,20 +35,6 @@ add_definitions(
 # dependencies
 add_subdirectory(lib/softwinner)
 
-# media library
-file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
-
-add_library(media ${SRC_FILES_PLAYER})
-target_link_libraries(media PRIVATE 
-	${STANDARD_LIBRARIES}
-	softwinner
-)
-target_include_directories(media PRIVATE 
-	linux-4.9/include
-	linux-4.9/include/video
-)
-
-
 # application
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
@@ -58,6 +44,7 @@ file(GLOB SRC_FILES_PAGE   "src/page/*.c" "src/page/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
 file(GLOB SRC_FILES_MINIINI   "src/minIni/minIni.c" "src/minIni/*.h")
+file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 
 add_executable(${PROJECT_NAME}  
 	${SRC_FILES_CORE} 
@@ -67,7 +54,8 @@ add_executable(${PROJECT_NAME}
 	${SRC_FILES_PAGE} 
 	${SRC_FILES_BMI} 
 	${SRC_FILES_WINDOW}
-	${SRC_FILES_MINIINI} 
+	${SRC_FILES_MINIINI}
+	${SRC_FILES_PLAYER}
 )
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -78,12 +66,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	src/player
 	src/player/media/app
 	src/window
+
+	lib/linux/include
+	lib/linux/include/video
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	${STANDARD_LIBRARIES}
 
 	liblvgl.a
-	media
 
 	softwinner
 )

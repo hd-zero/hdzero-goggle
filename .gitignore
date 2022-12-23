@@ -1,10 +1,10 @@
-build
+/build
 linux-4.9
-media
+/media
 toolchain
-mkapp/image
-mkapp/ota_app
-out
-media.tar.gz
+/mkapp/image
+/mkapp/ota_app
 mkapp/app/app/HDZGOGGLE
+/out
+media.tar.gz
 /tmp
