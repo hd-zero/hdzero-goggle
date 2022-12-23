@@ -9,6 +9,7 @@
 #include "../core/common.hh"
 #include "../core/main_menu.h"
 #include "page_scannow.h"
+#include "../minIni/minIni.h"
 
 /////////////////////////////////////////////////////////////////////////
 // global
@@ -117,10 +118,12 @@ void source_mode_set(int sel)
 				g_menu_op = OPLEVEL_VIDEO;
 				g_source_info.source = 1;
 				enable_line_out(false);
+				g_setting.autoscan.last_source = 4;
+				ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 			}
 			break;
 
-		case 2:
+		case 2://AV in
 			switch_to_analog(0);
 			g_menu_op = OPLEVEL_VIDEO;
 			g_source_info.source = 2;
@@ -128,7 +131,7 @@ void source_mode_set(int sel)
 			enable_line_out(true);
 			break;
 
-		case 3:
+		case 3: //Module in
 			switch_to_analog(1);
 			g_menu_op = OPLEVEL_VIDEO;
 			g_source_info.source = 3;
@@ -171,4 +174,7 @@ void switch_to_analog(bool is_bay)
 	lv_timer_handler();
 
 	Display_Osd(g_setting.record.osd); 
+
+	g_setting.autoscan.last_source = is_bay? 2:3;
+	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }

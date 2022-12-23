@@ -42,6 +42,7 @@ int gogglemsg_send( GoggleMsgType_e mtype, GoggleMsgCommand_e cmd );
 int gogglemsg_recv( GoggleMsgType_e mtype );
 int gogglemsg_sendData( GoggleMsgType_e mtype, GoggleMsgCommand_e cmd, void* data, int len );
 int gogglemsg_recvData( GoggleMsgType_e mtype, void* data, int len );
+int gogglemsg_flush( GoggleMsgType_e mtype );
 /** @} */
 
 #if defined (__cplusplus)

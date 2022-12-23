@@ -48,13 +48,24 @@ lv_obj_t *page_imagesettings_create(lv_obj_t *parent, struct panel_arr *arr)
 
 	create_select_item(arr, cont);
 
-	create_slider_item(&slider_group, cont,  "OLED", 10, g_setting.image.oled, 0);
+	create_slider_item(&slider_group, cont,  "OLED", 12, g_setting.image.oled, 0);
 	create_slider_item(&slider_group1, cont, "Brightness", 78, g_setting.image.brightness, 1);
 	create_slider_item(&slider_group2, cont, "Saturation", 47, g_setting.image.saturation, 2);
 	create_slider_item(&slider_group3, cont, "Contrast", 47, g_setting.image.contrast, 3);
 	create_slider_item(&slider_group4, cont, "OLED Auto off", 3, g_setting.image.auto_off, 4);
 
 	create_label_item(cont, "<Back", 1, 5, 1);
+
+	lv_obj_t *label2 = lv_label_create(cont);
+   	lv_label_set_text(label2, "To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video.");
+	lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
+	lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
+	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
+	lv_obj_set_style_pad_top(label2, 12, 0);
+	lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
+	lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
+						 LV_GRID_ALIGN_START, 6, 2);
+
 
 	 set_slider_value();
 
@@ -92,34 +103,30 @@ void set_slider_value()
 	lv_slider_set_value(slider_group4.slider,  g_setting.image.auto_off, LV_ANIM_OFF);	
 }
 
-void page_ims_click(page_pack_t *pp)
+void page_ims_click()
 {
-	if(pp->p_arr.cur ==  pp->p_arr.max - 1)
-			submenu_exit();
-	else {
-		g_menu_op = OPLEVEL_IMS;
-		switch(g_source_info.source) {
-			case 0:
-				progress_bar.start  = 1;
-				HDZero_open();
-				switch_to_video(true);	
-				g_bShowIMS = true;
-				break;
+	g_menu_op = OPLEVEL_IMS;
+	switch(g_source_info.source) {
+		case 0:
+			progress_bar.start  = 1;
+			HDZero_open();
+			switch_to_video(true);	
+			g_bShowIMS = true;
+			break;
 
-			case 1: //no image setting support for HDMI in 
-                g_menu_op = OPLEVEL_SUBMENU;
-				g_bShowIMS = false;
-				break;
+		case 1: //no image setting support for HDMI in 
+			g_menu_op = OPLEVEL_SUBMENU;
+			g_bShowIMS = false;
+			break;
 
-			case 2:
-				switch_to_analog(0);
-				g_bShowIMS = true;
-				break;
+		case 2:
+			switch_to_analog(0);
+			g_bShowIMS = true;
+			break;
 
-			case 3:
-				switch_to_analog(1);
-				g_bShowIMS = true;
-				break;
-		}
-	}	
+		case 3:
+			switch_to_analog(1);
+			g_bShowIMS = true;
+			break;
+	}
 }

@@ -7,9 +7,7 @@
 #include "../minIni/minIni.h"
 #include "../core/common.hh"
 
-static btn_group_t btn_group0;
 static btn_group_t btn_group1;
-
 static slider_group_t slider_group;
 
 static lv_coord_t col_dsc[] = {160,200,160,160,120,160, LV_GRID_TEMPLATE_LAST};
@@ -48,12 +46,10 @@ lv_obj_t *page_power_create(lv_obj_t *parent, struct panel_arr *arr)
 	sprintf(str, "%d.%d", g_setting.power.voltage/10, g_setting.power.voltage%10);
 
 	create_slider_item(&slider_group, cont, "Voltage", 42, g_setting.power.voltage , 1);
-	create_btn_group_item(&btn_group0, cont, 2, "Display Voltage", "Yes", "No","", "",  2);
-	create_btn_group_item(&btn_group1, cont, 3, "Warning Type", "Beep", "Visual", "Both","",  3);
-
-    lv_slider_set_range(slider_group.slider, 32, 42);
+	create_btn_group_item(&btn_group1, cont, 3, "Warning Type", "Beep", "Visual", "Both","",  2);
+    lv_slider_set_range(slider_group.slider, 30, 42);
    	lv_label_set_text(slider_group.label, str);
-	create_label_item(cont, "<Back", 1, 4, 1);
+	create_label_item(cont, "<Back", 1, 3, 1);
 
 	return page;
 }
@@ -70,11 +66,6 @@ void set_voltage(int val)
 {
 	lv_slider_set_value(slider_group.slider, val, LV_ANIM_OFF);
 	set_battery_S();
-}
-
-void set_display_voltage(bool is_display)
-{
-	btn_group_set_sel(&btn_group0, is_display ? 0 : 1);
 }
 
 void set_warning_type(int type)
@@ -131,16 +122,6 @@ void power_set_toggle(int sel)
 		}
 	}
 	else if(sel == 2)
-	{
-		btn_group_toggle_sel(&btn_group0);
-		g_setting.power.display_voltage = btn_group_get_sel(&btn_group0) == 0 ? true : false;
-		if(g_setting.power.display_voltage){
-			ini_puts("power", "display_voltage", "enable", SETTING_INI);
-		}else{
-			ini_puts("power", "display_voltage", "disable", SETTING_INI);
-		}
-	}
-	else if(sel == 3)
 	{
 		btn_group_toggle_sel(&btn_group1);
 		g_setting.power.warning_type = btn_group_get_sel(&btn_group1);

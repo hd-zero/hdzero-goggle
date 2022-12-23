@@ -153,7 +153,7 @@ static void switch_to_menumode()
 static void btn_press(void) //long press left key
 {
 	Printf("btn_press (%d)\n",g_menu_op);
-	if(g_scanning) 	return;
+	if(g_scanning || !g_init_done) 	return;
 
 	pthread_mutex_lock(&lvgl_mutex);
 
@@ -189,6 +189,7 @@ static void btn_press(void) //long press left key
 static void btn_click(void)  //short press enter key
 {
 	Printf("btn_click (%d)\n",g_menu_op);
+	if(!g_init_done) return;
 
 	if(g_menu_op == OPLEVEL_VIDEO) {
 		pthread_mutex_lock(&lvgl_mutex);

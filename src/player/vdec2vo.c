@@ -38,7 +38,6 @@ static void vdec2vo_initContext(Vdec2VoContext_t* vvCtx)
     vvCtx->params.vo.uiChn = 2;
 
     vvCtx->vdecChn = MM_INVALID_CHN;
-    vvCtx->clkChn = MM_INVALID_CHN;
 
     vvCtx->voDev = MM_INVALID_DEV;
     vvCtx->voLayer = MM_INVALID_CHN;
@@ -87,28 +86,31 @@ static ERRORTYPE vdec2vo_createClockChn(Vdec2VoContext_t *vvCtx, CLOCK_CHN_ATTR_
 {
     ERRORTYPE ret;
     BOOL bSuccessFlag = FALSE;
+    CLOCK_CHN clkChn = 0;
 
-    vvCtx->clkChn = 0;
-    while (vvCtx->clkChn < CLOCK_MAX_CHN_NUM) {
-        ret = AW_MPI_CLOCK_CreateChn(vvCtx->clkChn, clockChnAttr);
+    vvCtx->params.clkChn = 0;
+    while (clkChn < CLOCK_MAX_CHN_NUM) {
+        ret = AW_MPI_CLOCK_CreateChn(clkChn, clockChnAttr);
         if (SUCCESS == ret) {
             bSuccessFlag = TRUE;
-            alogd("create clock channel[%d] success!", vvCtx->clkChn);
+            alogd("create clock channel[%d] success!", clkChn);
             break;
         } else if (ERR_CLOCK_EXIST == ret) {
-            alogd("clock channel[%d] is exist, find next!", vvCtx->clkChn);
-            vvCtx->clkChn++;
+            alogd("clock channel[%d] is exist, find next!", clkChn);
+            clkChn++;
         } else {
-            alogd("create clock channel[%d] ret[0x%x]!", vvCtx->clkChn, ret);
+            alogd("create clock channel[%d] ret[0x%x]!", clkChn, ret);
             break;
         }
     }
 
     if (FALSE == bSuccessFlag) {
-        vvCtx->clkChn = MM_INVALID_CHN;
+        vvCtx->params.clkChn = MM_INVALID_CHN;
         aloge("fatal error! create clock channel fail!");
         return FAILURE;
     }
+
+    vvCtx->params.clkChn = clkChn;
 
     return SUCCESS;
 }
@@ -281,9 +283,6 @@ static void vdec2vo_destroy(Vdec2VoContext_t* vvCtx)
     if (vvCtx->vdecChn >= 0) {
         AW_MPI_VDEC_DestroyChn(vvCtx->vdecChn);
     }
-    if (vvCtx->clkChn >= 0) {
-        AW_MPI_CLOCK_DestroyChn(vvCtx->clkChn);
-    }
 
     alogd("done");
 }
@@ -303,25 +302,14 @@ ERRORTYPE vdec2vo_prepare(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* params)
         alogd("bind vdec & vo");
         MPP_CHN_S VdecChn = {MOD_ID_VDEC, 0, vvCtx->vdecChn};
         MPP_CHN_S VoChn = {MOD_ID_VOU, vvCtx->voLayer, vvCtx->voChn};
+        MPP_CHN_S DmxChn = {MOD_ID_DEMUX, 0, params->dmxChn};
+        MPP_CHN_S ClockChn = {MOD_ID_CLOCK, 0, params->clkChn};
 
+        AW_MPI_SYS_Bind(&DmxChn, &VdecChn);
         AW_MPI_SYS_Bind(&VdecChn, &VoChn);
+        AW_MPI_SYS_Bind(&ClockChn, &VoChn);
     } else {
         alogd("create vo chn fail");
-        goto failed;
-    }
-
-    CLOCK_CHN_ATTR_S clkChnAttr;
-    memset(&clkChnAttr, 0, sizeof(clkChnAttr));
-    clkChnAttr.nWaitMask |= 1<<CLOCK_PORT_VIDEO; //becareful this is too important!!!
-    ret = vdec2vo_createClockChn(vvCtx, &clkChnAttr);
-    if (ret == SUCCESS) {
-        alogd("bind clock & demux");
-        MPP_CHN_S ClockChn = {MOD_ID_CLOCK, 0, vvCtx->clkChn};
-        MPP_CHN_S VoChn = {MOD_ID_VOU, vvCtx->voLayer, vvCtx->voChn};
-
-        ret = AW_MPI_SYS_Bind(&ClockChn, &VoChn);
-    } else {
-        aloge("create clock chn fail");
         goto failed;
     }
 
@@ -335,10 +323,9 @@ failed:
 
 ERRORTYPE vdec2vo_start(Vdec2VoContext_t *vvCtx)
 {
-    ERRORTYPE ret;
+    ERRORTYPE ret = SUCCESS;
 
     alogd("start stream");
-    ret = AW_MPI_CLOCK_Start(vvCtx->clkChn);
 
     if (vvCtx->vdecChn >= 0) {
         ret = AW_MPI_VDEC_StartRecvStream(vvCtx->vdecChn);
@@ -361,13 +348,6 @@ ERRORTYPE vdec2vo_pause(Vdec2VoContext_t *vvCtx)
         ret = AW_MPI_VDEC_Pause(vvCtx->vdecChn);
     }
     if ((ret==ERR_VDEC_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF>0)) {
-        ret = SUCCESS;
-    }
-
-    if (vvCtx->clkChn >= 0) {
-        ret = AW_MPI_CLOCK_Pause(vvCtx->clkChn);
-    }
-    if ((ret==ERR_CLOCK_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF>0)) {
         ret = SUCCESS;
     }
 
@@ -395,10 +375,6 @@ ERRORTYPE vdec2vo_stop(Vdec2VoContext_t *vvCtx)
         ret = AW_MPI_VDEC_StopRecvStream(vvCtx->vdecChn);
     }
 
-    if (vvCtx->clkChn >= 0) {
-        ret = AW_MPI_CLOCK_Stop(vvCtx->clkChn);
-    }
-
     return ret;
 }
 
@@ -422,11 +398,6 @@ ERRORTYPE vdec2vo_seekTo(Vdec2VoContext_t *vvCtx)
         ret = AW_MPI_VO_Seek(vvCtx->voLayer, vvCtx->voChn);
     }
 
-    if(vvCtx->clkChn >= 0)
-    {
-        AW_MPI_CLOCK_Seek(vvCtx->clkChn);
-    }
-
     return ret;
 }
 
@@ -434,8 +405,8 @@ ERRORTYPE vdec2vo_currentMediaTime(Vdec2VoContext_t *vvCtx, int* mediaTime)
 {
     ERRORTYPE ret = SUCCESS;
 
-    if (vvCtx->clkChn >= 0) {
-        ret = AW_MPI_CLOCK_GetCurrentMediaTime(vvCtx->clkChn, mediaTime);
+    if (vvCtx->params.clkChn >= 0) {
+        ret = AW_MPI_CLOCK_GetCurrentMediaTime(vvCtx->params.clkChn, mediaTime);
     }
 
     return ret;

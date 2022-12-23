@@ -253,7 +253,7 @@ static lv_coord_t row_dsc[] = {60,LV_GRID_TEMPLATE_LAST};
 static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const char *name, int row, int col)
 {
     btn_a->container = lv_obj_create(parent);
-    lv_obj_set_size(btn_a->container, 190, 60);
+    lv_obj_set_size(btn_a->container, 200, 60);
     lv_obj_set_pos(btn_a->container, 0, 0);
     lv_obj_set_layout(btn_a->container, LV_LAYOUT_GRID);
 	lv_obj_clear_flag(btn_a->container, LV_OBJ_FLAG_SCROLLABLE);
@@ -282,7 +282,7 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
 	lv_obj_set_style_bg_opa(btn_a->btn, 0x0, 0);
 	lv_obj_set_style_shadow_width(btn_a->btn, 0, 0);
 	lv_obj_set_style_pad_top(btn_a->btn, 12, 0);
-    lv_obj_set_size(btn_a->btn, 150, 60);
+    lv_obj_set_size(btn_a->btn, 160, 60);
 	lv_obj_set_grid_cell(btn_a->btn, LV_GRID_ALIGN_START, 1, 1,
 						 LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -326,10 +326,41 @@ void btn_group_toggle_sel(btn_group_t *btn_group)
 }
 
 
-
 void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,const char *name2,const char *name3, int row)
 {
-	if(count > 4)
+	if(count > 3)
+		return;
+	btn_group->valid = count;
+	btn_group->current = 0;
+
+	lv_obj_t *label = lv_label_create(parent);
+   	lv_label_set_text(label, name);
+	lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+	lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
+	lv_obj_set_style_pad_top(label, 12, 0);
+	lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_size(label, 320, 60);
+	lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2,
+						 LV_GRID_ALIGN_CENTER, row, 1);
+
+	create_btn_with_arrow(parent, &btn_group->btn_a[0],name0, row, 2);
+	if(count >= 2)
+	{
+	create_btn_with_arrow(parent, &btn_group->btn_a[1], name1, row, 3);
+	}
+
+	if(count >= 3)
+	{
+		create_btn_with_arrow(parent, &btn_group->btn_a[2],name2, row, 4);
+	}
+
+	btn_group_set_sel(btn_group, 0);
+}
+
+void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,\
+							const char *name2,const char *name3, const char *name4,const char *name5,int row)
+{
+	if(count > 6)
 		return;
 	btn_group->valid = count;
 	btn_group->current = 0;
@@ -358,7 +389,18 @@ void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent,int count,co
 
 	if(count >= 4)
 	{
-		create_btn_with_arrow(parent, &btn_group->btn_a[3], name3, row, 5);
+		create_btn_with_arrow(parent, &btn_group->btn_a[3], name3, row+1, 2);
 	}
+	
+	if(count >= 5)
+	{
+		create_btn_with_arrow(parent, &btn_group->btn_a[4], name4, row+1, 3);
+	}
+
+	if(count == 6)
+	{
+		create_btn_with_arrow(parent, &btn_group->btn_a[5], name5, row+1, 4);
+	}
+
 	btn_group_set_sel(btn_group, 0);
 }

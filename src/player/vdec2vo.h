@@ -41,12 +41,14 @@ typedef struct
     int            initRotation;
     VdecParams_t   vdec;
     VoParams_t     vo;
+
+    DEMUX_CHN      dmxChn;
+    CLOCK_CHN      clkChn;
 } Vdec2VoParams_t;
 
 typedef struct
 {
     VDEC_CHN   vdecChn;
-    CLOCK_CHN  clkChn;
 
     VO_DEV     voDev;
     VO_LAYER   voLayer;
@@ -66,6 +68,7 @@ ERRORTYPE vdec2vo_pause(Vdec2VoContext_t *vvCtx);
 ERRORTYPE vdec2vo_start(Vdec2VoContext_t *vvCtx);
 ERRORTYPE vdec2vo_currentMediaTime(Vdec2VoContext_t *vvCtx, int* mediaTime);
 ERRORTYPE vdec2vo_checkEof(Vdec2VoContext_t *vvCtx);
+ERRORTYPE vdec2vo_setVdecEof(Vdec2VoContext_t* vvCtx);
 bool      vdec2vo_isEOF(Vdec2VoContext_t *vvCtx);
 
 #ifdef __cplusplus
