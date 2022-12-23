@@ -33,6 +33,7 @@ add_definitions(
 )
 
 # dependencies
+add_subdirectory(lib/lvgl)
 add_subdirectory(lib/minIni)
 add_subdirectory(lib/softwinner)
 
@@ -72,14 +73,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	${STANDARD_LIBRARIES}
 
-	liblvgl.a
-
+	lvgl
 	minIni
 	softwinner
-)
-target_link_directories(${PROJECT_NAME} PRIVATE 
-	build
-	src/lvgl/build/lib 
 )
 
 # image build
