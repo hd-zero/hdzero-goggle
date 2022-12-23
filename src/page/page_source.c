@@ -9,7 +9,7 @@
 #include "../core/common.hh"
 #include "../core/main_menu.h"
 #include "page_scannow.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 
 /////////////////////////////////////////////////////////////////////////
 // global

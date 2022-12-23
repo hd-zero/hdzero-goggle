@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include "fans.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "../page/page_common.h"
 #include "../page/page_fans.h"
 #include "../driver/nct75.h"

@@ -19,7 +19,7 @@
 #include "../driver/dm5680.h"
 #include "../driver/hardware.h"
 #include "fbtools.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "../driver/fans.h"
 #include "../core/imagesetting.h"
 

@@ -31,7 +31,7 @@
 #include "../page/page_scannow.h"
 #include "../page/page_power.h"
 #include "../page/page_source.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "../bmi270/accel_gyro.h"
 #include "thread.h"
 

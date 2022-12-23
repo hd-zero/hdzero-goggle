@@ -33,6 +33,7 @@ add_definitions(
 )
 
 # dependencies
+add_subdirectory(lib/minIni)
 add_subdirectory(lib/softwinner)
 
 # application
@@ -43,7 +44,6 @@ file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
 file(GLOB SRC_FILES_PAGE   "src/page/*.c" "src/page/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
-file(GLOB SRC_FILES_MINIINI   "src/minIni/minIni.c" "src/minIni/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 
 add_executable(${PROJECT_NAME}  
@@ -54,7 +54,6 @@ add_executable(${PROJECT_NAME}
 	${SRC_FILES_PAGE} 
 	${SRC_FILES_BMI} 
 	${SRC_FILES_WINDOW}
-	${SRC_FILES_MINIINI}
 	${SRC_FILES_PLAYER}
 )
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
@@ -75,6 +74,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 	liblvgl.a
 
+	minIni
 	softwinner
 )
 target_link_directories(${PROJECT_NAME} PRIVATE 
