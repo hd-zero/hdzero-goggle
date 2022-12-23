@@ -2,7 +2,7 @@
 
 #include "page_common.h"
 #include "style.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 
 
 static lv_coord_t col_dsc[] = {100,150,180,220,180,160, LV_GRID_TEMPLATE_LAST};

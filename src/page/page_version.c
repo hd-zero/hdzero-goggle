@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "../minIni/minIni.h"
+#include "minIni.h"
 
 #include "common.hh"
 #include "style.h"

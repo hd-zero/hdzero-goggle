@@ -2,7 +2,7 @@
 #include "page_record.h"
 #include "page_common.h"
 #include "style.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "playback.h"
 #include "../core/common.hh"
 

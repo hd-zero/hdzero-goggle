@@ -4,7 +4,7 @@
 #include "page_common.h"
 #include "style.h"
 #include "mcp3021.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "../core/common.hh"
 
 static btn_group_t btn_group1;

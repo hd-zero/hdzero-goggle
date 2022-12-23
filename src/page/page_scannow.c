@@ -11,7 +11,7 @@
 #include "../driver/oled.h"
 #include "../driver/porting.h"
 #include "../driver/hardware.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "../core/osd.h"
 #include "../core/defines.h"
 #include "../core/common.hh"

@@ -3,7 +3,7 @@
 #include "imagesetting.h"
 #include "oled.h"
 #include "page_common.h"
-#include "../minIni/minIni.h"
+#include "minIni.h"
 #include "hardware.h"
 #include "common.hh"
 ///////////////////////////////////////////////////////////////////////////////

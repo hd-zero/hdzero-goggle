@@ -12,7 +12,7 @@
 #include "porting.h"
 #include <pthread.h>
 
-#include "../minIni/minIni.h"
+#include "minIni.h"
 
 #include "main_menu.h"
 #include "osd.h"
