@@ -1,26 +1,33 @@
-# Initial setup
+# HDZero Goggle Firmware
 
-## 1. Extract supporting libraries and head files
+## Environment Setup
 
-```
-~/hdz_goggle/code$ tar xzvf linux-4.9.tar.gz
-~/hdz_goggle/code$ cat media.tar.gzaa media.tar.gzab > media.tar.gz
-~/hdz_goggle/code$ tar xzvf media.tar.gz
-~/hdz_goggle/code$ tar xzvf toolchain.tar.gz
-```
+The firmware can either be built in a [devcontainer](https://containers.dev/) or natively on a linux machine.
 
-## 2. Setup cmake environment
+### Devcontainer Setup
 
-```
-~/hdz_goggle/workspace/code$./setup.sh
-```
+This repository supports the [vscode devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) integration.  
+To get started install docker, vscode and the decontainer extension.  
+A [prompt](https://code.visualstudio.com/docs/devcontainers/create-dev-container#_add-configuration-files-to-a-repository) to reopen this repository in a container should appear.
 
-# Build code
+### Native Setup
+
+CMake is required for generating the build files.  
+A bash script is supplied to take care of the bootstrap process:
 
 ```
- ~/hdz_goggle/code/$cd build
- ~/hdz_goggle/code/build$make clean all
+~/hdzero-goggle$ ./setup.sh
 ```
 
-the firmware is generated on ~/hdz_goggle/code/out/HDZERO_GOGGLE-x.x.x.bin
+## Building the Firmware
+
+In either of the above scenarios the firmware can be built via make.  
+An appropiate vscode build task ships with this repository as well.
+
+```
+~/hdzero-goggle$ cd build
+~/hdzero-goggle/build$ make clean all
+```
+
+The firmware is generated as ~/hdz_goggle/code/out/HDZERO_GOGGLE-x.x.x.bin
 Where x.x.x is the OTA_VER.RX_VER.VA_VER
