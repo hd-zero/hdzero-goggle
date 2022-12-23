@@ -78,11 +78,12 @@ void osd_rec_update(bool enable);
 void osd_show(bool show);
 char* channel2str(uint8_t channel);
 
-int load_osd_file(const char *file);
+void load_fc_osd_font(void);
 void rbtn_click(bool is_short, int mode);
 
 void *thread_osd(void *ptr);
 
 void sel_audio_source(uint8_t audio_source);
 void enable_line_out(bool bEnable);
+void confirm_recording();
 #endif

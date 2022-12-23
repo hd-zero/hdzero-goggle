@@ -7,7 +7,6 @@
 #include "page_common.h"
 lv_obj_t *page_power_create(lv_obj_t *parent, struct panel_arr *arr);
 void set_voltage(int val);
-void set_display_voltage(bool is_display);
 void set_warning_type(int type);
 void power_set_toggle(int sel);
 void power_voltage_inc(void);

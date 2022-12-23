@@ -92,6 +92,7 @@ int statusbar_init(void)
     lv_label_set_long_mode(label0, LV_LABEL_LONG_SCROLL_CIRCULAR); 
     lv_label_set_text(label0, "SD Card                 ");
     lv_obj_set_width(label0, 267);  /*Set smaller width to make the lines wrap*/
+	lv_label_set_recolor(label0, true);    
     lv_obj_set_style_text_align(label0, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label0, lv_color_make(255,255,255), 0);
 	lv_obj_set_grid_cell(label0, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
@@ -228,7 +229,7 @@ void  statubar_update(void)
 	if(g_sdcard_enable){
 		int cnt = get_videofile_cnt();
 		float gb = g_sdcard_size/1024.0;
-		bool bFull = (gb < 0.1);
+		bool bFull = g_sdcard_size < 103;
 		lv_img_set_src(img_sdc, &img_sdcard);
 		if(cnt != 0) {
 			if(bFull) 
@@ -238,7 +239,7 @@ void  statubar_update(void)
 		}
 		else {
 			if(bFull)
-				sprintf(buf, "SD Card Full");
+				sprintf(buf, "#FF0000 SD Card Full#");
 			else 
 				sprintf(buf, "%.2fGB available", gb);
 		}

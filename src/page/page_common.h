@@ -12,7 +12,8 @@
 #define REC_START   	"/mnt/app/app/record/gogglecmd -rec start"
 #define REC_STOP    	"/mnt/app/app/record/gogglecmd -rec stop"
 #define REC_CONF    	"/mnt/app/app/record/confs/record.conf"
-#define OSD_FILE    	"/mnt/app/OSD_FONT_BTFL_montserrant.bmp"   /*  "/mnt/app/betaflight_OSD512.bmp" */
+#define FC_OSD_LOCAL_PATH	"/mnt/app/resource/OSD/FC/"
+#define FC_OSD_SDCARD_PATH	"/mnt/extsd/resource/OSD/FC/"
 
 #define RESOURCE_PATH   "A:/mnt/app/app/resource/"
 #define recording_bmp   "recording.bmp"
@@ -66,7 +67,8 @@ typedef struct {
 
 typedef struct {
 	bool status;
-	int  source; //0=HDZero,1=Analog,2=HDMI in
+	int  last_source;
+	int  source; //0=Last mem, 1=HDZero,2= Expansion, 3=AV in,4=HDMI in
 } setting_autoscan_t;
 
 typedef struct {
@@ -122,7 +124,6 @@ typedef struct {
 
 typedef struct {
 	btn_with_arr_t btn_a[6];
-
 	int valid;
 	int current;
 } btn_group_t;
@@ -177,7 +178,11 @@ void create_btn_item(lv_obj_t *parent, const char *name,int col, int row);
 
 lv_obj_t* create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 
-void create_btn_group_item(btn_group_t *btn_group,lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,const char *name2,const char *name3, int row);
+void create_btn_group_item(btn_group_t *btn_group,lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,\
+							const char *name2,const char *name3, int row);
+
+void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,\
+							const char *name2,const char *name3, const char *name4,const char *name5,int row);
 
 void set_select_item(const struct panel_arr *arr, int row);
 

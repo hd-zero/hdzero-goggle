@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #define SD_HMAX     30
-#define SD_HMAX_EXT 53
 #define SD_VMAX     16
 #define HD_HMAX     50
 #define HD_VMAX     18
@@ -43,13 +42,6 @@ typedef enum{
     RX_CRC1
 }rx_state_e;
 
-typedef enum{
-    BTFL,
-    INAV,
-    ARDU,
-    FC_END
-}fc_variant_e;
-
 //void fc_msp_displayport();
 void fc_init();
 void mcu_osd_init();
@@ -70,7 +62,7 @@ void vtxTempDetect(uint8_t rData);
 
 extern video_resolution_t CAM_MODE;
 
-extern uint8_t          fc_variant[4];
+extern char             fc_variant[5];
 extern uint8_t          link_quality;
 extern uint8_t          vtxTempInfo;  // bit[7]: temp enbale bit[6:0]: temp(0~9)
 extern uint8_t          fontType;
@@ -82,8 +74,8 @@ extern uint8_t          cam_4_3;
 extern int              seconds;
 
 extern uint8_t fc_init_done;
-extern uint16_t osd_buf[HD_VMAX][SD_HMAX_EXT];
-extern uint16_t osd_buf_shadow[HD_VMAX][SD_HMAX_EXT];
+extern uint16_t osd_buf[HD_VMAX][HD_HMAX];
+extern uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 extern uint8_t loc_buf[HD_VMAX][4];
 extern uint8_t osd_page_buf[HD_VMAX][7];
 
