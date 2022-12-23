@@ -42,8 +42,17 @@ static uint32_t record_time = 0;
 void msp_process_packet();
 
 static const uint16_t freq_table[] = {
-    5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R
-    5740, 5760 // F
+    5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R1-8
+    5760, 5800 // F2/4
+};
+
+static const uint8_t channel_map[] = {
+	0, 0, 0, 0, 0, 0, 0, 0,	// A
+	0, 0, 0, 0, 0, 0, 0, 0, // B
+	0, 0, 0, 0, 0, 0, 0, 0, // E
+	0, 9, 0, 10, 0, 0, 0, 0, // F
+	1, 2, 3, 4, 5, 6, 7, 8, // R
+	0, 0, 0, 0, 0, 0, 0, 0, // L
 };
 
 void elrs_init()
@@ -209,19 +218,17 @@ void msp_process_packet()
 			case MSP_SET_BAND_CHAN:
 				{
 					uint8_t chan = packet.payload[0];
-					if (chan > 4*8) {
-						chan = chan - 4*8 + 1;	// Map R1..8
-					} else {
-						chan = (chan - 3*8 - 1) / 2 + 9;	// Map F2/4
-					}
-					if ((chan != g_setting.scan.channel || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {
-						g_setting.scan.channel = chan;
-						beep();
-						pthread_mutex_lock(&lvgl_mutex);
-						HDZero_open();
-						switch_to_video(true);
-						g_menu_op = OPLEVEL_VIDEO;
-						pthread_mutex_unlock(&lvgl_mutex);
+					if (g_source_info.source == 0) {	// HDZero mode
+						chan = chan < 48 ? channel_map[chan] : 0;
+						if (chan != 0 && (chan != g_setting.scan.channel || g_menu_op != OPLEVEL_VIDEO)) {
+							g_setting.scan.channel = chan;
+							beep();
+							pthread_mutex_lock(&lvgl_mutex);
+							HDZero_open();
+							switch_to_video(true);
+							g_menu_op = OPLEVEL_VIDEO;
+							pthread_mutex_unlock(&lvgl_mutex);
+						}
 					}
 				}
 				break;
@@ -235,17 +242,19 @@ void msp_process_packet()
 			case MSP_SET_FREQ:
 				{
 					uint16_t freq = packet.payload[0] | (uint16_t)packet.payload[1] << 8;
-					for (int i=0 ; i<10 ; i++) {
-						int chan = i+1;
-						if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {
-							g_setting.scan.channel = chan;
-							beep();
-							pthread_mutex_lock(&lvgl_mutex);
-							HDZero_open();
-							switch_to_video(true);
-							g_menu_op = OPLEVEL_VIDEO;
-							pthread_mutex_unlock(&lvgl_mutex);
-							break;
+					if (g_source_info.source == 0) {	// HDZero mode
+						for (int i=0 ; i<10 ; i++) {
+							int chan = i+1;
+							if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {
+								g_setting.scan.channel = chan;
+								beep();
+								pthread_mutex_lock(&lvgl_mutex);
+								HDZero_open();
+								switch_to_video(true);
+								g_menu_op = OPLEVEL_VIDEO;
+								pthread_mutex_unlock(&lvgl_mutex);
+								break;
+							}
 						}
 					}
 				}
