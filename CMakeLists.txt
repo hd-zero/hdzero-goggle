@@ -35,25 +35,24 @@ add_definitions(
 # dependencies
 add_subdirectory(lib/lvgl)
 add_subdirectory(lib/minIni)
+add_subdirectory(lib/esp-loader)
 add_subdirectory(lib/softwinner)
 
 # application
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
-FILE(GLOB SRC_FILES_ESP32  "src/esp32/*.c" "src/esp32/*.h")
 file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
 file(GLOB SRC_FILES_PAGE   "src/page/*.c" "src/page/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 
-add_executable(${PROJECT_NAME}  
-	${SRC_FILES_CORE} 
-	${SRC_FILES_DRIVER} 
-	${SRC_FILES_ESP32}
-	${SRC_FILES_IMAGE} 
-	${SRC_FILES_PAGE} 
-	${SRC_FILES_BMI} 
+add_executable(${PROJECT_NAME}
+	${SRC_FILES_CORE}
+	${SRC_FILES_DRIVER}
+	${SRC_FILES_IMAGE}
+	${SRC_FILES_PAGE}
+	${SRC_FILES_BMI}
 	${SRC_FILES_WINDOW}
 	${SRC_FILES_PLAYER}
 )
@@ -75,6 +74,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 	lvgl
 	minIni
+	esp-loader
 	softwinner
 )
 

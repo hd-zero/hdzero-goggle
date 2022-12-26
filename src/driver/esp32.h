@@ -2,7 +2,7 @@
 #define __ESP32_H__
 
 #include <stdint.h>
-#include "../esp32/esp_loader.h"
+#include "esp_loader.h"
 
 void esp32_init();
 void enable_esp32();
