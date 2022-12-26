@@ -67,7 +67,7 @@ page_pack_t pp_autoscan = {
 page_pack_t pp_connections = {
 	.p_arr = {
 		.cur = 0,
-		.max = 8,
+		.max = 9,
 	}
 };
 page_pack_t pp_headtracker = {
@@ -90,37 +90,37 @@ LV_IMG_DECLARE(img_arrow);
 
 page_pack_t * find_pp(lv_obj_t *page)
 {
-	if(pp_scannow.page == page)	
+	if(pp_scannow.page == page)
 		return &pp_scannow;
 
-	if(pp_source.page == page)	
+	if(pp_source.page == page)
 		return &pp_source;
 
-	if(pp_imagesettings.page == page)	
+	if(pp_imagesettings.page == page)
 		return &pp_imagesettings;
 
-	if(pp_power.page == page)	
+	if(pp_power.page == page)
 		return &pp_power;
 
-	if(pp_fans.page == page)	
+	if(pp_fans.page == page)
 		return &pp_fans;
 
-	if(pp_record.page == page)	
+	if(pp_record.page == page)
 		return &pp_record;
 
-	if(pp_autoscan.page == page)	
+	if(pp_autoscan.page == page)
 		return &pp_autoscan;
 
-	if(pp_connections.page == page)	
+	if(pp_connections.page == page)
 		return &pp_connections;
 
-	if(pp_headtracker.page == page)	
+	if(pp_headtracker.page == page)
 		return &pp_headtracker;
 
-	if(pp_playback.page == page)	
+	if(pp_playback.page == page)
 		return &pp_playback;
 
-	if(pp_version.page == page)	
+	if(pp_version.page == page)
 		return &pp_version;
 
 	return NULL;
@@ -159,7 +159,7 @@ void submenu_enter(void)
 	page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
 	if(!pp) return;
 
-	if(pp == &pp_scannow) { 
+	if(pp == &pp_scannow) {
 		auto_scaned_cnt = scan();
 		Printf("scan return :%d\n", auto_scaned_cnt);
 
@@ -170,14 +170,14 @@ void submenu_enter(void)
 			g_menu_op = OPLEVEL_VIDEO;
 			switch_to_video(false);
 		}
-		
+
 		if(auto_scaned_cnt == -1)
 			submenu_exit();
 
 		return;
 	}
 	else if(pp == &pp_playback) {
-		if(!init_pb()) 
+		if(!init_pb())
 			submenu_exit(); //won't enter sub menu if no video file is found
 		return;
 	}
@@ -236,14 +236,14 @@ void submenu_exit()
 
 	if(pp == &pp_playback)
 		pb_key(DIAL_KEY_PRESS);
-	else if(pp == &pp_scannow)	
+	else if(pp == &pp_scannow)
 		HDZero_Close();
-	else if(pp == &pp_source) {	
+	else if(pp == &pp_source) {
 		pp_source_exit();
 		in_sourcepage = false;
 	}
 	else if(pp == &pp_record) {
-		formatsd_negtive();	
+		formatsd_negtive();
 	}
 
 	//No need to remove the selected bar on ScanNow and Playback page
@@ -255,10 +255,10 @@ void submenu_fun(void)
 {
 	page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
 	if(!pp) return;
-	
+
 	if(pp == &pp_scannow) {
 		g_menu_op = OPLEVEL_VIDEO;
-		switch_to_video(false);	
+		switch_to_video(false);
 	}
 	else if(pp == &pp_playback) {
 		pb_key(DIAL_KEY_CLICK);
@@ -267,37 +267,37 @@ void submenu_fun(void)
 	{
 		if((pp == &pp_fans) )
 		{
-			fans_mode_toggle(pp->p_arr.cur);	
+			fans_mode_toggle(pp->p_arr.cur);
 		}
 		if((pp == &pp_source) )
 		{
-			source_mode_set(pp->p_arr.cur);	
+			source_mode_set(pp->p_arr.cur);
 		}
 		if((pp == &pp_autoscan) )
 		{
-			autoscan_toggle(pp->p_arr.cur);	
+			autoscan_toggle(pp->p_arr.cur);
 		}
 		if((pp == &pp_power) )
 		{
-			power_set_toggle(pp->p_arr.cur);	
+			power_set_toggle(pp->p_arr.cur);
 		}
 		if((pp == &pp_connections) )
 		{
-			connect_function(pp->p_arr.cur);	
+			connect_function(pp->p_arr.cur);
 		}
 		if((pp == &pp_record) )
 		{
-			record_set_toggle(pp->p_arr.cur);	
+			record_set_toggle(pp->p_arr.cur);
 		}
 
 		if(pp == &pp_headtracker)
 		{
-			headtracker_set_toggle(pp->p_arr.cur);	
+			headtracker_set_toggle(pp->p_arr.cur);
 		}
 
 		if((pp == &pp_version) )
 		{
-			version_update(pp->p_arr.cur);	
+			version_update(pp->p_arr.cur);
 		}
 
 
@@ -422,7 +422,7 @@ static void ui_create_rootpage(lv_obj_t * parent)
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(parent), 0), 0), LV_EVENT_CLICKED, NULL);
 	lv_obj_add_flag(lv_menu_get_sidebar_header(parent), LV_OBJ_FLAG_HIDDEN);
 	lv_obj_clear_flag(lv_menu_get_cur_sidebar_page(parent), LV_OBJ_FLAG_SCROLLABLE);
-	
+
 }
 
 static void menu_reinit(void)
@@ -471,7 +471,7 @@ void main_menu_show(bool is_show)
 
 void main_menu_toggle(void)
 {
-	
+
 	if(lv_obj_has_flag(menu , LV_OBJ_FLAG_HIDDEN)){
 		lv_obj_clear_flag(menu, LV_OBJ_FLAG_HIDDEN);
 		menu_reinit();
@@ -498,10 +498,10 @@ void main_menu_init(void)
 
 	if(g_test_en)
 		pp_source.p_arr.max = 6;
-	else	
+	else
 		pp_source.p_arr.max = 5;
 	pp_source.page = page_source_create(menu, &pp_source.p_arr);
-	
+
 	pp_imagesettings.page = page_imagesettings_create(menu, &pp_imagesettings.p_arr);
 	pp_power.page = page_power_create(menu, &pp_power.p_arr);
 	pp_fans.page = page_fans_create(menu, &pp_fans.p_arr);
@@ -511,7 +511,7 @@ void main_menu_init(void)
 	pp_headtracker.page = page_headtracker_create(menu, &pp_headtracker.p_arr);
 	pp_playback.page = page_playback_create(menu);
 	pp_version.page = page_version_create(menu, &pp_version.p_arr);
-	
+
 	ui_create_rootpage(menu);
 
 	progress_bar.bar = lv_bar_create(lv_scr_act());
@@ -552,7 +552,7 @@ void progress_bar_update()
 		if(progress_bar.val <100)
 			progress_bar.val+=4;
 		lv_bar_set_value(progress_bar.bar, progress_bar.val, LV_ANIM_OFF);
-		lv_timer_handler();	
+		lv_timer_handler();
 	}
 }
 
@@ -566,8 +566,7 @@ void autoscan_exit(void)
 		g_autoscan_exit = true;
 		if(auto_scaned_cnt >1)
 			g_menu_op = OPLEVEL_SUBMENU;
-		else	
+		else
 			g_menu_op = OPLEVEL_MAINMENU;
 	}
 }
-

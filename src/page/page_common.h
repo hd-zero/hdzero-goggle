@@ -99,6 +99,10 @@ typedef struct {
 } head_tracker_t;
 
 typedef struct {
+	int enable;
+} elrs_t;
+
+typedef struct {
 	setting_scan_t scan;
 	setting_fan_t fans; 
 	setting_autoscan_t autoscan;
@@ -106,6 +110,7 @@ typedef struct {
 	setting_record_t record;
 	setting_image_t image;
 	head_tracker_t	ht;
+	elrs_t elrs;
 } setting_t;
 
 typedef struct _source_info {

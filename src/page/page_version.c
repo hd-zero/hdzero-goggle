@@ -37,22 +37,14 @@ static bool is_need_update_progress = false;
 static bool reboot_flag = false;
 static lv_obj_t* cur_ver_label;
 
-#define CURRENT_VER_MAX (64)
-typedef struct {
-	uint8_t rx;
-	uint8_t va;
-	uint8_t app;
-	char current[CURRENT_VER_MAX];
-}sys_version_t;
-
-static int generate_current_version(sys_version_t *sys_ver)
+int generate_current_version(sys_version_t *sys_ver)
 {
 	char strline[128];
 	char strtmp[25];
 	memset(strtmp, 0, sizeof(strtmp));
 	sys_ver->va = I2C_Read(ADDR_FPGA, 0xff);
 	sys_ver->app = 0;
-	sys_ver->rx = rx_status[0].rx_ver; 
+	sys_ver->rx = rx_status[0].rx_ver;
 
 	FILE *fp = fopen("/mnt/app/version", "r");
 	if(!fp)
@@ -73,12 +65,12 @@ static int generate_current_version(sys_version_t *sys_ver)
 		Printf(">>%s\n", strline);
 	}
 
-	Printf("va:%d, rx:%d, app:%d\n", sys_ver->va, 
+	Printf("va:%d, rx:%d, app:%d\n", sys_ver->va,
 							sys_ver->rx,
 							sys_ver->app);
 	fclose(fp);
 
-	sprintf(sys_ver->current, "%d.%d.%d", 
+	sprintf(sys_ver->current, "%d.%d.%d",
 							sys_ver->app,
 							sys_ver->rx,
 							sys_ver->va);
@@ -116,7 +108,7 @@ lv_obj_t *page_version_create(lv_obj_t *parent, struct panel_arr *arr)
 
 	create_select_item(arr, cont);
 	cur_ver_label = create_label_item(cont, "Current Version:", 1, 0, 2);
-	
+
 	label0 = create_label_item(cont, "Update VTX", 1, 1, 2);
 	label1 = create_label_item(cont, "Update Goggle", 1, 2, 2);
 	create_label_item(cont, "<Back", 1, 3, 1);
@@ -138,8 +130,8 @@ lv_obj_t *page_version_create(lv_obj_t *parent, struct panel_arr *arr)
 
 uint8_t command_monitor(char* cmd)
 {
-	FILE   *stream;  
-	char   buf[128]; 
+	FILE   *stream;
+	char   buf[128];
 	size_t rsize = 0;
 	uint8_t ret;
 
@@ -149,13 +141,13 @@ uint8_t command_monitor(char* cmd)
 	Printf("---%s---\n", cmd);
 	ret = 0;
 	do{
-		rsize = fread( buf, sizeof(char), sizeof(buf),  stream);  
+		rsize = fread( buf, sizeof(char), sizeof(buf),  stream);
 		Printf("%s", buf);
 		if(strstr(buf, "all done"))  {ret = 1; break;}
 		else if(strstr(buf, "skip"))  {ret = 2; break;}
 		else if(strstr(buf, "repeat"))  {ret = 3; break;}
 	} while(rsize  == sizeof(buf));
-	pclose( stream ); 
+	pclose( stream );
 	Printf("\n");
 	return ret;
 }
@@ -196,16 +188,16 @@ void version_update(int sel)
 		lv_obj_clear_flag(bar0, LV_OBJ_FLAG_HIDDEN);
 		lv_label_set_text(label0, "Flashing..");
 		lv_timer_handler();
-										 
+
 		is_need_update_progress = true;
 		ret = command_monitor("/mnt/app/script/update_vtx.sh");
-		is_need_update_progress = false; 
+		is_need_update_progress = false;
 
 		if(ret == 1){
 			if(file_compare("/tmp/HDZERO_TX.bin","/tmp/HDZERO_TX_RB.bin")) {
 				lv_label_set_text(label0, "#000FF00 SUCCESS#");
 			}
-			else	
+			else
 				lv_label_set_text(label0, "#FF0000 Verification failed, try it again#");
 		}
 		else if(ret == 2) {
@@ -242,7 +234,7 @@ void version_update(int sel)
 			}
 			else
 				lv_label_set_text(label1, "#FF0000 FAILED#");
-			reboot_flag = true;	
+			reboot_flag = true;
 			lv_timer_handler();
 			while(1); //dead loop
 		}
@@ -273,7 +265,7 @@ void process_bar_update(const int value0,
 
 void bar_update(int sel, int value)
 {
-	if(bar1 && sel) 
+	if(bar1 && sel)
 		lv_bar_set_value(bar1, value, LV_ANIM_OFF);
 	else if(bar0 && !sel)
 		lv_bar_set_value(bar0, value, LV_ANIM_OFF);
@@ -308,12 +300,12 @@ void version_update_title()
 // for progress info
 static int get_progress_info(int *v0, int *v1)
 {
-		FILE   *stream;  
-		char   buf[128]; 
+		FILE   *stream;
+		char   buf[128];
 		memset( buf, '\0', sizeof(buf) );
 		stream = popen( "/mnt/app/script/get_progress_info.sh" , "r" );
-		fread( buf, sizeof(char), sizeof(buf),  stream);  
-		pclose( stream ); 
+		fread( buf, sizeof(char), sizeof(buf),  stream);
+		pclose( stream );
 
 		char *pos = strchr(buf, 0xa);
 		char buf_v0[10];
@@ -355,7 +347,7 @@ void *thread_version(void *ptr)
 			{
 				if(is_step1 == false)
 					percentage = 1;
-					
+
 				is_step1 = true;
 
 				if(sec_last != sec)
@@ -390,7 +382,7 @@ void *thread_version(void *ptr)
 			lv_timer_handler();
 		//	pthread_mutex_unlock(&lvgl_mutex);
 		}
-		
+
 		if(count >= 10)
 		{
 			count = 0;
