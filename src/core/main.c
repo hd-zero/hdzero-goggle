@@ -16,6 +16,7 @@
 #include "thread.h"
 #include "imagesetting.h"
 #include "ht.h"
+#include "elrs.h"
 #include "../driver/hardware.h"
 #include "../driver/porting.h"
 #include "../driver/fans.h"
@@ -26,6 +27,7 @@
 #include "../driver/it66121.h"
 #include "../driver/mcp3021.h"
 #include "../driver/i2c.h"
+#include "../driver/esp32.h"
 #include "../page/page_scannow.h"
 #include "../page/page_power.h"
 #include "../page/page_source.h"
@@ -116,7 +118,9 @@ static void load_ini_setting(void)
 	if(!g_setting.ht.enable) 
 			disable_ht();
 
-	//Check 
+	g_setting.elrs.enable = ini_getl("elrs", "enable", 0, SETTING_INI);
+
+	//Check
     g_test_en = false;
     log_file = fopen(LOG_FILE,"r");
     if(log_file) {
@@ -202,6 +206,9 @@ void start_running(void)
 
 	set_voltage(g_setting.power.voltage);
 	set_warning_type(g_setting.power.warning_type);
+
+	if (g_setting.elrs.enable)
+		enable_esp32();
 }
 
 static void device_init(void)
@@ -260,7 +267,10 @@ int main(int argc, char* argv[])
 
 	osd_init(); 
 	ims_init();
-	
+
+	esp32_init();
+	elrs_init();
+
 	start_running(); //start to run from saved settings
 	create_threads();
 	g_init_done = 1;

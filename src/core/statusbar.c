@@ -111,7 +111,7 @@ int statusbar_init(void)
 
     label2 = lv_label_create(cont);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_DOT);     /*Break the long lines*/
-    lv_label_set_text(label2, "ESP32:Off");
+    lv_label_set_text(label2, "ELRS:Off");
     lv_obj_set_width(label2, 267);  /*Set smaller width to make the lines wrap*/
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
@@ -250,4 +250,9 @@ void  statubar_update(void)
 	}
 
 	lv_label_set_text(label0, buf);
+
+	if (g_setting.elrs.enable)
+    	lv_label_set_text(label2, "ELRS:On ");
+	else
+    	lv_label_set_text(label2, "ELRS:Off");
 }

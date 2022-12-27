@@ -23,12 +23,12 @@ uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt)
     }
 
     switch(*state) {
-        case 0: 
+        case 0:
             *state = key + 10;
             *cnt = 1;
             break;
 
-        case 11: 
+        case 11:
             if(key == LEFT_DAIL_UP) {
                 if(*cnt == DIAL_SENSITIVITY) {
                     *state = 0;
@@ -173,7 +173,7 @@ bool file_compare(char* f1,char* f2)
     FILE* fp2;
     char  c1,c2;
     bool  ret;
-    
+
     fp1 = fopen(f1,"r");
     if(!fp1) return false;
 
@@ -205,11 +205,15 @@ void gpio_init()
     open_gpio(GPIO_TXRESET);
     open_gpio(GPIO_BEEP);
     open_gpio(GPIO_TP2825_RSTB);
+    open_gpio(GPIO_ESP32_EN);
+    open_gpio(GPIO_ESP32_BOOT0);
 
     set_gpio(GPIO_BEEP,0);
     set_gpio(GPIO_TXRESET,0);
     set_gpio(GPIO_RXRESET,1);
     set_gpio(GPIO_TP2825_RSTB,0);
+    set_gpio(GPIO_ESP32_EN,0);
+    set_gpio(GPIO_ESP32_BOOT0,0);
 }
 
 
@@ -248,4 +252,3 @@ void beep_n(int dur_us)
     usleep(dur_us);
     set_gpio(GPIO_BEEP,0);
 }
-

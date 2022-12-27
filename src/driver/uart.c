@@ -22,10 +22,10 @@ static char* uart_ports[UART_PORTS] = {
     "/dev/ttyS3",
 };
 
-static int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
+int uart_set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
 {
 	struct termios newtio,oldtio;
-	if  ( tcgetattr( fd,&oldtio)  !=  0) { 
+	if  ( tcgetattr( fd,&oldtio)  !=  0) {
 		perror("SetupSerial 1");
 		return -1;
 	}
@@ -50,12 +50,12 @@ static int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
 		newtio.c_cflag |= PARODD;
 		newtio.c_iflag |= (INPCK | ISTRIP);
 		break;
-	case 'E': 
+	case 'E':
 		newtio.c_iflag |= (INPCK | ISTRIP);
 		newtio.c_cflag |= PARENB;
 		newtio.c_cflag &= ~PARODD;
 		break;
-	case 'N':  
+	case 'N':
 		newtio.c_cflag &= ~PARENB;
 		break;
 	}
@@ -77,6 +77,10 @@ static int set_opt(int fd,int nSpeed, int nBits, char nEvent, int nStop)
 	case 115200:
 		cfsetispeed(&newtio, B115200);
 		cfsetospeed(&newtio, B115200);
+		break;
+	case 230400:
+		cfsetispeed(&newtio, B230400);
+		cfsetospeed(&newtio, B230400);
 		break;
 	case 460800:
 		cfsetispeed(&newtio, B460800);
@@ -111,7 +115,7 @@ int uart_read(int fd, uint8_t* data, int len)
     return bytes_read;
 }
 
-static int uart_write(int fd, uint8_t* data, int len)
+int uart_write(int fd, uint8_t* data, int len)
 {
     int bytes_written  = 0;  	/* Value for storing the number of bytes written to the port */
 
@@ -123,6 +127,7 @@ void uart_close(int fd)
 {
 	close(fd);
 }
+
 int uart_open(int port_num)
 {
     char* port = uart_ports[port_num];
@@ -131,7 +136,7 @@ int uart_open(int port_num)
 	{
 		return -1;
 	}
-	set_opt(fd, 115200, 8, 'N', 1); 
+	uart_set_opt(fd, 115200, 8, 'N', 1);
     return fd;
 }
 
