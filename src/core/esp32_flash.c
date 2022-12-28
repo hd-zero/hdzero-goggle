@@ -15,7 +15,7 @@
 #include "../core/common.hh"
 #include "uart.h"
 
-#include "../esp32/serial_io.h"
+#include "serial_io.h"
 
 static int fd_esp32 = -1;
 static int64_t s_time_end;
