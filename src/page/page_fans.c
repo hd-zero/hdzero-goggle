@@ -1,16 +1,18 @@
 #include "page_fans.h"
 
-#include "style.h"
-
 #include <stdio.h>
+
+#include <minIni.h>
+#include <log/log.h>
+
 #include "fans.h"
-#include "minIni.h"
-#include "../page/page_common.h"
-#include "../page/page_fans.h"
-#include "../driver/nct75.h"
-#include "../driver/fans.h"
+#include "style.h"
 #include "ui_attribute.h"
 #include "../core/common.hh"
+#include "../driver/fans.h"
+#include "../driver/nct75.h"
+#include "../page/page_common.h"
+#include "../page/page_fans.h"
 
 typedef enum {
 	FANS_MODE_TOP = 0,
@@ -233,7 +235,7 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe,uint8_t is_left)
 	}
 
 	if(cur_speed != new_speed)
-		Printf("%s Fan speed: %d (T=%d)\n", is_left? "Left": "Right",new_speed,tempe);
+		LOGI("%s Fan speed: %d (T=%d)", is_left? "Left": "Right",new_speed,tempe);
 
 	return new_speed;
 }
@@ -283,13 +285,13 @@ bool rescue_from_hot()
 			speeds_saved[0] = fan_speeds[0];
 			respeeding[0] = true;
 			fans_right_setspeed(MAX_FAN_SIDE);
-			Printf("Right fan: rescue ON.\n");
+			LOGI("Right fan: rescue ON.\n");
 		}
 	}
 	else if(respeeding[0] &&(g_temperature.right < FAN_TEMPERATURE_THR_L)) {
 		fans_right_setspeed(speeds_saved[0]);
 		respeeding[0] = false;
-		Printf("Right fan: rescue OFF.\n");
+		LOGI("Right fan: rescue OFF.");
 	}
 
 	//Left
@@ -298,13 +300,13 @@ bool rescue_from_hot()
 			speeds_saved[1] = fan_speeds[1];
 			respeeding[1] = true;
 			fans_left_setspeed(MAX_FAN_SIDE);
-			Printf("Left fan: rescue ON.\n");
+			LOGI("Left fan: rescue ON.\n");
 		}
 	}
 	else if(respeeding[1] &&(g_temperature.left < FAN_TEMPERATURE_THR_L)) {
 		fans_left_setspeed(speeds_saved[1]);
 		respeeding[1] = false;
-		Printf("Left fan: rescue OFF.\n");
+		LOGI("Left fan: rescue OFF.");
 	}
 
 	//Top 
@@ -313,13 +315,13 @@ bool rescue_from_hot()
 			speeds_saved[2] = fan_speeds[2];
 			respeeding[2] = true;
 			fans_top_setspeed(MAX_FAN_TOP);
-			Printf("Top fan: rescue ON.\n");
+			LOGI("Top fan: rescue ON.\n");
 		}
 	}
 	else if(respeeding[2] &&(g_temperature.top < TOP_TEMPERATURE_NORM)) {
 		fans_top_setspeed(speeds_saved[2]);
 		respeeding[2] = false;
-		Printf("Top fan: rescue OFF.\n");
+		LOGI("Top fan: rescue OFF.");
 	}
 
 	g_temperature.is_rescuing = respeeding[0] || respeeding[1] || respeeding[2];

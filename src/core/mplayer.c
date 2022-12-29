@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <pthread.h>
-#include "lvgl/lvgl.h"
+
+#include <lvgl/lvgl.h>
+#include <log/log.h>
+
 #include "style.h"
 #include "mplayer.h"
 #include "common.hh"
@@ -180,7 +183,7 @@ uint8_t mplayer_on_key(uint8_t key)
 {
      if(!controller.enable) return 0;
  
-    Printf("mplayer_on_key: %d\n", key);
+    LOGI("mplayer_on_key: %d", key);
 
     switch(key) {
         case DIAL_KEY_PRESS: 
@@ -223,7 +226,7 @@ uint8_t mplayer_on_key(uint8_t key)
 //
 static void notify_cb(media_info_t *info)
 {
-    //Printf("%d/%d\n",info->playing_time,info->duration);
+    //LOGI("%d/%d",info->playing_time,info->duration);
 
     if(!media) return;
     if(info->playing_time == 0xFFFFFFFF) return;
@@ -241,7 +244,7 @@ void media_init(char* fname)
 {
     media = media_instantiate(fname, notify_cb);
 	if(!media) {
-        perror("media_instantiate failed.\n");
+        perror("media_instantiate failed.");
         return;
     }
 }
@@ -286,14 +289,14 @@ void media_seek(uint32_t seekto)
     //start
     media_start();
 
-    //Printf("media_seek %d\n",seekto);
+    //LOGI("media_seek %d",seekto);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // interface func
 void mplayer_file(char* fname)
 {
-    Printf("mplayer %s\n",fname);
+    LOGI("mplayer %s",fname);
     init_mplayer();
     media_init(fname);
     media_start();

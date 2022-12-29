@@ -5,7 +5,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdio.h>
 #include <linux/fb.h>
+
 //a framebuffer device structure;
 typedef struct fbdev{
     int fb;

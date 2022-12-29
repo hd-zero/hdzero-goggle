@@ -7,9 +7,9 @@
 /******************************************************************************/
 /*!                 Header Files                                              */
 #include <stdio.h>
+#include <log/log.h>
 #include "bmi270.h"
 #include "common.h"
-#include "common.hh"
 /******************************************************************************/
 /*!                Macro definition                                           */
 
@@ -71,7 +71,7 @@ void init_bmi270()
     /* Initialize bmi270. */
     rslt = bmi270_init(&bmi2_dev);
     bmi2_error_codes_print_result(rslt);
-    Printf("init_bmi270 done.\n");
+    LOGI("init_bmi270 done.");
 }
 
 void enable_bmi270()
@@ -85,10 +85,10 @@ void enable_bmi270()
     if (rslt == BMI2_OK) {
         rslt = bmi270_sensor_enable(sensor_list, 2, &bmi2_dev);
         bmi2_error_codes_print_result(rslt);
-        Printf("[Pass] BMI270 enabled.\n");
+        LOGI("[Pass] BMI270 enabled.");
     }
     else
-        Printf("[Error] BMI270 failed.\n");
+        LOGI("[Error] BMI270 failed.");
 }
 
 void disable_bmi270()
@@ -97,7 +97,7 @@ void disable_bmi270()
     uint8_t sensor_list[2] = { BMI2_ACCEL, BMI2_GYRO };
     rslt = bmi270_sensor_disable(sensor_list, 2, &bmi2_dev);
     bmi2_error_codes_print_result(rslt);
-    printf("disable_bmi270 done.\n");
+    LOGI("disable_bmi270 done.");
 }
 
 float acc_to_mps2(int16_t acc)
@@ -134,10 +134,10 @@ void get_bmi270(struct bmi2_sens_data* sensor_data)
 	        bmi2_error_codes_print_result(rslt);
 	#if 0
             float x[2],y[2],z[2];
-	        //printf("\n*******  Accel(Raw and m/s2) Gyro(Raw and dps) data : *******\n");
-		        //printf("\nAcc_x = %d\t", sensor_data->acc.x);
-	        //printf("Acc_y = %d\t", sensor_data->acc.y);
-	        //printf("Acc_z = %d", sensor_data->acc.z);
+	        //LOGI("*******  Accel(Raw and m/s2) Gyro(Raw and dps) data : *******");
+		        //LOGI("Acc_x = %d\t", sensor_data->acc.x);
+	        //LOGI("Acc_y = %d\t", sensor_data->acc.y);
+	        //LOGI("Acc_z = %d", sensor_data->acc.z);
 	
 	        /* Converting lsb to meter per second squared for 16 bit accelerometer at 2G range. */
 	        x[0] = lsb_to_mps2(sensor_data->acc.x, 2, bmi2_dev.resolution);
@@ -145,11 +145,11 @@ void get_bmi270(struct bmi2_sens_data* sensor_data)
 	        z[0] = lsb_to_mps2(sensor_data->acc.z, 2, bmi2_dev.resolution);
 	
 	        /* Print the data in m/s2. */
-	        //printf("\nAcc_ms2_X = %4.2f, Acc_ms2_Y = %4.2f, Acc_ms2_Z = %4.2f\n", x, y, z);
+	        //LOGI("Acc_ms2_X = %4.2f, Acc_ms2_Y = %4.2f, Acc_ms2_Z = %4.2f", x, y, z);
 	
-	        //printf("\nGyr_X = %d\t", sensor_data->gyr.x);
-	        //printf("Gyr_Y = %d\t", sensor_data->gyr.y);
-	        //printf("Gyr_Z= %d\n", sensor_data->gyr.z);
+	        //LOGI("Gyr_X = %d\t", sensor_data->gyr.x);
+	        //LOGI("Gyr_Y = %d\t", sensor_data->gyr.y);
+	        //LOGI("Gyr_Z= %d", sensor_data->gyr.z);
 	
 	        /* Converting lsb to degree per second for 16 bit gyro at 2000dps range. */
 	        x[1] = lsb_to_dps(sensor_data->gyr.x, 2000, bmi2_dev.resolution);
@@ -157,8 +157,8 @@ void get_bmi270(struct bmi2_sens_data* sensor_data)
 	        z[1] = lsb_to_dps(sensor_data->gyr.z, 2000, bmi2_dev.resolution);
 	
 	        /* Print the data in dps. */
-            //printf("Acc:%4.2f, %4.2f, %4.2f, Gyr: %4.2f, %4.2f, %4.2f \n", x[0], y[0], z[0],x[1], y[1], z[1]); 
-            printf("%d, %d, %d, %d, %d, %d \n", sensor_data->acc.x,sensor_data->acc.y, sensor_data->acc.z,\     //For pc simulation
+            //LOGI("Acc:%4.2f, %4.2f, %4.2f, Gyr: %4.2f, %4.2f, %4.2f ", x[0], y[0], z[0],x[1], y[1], z[1]); 
+            LOGI("%d, %d, %d, %d, %d, %d ", sensor_data->acc.x,sensor_data->acc.y, sensor_data->acc.z,\     //For pc simulation
                                                 sensor_data->gyr.x,sensor_data->gyr.y,sensor_data->gyr.z);
     #endif                
 	        ready = 1;

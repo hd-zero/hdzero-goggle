@@ -1,11 +1,13 @@
-
-
-#include "i2c.h"
-#include "uart.h"
 #include "oled.h"
+
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
+
+#include <log/log.h>
+
+#include "i2c.h"
+#include "uart.h"
 #include "../core/defines.h"
 #include "../core/common.hh"
 #include "msp_displayport.h"
@@ -118,8 +120,8 @@ void OLED_init()
     r3 = OLED_read(0xD003, 1);
     r4 = OLED_read(0xD004, 1);
     
-    Printf("OLED temp test: 0xD0 L = %x  %x  %x  %x  %x  \n", l0,l1,l2,l3,l4);
-    Printf("OLED temp test: 0xD0 R = %x  %x  %x  %x  %x  \n", r0,r1,r2,r3,r4);
+    LOGI("OLED temp test: 0xD0 L = %x  %x  %x  %x  %x  ", l0,l1,l2,l3,l4);
+    LOGI("OLED temp test: 0xD0 R = %x  %x  %x  %x  %x  ", r0,r1,r2,r3,r4);
 #endif
     
     OLED_write(0x5300, 0x0029, 2);
@@ -247,7 +249,7 @@ void OLED_Startup()
 
     if( !(I2C_Read(ADDR_AL, 0x00) & 0x01) )
     {
-        Printf("OLED_Startup failed: Auto init is not ready...\n");
+        LOGI("OLED_Startup failed: Auto init is not ready...");
     }
 
     I2C_Write(ADDR_AL, 0x10, 0x01);
@@ -270,8 +272,8 @@ void OLED_Startup()
     r3 = OLED_read(0xD003, 1);
     r4 = OLED_read(0xD004, 1);
     
-    Printf("OLED temp test: 0xD0 L = %x  %x  %x  %x  %x  \n", l0,l1,l2,l3,l4);
-    Printf("OLED temp test: 0xD0 R = %x  %x  %x  %x  %x  \n", r0,r1,r2,r3,r4);
+    LOGI("OLED temp test: 0xD0 L = %x  %x  %x  %x  %x  ", l0,l1,l2,l3,l4);
+    LOGI("OLED temp test: 0xD0 R = %x  %x  %x  %x  %x  ", r0,r1,r2,r3,r4);
     
     if(l0 == 0x05){
         OLED_write(0xD000, 0x000A, 0);
@@ -301,8 +303,8 @@ void OLED_Startup()
     r3 = OLED_read(0xD003, 1);
     r4 = OLED_read(0xD004, 1);
     
-    Printf("OLED temp test modified: 0xD0 L = %x  %x  %x  %x  %x  \n", l0,l1,l2,l3,l4);
-    Printf("OLED temp test modified: 0xD0 R = %x  %x  %x  %x  %x  \n", r0,r1,r2,r3,r4);
+    LOGI("OLED temp test modified: 0xD0 L = %x  %x  %x  %x  %x  ", l0,l1,l2,l3,l4);
+    LOGI("OLED temp test modified: 0xD0 R = %x  %x  %x  %x  %x  ", r0,r1,r2,r3,r4);
 #endif
 }
 
@@ -329,13 +331,13 @@ void OLED_SetTMG(int mode) //mode: 0=1080P; 1=720P
             I2C_Write(ADDR_AL, 0x33, 0x04);
             OLED_write(0x8001, 0x0040, 2);
             OLED_write(0x6900, 0x0002, 2);
-            Printf("OLED: Set to 720P.\n");
+            LOGI("OLED: Set to 720P.");
         }
         else{
             I2C_Write(ADDR_AL, 0x33, 0x04);
             OLED_write(0x8001, 0x00E0, 2);
             OLED_write(0x6900, 0x0000, 2);
-            Printf("OLED: Set to 1080P.\n");
+            LOGI("OLED: Set to 1080P.");
         }
     }
 }
@@ -427,7 +429,7 @@ void MFPGA_SetRatio(int ratio)
         I2C_Write(ADDR_FPGA, 0x8f, 0x80);
     else
         I2C_Write(ADDR_FPGA, 0x8f, 0x00);
-    //Printf("MFPGA_SetRatio %d\n",ratio);    
+    //LOGI("MFPGA_SetRatio %d",ratio);    
 }
 
 // OLED display on/off
@@ -446,7 +448,7 @@ void OLED_display(int on)
         OLED_write(0x0300, 0x0000, 2);
         usleep(1000);
         I2C_Write(ADDR_AL, 0x13, 0x03);
-        Printf("OLED: Display on\n");
+        LOGI("OLED: Display on");
         
     }
     else{
@@ -454,7 +456,7 @@ void OLED_display(int on)
         OLED_write(0x2800, 0x0000, 2); // display off
         usleep(20000);
         I2C_Write(ADDR_AL, 0x13, 0x80);
-        Printf("OLED: Display off\n");
+        LOGI("OLED: Display off");
     }
 }
 

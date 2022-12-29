@@ -1,3 +1,5 @@
+#include "playback.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,11 +8,14 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <math.h>
+
+#include <log/log.h>
+
 #include "style.h"
-#include "playback.h"
 #include "page_common.h"
 #include "mplayer.h"
 #include "common.hh"
+
 ///////////////////////////////////////////////////////////////////////////
 //locals
 static media_db_t  media_db ;
@@ -56,7 +61,7 @@ void create_pb_item(lv_obj_t *parent)
         
         media_db.head = (media_file_node_t*)malloc(MAX_VIDEO_FILES*sizeof(media_file_node_t));
         if(media_db.head == NULL) {
-            perror("playback malloc failed.\n");
+            perror("playback malloc failed.");
         }
     }                                        
  }
@@ -114,7 +119,7 @@ int insert_to_list(char* fname, char* label, int size)
     strcpy(pnode->label, label);
     pnode->size = size;
 
-    Printf("%d: %s-%dMB\n", media_db.count,fname,size);
+    LOGI("%d: %s-%dMB", media_db.count,fname,size);
     media_db.count++;
     return 1;
 }
@@ -203,7 +208,7 @@ int walk_sdcard()
         if(media_db.count < MAX_VIDEO_FILES) 
             insert_to_list(in_file->d_name, label, (int)res);
         else 
-            Printf("max video file cnt reached %d,skipped\n",MAX_VIDEO_FILES);
+            LOGI("max video file cnt reached %d,skipped",MAX_VIDEO_FILES);
     }
     closedir(FD);
 
@@ -229,7 +234,7 @@ void update_page()
         if (seq < media_db.count) {
             pnode = get_list(seq);
             if(!pnode) {
-                perror("update_page failed.\n");
+                perror("update_page failed.");
                 return;
             }
 
@@ -271,7 +276,7 @@ void onkey(uint8_t key)
     static uint8_t state = 0; //0= select video files, 1=playback
     char fname[128];
     
-    //Printf("onkey:Key=%d,Count=%d\n",key,media_db.count);    
+    //LOGI("onkey:Key=%d,Count=%d",key,media_db.count);    
 
     if(!media_db.count || !done) return; 
 

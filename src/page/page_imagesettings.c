@@ -75,7 +75,7 @@ lv_obj_t *page_imagesettings_create(lv_obj_t *parent, struct panel_arr *arr)
 void set_slider_value()
 {
 	char buf[32];
-//	Printf("set_slider_value %d %d %d %d.\n",g_setting.image.oled,g_setting.image.brightness,
+//	LOGI("set_slider_value %d %d %d %d.",g_setting.image.oled,g_setting.image.brightness,
 //											 g_setting.image.saturation,g_setting.image.contrast);
 
 	sprintf(buf,"%d",g_setting.image.oled);

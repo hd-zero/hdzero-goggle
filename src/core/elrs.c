@@ -1,3 +1,5 @@
+#include "elrs.h"
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -13,10 +15,10 @@
 #include <stdlib.h>
 #include <semaphore.h>
 
+#include <log/log.h>
 
 #include "common.hh"
 #include "hardware.h"
-#include "elrs.h"
 #include "osd.h"
 
 #include "../driver/uart.h"
@@ -175,7 +177,7 @@ bool esp32_handler_process_byte(uint8_t c)
                 msp_process_packet();
             }
             else {
-                Printf("CRC failure on MSP packet - Got %d expected %d", c, crc);
+                LOGI("CRC failure on MSP packet - Got %d expected %d", c, crc);
             }
 			input_state = MSP_IDLE;
             break;
@@ -186,7 +188,7 @@ bool esp32_handler_process_byte(uint8_t c)
     }
 
     if (processed_byte || input_state != MSP_IDLE) {
-		// Printf("Processed %02x %d\n", c, input_state);
+		// LOGI("Processed %02x %d", c, input_state);
         return true;
     }
     return false;
@@ -320,7 +322,7 @@ bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *paylo
 {
 	struct timespec ts;
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		Printf("clock_gettime failed");
+		LOGI("clock_gettime failed");
 		return false;
 	}
 

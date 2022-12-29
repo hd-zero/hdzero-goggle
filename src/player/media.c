@@ -154,7 +154,7 @@ void *thread_media(void *params)
 	{
         if(!media) break;
         //if(media->is_media_thread_exit)
-        //    printf("is_media_thread_exit = 1\n");
+        //    LOGI("is_media_thread_exit = 1");
 
 		if(media->is_media_thread_exit)
 			break;
@@ -171,7 +171,7 @@ void *thread_media(void *params)
         pthread_mutex_unlock(&playCtx->mutex);
 
         //if(media->is_media_thread_exit)
-        //    printf("is_media_thread_exit = 2\n");
+        //    LOGI("is_media_thread_exit = 2");
 
 		info.playing_time =playCtx->playingTime;
 		info.duration =playCtx->dmx->msDuration;

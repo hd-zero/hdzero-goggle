@@ -1,6 +1,9 @@
 #ifndef __IMAGESETTING_H__
 #define __IMAGESETTING_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #define IMS_CANVAS_WIDTH    430
 #define IMS_CANVAS_HEIGHT   160
 #define SLIDER_XSTART       170

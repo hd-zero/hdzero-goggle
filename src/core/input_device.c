@@ -7,12 +7,14 @@
 #include <sys/epoll.h>
 #include <assert.h>
 #include <errno.h>
+#include <pthread.h>
+
+#include <minIni.h>
+#include <log/log.h>
+
 #include "defines.h"
 #include "input_device.h"
 #include "porting.h"
-#include <pthread.h>
-
-#include "minIni.h"
 
 #include "main_menu.h"
 #include "osd.h"
@@ -52,7 +54,7 @@ void tune_channel(uint8_t action)
 {
 	static uint8_t channel = 0;
 	
-	Printf("tune_channel:%d\n",action);
+	LOGI("tune_channel:%d",action);
 
 	if(tune_state == 0) {
 		channel_osd_mode = 0;
@@ -119,7 +121,7 @@ void tune_channel_timer()
 			channel_osd_mode = CHANNEL_SHOWTIME;
 		}
 		tune_timer--;
-		//Printf("tune_channel_timer:%d\n",tune_timer);
+		//LOGI("tune_channel_timer:%d",tune_timer);
 	}
 	else {
 		if(channel_osd_mode)
@@ -155,7 +157,7 @@ static void switch_to_menumode()
 
 static void btn_press(void) //long press left key
 {
-	Printf("btn_press (%d)\n",g_menu_op);
+	LOGI("btn_press (%d)",g_menu_op);
 	if(g_scanning || !g_init_done) 	return;
 
 	pthread_mutex_lock(&lvgl_mutex);
@@ -196,7 +198,7 @@ static void btn_press(void) //long press left key
 
 static void btn_click(void)  //short press enter key
 {
-	Printf("btn_click (%d)\n",g_menu_op);
+	LOGI("btn_click (%d)",g_menu_op);
 	if(!g_init_done) return;
 
 	if(g_menu_op == OPLEVEL_VIDEO) {
@@ -222,7 +224,7 @@ static void btn_click(void)  //short press enter key
 	autoscan_exit();
 	if(g_menu_op == OPLEVEL_MAINMENU)
 	{ 
-		Printf("level = 1\n");
+		LOGI("level = 1");
 		g_menu_op = OPLEVEL_SUBMENU;
 		submenu_enter();
 	}
@@ -243,7 +245,7 @@ static void btn_click(void)  //short press enter key
 
 static void roller_up(void)
 {
-	Printf("roller up (%d)\n",g_menu_op);
+	LOGI("roller up (%d)",g_menu_op);
 
 	if(g_scanning) 	return;
 
@@ -278,7 +280,7 @@ static void roller_up(void)
 
 static void roller_down(void)
 {
-	Printf("roller down (%d)\n",g_menu_op);
+	LOGI("roller down (%d)",g_menu_op);
 
 	if(g_scanning)
 		return;
@@ -348,7 +350,7 @@ static void get_event(int fd)
 							g_key = DIAL_KEY_PRESS;
 						}
 						btn_press_time++;
-						//printf("btn down\n");
+						//LOGI("btn down");
 					}else{
 						if(btn_press_time < 10){
 							btn_click();
@@ -364,39 +366,39 @@ static void get_event(int fd)
 				{
 
 				}
-                //printf("------------ syn report ----------\n");
+                //LOGI("------------ syn report ----------");
             } else if (event.code == SYN_MT_REPORT) {
-                //printf("----------- syn mt report ------------\n");
+                //LOGI("----------- syn mt report ------------");
             }
             break;
         case EV_KEY:
-            //printf("key code%d is %s!\n", event.code, event.value?"down":"up");
+            //LOGI("key code%d is %s!", event.code, event.value?"down":"up");
 			btn_value = event.value;
 			event_type_last = EV_KEY;
             break;
         case EV_ABS:
             if ((event.code == ABS_X) ||
                  (event.code == ABS_MT_POSITION_X)) {
-                //printf("abs,x = %d\n", event.value);
+                //LOGI("abs,x = %d", event.value);
             } else if ((event.code == ABS_Y) ||
                  (event.code == ABS_MT_POSITION_Y)) {
-                //printf("abs,y = %d\n", event.value);
+                //LOGI("abs,y = %d", event.value);
             } else if ((event.code == ABS_PRESSURE) ||
                 (event.code == ABS_MT_PRESSURE)) {
-                //printf("pressure value: %d\n", event.value);
+                //LOGI("pressure value: %d", event.value);
             }
             break;
         case EV_REL:
             if (event.code == REL_X) {
-                //printf("x = %d\n", event.value);
+                //LOGI("x = %d", event.value);
             } else if (event.code == REL_Y) {
 				roller_value = event.value;
-                //printf("y = %d\n", event.value);
+                //LOGI("y = %d", event.value);
             }
 			event_type_last = EV_REL;
             break;
         default:
-            //printf("unknown [type=%d, code=%d value=%d]\n", event.type, event.code, event.value);
+            //LOGI("unknown [type=%d, code=%d value=%d]", event.type, event.code, event.value);
             break;
     }
 }
@@ -433,7 +435,7 @@ int input_device_open(void)
         fd = open(buf, O_RDONLY);
         if (fd >= 0) {
             add_to_epfd(epfd, fd);
-            printf("opened %s\n", buf);
+            LOGI("opened %s", buf);
         }
     }
 	return 0;

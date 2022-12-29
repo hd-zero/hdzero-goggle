@@ -1,6 +1,7 @@
 /******************
   File name : fbtools.c
   */
+#include "fbtools.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +10,9 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include "fbtools.h"
+
+#include <log/log.h>
+
 #include "../core/common.hh"
 
 #define FBIO_CACHE_SYNC         0x4630
@@ -21,19 +24,19 @@ int fb_open(PFBDEV pFbdev)
     pFbdev->fb = open(pFbdev->dev, O_RDWR);
     if(pFbdev->fb < 0)
     {
-        Printf("Error opening %s: %m. Check kernel config\n", pFbdev->dev);
+        LOGI("Error opening %s: %m. Check kernel config", pFbdev->dev);
         return -1;
     }
 
     if (-1 == ioctl(pFbdev->fb,FBIOGET_VSCREENINFO,&(pFbdev->fb_var)))
     {
-        Printf("ioctl FBIOGET_VSCREENINFO\n");
+        LOGI("ioctl FBIOGET_VSCREENINFO");
         return -1;
     }
 
     if (-1 == ioctl(pFbdev->fb,FBIOGET_FSCREENINFO,&(pFbdev->fb_fix)))
     {
-        Printf("ioctl FBIOGET_FSCREENINFO\n");
+        LOGI("ioctl FBIOGET_FSCREENINFO");
         return -1;
     }
 
@@ -43,7 +46,7 @@ int fb_open(PFBDEV pFbdev)
 
     if (MAP_FAILED == pFbdev->fb_mem)
     {
-        Printf("mmap error! mem:%p offset:%ld\n", pFbdev->fb_mem, pFbdev->fb_mem_offset);
+        LOGI("mmap error! mem:%p offset:%ld", pFbdev->fb_mem, pFbdev->fb_mem_offset);
         return -1;
     }
     return 0;
@@ -65,7 +68,7 @@ int get_display_depth(PFBDEV pFbdev)
 {
     if(pFbdev->fb<=0)
     {
-        Printf("fb device not open, open it first\n");
+        LOGI("fb device not open, open it first");
         return -1;
     }
     return pFbdev->fb_var.bits_per_pixel;
@@ -110,7 +113,7 @@ int fb_clean()
     strncpy(fbdev.dev, "/dev/fb0", sizeof(fbdev.dev));
     if(fb_open(&fbdev)==-1)
     {
-        Printf("open frame buffer error\n");
+        LOGI("open frame buffer error");
         return -1;
     }
 

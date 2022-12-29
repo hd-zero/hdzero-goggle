@@ -61,7 +61,7 @@ int gogglemsg_init( int r )
 	}
 	if( gGoggleMsg < 0 )
 	{
-		LOGE("failed to require %x\n", GoggleMSG_KEY);
+		LOGE("failed to require %x", GoggleMSG_KEY);
 		return -1;
 	}
 
@@ -72,7 +72,7 @@ int gogglemsg_uninit( void )
 {
 	msgctl( gGoggleMsg, IPC_RMID, NULL);
 
-	LOGE("msgid %d free!\n", gGoggleMsg);
+	LOGE("msgid %d free!", gGoggleMsg);
 
 	return 0;
 }
@@ -123,7 +123,7 @@ int gogglemsg_sendData( GoggleMsgType_e mtype, GoggleMsgCommand_e cmd, void* dat
     msgData->msg.cmd = cmd;
     memcpy(msgData->data, data, len);
 
-    //LOGD("send: %d, %d, %d\n", len, DataMSG_SIZE(nSize), nSize);
+    //LOGD("send: %d, %d, %d", len, DataMSG_SIZE(nSize), nSize);
 
 	nSize = msgsnd( gGoggleMsg, msgBuff, DataMSG_SIZE(nSize), 0 );
 	free(msgBuff);

@@ -1,4 +1,5 @@
 #include "mcp3021.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -8,7 +9,11 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
+
+#include <log/log.h>
+
 #include "../core/common.hh"
+
 sys_battery_t g_battery;
 
 /*
@@ -35,7 +40,7 @@ int mcp_read_vatage(void)
 	if(!fp) {
       static bool bFirst = true;
       if(bFirst) {
-		   Printf("mcp_read_vatage: open error.\n");
+		   LOGI("mcp_read_vatage: open error.");
          bFirst = false;
       }
 		return -1;

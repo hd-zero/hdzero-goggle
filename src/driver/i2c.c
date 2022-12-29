@@ -1,3 +1,5 @@
+#include "i2c.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -7,7 +9,9 @@
 #include <linux/i2c.h>
 #include <sys/ioctl.h>
 #include <pthread.h>
-#include "i2c.h"
+
+#include <log/log.h>
+
 #include "../core/common.hh"
 
 pthread_mutex_t i2c_mutex;
@@ -30,7 +34,7 @@ static int iic_open(char* port)
     //int i2c_fd = open ("/dev/i2c-0", O_RDONLY);
     int i2c_fd = open (port, O_RDONLY);
     if(i2c_fd <0) {
-        Printf("iic_open %s failed [1=Right,2=Main,3=Left]\n",port);
+        LOGI("iic_open %s failed [1=Right,2=Main,3=Left]",port);
     }
     return i2c_fd;
 }
@@ -65,7 +69,7 @@ static uint8_t iic_read(int i2c_fd, uint8_t slave_address, uint16_t reg_address)
 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     if(ret < 0) {
-        //Printf("iic_read[%x.%x] failed.\n",slave_address, reg_address);
+        //LOGI("iic_read[%x.%x] failed.",slave_address, reg_address);
         val = 0;
     }
     return val;
@@ -94,7 +98,7 @@ static void iic_read_n(int i2c_fd, uint8_t slave_address, uint16_t reg_address, 
 
     ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     //if(ret < 0) 
-    //    Printf("iic_read_n[%x.%x] failed.\n",slave_address, reg_address);
+    //    LOGI("iic_read_n[%x.%x] failed.",slave_address, reg_address);
 
 }
 /*
@@ -109,7 +113,7 @@ static void iic_read_n(int i2c_fd, uint8_t slave_address, uint16_t reg_address, 
 
     if(!work_queue.msgs)
     {
-        printf("Memery alloc error\n");
+        LOGI("Memery alloc error");
         return ;
     }
 
@@ -129,7 +133,7 @@ static void iic_read_n(int i2c_fd, uint8_t slave_address, uint16_t reg_address, 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     if(ret < 0)
     {
-        printf("Error during I2C_RDWR ioctl with error code: %d\n", ret);
+        LOGI("Error during I2C_RDWR ioctl with error code: %d", ret);
         val = 0;
     }
 
@@ -157,7 +161,7 @@ static int iic_write(int i2c_fd, uint8_t slave_address, uint16_t reg_address , u
 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     if(ret < 0) {
-        //Printf("iic_write[%x.%x]<-%x failed.\n",slave_address, reg_address, reg_val);
+        //LOGI("iic_write[%x.%x]<-%x failed.",slave_address, reg_address, reg_val);
         ret = 0;
     }
     return ret;
@@ -175,7 +179,7 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address , 
 
     if ((work_queue.msgs[0].buf = (unsigned char *)malloc((len+1) * sizeof(unsigned char))) == NULL)
     {
-        //Printf("buf memery alloc error...\n");
+        //LOGI("buf memery alloc error...");
         return -1;
     }
 
@@ -189,7 +193,7 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address , 
 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     if(ret < 0) {
-        //Printf("iic_write_n[%x.%x] failed.\n",slave_address, reg_address);
+        //LOGI("iic_write_n[%x.%x] failed.",slave_address, reg_address);
         ret = 0;
     }
     free(work_queue.msgs[0].buf);
@@ -206,12 +210,12 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address , 
     work_queue.msgs = (struct i2c_msg *)malloc(work_queue.nmsgs * sizeof(struct i2c_msg));
     if(!work_queue.msgs)
     {
-        printf("msgs memery alloc error\n");
+        LOGI("msgs memery alloc error");
         return -1;
     }
     if ((work_queue.msgs[0].buf = (unsigned char *)malloc((len+1) * sizeof(unsigned char))) == NULL)
     {
-        printf("buf memery alloc error...\n");
+        LOGI("buf memery alloc error...");
         free(work_queue.msgs);
         return -1;
     }
@@ -228,7 +232,7 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address , 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long) &work_queue);
     if(ret < 0)
     {
-        printf("Error during I2C_RDWR ioctl with error code: %d\n", ret);
+        LOGI("Error during I2C_RDWR ioctl with error code: %d", ret);
     }
     free(work_queue.msgs[0].buf);
     free(work_queue.msgs);

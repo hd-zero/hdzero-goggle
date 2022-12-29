@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <log/log.h>
+
 #include "common.h"
 #include "bmi2_defs.h"
 #include "i2c.h"
@@ -90,7 +92,7 @@ int8_t bmi2_interface_init(struct bmi2_dev *bmi, uint8_t intf)
         /* Bus configuration : I2C */
         if (intf == BMI2_I2C_INTF)
         {
-            printf("I2C Interface \n");
+            LOGI("I2C Interface ");
 
             /* To initialize the user I2C function */
             dev_addr = BMI2_I2C_PRIM_ADDR;
@@ -104,7 +106,7 @@ int8_t bmi2_interface_init(struct bmi2_dev *bmi, uint8_t intf)
         /* Bus configuration : SPI */
         else if (intf == BMI2_SPI_INTF)
         {
-            printf("SPI Interface not supported\n");
+            LOGI("SPI Interface not supported");
         }
 
         /* Assign device address to interface pointer */
@@ -142,184 +144,184 @@ void bmi2_error_codes_print_result(int8_t rslt)
             break;
 
         case BMI2_W_FIFO_EMPTY:
-            printf("Warning [%d] : FIFO empty\r\n", rslt);
+            LOGI("Warning [%d] : FIFO empty", rslt);
             break;
         case BMI2_W_PARTIAL_READ:
-            printf("Warning [%d] : FIFO partial read\r\n", rslt);
+            LOGI("Warning [%d] : FIFO partial read", rslt);
             break;
         case BMI2_E_NULL_PTR:
-            printf(
-                "Error [%d] : Null pointer error. It occurs when the user tries to assign value (not address) to a pointer," " which has been initialized to NULL.\r\n",
+            LOGI(
+                "Error [%d] : Null pointer error. It occurs when the user tries to assign value (not address) to a pointer," " which has been initialized to NULL.",
                 rslt);
             break;
 
         case BMI2_E_COM_FAIL:
-            printf(
-                "Error [%d] : Communication failure error. It occurs due to read/write operation failure and also due " "to power failure during communication\r\n",
+            LOGI(
+                "Error [%d] : Communication failure error. It occurs due to read/write operation failure and also due " "to power failure during communication",
                 rslt);
             break;
 
         case BMI2_E_DEV_NOT_FOUND:
-            printf("Error [%d] : Device not found error. It occurs when the device chip id is incorrectly read\r\n",
+            LOGI("Error [%d] : Device not found error. It occurs when the device chip id is incorrectly read",
                    rslt);
             break;
 
         case BMI2_E_INVALID_SENSOR:
-            printf(
-                "Error [%d] : Invalid sensor error. It occurs when there is a mismatch in the requested feature with the " "available one\r\n",
+            LOGI(
+                "Error [%d] : Invalid sensor error. It occurs when there is a mismatch in the requested feature with the " "available one",
                 rslt);
             break;
 
         case BMI2_E_SELF_TEST_FAIL:
-            printf(
-                "Error [%d] : Self-test failed error. It occurs when the validation of accel self-test data is " "not satisfied\r\n",
+            LOGI(
+                "Error [%d] : Self-test failed error. It occurs when the validation of accel self-test data is " "not satisfied",
                 rslt);
             break;
 
         case BMI2_E_INVALID_INT_PIN:
-            printf(
-                "Error [%d] : Invalid interrupt pin error. It occurs when the user tries to configure interrupt pins " "apart from INT1 and INT2\r\n",
+            LOGI(
+                "Error [%d] : Invalid interrupt pin error. It occurs when the user tries to configure interrupt pins " "apart from INT1 and INT2",
                 rslt);
             break;
 
         case BMI2_E_OUT_OF_RANGE:
-            printf(
-                "Error [%d] : Out of range error. It occurs when the data exceeds from filtered or unfiltered data from " "fifo and also when the range exceeds the maximum range for accel and gyro while performing FOC\r\n",
+            LOGI(
+                "Error [%d] : Out of range error. It occurs when the data exceeds from filtered or unfiltered data from " "fifo and also when the range exceeds the maximum range for accel and gyro while performing FOC",
                 rslt);
             break;
 
         case BMI2_E_ACC_INVALID_CFG:
-            printf(
-                "Error [%d] : Invalid Accel configuration error. It occurs when there is an error in accel configuration" " register which could be one among range, BW or filter performance in reg address 0x40\r\n",
+            LOGI(
+                "Error [%d] : Invalid Accel configuration error. It occurs when there is an error in accel configuration" " register which could be one among range, BW or filter performance in reg address 0x40",
                 rslt);
             break;
 
         case BMI2_E_GYRO_INVALID_CFG:
-            printf(
-                "Error [%d] : Invalid Gyro configuration error. It occurs when there is a error in gyro configuration" "register which could be one among range, BW or filter performance in reg address 0x42\r\n",
+            LOGI(
+                "Error [%d] : Invalid Gyro configuration error. It occurs when there is a error in gyro configuration" "register which could be one among range, BW or filter performance in reg address 0x42",
                 rslt);
             break;
 
         case BMI2_E_ACC_GYR_INVALID_CFG:
-            printf(
-                "Error [%d] : Invalid Accel-Gyro configuration error. It occurs when there is a error in accel and gyro" " configuration registers which could be one among range, BW or filter performance in reg address 0x40 " "and 0x42\r\n",
+            LOGI(
+                "Error [%d] : Invalid Accel-Gyro configuration error. It occurs when there is a error in accel and gyro" " configuration registers which could be one among range, BW or filter performance in reg address 0x40 " "and 0x42",
                 rslt);
             break;
 
         case BMI2_E_CONFIG_LOAD:
-            printf(
-                "Error [%d] : Configuration load error. It occurs when failure observed while loading the configuration " "into the sensor\r\n",
+            LOGI(
+                "Error [%d] : Configuration load error. It occurs when failure observed while loading the configuration " "into the sensor",
                 rslt);
             break;
 
         case BMI2_E_INVALID_PAGE:
-            printf(
-                "Error [%d] : Invalid page error. It occurs due to failure in writing the correct feature configuration " "from selected page\r\n",
+            LOGI(
+                "Error [%d] : Invalid page error. It occurs due to failure in writing the correct feature configuration " "from selected page",
                 rslt);
             break;
 
         case BMI2_E_SET_APS_FAIL:
-            printf(
-                "Error [%d] : APS failure error. It occurs due to failure in write of advance power mode configuration " "register\r\n",
+            LOGI(
+                "Error [%d] : APS failure error. It occurs due to failure in write of advance power mode configuration " "register",
                 rslt);
             break;
 
         case BMI2_E_AUX_INVALID_CFG:
-            printf(
-                "Error [%d] : Invalid AUX configuration error. It occurs when the auxiliary interface settings are not " "enabled properly\r\n",
+            LOGI(
+                "Error [%d] : Invalid AUX configuration error. It occurs when the auxiliary interface settings are not " "enabled properly",
                 rslt);
             break;
 
         case BMI2_E_AUX_BUSY:
-            printf(
-                "Error [%d] : AUX busy error. It occurs when the auxiliary interface buses are engaged while configuring" " the AUX\r\n",
+            LOGI(
+                "Error [%d] : AUX busy error. It occurs when the auxiliary interface buses are engaged while configuring" " the AUX",
                 rslt);
             break;
 
         case BMI2_E_REMAP_ERROR:
-            printf(
-                "Error [%d] : Remap error. It occurs due to failure in assigning the remap axes data for all the axes " "after change in axis position\r\n",
+            LOGI(
+                "Error [%d] : Remap error. It occurs due to failure in assigning the remap axes data for all the axes " "after change in axis position",
                 rslt);
             break;
 
         case BMI2_E_GYR_USER_GAIN_UPD_FAIL:
-            printf(
-                "Error [%d] : Gyro user gain update fail error. It occurs when the reading of user gain update status " "fails\r\n",
+            LOGI(
+                "Error [%d] : Gyro user gain update fail error. It occurs when the reading of user gain update status " "fails",
                 rslt);
             break;
 
         case BMI2_E_SELF_TEST_NOT_DONE:
-            printf(
-                "Error [%d] : Self-test not done error. It occurs when the self-test process is ongoing or not " "completed\r\n",
+            LOGI(
+                "Error [%d] : Self-test not done error. It occurs when the self-test process is ongoing or not " "completed",
                 rslt);
             break;
 
         case BMI2_E_INVALID_INPUT:
-            printf("Error [%d] : Invalid input error. It occurs when the sensor input validity fails\r\n", rslt);
+            LOGI("Error [%d] : Invalid input error. It occurs when the sensor input validity fails", rslt);
             break;
 
         case BMI2_E_INVALID_STATUS:
-            printf("Error [%d] : Invalid status error. It occurs when the feature/sensor validity fails\r\n", rslt);
+            LOGI("Error [%d] : Invalid status error. It occurs when the feature/sensor validity fails", rslt);
             break;
 
         case BMI2_E_CRT_ERROR:
-            printf("Error [%d] : CRT error. It occurs when the CRT test has failed\r\n", rslt);
+            LOGI("Error [%d] : CRT error. It occurs when the CRT test has failed", rslt);
             break;
 
         case BMI2_E_ST_ALREADY_RUNNING:
-            printf(
-                "Error [%d] : Self-test already running error. It occurs when the self-test is already running and " "another has been initiated\r\n",
+            LOGI(
+                "Error [%d] : Self-test already running error. It occurs when the self-test is already running and " "another has been initiated",
                 rslt);
             break;
 
         case BMI2_E_CRT_READY_FOR_DL_FAIL_ABORT:
-            printf(
-                "Error [%d] : CRT ready for download fail abort error. It occurs when download in CRT fails due to wrong " "address location\r\n",
+            LOGI(
+                "Error [%d] : CRT ready for download fail abort error. It occurs when download in CRT fails due to wrong " "address location",
                 rslt);
             break;
 
         case BMI2_E_DL_ERROR:
-            printf(
-                "Error [%d] : Download error. It occurs when write length exceeds that of the maximum burst length\r\n",
+            LOGI(
+                "Error [%d] : Download error. It occurs when write length exceeds that of the maximum burst length",
                 rslt);
             break;
 
         case BMI2_E_PRECON_ERROR:
-            printf(
-                "Error [%d] : Pre-conditional error. It occurs when precondition to start the feature was not " "completed\r\n",
+            LOGI(
+                "Error [%d] : Pre-conditional error. It occurs when precondition to start the feature was not " "completed",
                 rslt);
             break;
 
         case BMI2_E_ABORT_ERROR:
-            printf("Error [%d] : Abort error. It occurs when the device was shaken during CRT test\r\n", rslt);
+            LOGI("Error [%d] : Abort error. It occurs when the device was shaken during CRT test", rslt);
             break;
 
         case BMI2_E_WRITE_CYCLE_ONGOING:
-            printf(
-                "Error [%d] : Write cycle ongoing error. It occurs when the write cycle is already running and another " "has been initiated\r\n",
+            LOGI(
+                "Error [%d] : Write cycle ongoing error. It occurs when the write cycle is already running and another " "has been initiated",
                 rslt);
             break;
 
         case BMI2_E_ST_NOT_RUNING:
-            printf(
-                "Error [%d] : Self-test is not running error. It occurs when self-test running is disabled while it's " "running\r\n",
+            LOGI(
+                "Error [%d] : Self-test is not running error. It occurs when self-test running is disabled while it's " "running",
                 rslt);
             break;
 
         case BMI2_E_DATA_RDY_INT_FAILED:
-            printf(
-                "Error [%d] : Data ready interrupt error. It occurs when the sample count exceeds the FOC sample limit " "and data ready status is not updated\r\n",
+            LOGI(
+                "Error [%d] : Data ready interrupt error. It occurs when the sample count exceeds the FOC sample limit " "and data ready status is not updated",
                 rslt);
             break;
 
         case BMI2_E_INVALID_FOC_POSITION:
-            printf(
-                "Error [%d] : Invalid FOC position error. It occurs when average FOC data is obtained for the wrong" " axes\r\n",
+            LOGI(
+                "Error [%d] : Invalid FOC position error. It occurs when average FOC data is obtained for the wrong" " axes",
                 rslt);
             break;
 
         default:
-            printf("Error [%d] : Unknown error code\r\n", rslt);
+            LOGI("Error [%d] : Unknown error code", rslt);
             break;
     }
 }
