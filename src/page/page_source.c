@@ -139,7 +139,7 @@ void source_mode_set(int sel)
 		if(g_test_en && label[4]) {
 			uint8_t oled_te = (oled_tst_mode != 0);
 			uint8_t oled_tm = (oled_tst_mode & 0x0F)-1;
-			//Printf("OLED TE=%d,TM=%d\n",oled_te,oled_tm);
+			//LOGI("OLED TE=%d,TM=%d",oled_te,oled_tm);
 			OLED_Pattern(oled_te,oled_tm,4);
 			oled_tst_mode++;
 			if(oled_tst_mode >=6)
@@ -151,7 +151,7 @@ void source_mode_set(int sel)
 
 void pp_source_exit()
 {
-	//Printf("pp_source_exit %d\n",oled_tst_mode);
+	//LOGI("pp_source_exit %d",oled_tst_mode);
 	if((oled_tst_mode != 0) && g_test_en) {
 		OLED_Pattern(0,0,4);
 		oled_tst_mode = 0;

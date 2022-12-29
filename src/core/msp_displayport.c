@@ -69,7 +69,7 @@ void fc_msp_displayport()
         fc_init();
         osd_init_done = 1;
         fc_init_done = 1;
-        printf("\n\rfc_init_done");
+        LOGI("fc_init_done");
     }else{
         recive_one_frame();
         lqStatistics();
@@ -192,11 +192,11 @@ void recive_one_frame(uint8_t* uart_buf,uint8_t uart_buf_len)
 #if 0
 					for(int i=0; i<10;i++)
 					{
-						printf("%02X ", rx_buf[i]);
+						LOGI("%02X ", rx_buf[i]);
 					}
-					printf("\n");
+					LOGI("");
 #endif
-			//		printf("crc0 err\n");
+			//		LOGI("crc0 err");
 				}
                 break;
 
@@ -264,7 +264,7 @@ void camTypeDetect(uint8_t rData)
     if(cur_cam == last_cam)
         CAM_MODE = cur_cam;
 
-    //printf("\nCam:%d\n",CAM_MODE);
+    //LOGI("Cam:%d",CAM_MODE);
 }
 
 void fcTypeDetect(uint8_t* rData)
@@ -283,7 +283,7 @@ void fcTypeDetect(uint8_t* rData)
         load_fc_osd_font();
     }
 #if(0)
-    printf("\r\nfc_variant_rcv:%s", fc_variant_rcv);
+    LOGI("fc_variant_rcv:%s", fc_variant_rcv);
 #endif
 }
 
@@ -329,13 +329,13 @@ void lqStatistics()
 void vtxTempDetect(uint8_t rData)
 {
     vtxTempInfo = rData;
-    //printf("\r\ntemp:%bx",vtxTempInfo);
+    //LOGI("temp:%bx",vtxTempInfo);
 }
 
 void fontTypeDetect(uint8_t rData)
 {
     fontType = rData;
-    //printf("\r\nfont:%bx",fontType);
+    //LOGI("font:%bx",fontType);
 }
 
 void vtxVersionDetect(uint8_t rData)

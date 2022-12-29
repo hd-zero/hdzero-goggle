@@ -8,6 +8,8 @@
 #include <sys/vfs.h>
 #include <unistd.h>
 
+#include <log/log.h>
+
 #include "common.hh"
 #include "defines.h"
 #include "ht.h"
@@ -110,7 +112,7 @@ static void check_hdzero_signal(int vtmg_change)
 	//Analog VTMG change -> Restart recording
 	if(g_source_info.source >= SOURCE_AV_IN) {
 		if(vtmg_change && is_recording) {
-			Printf("AV VTMG change\n");
+			LOGI("AV VTMG change");
 			rbtn_click(1,1);
 			rbtn_click(1,2);
 		}
@@ -118,7 +120,7 @@ static void check_hdzero_signal(int vtmg_change)
 
 	//HDZero VTMG change -> stop recording first
 	if((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
-		Printf("HDZero VTMG change\n");
+		LOGI("HDZero VTMG change\n");
 		rbtn_click(1,1);
 		cnt = 0;
 	}
@@ -132,7 +134,7 @@ static void check_hdzero_signal(int vtmg_change)
 			cnt++;
 			if(cnt >= SIGNAL_LOSS_DURATION_THR) {
 				cnt = 0;
-				Printf("Signal lost\n");
+				LOGI("Signal lost");
 				rbtn_click(1,1);
 			}
 		}
@@ -144,7 +146,7 @@ static void check_hdzero_signal(int vtmg_change)
 			cnt++;
 			if(cnt >= SIGNAL_ACCQ_DURATION_THR) {
 				cnt = 0;
-				Printf("Signal accquired\n");
+				LOGI("Signal accquired");
 				rbtn_click(1,2);
 			}
 		}

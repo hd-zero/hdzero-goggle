@@ -1,10 +1,13 @@
-#include <stdio.h>
 #include "page_power.h"
+
+#include <stdio.h>
+
+#include <log/log.h>
+#include <minIni.h>
 
 #include "page_common.h"
 #include "style.h"
 #include "mcp3021.h"
-#include "minIni.h"
 #include "../core/common.hh"
 
 static btn_group_t btn_group1;
@@ -87,7 +90,7 @@ void power_voltage_inc(void)
    	lv_label_set_text(slider_group.label, buf);
 
 	g_setting.power.voltage = value;
-	printf("vol:%d\n", g_setting.power.voltage);
+	LOGI("vol:%d", g_setting.power.voltage);
 	ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 void power_voltage_dec(void)
@@ -104,7 +107,7 @@ void power_voltage_dec(void)
    	lv_label_set_text(slider_group.label, buf);
 
 	g_setting.power.voltage = value;
-	Printf("vol:%d\n", g_setting.power.voltage);
+	LOGI("vol:%d", g_setting.power.voltage);
 	ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 

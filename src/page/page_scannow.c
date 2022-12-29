@@ -1,27 +1,30 @@
+#include "page_scannow.h"
+
+#include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "page_scannow.h"
-#include "page_common.h"
-#include "style.h"
-#include <stdio.h>
-#include "../driver/oled.h"
-#include "../driver/porting.h"
-#include "../driver/hardware.h"
-#include "minIni.h"
-#include "../core/osd.h"
-#include "../core/defines.h"
-#include "../core/common.hh"
-#include "../driver/i2c.h"
-#include "../driver/dm6302.h"
-#include "../driver/dm5680.h"
+#include <minIni.h>
+#include <log/log.h>
+
 #include "fbtools.h"
 #include "msp_displayport.h"
-#include "../driver/uart.h"
+#include "page_common.h"
+#include "style.h"
+#include "../core/common.hh"
+#include "../core/defines.h"
 #include "../core/main_menu.h"
+#include "../core/osd.h"
+#include "../driver/dm5680.h"
+#include "../driver/dm6302.h"
+#include "../driver/hardware.h"
+#include "../driver/i2c.h"
+#include "../driver/oled.h"
+#include "../driver/porting.h"
+#include "../driver/uart.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //local
@@ -308,7 +311,7 @@ void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid)
 	vld1 = rx_status[1].rx_valid;
 	*valid = vld0 | vld1;
   
-    Printf("Scan channel%d: valid:%d, gain:%d\n", channel, *valid, *gain_ret);
+    LOGI("Scan channel%d: valid:%d, gain:%d", channel, *valid, *gain_ret);
 }
 
 int8_t scan_now(void)
@@ -380,7 +383,7 @@ void switch_to_video(bool is_default)
 		ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
 	}
 	
-	Printf("switch to ch:%d, CAM_MODE=%d 4:3=%d\n", g_setting.scan.channel, CAM_MODE,cam_4_3);
+	LOGI("switch to ch:%d, CAM_MODE=%d 4:3=%d", g_setting.scan.channel, CAM_MODE,cam_4_3);
     DM6302_SetChannel(ch);
     DM5680_clear_vldflg(); 
     DM5680_req_vldflg(); 
@@ -402,7 +405,7 @@ void switch_to_video(bool is_default)
 			break;
 
 		default:
-			perror("switch_to_video CaM_MODE error\n");
+			perror("switch_to_video CaM_MODE error");
 	}
 	
 	channel_osd_mode = CHANNEL_SHOWTIME;

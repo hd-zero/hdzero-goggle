@@ -1,4 +1,5 @@
 #include "nct75.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -8,7 +9,11 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
+
+#include <log/log.h>
+
 #include "../core/common.hh"
+
 sys_temperature_t g_temperature;
 /*
 int nct_read_temperature(nct_type_t type)
@@ -40,7 +45,7 @@ int nct_read_temperature(nct_type_t type)
 		static bool bFirst = true;
 		char* sName[3] = {"Right","Top","Left"};
 		if(bFirst) {
-			Printf("nct_read_temperature: [%s] side error.\n",sName[type]);
+			LOGI("nct_read_temperature: [%s] side error.",sName[type]);
 			bFirst = false;
 		}
 		return -1;

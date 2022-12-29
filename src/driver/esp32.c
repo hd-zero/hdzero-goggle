@@ -1,3 +1,5 @@
+#include "esp32.h"
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -20,11 +22,12 @@
 #include <errno.h>   /* ERROR Number Definitions           */
 #include <semaphore.h>
 
+#include <log/log.h>
+
+#include "uart.h"
 #include "../core/common.hh"
 #include "../page/page_common.h"
 
-#include "esp32.h"
-#include "uart.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 static int       fd_esp32 = -1;
@@ -45,25 +48,25 @@ static void *pthread_recv_esp32(void *arg)
 	uart3_wptr=0;
 
 	stopping = false;
-	Printf("UART3:starting reader thread\n");
+	LOGI("UART3:starting reader thread");
 
 	for(;;)
 	{
 		FD_ZERO(&rd);
 		FD_SET(fd_esp32,&rd);
 		if (stopping) {
-			Printf("UART3:stopping, exiting thread.\n");
+			LOGI("UART3:stopping, exiting thread.");
 			return NULL;
 		}
 		if(select(fd_esp32+1,&rd,NULL,NULL,&tv) < 0) {
-			Printf("UART3:select error!\n");
+			LOGI("UART3:select error!");
 			return NULL;
 		}
 		if (FD_ISSET(fd_esp32,&rd))
 		{
 			len = uart_read(fd_esp32, buffer, 128);
 			if (len < 0) {
-				Printf("UART3:read error, exiting thread.\n");
+				LOGI("UART3:read error, exiting thread.");
 				return NULL;
 			}
 			for(i=0;i<len;i++)
@@ -72,7 +75,7 @@ static void *pthread_recv_esp32(void *arg)
 				uart3_wptr++;
 
 				if(uart3_wptr == uart3_rptr)
-					Printf("UART3:fifo full!\n");
+					LOGI("UART3:fifo full!");
 			}
 			if(len)
 				esp32_rx();
@@ -90,7 +93,7 @@ void enable_esp32()
 {
 	fd_esp32 = uart_open(3);
 	if(fd_esp32 != -1) {
-		Printf("[ESP32] Powering on\n");
+		LOGI("[ESP32] Powering on");
 		set_gpio(GPIO_ESP32_EN,0);
 		set_gpio(GPIO_ESP32_BOOT0,1);
 		pthread_create(&tid, NULL, pthread_recv_esp32, NULL);
@@ -103,7 +106,7 @@ void enable_esp32()
 void disable_esp32()
 {
 	if (fd_esp32 != -1) {
-		Printf("[ESP32] Powering off\n");
+		LOGI("[ESP32] Powering off");
 		set_gpio(GPIO_ESP32_EN, 0);
 		stopping = true;
 		pthread_join(tid, NULL);
@@ -134,7 +137,7 @@ void esp32_rx()
 			buffer[i++] = ch;
 		if ((processed && i>0) || buffer[i-1]=='\n' || i==80) {
 			buffer[i-1] = 0;
-			//Printf("[ESP] %s\n", buffer);
+			//LOGI("[ESP] %s\n", buffer);
 			i = 0;
 		}
     }

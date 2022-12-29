@@ -58,114 +58,6 @@ uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Putchar, Printf
-void Putchar(char ch)
-{
-    putchar(ch);
-    if(g_test_en) fprintf(log_file,"%c",ch);
-}
-
-void Printf(const char *fmt, ...)
-{
-    const char *p;
-    va_list argp;
-    int i;
-    double f;
-    char *s;
-    char flag;
-    char fmtbuf[10],pbuf[20];
-    int  fmtbuf_ptr;
-    int  log_en;
-
-    va_start(argp, fmt);
-
-    log_en = g_test_en;
-
-    for(p = fmt; *p != '\0'; p++) {
-        if(*p != '%') {
-            Putchar(*p);
-            continue;
-        }
-
-        fmtbuf_ptr = 0;
-        flag = 1;
-        while(flag) {
-            ++p;
-            switch(*p) {
-                case 'c':
-                    i = va_arg(argp, int);
-                    Putchar(i);
-                    flag = 0;
-                    break;
-
-                case 'd':
-                    i = va_arg(argp, int);
-                    if(fmtbuf_ptr)
-                        sprintf(pbuf,"%%%sd",fmtbuf);
-                    else
-                        sprintf(pbuf,"%%d");
-                    printf(pbuf,i);
-                    if(log_en) fprintf(log_file,pbuf,i);
-                    flag = 0;
-                    break;
-
-                case 's':
-                    s = va_arg(argp, char *);
-                    printf("%s",s);
-                    if(log_en) fprintf(log_file,"%s",s);
-                    flag = 0;
-                    break;
-
-                case 'x':
-                    i = va_arg(argp, int);
-                    if(fmtbuf_ptr)
-                        sprintf(pbuf,"%%%sx",fmtbuf);
-                    else
-                        sprintf(pbuf,"%%x");
-                    printf(pbuf,i);
-                    if(log_en) fprintf(log_file,pbuf,i);
-                    flag = 0;
-                    break;
-
-                case 'e':
-                    f = va_arg(argp, double);
-                    if(fmtbuf_ptr)
-                        sprintf(pbuf,"%%%se",fmtbuf);
-                    else
-                        sprintf(pbuf,"%%e");
-                    printf( pbuf, f );
-                    if(log_en) fprintf(log_file, pbuf, f );
-                    flag = 0;
-                    break;
-
-                case 'f':
-                    f = va_arg(argp, double);
-                    if(fmtbuf_ptr)
-                        sprintf(pbuf,"%%%sf",fmtbuf);
-                    else
-                        sprintf(pbuf,"%%f");
-                    printf( pbuf, f );
-                    if(log_en) fprintf(log_file, pbuf, f );
-                    flag = 0;
-                    break;
-
-                case '%':
-                    Putchar('%');
-                    flag = 0;
-                    break;
-
-                default:
-                    fmtbuf[fmtbuf_ptr++]=*p;
-                    fmtbuf[fmtbuf_ptr]=0;
-                    //assert(fmtbuf_ptr<10);
-                break;
-            }
-        }
-    }
-    va_end(argp);
-    fflush(log_file);
-}
-///////////////////////////////////////////////////////////////////////////////
 // file compare
 bool file_compare(char* f1,char* f2)
 {
@@ -226,9 +118,9 @@ void open_gpio(int port_num)
 	fp=fopen(buf,"r");
 	if(!fp) {
 		sprintf(buf,"echo \"%d\">%s/export",port_num,CLASS_PATH_GPIO);
-		system(buf);  //printf("%s\n",buf);
+		system(buf);  //LOGI("%s",buf);
 		sprintf(buf,"echo \"out\">%s/gpio%d/direction",CLASS_PATH_GPIO,port_num);
-		system(buf);  //printf("%s\n",buf);
+		system(buf);  //LOGI("%s",buf);
 	}
 	else fclose(fp);
 }
@@ -237,7 +129,7 @@ void set_gpio(int port_num, int isHigh)
 {
 	char buf[64];
 	sprintf(buf,"echo \"%d\">%s/gpio%d/value",isHigh,CLASS_PATH_GPIO,port_num);
-	system(buf); //printf("%s\n",buf);
+	system(buf); //LOGI("%s",buf);
 }
 
 

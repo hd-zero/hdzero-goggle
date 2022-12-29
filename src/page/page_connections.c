@@ -1,7 +1,5 @@
 #include "page_connections.h"
-#include "page_version.h"
-#include "page_common.h"
-#include "style.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -12,7 +10,13 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include "minIni.h"
+
+#include <minIni.h>
+#include <log/log.h>
+
+#include "style.h"
+#include "page_version.h"
+#include "page_common.h"
 #include "../driver/esp32.h"
 #include "../core/common.hh"
 #include "../core/esp32_flash.h"
@@ -92,7 +96,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 #define RETURN_ON_ERROR(m, x) do {      \
     esp_loader_error_t _err_ = (x);     \
     if (_err_ != ESP_LOADER_SUCCESS) {  \
-		Printf("ERR %s: %d\n", m, _err_);   \
+		LOGI("ERR %s: %d", m, _err_);   \
         return _err_;                   \
     }                                   \
 } while(0)
@@ -105,7 +109,7 @@ static esp_loader_error_t flash_esp32_file(char *path, uint32_t offset)
 
 	FILE *image = fopen(fpath, "r");
     if (image == NULL) {
-        Printf("Firmware file does not exist %s\n", fpath);
+        LOGI("Firmware file does not exist %s", fpath);
         return ESP_LOADER_SUCCESS;
     }
 
@@ -125,7 +129,7 @@ static esp_loader_error_t flash_esp32_file(char *path, uint32_t offset)
 		int percent = (current * 100) / size;
 		lv_bar_set_value(elrs_bar, percent, LV_ANIM_OFF);
 		lv_timer_handler();
-		Printf("%d %d %d\n", current, size, percent);
+		LOGI("%d %d %d", current, size, percent);
 	}
 	return ESP_LOADER_SUCCESS;
 }

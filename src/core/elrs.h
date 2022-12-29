@@ -1,6 +1,9 @@
 #ifndef __ELRS_H__
 #define __ELRS_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef enum {
     MSP_IDLE,
     MSP_HEADER_START,

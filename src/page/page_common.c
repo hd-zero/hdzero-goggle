@@ -293,7 +293,7 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
 
 void btn_group_set_sel(btn_group_t *btn_group, int sel)
 {
-	//Printf("set sel, valid=%d, sel=%d\n", btn_group->valid, sel);
+	//LOGI("set sel, valid=%d, sel=%d", btn_group->valid, sel);
 	for(int i=0; i<btn_group->valid; i++)
 	{
 		if(i == sel)

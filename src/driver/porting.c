@@ -1,8 +1,11 @@
+#include "porting.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
 
-#include "porting.h"
+#include <log/log.h>
+
 #include "fbtools.h"
 #include "lvgl/lvgl.h"
 #include "../core/common.hh"
@@ -44,10 +47,10 @@ int lvgl_init_porting(void)
     strncpy(fbdev.dev, "/dev/fb0", sizeof(fbdev.dev));
     if(fb_open(&fbdev)==-1)
     {
-        Printf("open frame buffer error\n");
+        LOGI("open frame buffer error");
         return -1;
     }
-	Printf("register disp drv\n");
+	LOGI("register disp drv");
 //ע����ʾ����
 	lv_disp_draw_buf_init(&draw_buf, buf1, NULL, DISP_HOR_RES * DISP_VER_RES * 4);  /*Initialize the display buffer.*/
 

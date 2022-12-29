@@ -1,6 +1,8 @@
 #ifndef __PLAYBACK_H__
 #define __PLAYBACK_H__
 
+#include <lvgl/lvgl.h>
+
 #define ITEMS_LAYOUT_ROWS 3
 #define ITEMS_LAYOUT_COLS 3
 #define ITEMS_LAYOUT_CNT  (ITEMS_LAYOUT_ROWS*ITEMS_LAYOUT_COLS)  

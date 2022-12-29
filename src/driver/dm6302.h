@@ -1,8 +1,8 @@
 #ifndef __DM6302_H_
 #define __DM6302_H_
 
-
 #include <stdbool.h>
+#include <stdint.h>
 
 //#define _DEBUG_DM6300
 

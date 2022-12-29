@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <memory.h>
- #include <unistd.h>
+#include <unistd.h>
+
+#include <log/log.h>
+
 #include "common.hh"
 #include "ht.h"
 #include "osd.h"
@@ -42,18 +45,18 @@ void detect_motion(int is_moving)
             #endif        
                     state = 1;
                     cnt = 0;
-                    Printf("OLED pre-OFF for protection.");
+                    LOGI("OLED pre-OFF for protection.");
                     OLED_Brightness(0);
                 }
             }
         #ifdef FAST_SIM
-            Printf("IDLE %d\n",cnt);
+            LOGI("IDLE %d",cnt);
         #endif
         }    
     }
     else if(state == 1) { //pre -off
     #ifdef FAST_SIM    
-        Printf("PRE OFF %d\n",cnt);
+        LOGI("PRE OFF %d",cnt);
     #endif    
         if(is_moving) {
             state = 0;
@@ -63,7 +66,7 @@ void detect_motion(int is_moving)
         else {
             cnt++;
             if(cnt == MOVTION_DUR_1MINUTE) { // 1-min
-                Printf("OLED OFF for protection.");
+                LOGI("OLED OFF for protection.");
                 beep(); 
                 
                 OLED_ON(0); //Turn off OLED
@@ -78,7 +81,7 @@ void detect_motion(int is_moving)
     }
     else { // in stationery 
     #ifdef FAST_SIM
-        Printf("OFF %d\n",cnt);
+        LOGI("OFF %d",cnt);
     #endif    
         if(is_moving) {
             cnt++;
@@ -90,7 +93,7 @@ void detect_motion(int is_moving)
                     uint8_t ch = g_setting.scan.channel - 1;
 	                DM6302_SetChannel(ch);
                 }
-                Printf("OLED ON from protection.");
+                LOGI("OLED ON from protection.");
                 OLED_Brightness(g_setting.image.oled);
                 OLED_ON(1); 
             }
@@ -126,7 +129,7 @@ void get_imu_data(int bCalcDiff)
         gyr_last = ht_data.sensor_data.gyr;    
         
         //if(is_moving)
-        //    Printf("IMU: %d\n",diff);
+        //    LOGI("IMU: %d",diff);
        
         detect_motion(is_moving);
     }
@@ -250,7 +253,7 @@ void calibrate_ht()
     uint16_t i;
     float accAngle[3];
 
-    Printf("HT calibration...");
+    LOGI("HT calibration...");
     ht_data.acc_offset[0] = ht_data.acc_offset[1] = ht_data.acc_offset[2] = 0;
     ht_data.gyr_offset[0] = ht_data.gyr_offset[1] = ht_data.gyr_offset[2] = 0;
 
@@ -270,7 +273,7 @@ void calibrate_ht()
     ht_data.gyr_offset[1] >>= CALIBRATION_BCNT;
     ht_data.gyr_offset[2] >>= CALIBRATION_BCNT;
 
-    Printf("done!\n");
+    LOGI("done!");
 }
 
 int calc_ht()
@@ -294,7 +297,7 @@ int calc_ht()
     iir_filter(ht_data.tiltRollBeta,ht_data.rollAngle, &ht_data.rollAngleLP);
     iir_filter(ht_data.panBeta, normalize(ht_data.panAngle, -180,180), &ht_data.panAngleLP);
 
-	Printf("PTR=%.2f,%.2f,%.2f\n", ht_data.panAngleLP, ht_data.tiltAngleLP, ht_data.rollAngleLP);
+	LOGI("PTR=%.2f,%.2f,%.2f", ht_data.panAngleLP, ht_data.tiltAngleLP, ht_data.rollAngleLP);
 
 
     tmp = ht_data.panAngleLP * ht_data.panInverse * ht_data.panFactor;

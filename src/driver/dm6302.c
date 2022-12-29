@@ -1,17 +1,19 @@
+#include "dm6302.h"
+
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
-
 #include <string.h>
+
+#include <log/log.h>
+
 #include "i2c.h"
 #include "uart.h"
-#include "dm6302.h"
 #include "dm5680.h"
 #include "defines.h"
 #include "../core/common.hh"
 
-//#define Printf    printf
 #define WAIT(ms)  usleep((ms)*1000)
 
 // DM6302: RF receiver
@@ -84,7 +86,7 @@ void SPI_Read (uint8_t page, uint16_t addr, uint32_t* dat0, uint32_t* dat1)
     *dat1 = rdat;
 
 #ifdef _DEBUG_DM6300
-    Printf("SPI READ: addr=%x  data=  %x  %x\n", addr, (*dat1), (*dat0));
+    LOGI("SPI READ: addr=%x  data=  %x  %x", addr, (*dat1), (*dat0));
 #endif
 }
 
@@ -123,15 +125,15 @@ void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat)
     SPI_Read(page, addr, &r0, &r1);
     if(sel == 1){
         if(dat != r0)
-            Printf("                           --- W or R error !!   wdat=%x\n", dat);
+            LOGI("                           --- W or R error !!   wdat=%x", dat);
     }
     else if(sel == 2){
         if(dat != r1)
-            Printf("                           --- W or R error !!   wdat=%x\n", dat);
+            LOGI("                           --- W or R error !!   wdat=%x", dat);
     }
     else {
         if(dat != r1 || dat != r0)
-            Printf("                           --- W or R error !!   wdat=%x\n", dat);
+            LOGI("                           --- W or R error !!   wdat=%x", dat);
     }
 #endif
 }
@@ -973,7 +975,7 @@ void DM6302_EFUSE1(uint8_t SEL6302)
     SPI_Write(SEL6302, 0x6, 0xFF0, 0x00000019);
     SPI_Write(SEL6302, 0x3, 0x0E0, 0x00000001);
 
-    Printf("EFUSE1 %d, s1\n", SEL6302);
+    LOGI("EFUSE1 %d, s1", SEL6302);
 
     SPI_Write(SEL6302, 0x6, 0xFF0, 0x00000018);
     for(j=66; j<68/*EFUSE_SIZE*/; j++) // read macro 0
@@ -995,7 +997,7 @@ void DM6302_EFUSE1(uint8_t SEL6302)
         efuse_sel->dat[0][j] = rdat_sel & 0xFF;
     }
 
-    Printf("EFUSE1 %d, s2\n", SEL6302);
+    LOGI("EFUSE1 %d, s2", SEL6302);
 
     for(j=0; j<12/*EFUSE_SIZE*/; j++) // read macro 1
     {
@@ -1016,7 +1018,7 @@ void DM6302_EFUSE1(uint8_t SEL6302)
         efuse_sel->dat[1][j] = rdat_sel & 0xFF;
     }
 
-    Printf("EFUSE1 %d, s3, %d\n", SEL6302, efuse_sel->macro.m0.band_num);
+    LOGI("EFUSE1 %d, s3, %d", SEL6302, efuse_sel->macro.m0.band_num);
 
     //for(i=2; i<efuse.macro.m0.band_num+2; i++) // read macro 2~11
     //efuse_sel->macro.m0.band_num = (efuse_sel->macro.m0.band_num >> 8) | (efuse_sel->macro.m0.band_num << 8);
@@ -1047,7 +1049,7 @@ void DM6302_EFUSE1(uint8_t SEL6302)
             }
         }
 
-        Printf("EFUSE1 %d, s3-%i\n", SEL6302, i);
+        LOGI("EFUSE1 %d, s3-%i", SEL6302, i);
 
         for(j=64; j<84/*EFUSE_SIZE*/; j++){
             // EFUSE_CFG = (i<<11) | (j<<4) | 0x1;
@@ -1075,7 +1077,7 @@ void DM6302_EFUSE1(uint8_t SEL6302)
         }
     }
 
-    Printf("EFUSE1 %d, s4\n", SEL6302);
+    LOGI("EFUSE1 %d, s4", SEL6302);
 
     // EFUSE_CFG = 0;
     SPI_Write(SEL6302, 0x3, 0x7D0, 0x00000000);
@@ -1093,13 +1095,13 @@ void DM6302_EFUSE1(uint8_t SEL6302)
     efuse_sel->macro.m1.rcal = (efuse_sel->macro.m1.rcal >> 8) | (efuse_sel->macro.m1.rcal << 8);
 #endif
 
-    //Printf("\r\nband_num=%x", efuse_sel->macro.m0.band_num);
-    //Printf("\r\nbandgap=%lx", efuse_sel->macro.m1.bandgap);
-    //Printf("\r\nical=%x", efuse_sel->macro.m1.ical);
-    //Printf("\r\nrcal=%x", efuse_sel->macro.m1.rcal);
+    //LOGI("band_num=%x", efuse_sel->macro.m0.band_num);
+    //LOGI("bandgap=%lx", efuse_sel->macro.m1.bandgap);
+    //LOGI("ical=%x", efuse_sel->macro.m1.ical);
+    //LOGI("rcal=%x", efuse_sel->macro.m1.rcal);
 
     r1 = ((efuse_sel->macro.m1.ical & 0x1F) << 3) | (efuse_sel->macro.m1.rcal & 0x7);
-    //Printf("\r\nrh=%lx", rh);
+    //LOGI("rh=%lx", rh);
 
     SPI_Write(SEL6302, 0x6, 0xF14, efuse_sel->macro.m1.bandgap);
     SPI_Write(SEL6302, 0x6, 0xF18, r1);
@@ -1123,7 +1125,7 @@ void DM6302_EFUSE2(uint8_t SEL6302)
         //efuse_sel->macro.m2[i].rx2.freq_start = (efuse_sel->macro.m2[i].rx2.freq_start >> 8) | (efuse_sel->macro.m2[i].rx2.freq_start << 8);
         //efuse_sel->macro.m2[i].rx2.freq_stop = (efuse_sel->macro.m2[i].rx2.freq_stop >> 8) | (efuse_sel->macro.m2[i].rx2.freq_stop << 8);
 
-        Printf("\r\n rx1: start=%x, stop=%x;  rx2: start=%x, stop=%x", efuse_sel->macro.m2[i].rx1.freq_start, efuse_sel->macro.m2[i].rx1.freq_stop,
+        LOGI(" rx1: start=%x, stop=%x;  rx2: start=%x, stop=%x", efuse_sel->macro.m2[i].rx1.freq_start, efuse_sel->macro.m2[i].rx1.freq_stop,
                                                                        efuse_sel->macro.m2[i].rx2.freq_start, efuse_sel->macro.m2[i].rx2.freq_stop);
 
 		if(efuse_sel->macro.m2[i].rx1.freq_start>=5000 && efuse_sel->macro.m2[i].rx1.freq_stop<=6000)
@@ -1156,10 +1158,10 @@ void DM6302_EFUSE2(uint8_t SEL6302)
             SPI_Write(SEL6302, 0x3, 0x998, efuse_sel->macro.m2[i].rx1.iqmismatch[2]);
             SPI_Write(SEL6302, 0x3, 0x980, 0x0000000C);
 
-            Printf("\r\niqmismatch[0]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[0]);
-            Printf("\r\niqmismatch[1]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[1]);
-            Printf("\r\niqmismatch[2]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[2]);
-            Printf("\r\nim2=%lx", efuse_sel->macro.m2[i].rx1.im2);
+            LOGI("iqmismatch[0]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[0]);
+            LOGI("iqmismatch[1]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[1]);
+            LOGI("iqmismatch[2]=%lx", efuse_sel->macro.m2[i].rx1.iqmismatch[2]);
+            LOGI("im2=%lx", efuse_sel->macro.m2[i].rx1.im2);
         }
 
         if(efuse_sel->macro.m2[i].rx2.freq_start>=5000 && efuse_sel->macro.m2[i].rx2.freq_stop<=6000)
@@ -1192,10 +1194,10 @@ void DM6302_EFUSE2(uint8_t SEL6302)
             SPI_Write(SEL6302, 0x3, 0xB98, efuse_sel->macro.m2[i].rx2.iqmismatch[2]);
             SPI_Write(SEL6302, 0x3, 0xB80, 0x0000000C);
 
-            Printf("\r\niqmismatch[0]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[0]);
-            Printf("\r\niqmismatch[1]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[1]);
-            Printf("\r\niqmismatch[2]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[2]);
-            Printf("\r\nim2=%lx", efuse_sel->macro.m2[i].rx2.im2);
+            LOGI("iqmismatch[0]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[0]);
+            LOGI("iqmismatch[1]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[1]);
+            LOGI("iqmismatch[2]=%lx", efuse_sel->macro.m2[i].rx2.iqmismatch[2]);
+            LOGI("im2=%lx", efuse_sel->macro.m2[i].rx2.im2);
         }
 	}
 }
@@ -1407,7 +1409,7 @@ int DM6302_init(uint8_t freq)
         usleep(100000);
 
         DM6302_Init0(0);
-        Printf("Init0 done\n");
+        LOGI("Init0 done");
 
         SPI_Read(0x6, 0xFF0, &r0, &r1);
         if((r0 != 0x18) || (r1 != 0x18))
@@ -1417,73 +1419,73 @@ int DM6302_init(uint8_t freq)
 
         to_cnt++;
         if(to_cnt >= 10){
-            Printf("Error: DM6302s have no response.\n");
+            LOGI("Error: DM6302s have no response.");
             return 1;
         }
     }
 
     DM6302_EFUSE1(1);
-    Printf("EFUSE1 1 done\n");
+    LOGI("EFUSE1 1 done");
 
     DM6302_EFUSE1(2);
-    Printf("EFUSE1 2 done\n");
+    LOGI("EFUSE1 2 done");
 
     DM6302_Init1(0);
-    Printf("Init1 done\n");
+    LOGI("Init1 done");
 
     DM6302_Init2(0,freq);
-    Printf("Init2 done\n");
+    LOGI("Init2 done");
 
     DM6302_Init3(0);
-    Printf("Init3 done\n");
+    LOGI("Init3 done");
 
     DM6302_Init4(0);
-    Printf("Init4 done\n");
+    LOGI("Init4 done");
 
     DM6302_Init5(0);
-    Printf("Init5 done\n");
+    LOGI("Init5 done");
 
     DM6302_Init6(0);
-    Printf("Init6 done\n");
+    LOGI("Init6 done");
 
     DM6302_Init7(0);
-    Printf("Init7 done\n");
+    LOGI("Init7 done");
 
     DM6302_Init8(0);
-    Printf("Init8 done\n");
+    LOGI("Init8 done");
 
     DM6302_Init9(0);
-    Printf("Init9 done\n");
+    LOGI("Init9 done");
 
     DM6302_Init10(0);
-    Printf("Init10 done\n");
+    LOGI("Init10 done");
 
     DM6302_Init11(0);
-    Printf("Init11 done\n");
+    LOGI("Init11 done");
 
     DM6302_Init12(0);
-    Printf("Init12 done\n");
+    LOGI("Init12 done");
 
     DM6302_Init13(0);
-    Printf("Init13 done\n");
+    LOGI("Init13 done");
 
     DM6302_Init14(0);
-    Printf("Init14 done\n");
+    LOGI("Init14 done");
 
     DM6302_EFUSE2(1);
-    Printf("EFUSE2 1 done\n");
+    LOGI("EFUSE2 1 done");
 
     DM6302_EFUSE2(2);
-    Printf("EFUSE2 2 done\n");
+    LOGI("EFUSE2 2 done");
 
     DM6302_DCOC(1);
-    Printf("DCOC 1 done\n");
+    LOGI("DCOC 1 done");
 
     DM6302_DCOC(2);
-    Printf("DCOC 2 done\n");
+    LOGI("DCOC 2 done");
 
     DM6302_M0();
-    Printf("M0 done\n");
+    LOGI("M0 done");
 
     return 0;
 }

@@ -1,11 +1,14 @@
+#include "page_version.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "minIni.h"
+
+#include <minIni.h>
+#include <log/log.h>
 
 #include "common.hh"
 #include "style.h"
-#include "../page/page_version.h"
 #include "../page/page_common.h"
 #include "../driver/i2c.h"
 #include "../driver/uart.h"
@@ -62,10 +65,10 @@ int generate_current_version(sys_version_t *sys_ver)
 			sys_ver->app = atoi(strtmp);
 			break;
 		}
-		Printf(">>%s\n", strline);
+		LOGI(">>%s", strline);
 	}
 
-	Printf("va:%d, rx:%d, app:%d\n", sys_ver->va,
+	LOGI("va:%d, rx:%d, app:%d", sys_ver->va,
 							sys_ver->rx,
 							sys_ver->app);
 	fclose(fp);
@@ -138,17 +141,17 @@ uint8_t command_monitor(char* cmd)
 	stream = popen(cmd , "r" );
 	if(!stream) return 0;
 
-	Printf("---%s---\n", cmd);
+	LOGI("---%s---", cmd);
 	ret = 0;
 	do{
 		rsize = fread( buf, sizeof(char), sizeof(buf),  stream);
-		Printf("%s", buf);
+		LOGI("%s", buf);
 		if(strstr(buf, "all done"))  {ret = 1; break;}
 		else if(strstr(buf, "skip"))  {ret = 2; break;}
 		else if(strstr(buf, "repeat"))  {ret = 3; break;}
 	} while(rsize  == sizeof(buf));
 	pclose( stream );
-	Printf("\n");
+	LOGI("");
 	return ret;
 }
 
@@ -163,7 +166,7 @@ void version_update(int sel)
 			while(fgets(buf,80,fp)) {
 				sscanf(buf,"%x %x %x",&dat[0],&dat[1],&dat[2]);
 				DM5680_WriteReg(dat[0], dat[1], dat[2]);
-				Printf("DM5680 REG[%02x,%02x]<-%02x\n", dat[0], dat[1], dat[2]);
+				LOGI("DM5680 REG[%02x,%02x]<-%02x", dat[0], dat[1], dat[2]);
 				usleep(100000);
 			}
 			fclose(fp);
@@ -176,8 +179,8 @@ void version_update(int sel)
 			sscanf(buf,"%x %x",&dat[0],&dat[1]);
 			DM5680_ReadReg(dat[0], dat[1]);
 			sleep(1);
-			Printf("DM5680_0 REG[%02x,%02x]-> %02x\n", dat[0], dat[1], rx_status[0].rx_regval);
-			Printf("DM5680_1 REG[%02x,%02x]-> %02x\n", dat[0], dat[1], rx_status[1].rx_regval);
+			LOGI("DM5680_0 REG[%02x,%02x]-> %02x", dat[0], dat[1], rx_status[0].rx_regval);
+			LOGI("DM5680_1 REG[%02x,%02x]-> %02x", dat[0], dat[1], rx_status[1].rx_regval);
 		}
 		fclose(fp);
 		//system("rm /tmp/rd_reg");
@@ -225,7 +228,7 @@ void version_update(int sel)
 			//bool b1 = file_compare("/tmp//tmp/goggle_update/HDZERO_RX.bin","/tmp//tmp/goggle_update/HDZERO_RX_RBL.bin");
 			//bool b2 = file_compare("/tmp//tmp/goggle_update/HDZERO_RX.bin","/tmp//tmp/goggle_update/HDZERO_RX_RBR.bin");
 			//bool b3 = file_compare("/tmp//tmp/goggle_update/HDZERO_VA.bin","/tmp//tmp/goggle_update/HDZERO_VA_RB.bin");
-			//Printf("Verify result: %d %d %d\n", b1,b2,b3);
+			//LOGI("Verify result: %d %d %d", b1,b2,b3);
 			//if(b1 && b2 && b3) {
 			if(1){
 				lv_timer_handler();
@@ -257,7 +260,7 @@ void process_bar_update(const int value0,
 {
 	if(bar0 && bar1)
 	{
-		//Printf("v0=%d, v1=%d\n", value0, value1);
+		//LOGI("v0=%d, v1=%d", value0, value1);
 		lv_bar_set_value(bar0, value0, LV_ANIM_OFF);
 		lv_bar_set_value(bar1, value1, LV_ANIM_OFF);
 	}
