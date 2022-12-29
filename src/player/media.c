@@ -1,7 +1,7 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "play"
 #include "media.h"
-#include <plat_log.h>
+#include <log/log.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -229,19 +229,19 @@ media_t *media_instantiate(char *filename, notify_cb_t notify)
 
     playCtx->vv = vdec2vo_initSys();
     if( playCtx->vv == NULL ) {
-        aloge("create vdec2vo failed");
+        LOGE("create vdec2vo failed");
         goto failed;
     }
 
     playCtx->aa = adec2ao_initSys();
     if( playCtx->aa == NULL ) {
-        aloge("create adec2ao failed");
+        LOGE("create adec2ao failed");
         goto failed;
     }
 
     playCtx->dmx = awdmx_open(filename, play_onDemuxEof, playCtx);
     if( playCtx->dmx == NULL ) {
-        aloge("open demux failed");
+        LOGE("open demux failed");
         goto failed;
     }
     else {
@@ -279,16 +279,16 @@ media_t *media_instantiate(char *filename, notify_cb_t notify)
         }
     }
     if( ret != 0 ) {
-        aloge("prepare vdec2vo failed");
+        LOGE("prepare vdec2vo failed");
         goto failed;
     }
 
-    aloge("ready to play");
+    LOGE("ready to play");
 	media->is_media_thread_exit = false;
 	ret = pthread_create( &pid, NULL, thread_media, (void *)media);
 	if(ret)
 	{
-		aloge("create thread media failed, exit");
+		LOGE("create thread media failed, exit");
 		return NULL;
 	}
 	media->pid = pid;
@@ -299,7 +299,7 @@ failed:
     awdmx_close(playCtx->dmx);
     pthread_mutex_destroy(&playCtx->mutex);
     free(playCtx);
-    alogd("exit done");
+    LOGD("exit done");
 
     return NULL;
 }

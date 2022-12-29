@@ -14,10 +14,11 @@ set(SOFTWINNER_INCLUDE_DIRECTORIES
 
 add_library(softwinner SHARED IMPORTED GLOBAL)
 set_target_properties(softwinner PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/media/lib/libglog.so # dummy
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/media/lib/libz.so # dummy
     INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
 )
 target_link_libraries(softwinner INTERFACE
+    log
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/lib_ise_mo.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libadecoder.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libawmjpegplus.so
@@ -35,7 +36,6 @@ target_link_libraries(softwinner INTERFACE
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libion.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libisp_ini.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libISP.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/liblog.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmedia_mpp.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmedia_utils.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libMemAdapter.so
@@ -52,6 +52,5 @@ target_link_libraries(softwinner INTERFACE
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvencoder.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvideoengine.so
     ${CMAKE_SOURCE_DIR}/media/lib/libasound.so
-    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so
     ${CMAKE_SOURCE_DIR}/media/lib/libz.so
 )
