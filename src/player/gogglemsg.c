@@ -5,7 +5,7 @@ extern "C" {
 //#define LOG_NDEBUG 0
 #define LOG_TAG "gogglemsg"
 #if(THIS_MTYPE != MTYPE_NONE)
-#include <plat_log.h>
+#include <log/log.h>
 #endif
 
 #include <stdio.h>
@@ -26,8 +26,8 @@ extern "C" {
 #define DataMSG_SIZE(n)	    ((n)-sizeof(long))
 
 #if(THIS_MTYPE == MTYPE_NONE)
-#define aloge printf
-#define alogd printf
+#define LOGE printf
+#define LOGD printf
 #endif
 
 /* Codec gogglemsg */
@@ -61,7 +61,7 @@ int gogglemsg_init( int r )
 	}
 	if( gGoggleMsg < 0 )
 	{
-		aloge("failed to require %x\n", GoggleMSG_KEY);
+		LOGE("failed to require %x\n", GoggleMSG_KEY);
 		return -1;
 	}
 
@@ -72,7 +72,7 @@ int gogglemsg_uninit( void )
 {
 	msgctl( gGoggleMsg, IPC_RMID, NULL);
 
-	aloge("msgid %d free!\n", gGoggleMsg);
+	LOGE("msgid %d free!\n", gGoggleMsg);
 
 	return 0;
 }
@@ -123,7 +123,7 @@ int gogglemsg_sendData( GoggleMsgType_e mtype, GoggleMsgCommand_e cmd, void* dat
     msgData->msg.cmd = cmd;
     memcpy(msgData->data, data, len);
 
-    //alogd("send: %d, %d, %d\n", len, DataMSG_SIZE(nSize), nSize);
+    //LOGD("send: %d, %d, %d\n", len, DataMSG_SIZE(nSize), nSize);
 
 	nSize = msgsnd( gGoggleMsg, msgBuff, DataMSG_SIZE(nSize), 0 );
 	free(msgBuff);

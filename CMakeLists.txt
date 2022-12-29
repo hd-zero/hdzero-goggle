@@ -35,6 +35,7 @@ add_definitions(
 # dependencies
 add_subdirectory(lib/lvgl)
 add_subdirectory(lib/minIni)
+add_subdirectory(lib/log)
 add_subdirectory(lib/esp-loader)
 add_subdirectory(lib/softwinner)
 
@@ -72,6 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	${STANDARD_LIBRARIES}
 
+	log
 	lvgl
 	minIni
 	esp-loader
