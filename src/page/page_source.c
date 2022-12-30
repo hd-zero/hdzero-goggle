@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "page_source.h"
 #include "../driver/hardware.h"
 #include "../core/osd.h"
@@ -6,6 +7,7 @@
 #include "style.h"
 #include "porting.h"
 #include "../driver/oled.h"
+#include "../driver/it66121.h"
 #include "../core/common.hh"
 #include "../core/main_menu.h"
 #include "page_scannow.h"
@@ -113,14 +115,8 @@ void source_mode_set(int sel)
 			break;
 
 		case 1:
-			if(g_source_info.hdmi_in_status) {
-				Source_HDMI_in();
-				g_menu_op = OPLEVEL_VIDEO;
-				g_source_info.source = 1;
-				enable_line_out(false);
-				g_setting.autoscan.last_source = 4;
-				ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
-			}
+			if(g_source_info.hdmi_in_status) 
+				switch_to_hdmiin();
 			break;
 
 		case 2://AV in
@@ -176,5 +172,27 @@ void switch_to_analog(bool is_bay)
 	Display_Osd(g_setting.record.osd); 
 
 	g_setting.autoscan.last_source = is_bay? 2:3;
+	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
+}
+
+void switch_to_hdmiin()
+{
+	Source_HDMI_in();
+	IT66121_close(); 
+	sleep(2);
+	
+	if(g_hw_stat.hdmiin_vtmg == 1) 
+		lvgl_switch_to_1080p();
+	else 
+		lvgl_switch_to_720p();
+	
+	osd_show(true); 
+	draw_osd_clear();
+	lv_timer_handler();
+	
+	g_menu_op = OPLEVEL_VIDEO;
+	g_source_info.source = 1;
+	enable_line_out(false);
+	g_setting.autoscan.last_source = 4;
 	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }

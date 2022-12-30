@@ -148,6 +148,8 @@ static void switch_to_menumode()
 	main_menu_show(true);
 	HDZero_Close(); 
 	g_sdcard_det_req = 1;
+	if(g_source_info.source == 1) //HDMI
+		IT66121_init();
 }
 
 static void btn_press(void) //long press left key
@@ -166,7 +168,7 @@ static void btn_press(void) //long press left key
 			switch_to_video(true);
 		}
 		else if(g_source_info.source == 1) //HDMI
-			Source_HDMI_in();
+			switch_to_hdmiin();
 		else if(g_source_info.source == 2) //AV in
 			switch_to_analog(0);    
 		else							//Expansion Module

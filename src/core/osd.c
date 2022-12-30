@@ -350,7 +350,7 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index)
 	if(index < 5) 
 		x = 40*index+160;
 	else
-		x = 1120 - (11-index)*40;
+		x = 1080 - (11-index)*40;
 
 	lv_obj_set_pos(*obj, x, 0);
 }
@@ -359,7 +359,7 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index)
 void osd_show(bool show)
 {
 	if(show)
-		lv_obj_clear_flag(scr_osd, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_clear_flag(scr_osd, LV_OBJ_FLAG_HIDDEN);
 	else	
 		lv_obj_add_flag(scr_osd, LV_OBJ_FLAG_HIDDEN);
 }

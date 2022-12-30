@@ -47,7 +47,7 @@ lv_obj_t *page_power_create(lv_obj_t *parent, struct panel_arr *arr)
 
 	create_slider_item(&slider_group, cont, "Voltage", 42, g_setting.power.voltage , 1);
 	create_btn_group_item(&btn_group1, cont, 3, "Warning Type", "Beep", "Visual", "Both","",  2);
-    lv_slider_set_range(slider_group.slider, 30, 42);
+    lv_slider_set_range(slider_group.slider, 28, 42);
    	lv_label_set_text(slider_group.label, str);
 	create_label_item(cont, "<Back", 1, 3, 1);
 
@@ -95,7 +95,7 @@ void power_voltage_dec(void)
 	int32_t value = 0;
 
 	value = lv_slider_get_value(slider_group.slider);
-	if(value >= 33)
+	if(value > 28)
 		value -= 1;
 
 	lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);	
