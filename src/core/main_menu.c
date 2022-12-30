@@ -373,7 +373,7 @@ static void ui_create_rootpage(lv_obj_t * parent)
 	lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
     lv_menu_set_load_page_event(parent, cont, pp_fans.page);
 
-    create_text(&s, section, true, "Record options", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    create_text(&s, section, true, "Record Options", LV_MENU_ITEM_BUILDER_VARIANT_1);
 	pp_record.icon = s.icon;
 	cont = s.cont;
 	lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);

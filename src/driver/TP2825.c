@@ -25,8 +25,10 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
 
     if(is_pal) {
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
-        I2C_Write(ADDR_TP2825, 0x07, 0xC0);
-        I2C_Write(ADDR_TP2825, 0x0B, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x06, 0x34);
+        I2C_Write(ADDR_TP2825, 0x08, 0xD0);
+        I2C_Write(ADDR_TP2825, 0x07, 0x80);
+        I2C_Write(ADDR_TP2825, 0x0B, 0x80);
         I2C_Write(ADDR_TP2825, 0x0C, 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, 0x11);
         //I2C_Write(ADDR_TP2825, 0x15, 0x13);
@@ -40,6 +42,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         //I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, 0x02);
         //I2C_Write(ADDR_TP2825, 0x28, 0x41);
+        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //diable color kill
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2D, 0x60);
         I2C_Write(ADDR_TP2825, 0x2E, 0x5E);
@@ -57,8 +60,10 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
     }
     else {
         I2C_Write(ADDR_TP2825, 0x02, 0xCF);
-        I2C_Write(ADDR_TP2825, 0x07, 0xC0);
-        I2C_Write(ADDR_TP2825, 0x0B, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x06, 0x34);
+        I2C_Write(ADDR_TP2825, 0x08, 0xD0);
+        I2C_Write(ADDR_TP2825, 0x07, 0x80);
+        I2C_Write(ADDR_TP2825, 0x0B, 0x80);
         I2C_Write(ADDR_TP2825, 0x0C, 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, 0x10);
         //I2C_Write(ADDR_TP2825, 0x15, 0x13);
@@ -72,6 +77,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         //I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, 0x12);
         //I2C_Write(ADDR_TP2825, 0x28, 0x41);
+        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //diable color kill
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2D, 0x68);
         I2C_Write(ADDR_TP2825, 0x2E, 0x5E);
@@ -93,4 +99,9 @@ void TP2825_Switch_CH(uint8_t sel) // 0 = AV in; 1 = Module bay
 {
     I2C_Write(ADDR_TP2825, 0x41, sel);
     I2C_Write(ADDR_TP2825, 0x06, 0xB2);
+}
+
+void TP2825_Set_Clamp(int set_default)
+{
+    I2C_Write(ADDR_TP2825, 0x23, set_default ? 0x3c : 0x7c);
 }

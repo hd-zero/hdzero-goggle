@@ -134,7 +134,7 @@ void esp32_rx()
 			buffer[i++] = ch;
 		if ((processed && i>0) || buffer[i-1]=='\n' || i==80) {
 			buffer[i-1] = 0;
-			Printf("[ESP] %s\n", buffer);
+			//Printf("[ESP] %s\n", buffer);
 			i = 0;
 		}
     }

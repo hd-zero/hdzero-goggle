@@ -15,6 +15,8 @@ void pp_source_exit();
 
 void switch_to_analog(bool is_bay);
 
+void switch_to_hdmiin();
+
 extern bool in_sourcepage;
 
 #endif

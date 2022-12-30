@@ -246,14 +246,14 @@ uint8_t ims_key(uint8_t key)
     else if(ims_state == 2) { //tune up/down values
         g_bShowIMS = true;
         value = 0;
-        if(key == 1) {
+        if(key == 2) {
             value = ims_page.items[ims_page.selection].value;
             if(value != ims_page.items[ims_page.selection].range[1]) {
                 value++;
                 ims_page.items[ims_page.selection].value = value;
             }
         }    
-        else if(key == 2) {
+        else if(key == 1) {
             value = ims_page.items[ims_page.selection].value;
             if(value != ims_page.items[ims_page.selection].range[0]) {
                 value--;

@@ -194,7 +194,7 @@ void start_running(void)
 			sleep(2);
 			g_source_info.hdmi_in_status = IT66021_Sig_det();
 			if(g_source_info.hdmi_in_status) {
-				Source_HDMI_in();
+				switch_to_hdmiin();
 				g_source_info.source = 1;
 			}
 			else {
@@ -221,8 +221,6 @@ static void device_init(void)
 	g_battery.type = 2;
 	DM5680_req_ver(); 
 	fans_top_setspeed(g_setting.fans.top_speed);
-	fans_left_setspeed(g_setting.fans.left_speed);
-	fans_right_setspeed(g_setting.fans.right_speed);
 }
 
 

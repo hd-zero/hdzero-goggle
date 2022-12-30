@@ -29,6 +29,7 @@ typedef struct{
 
     // hdmi in
     int hdmiin_valid;
+    int hdmiin_vtmg; //1=1080p,2=720p
 
 } hw_status_t;
 

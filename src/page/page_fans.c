@@ -246,7 +246,7 @@ void fans_auto_ctrl_core(bool is_left,int tempe, bool binit)
 	//////////////////////////////////////////////////////////////////////////////////
 	//reinit auto speed
 	if(binit) {
-		speed[0] = speed[1] = 3;
+		speed[0] = speed[1] = 2;
 		respeed_cnt[0] = respeed_cnt[1] = 0;
 		respeeding[0] = respeeding[1] = false;
 		fans_right_setspeed(speed[0]);

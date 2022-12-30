@@ -35,6 +35,7 @@ void hw_stat_init()
     g_hw_stat.av_valid[0] = g_hw_stat.av_valid[1] = 0;
 
     g_hw_stat.hdmiin_valid = 0;
+    g_hw_stat.hdmiin_vtmg = 0;
 
     pthread_mutex_init(&hardware_mutex, NULL);
 }
@@ -67,10 +68,11 @@ void Display_UI_init()
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
     Display_VO_SWITCH(0);
     
-    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00); 
+    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x80); 
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
+    I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     OLED_SetTMG(0);
 }
@@ -118,7 +120,7 @@ void Display_720P90_t(int mode)
     g_hw_stat.vdpo_tmg = HW_VDPO_720P90;
     I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x00); 
-    I2C_Write(ADDR_AL, 0x14, 0x00);
+    I2C_Write(ADDR_AL, 0x14, 0x01);
     I2C_Write(ADDR_FPGA, 0x80, 0x01);
 
     DM5680_SetFPS(mode);
@@ -200,7 +202,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
     
     g_hw_stat.av_chid = sel;
-    g_hw_stat.av_pal = (g_hw_stat.av_valid[sel] == 2) ? 1 : 0;
+    g_hw_stat.av_pal = 0; //(g_hw_stat.av_valid[sel] == 2) ? 1 : 0;
     TP2825_Config(sel, g_hw_stat.av_pal);
     AV_Mode_Switch_fpga(g_hw_stat.av_pal);
 
@@ -226,7 +228,7 @@ void Source_HDMI_in()
     OLED_display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x01);
 
@@ -234,6 +236,7 @@ void Source_HDMI_in()
     //OLED_SetTMG(0);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+    I2C_Write(ADDR_FPGA, 0x84, 0x00);
 
     g_hw_stat.source_mode = HW_SRC_MODE_HDMIIN;
     Display_VO_SWITCH(1);
@@ -301,10 +304,13 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
     pthread_mutex_lock(&hardware_mutex);
 
-    det = 0xAF & I2C_Read(ADDR_TP2825, 0x01);
+    det = I2C_Read(ADDR_TP2825, 0x01);
 
     if(g_hw_stat.source_mode == HW_SRC_MODE_UI){ //detect in UI mode
-        det = (det == 0x2C) ? 2 : (det == 0x28) ? 1 : 0;
+        TP2825_Set_Clamp(0);
+
+        det = ((det & 0x80) == 0x80) ? 0 : 1;
+        //det = (det == 0x2C) ? 2 : (det == 0x28) ? 1 : 0;
         if(det_last != det) {
             det_last = det;
             det_cnt = 0;
@@ -324,6 +330,8 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
         det2_cnt = 0;
     }
     else if(g_hw_stat.source_mode == HW_SRC_MODE_AV) { //detect in AV_in/Module_bay mode
+        det &= 0xAF;
+
         det2 = (g_hw_stat.av_pal == 1 && det == 0x2C) ? 2 :
                (g_hw_stat.av_pal == 0 && det == 0x28) ? 1 : 0;
 
@@ -366,44 +374,70 @@ void HDMI_in_detect()
 {
     static int vtmg_last = -1;
     static int cs_last = -1;
+    static int last_vld = 0;
     int vtmg, cs;
 
     pthread_mutex_lock(&hardware_mutex);
 
     if((g_hw_stat.source_mode == HW_SRC_MODE_UI) || (g_hw_stat.source_mode == HW_SRC_MODE_HDMIIN)) {
 
+        last_vld = g_hw_stat.hdmiin_valid;
         g_hw_stat.hdmiin_valid = IT66021_Sig_det();
 
-        if(g_hw_stat.hdmiin_valid && g_hw_stat.source_mode == HW_SRC_MODE_HDMIIN){
-            vtmg = IT66021_Get_VTMG();
-            if(vtmg_last != vtmg){
-                vtmg_last = vtmg;
-                Printf("IT66021: VTMG change: %d\n", vtmg);
+        if(g_hw_stat.source_mode == HW_SRC_MODE_HDMIIN){
+            if(g_hw_stat.hdmiin_valid){
+                vtmg = IT66021_Get_VTMG();
+                if(vtmg_last != vtmg){
+                    vtmg_last = vtmg;
+                    Printf("IT66021: VTMG change: %d\n", vtmg);
 
-                OLED_display(0);
+                    OLED_display(0);
+                    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-                if(vtmg == 1){
-                    I2C_Write(ADDR_FPGA, 0x8d, 0x00);
-                    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
-                    I2C_Write(ADDR_AL, 0x14, 0x00);
-                    OLED_SetTMG(0);
-                    OLED_display(1);
+                    if(vtmg == 1){
+                        system("dispw -s vdpo 1080p50");
+                        g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+                        I2C_Write(ADDR_AL, 0x14, 0x01);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x00);
+                        
+                        OLED_SetTMG(0);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = 1;
+                    }
+                    else if(vtmg == 2){
+                        system("dispw -s vdpo 720p60");
+                        g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        I2C_Write(ADDR_AL, 0x14, 0x01);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x80);
+                        
+                        OLED_SetTMG(1);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = 2;
+                    }
                 }
-                else if(vtmg == 2){
-                    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
-                    I2C_Write(ADDR_AL, 0x14, 0x01);
-                    OLED_SetTMG(1);
-                    OLED_display(1);
+
+                cs = IT66021_Get_CS();
+                if(cs_last != cs) {
+                    cs_last = cs;
+                    Printf("IT66021: Color space change: %d\n", cs);
+
+                    IT66021_Set_CSMatrix(cs);
                 }
             }
+            else {
+                if(last_vld)
+                    I2C_Write(ADDR_FPGA, 0x06, 0x0F);
 
-            cs = IT66021_Get_CS();
-            if(cs_last != cs) {
-                cs_last = cs;
-                Printf("IT66021: Color space change: %d\n", cs);
-
-                IT66021_Set_CSMatrix(cs);
+                vtmg_last = -1;
+                cs_last = -1;
             }
         }
         else{
