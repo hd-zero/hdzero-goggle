@@ -1,47 +1,52 @@
+#include "thread.h"
+
+#include <assert.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <sys/stat.h>
 #include <sys/vfs.h>
+#include <unistd.h>
 
-#include "defines.h"
-#include "thread.h"
-#include "osd.h"
-#include "input_device.h"
-#include "ht.h"
 #include "common.hh"
-#include "../driver/porting.h"
+#include "defines.h"
+#include "ht.h"
+#include "input_device.h"
+#include "msp_displayport.h"
+#include "osd.h"
+
+#include "../driver/dm5680.h"
+#include "../driver/hardware.h"
+#include "../driver/it66021.h"
+#include "../driver/it66021.h"
 #include "../driver/mcp3021.h"
 #include "../driver/nct75.h"
-#include "../driver/hardware.h"
 #include "../driver/oled.h"
-#include "../driver/dm5680.h"
-#include "../driver/it66021.h"
-#include "../driver/it66021.h"
+#include "../driver/porting.h"
 #include "../page/page_fans.h"
 #include "../page/page_version.h"
-#include "msp_displayport.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void)
 {
-	char   buf[128]; 
-	FILE   *stream;  
 	static bool sdcard_enable_last = false;
+	struct stat mountpoint;
+	struct stat mountpoint_parent;
 
-    memset( buf, '\0', sizeof(buf) );
-    stream = popen( "ls /mnt/extsd/" , "r" );
-	fread( buf, sizeof(char), sizeof(buf),  stream);  
-	pclose( stream ); 
-
-	g_sdcard_enable = strcmp(buf, "") == 0 ? false : true;
+	// fetch mountpoint and mountpoint parent dev_id
+	if (stat("/mnt/extsd", &mountpoint) == 0 &&
+		stat("/mnt", &mountpoint_parent) == 0) {
+		// iff the dev ids _do not_ match there is a filesystem mounted
+		g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
+	} else {
+		g_sdcard_enable = false;
+	}
 
 	if((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
 		struct statfs info;
-		if(statfs( "/mnt/extsd", &info ) != -1) 
+		if(statfs( "/mnt/extsd", &info ) == 0) 
 			g_sdcard_size = (info.f_bsize * info.f_bavail)>>20; //in MB
 		else
 			g_sdcard_size = 0;
