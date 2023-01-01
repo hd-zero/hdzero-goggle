@@ -38,12 +38,12 @@ lv_obj_t *page_autoscan_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_select_item(arr, cont);
 
 	btn_group_t btn_group;
-	create_btn_group_item(&btn_group0, cont, 2, "Auto Scan", "On", "Off", "","",  0);
+	create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off","",  0);
 	create_btn_group_item2(&btn_group1, cont, 5, "Default", "Last","HDZero", "Expansion", "AV In", "HDMI In", " ",  1); //2 rows
 	create_label_item(cont, "<Back", 1, 3, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
-   	lv_label_set_text(label2, "*if Auto Scan is off, goggles will default to show last tuned channel");
+   	lv_label_set_text(label2, "*if Auto Scan is 'Last', goggles will default to show last tuned channel");
 	lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
 	lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
@@ -52,8 +52,8 @@ lv_obj_t *page_autoscan_create(lv_obj_t *parent, struct panel_arr *arr)
 	lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 3,
 						 LV_GRID_ALIGN_START, 4, 2);
 
-	btn_group_set_sel(&btn_group0, !g_setting.autoscan.status);		
-	btn_group_set_sel(&btn_group1, g_setting.autoscan.source);		
+	btn_group_set_sel(&btn_group0, g_setting.autoscan.status);
+	btn_group_set_sel(&btn_group1, g_setting.autoscan.source);
 	return page;
 }
 
@@ -65,11 +65,13 @@ void autoscan_toggle(int sel)
 	if(sel == 0) {
 		btn_group_toggle_sel(&btn_group0);		
 
-		value = btn_group_get_sel(&btn_group0) == 0 ? 1 : 0;
-		if(value){
-			ini_puts("autoscan", "status", "enable", SETTING_INI);
+		value = btn_group_get_sel(&btn_group0);
+		if(value == 0){
+			ini_puts("autoscan", "status", "scan", SETTING_INI);
+		}else if (value == 1){
+			ini_puts("autoscan", "status", "last", SETTING_INI);
 		}else{
-			ini_puts("autoscan", "status", "disable", SETTING_INI);
+			ini_puts("autoscan", "status", "menu", SETTING_INI);
 		}
 		g_setting.autoscan.status = value;
 	}

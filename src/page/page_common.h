@@ -66,9 +66,9 @@ typedef struct {
 } setting_scan_t;
 
 typedef struct {
-	bool status;
-	int  last_source;
-	int  source; //0=Last mem, 1=HDZero,2= Expansion, 3=AV in,4=HDMI in
+	int status;	// 0=enable, 1=last, 2=disable
+	int last_source;
+	int source; //0=Last mem, 1=HDZero,2= Expansion, 3=AV in,4=HDMI in
 } setting_autoscan_t;
 
 typedef struct {
