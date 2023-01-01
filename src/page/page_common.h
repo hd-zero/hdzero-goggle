@@ -65,10 +65,24 @@ typedef struct {
 	int channel;
 } setting_scan_t;
 
+typedef enum {
+    SETTING_AUTOSCAN_SCAN = 0,
+    SETTING_AUTOSCAN_LAST = 1,
+    SETTING_AUTOSCAN_MENU = 2
+} setting_status_t;
+
+typedef enum {
+    SETTING_SOURCE_LAST = 0,
+    SETTING_SOURCE_HDZERO = 1,
+    SETTING_SOURCE_EXPANSION = 2,
+    SETTING_SOURCE_AV_IN = 3,
+    SETTING_SOURCE_HDMI_IN = 4
+} setting_source_t;
+
 typedef struct {
-	int status;	// 0=enable, 1=last, 2=disable
-	int last_source;
-	int source; //0=Last mem, 1=HDZero,2= Expansion, 3=AV in,4=HDMI in
+	setting_status_t status;
+	setting_source_t last_source;
+	setting_source_t source;
 } setting_autoscan_t;
 
 typedef struct {

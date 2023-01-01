@@ -160,20 +160,20 @@ return NULL;
 void start_running(void)
 {
 	int source;
-	if(g_setting.autoscan.source == 0) 
+	if(g_setting.autoscan.source == SETTING_SOURCE_LAST)
 		source = g_setting.autoscan.last_source;
 	else
 		source = g_setting.autoscan.source;
-		
-	if(source == 1) {//HDZero
+
+	if(source == SETTING_SOURCE_HDZERO) {//HDZero
 		g_source_info.source = 0;
 		HDZero_open();
-		if(g_setting.autoscan.status == 0) {
+		if(g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) {
 			pthread_t pid;
 			g_autoscan_exit = false;
 			pthread_create(&pid,NULL,thread_autoscan,NULL);
 		}
-		else if(g_setting.autoscan.status == 1) {
+		else if(g_setting.autoscan.status == SETTING_AUTOSCAN_LAST) {
 			g_menu_op = OPLEVEL_VIDEO;
 			switch_to_video(true);
 		}
@@ -183,11 +183,11 @@ void start_running(void)
 	}
 	else {
 		g_menu_op = OPLEVEL_VIDEO;
-		if(source == 2) {//module Bay
+		if(source == SETTING_SOURCE_EXPANSION) {//module Bay
 			switch_to_analog(1);
 			g_source_info.source = 3;
 		}
-		else if(source == 3) {//AV in
+		else if(source == SETTING_SOURCE_AV_IN) {//AV in
 			switch_to_analog(0);
 			g_source_info.source = 2;
 		}
