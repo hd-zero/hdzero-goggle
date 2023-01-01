@@ -60,10 +60,11 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_btn_group_item(&elrs_group, cont, 2, "Backpack", "On", "Off", "","",  0);
 	btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
 	create_label_item(cont,  "ESP Firmware", 1, 1, 1);
-	btn_group_t btn_group;
 	btn_flash = create_label_item(cont, "Update Via SD", 2, 1, 1);
 	btn_wifi = create_label_item(cont, "Start WIFI", 2, 2, 1);
 	btn_bind = create_label_item(cont, "Start Binding", 2, 3, 1);
+
+	btn_group_t btn_group;
 	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  4);
 	create_label_item(cont,  "Wifi Settings", 1, 5, 1);
 	create_label_item(cont,  "Configure", 2, 5, 1);
@@ -90,6 +91,13 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	lv_obj_add_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
 
 	return page;
+}
+
+void page_connections_reset()
+{
+	lv_label_set_text(btn_flash, "Update Via SD");
+	lv_label_set_text(btn_wifi, "Start WIFI");
+	lv_label_set_text(btn_bind, "Start Binding");
 }
 
 #undef RETURN_ON_ERROR
@@ -143,9 +151,13 @@ static esp_loader_error_t flash_esp32()
 	RETURN_ON_ERROR("connect", esp_loader_connect(&config));
 	RETURN_ON_ERROR("get_target", esp_loader_get_target() == ESP32_CHIP ? ESP_LOADER_SUCCESS : ESP_LOADER_ERROR_UNSUPPORTED_CHIP);
 
+	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
 	RETURN_ON_ERROR("flash", flash_esp32_file("bootloader.bin", 0x1000));
+	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
 	RETURN_ON_ERROR("flash", flash_esp32_file("partitions.bin", 0x8000));
+	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
 	RETURN_ON_ERROR("flash", flash_esp32_file("boot_app0.bin", 0xE000));
+	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
 	RETURN_ON_ERROR("flash", flash_esp32_file("firmware.bin", 0x10000));
 
 	RETURN_ON_ERROR("finish", esp_loader_flash_finish(true));
@@ -170,6 +182,7 @@ static bool flash_elrs()
 
 void connect_function(int sel)
 {
+	page_connections_reset();
 	if(sel == 0)
 	{
 		btn_group_toggle_sel(&elrs_group);
@@ -188,34 +201,33 @@ void connect_function(int sel)
 		esp_loader_error_t ret = flash_elrs();
 		lv_obj_add_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
 		if(ret == ESP_LOADER_SUCCESS)
-			lv_label_set_text(btn_flash, "Success");
+			lv_label_set_text(btn_flash, "#00FF00 Success#");
 		else
-			lv_label_set_text(btn_flash, "Failed");
+			lv_label_set_text(btn_flash, "#FF0000 FAILED#");
 	}
 	else if(sel == 2) // start ESP Wifi
 	{
-		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
 		lv_label_set_text(btn_wifi, "Starting...");
+		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
 		lv_timer_handler();
-		if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000)) {
-			lv_label_set_text(btn_wifi, "Failed");
-			return;
-		}
-		lv_label_set_text(btn_wifi, "Success");
+		if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000))
+			lv_label_set_text(btn_wifi, "#FF0000 FAILED#");
+		else
+			lv_label_set_text(btn_wifi, "#00FF00 Success#");
 	}
 	else if(sel == 3) // start ESP bind
 	{
-		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
 		lv_label_set_text(btn_bind, "Binding...");
+		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
 		lv_timer_handler();
 		if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000)) {
-			lv_label_set_text(btn_bind, "Failed");
-			return;
-		}
-		if(!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000)) {
-			lv_label_set_text(btn_bind, "Timeout");
+			lv_label_set_text(btn_bind, "#FF0000 FAILED#");
 		} else {
-			lv_label_set_text(btn_bind, "Success");
+			if(!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000)) {
+				lv_label_set_text(btn_bind, "#FEBE00 Timeout#");
+			} else {
+				lv_label_set_text(btn_bind, "#00FF00 Success#");
+			}
 		}
 	}
 }

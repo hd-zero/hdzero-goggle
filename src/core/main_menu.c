@@ -212,6 +212,9 @@ void submenu_nav(uint8_t key)
 		if(pp == &pp_record)
 			formatsd_negtive();
 
+		if(pp == &pp_connections)
+			page_connections_reset();
+
 		if(key == DIAL_KEY_UP) {
 			if(pp->p_arr.cur < pp->p_arr.max - 1)
 				pp->p_arr.cur++;
