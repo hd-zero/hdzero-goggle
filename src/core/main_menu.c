@@ -70,7 +70,7 @@ page_pack_t pp_autoscan = {
 page_pack_t pp_connections = {
 	.p_arr = {
 		.cur = 0,
-		.max = 9,
+		.max = 8,
 	}
 };
 page_pack_t pp_headtracker = {
@@ -84,7 +84,7 @@ page_pack_t pp_playback;
 page_pack_t pp_version = {
 	.p_arr = {
 		.cur = 0,
-		.max = 4,
+		.max = 5,
 	}
 };
 

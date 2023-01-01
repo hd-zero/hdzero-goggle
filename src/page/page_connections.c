@@ -19,13 +19,11 @@
 #include "page_common.h"
 #include "../driver/esp32.h"
 #include "../core/common.hh"
-#include "../core/esp32_flash.h"
 #include "../core/elrs.h"
 
 
 static lv_coord_t col_dsc[] = {180,200,160,160,160,160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60,60,40,40,40,60,40,40,60,60, LV_GRID_TEMPLATE_LAST};
-static lv_obj_t *btn_flash;
+static lv_coord_t row_dsc[] = {60,60,60,60,60,40,40,60,60,60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_wifi;
 static lv_obj_t *btn_bind;
 static btn_group_t elrs_group;
@@ -59,20 +57,18 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 
 	create_btn_group_item(&elrs_group, cont, 2, "Backpack", "On", "Off", "","",  0);
 	btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
-	create_label_item(cont,  "ESP Firmware", 1, 1, 1);
-	btn_flash = create_label_item(cont, "Update Via SD", 2, 1, 1);
-	btn_wifi = create_label_item(cont, "Start WIFI", 2, 2, 1);
-	btn_bind = create_label_item(cont, "Start Binding", 2, 3, 1);
+	btn_wifi = create_label_item(cont, "Start Backpack Wifi", 1, 1, 1);
+	btn_bind = create_label_item(cont, "Start Backpack Binding", 1, 2, 1);
 
 	btn_group_t btn_group;
-	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  4);
-	create_label_item(cont,  "Wifi Settings", 1, 5, 1);
-	create_label_item(cont,  "Configure", 2, 5, 1);
-	create_label_item(cont,  "SSD: HDZero", 2, 6, 1);
-	//create_label_item(cont,  "Pass: hdzero123", 2, 7, 1);
-	create_label_item(cont,  "broadcast ID: Yes", 2, 7, 1);
+	create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "","",  3);
+	create_label_item(cont,  "Wifi Settings", 1, 4, 1);
+	create_label_item(cont,  "Configure", 2, 4, 1);
+	create_label_item(cont,  "SSID: HDZero", 2, 5, 1);
+	//create_label_item(cont,  "Pass: hdzero123", 2, 6, 1);
+	create_label_item(cont,  "Broadcast ID: Yes", 2, 6, 1);
 
-	create_label_item(cont, "<Back", 1, 8, 1);
+	create_label_item(cont, "<Back", 1, 7, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
    	lv_label_set_text(label2, "*Expansion module is required.");
@@ -82,7 +78,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	lv_obj_set_style_pad_top(label2, 12, 0);
 	lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
 	lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-						 LV_GRID_ALIGN_START, 9, 2);
+						 LV_GRID_ALIGN_START, 8, 2);
 
 	elrs_bar = lv_bar_create(cont);
     lv_obj_set_size(elrs_bar, 260, 20);
@@ -95,89 +91,8 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 
 void page_connections_reset()
 {
-	lv_label_set_text(btn_flash, "Update Via SD");
-	lv_label_set_text(btn_wifi, "Start WIFI");
-	lv_label_set_text(btn_bind, "Start Binding");
-}
-
-#undef RETURN_ON_ERROR
-#define RETURN_ON_ERROR(m, x) do {      \
-    esp_loader_error_t _err_ = (x);     \
-    if (_err_ != ESP_LOADER_SUCCESS) {  \
-		LOGE("ERR %s: %d", m, _err_);   \
-        return _err_;                   \
-    }                                   \
-} while(0)
-
-static esp_loader_error_t flash_esp32_file(char *path, uint32_t offset)
-{
-	char fpath[80];
-	strcpy(fpath, "/mnt/extsd/ELRS/");
-	strcat(fpath, path);
-
-	FILE *image = fopen(fpath, "r");
-    if (image == NULL) {
-        LOGI("Firmware file does not exist %s", fpath);
-        return ESP_LOADER_SUCCESS;
-    }
-
-	lv_label_set_text(btn_flash, path);
-	lv_timer_handler();
-
-    fseek(image, 0L, SEEK_END);
-    size_t size = ftell(image);
-    rewind(image);
-
-	uint8_t buffer[4096];
-	RETURN_ON_ERROR("start", esp_loader_flash_start(offset, size, sizeof(buffer)));
-	uint32_t read, current = 0;
-	while((read = fread(buffer, 1, sizeof(buffer), image))) {
-		RETURN_ON_ERROR("write", esp_loader_flash_write(buffer, read));
-		current += read;
-		int percent = (current * 100) / size;
-		lv_bar_set_value(elrs_bar, percent, LV_ANIM_OFF);
-		lv_timer_handler();
-		LOGI("%d %d %d", current, size, percent);
-	}
-	return ESP_LOADER_SUCCESS;
-}
-
-static esp_loader_error_t flash_esp32()
-{
-	disable_esp32();
-
-	esp_loader_connect_args_t config = ESP_LOADER_CONNECT_DEFAULT();
-	RETURN_ON_ERROR("init", loader_port_init());
-	RETURN_ON_ERROR("connect", esp_loader_connect(&config));
-	RETURN_ON_ERROR("get_target", esp_loader_get_target() == ESP32_CHIP ? ESP_LOADER_SUCCESS : ESP_LOADER_ERROR_UNSUPPORTED_CHIP);
-
-	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
-	RETURN_ON_ERROR("flash", flash_esp32_file("bootloader.bin", 0x1000));
-	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
-	RETURN_ON_ERROR("flash", flash_esp32_file("partitions.bin", 0x8000));
-	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
-	RETURN_ON_ERROR("flash", flash_esp32_file("boot_app0.bin", 0xE000));
-	lv_bar_set_value(elrs_bar, 0, LV_ANIM_OFF);
-	RETURN_ON_ERROR("flash", flash_esp32_file("firmware.bin", 0x10000));
-
-	RETURN_ON_ERROR("finish", esp_loader_flash_finish(true));
-	loader_port_close();
-
-	if (g_setting.elrs.enable)
-		enable_esp32();
-
-	return ESP_LOADER_SUCCESS;
-}
-
-static bool flash_elrs()
-{
-	esp_loader_error_t ret = flash_esp32();
-	loader_port_close();
-
-	if (g_setting.elrs.enable)
-		enable_esp32();
-
-	return ret;
+	lv_label_set_text(btn_wifi, "Start Backpack Wifi");
+	lv_label_set_text(btn_bind, "Start Backpack Binding");
 }
 
 void connect_function(int sel)
@@ -193,19 +108,7 @@ void connect_function(int sel)
 		else
 			disable_esp32();
 	}
-	else if(sel == 1) // flash ESP via SD
-	{
-		lv_obj_clear_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
-		lv_label_set_text(btn_flash, "Flashing...");
-		lv_timer_handler();
-		esp_loader_error_t ret = flash_elrs();
-		lv_obj_add_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
-		if(ret == ESP_LOADER_SUCCESS)
-			lv_label_set_text(btn_flash, "#00FF00 Success#");
-		else
-			lv_label_set_text(btn_flash, "#FF0000 FAILED#");
-	}
-	else if(sel == 2) // start ESP Wifi
+	else if(sel == 1) // start ESP Wifi
 	{
 		lv_label_set_text(btn_wifi, "Starting...");
 		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
@@ -215,7 +118,7 @@ void connect_function(int sel)
 		else
 			lv_label_set_text(btn_wifi, "#00FF00 Success#");
 	}
-	else if(sel == 3) // start ESP bind
+	else if(sel == 2) // start ESP bind
 	{
 		lv_label_set_text(btn_bind, "Binding...");
 		msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");

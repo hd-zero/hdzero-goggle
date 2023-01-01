@@ -14,22 +14,21 @@
 #include "../driver/uart.h"
 #include "../driver/fans.h"
 #include "../driver/dm5680.h"
+#include "../driver/esp32.h"
 #include "../core/main_menu.h"
+#include "../core/esp32_flash.h"
+#include "../core/elrs.h"
 
 static lv_coord_t col_dsc[] = {160,160,160,160,160,160,160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_LAST};
 
 
-static lv_obj_t *bar0 = NULL;
-static lv_obj_t *bar1 = NULL;
-static lv_obj_t *label0 = NULL;
-static lv_obj_t *label1 = NULL;
-
-static btn_group_t btn_group0;
-static btn_group_t btn_group1;
-
-static slider_group_t slider_group0;
-static slider_group_t slider_group1;
+static lv_obj_t *bar_vtx = NULL;
+static lv_obj_t *btn_vtx = NULL;
+static lv_obj_t *bar_goggle = NULL;
+static lv_obj_t *btn_goggle = NULL;
+static lv_obj_t *bar_esp = NULL;
+static lv_obj_t *btn_esp = NULL;
 
 #define ADDR_AL 0x65
 #define ADDR_FPGA 0x64
@@ -39,6 +38,87 @@ static slider_group_t slider_group1;
 static bool is_need_update_progress = false;
 static bool reboot_flag = false;
 static lv_obj_t* cur_ver_label;
+
+
+#undef RETURN_ON_ERROR
+#define RETURN_ON_ERROR(m, x) do {      \
+    esp_loader_error_t _err_ = (x);     \
+    if (_err_ != ESP_LOADER_SUCCESS) {  \
+		LOGE("ERR %s: %d", m, _err_);   \
+        return _err_;                   \
+    }                                   \
+} while(0)
+
+static esp_loader_error_t flash_esp32_file(char *path, uint32_t offset)
+{
+	char fpath[80];
+	strcpy(fpath, "/mnt/extsd/ELRS/");
+	strcat(fpath, path);
+
+	FILE *image = fopen(fpath, "r");
+    if (image == NULL) {
+        LOGI("Firmware file does not exist %s", fpath);
+        return ESP_LOADER_SUCCESS;
+    }
+
+	lv_label_set_text(btn_esp, path);
+	lv_timer_handler();
+
+    fseek(image, 0L, SEEK_END);
+    size_t size = ftell(image);
+    rewind(image);
+
+	uint8_t buffer[4096];
+	RETURN_ON_ERROR("start", esp_loader_flash_start(offset, size, sizeof(buffer)));
+	uint32_t read, current = 0;
+	while((read = fread(buffer, 1, sizeof(buffer), image))) {
+		RETURN_ON_ERROR("write", esp_loader_flash_write(buffer, read));
+		current += read;
+		int percent = (current * 100) / size;
+		lv_bar_set_value(bar_esp, percent, LV_ANIM_OFF);
+		lv_timer_handler();
+		LOGD("%d %d %d", current, size, percent);
+	}
+	return ESP_LOADER_SUCCESS;
+}
+
+static esp_loader_error_t flash_esp32()
+{
+	disable_esp32();
+
+	esp_loader_connect_args_t config = ESP_LOADER_CONNECT_DEFAULT();
+	RETURN_ON_ERROR("init", loader_port_init());
+	RETURN_ON_ERROR("connect", esp_loader_connect(&config));
+	RETURN_ON_ERROR("get_target", esp_loader_get_target() == ESP32_CHIP ? ESP_LOADER_SUCCESS : ESP_LOADER_ERROR_UNSUPPORTED_CHIP);
+
+	lv_bar_set_value(bar_esp, 0, LV_ANIM_OFF);
+	RETURN_ON_ERROR("flash", flash_esp32_file("bootloader.bin", 0x1000));
+	lv_bar_set_value(bar_esp, 0, LV_ANIM_OFF);
+	RETURN_ON_ERROR("flash", flash_esp32_file("partitions.bin", 0x8000));
+	lv_bar_set_value(bar_esp, 0, LV_ANIM_OFF);
+	RETURN_ON_ERROR("flash", flash_esp32_file("boot_app0.bin", 0xE000));
+	lv_bar_set_value(bar_esp, 0, LV_ANIM_OFF);
+	RETURN_ON_ERROR("flash", flash_esp32_file("firmware.bin", 0x10000));
+
+	RETURN_ON_ERROR("finish", esp_loader_flash_finish(true));
+	loader_port_close();
+
+	if (g_setting.elrs.enable)
+		enable_esp32();
+
+	return ESP_LOADER_SUCCESS;
+}
+
+static bool flash_elrs()
+{
+	esp_loader_error_t ret = flash_esp32();
+	loader_port_close();
+
+	if (g_setting.elrs.enable)
+		enable_esp32();
+
+	return ret;
+}
 
 int generate_current_version(sys_version_t *sys_ver)
 {
@@ -112,21 +192,28 @@ lv_obj_t *page_version_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_select_item(arr, cont);
 	cur_ver_label = create_label_item(cont, "Current Version:", 1, 0, 2);
 
-	label0 = create_label_item(cont, "Update VTX", 1, 1, 2);
-	label1 = create_label_item(cont, "Update Goggle", 1, 2, 2);
-	create_label_item(cont, "<Back", 1, 3, 1);
+	btn_vtx = create_label_item(cont, "Update VTX", 1, 1, 2);
+	btn_goggle = create_label_item(cont, "Update Goggle", 1, 2, 2);
+	btn_esp = create_label_item(cont, "Update ESP32", 1, 3, 2);
+	create_label_item(cont, "<Back", 1, 4, 1);
 
-	bar0 = lv_bar_create(cont);
-    lv_obj_set_size(bar0, 320, 20);
-	lv_obj_set_grid_cell(bar0, LV_GRID_ALIGN_CENTER, 3, 3,
+	bar_vtx = lv_bar_create(cont);
+    lv_obj_set_size(bar_vtx, 320, 20);
+	lv_obj_set_grid_cell(bar_vtx, LV_GRID_ALIGN_CENTER, 3, 3,
 						 LV_GRID_ALIGN_CENTER, 1, 1);
-	lv_obj_add_flag(bar0, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
 
-	bar1 = lv_bar_create(cont);
-    lv_obj_set_size(bar1, 320, 20);
-	lv_obj_set_grid_cell(bar1, LV_GRID_ALIGN_CENTER, 3, 3,
+	bar_goggle = lv_bar_create(cont);
+    lv_obj_set_size(bar_goggle, 320, 20);
+	lv_obj_set_grid_cell(bar_goggle, LV_GRID_ALIGN_CENTER, 3, 3,
 						 LV_GRID_ALIGN_CENTER, 2, 1);
-	lv_obj_add_flag(bar1, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
+
+	bar_esp = lv_bar_create(cont);
+    lv_obj_set_size(bar_esp, 320, 20);
+	lv_obj_set_grid_cell(bar_esp, LV_GRID_ALIGN_CENTER, 3, 3,
+						 LV_GRID_ALIGN_CENTER, 3, 1);
+	lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
 	return page;
 }
@@ -157,6 +244,7 @@ uint8_t command_monitor(char* cmd)
 
 void version_update(int sel)
 {
+	version_update_title();
 	if(sel == 0) {
 		FILE* fp;
 		char buf[80];
@@ -188,8 +276,8 @@ void version_update(int sel)
 
 	else if(sel == 1) {
 		uint8_t ret;
-		lv_obj_clear_flag(bar0, LV_OBJ_FLAG_HIDDEN);
-		lv_label_set_text(label0, "Flashing..");
+		lv_obj_clear_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
+		lv_label_set_text(btn_vtx, "Flashing..");
 		lv_timer_handler();
 
 		is_need_update_progress = true;
@@ -198,31 +286,31 @@ void version_update(int sel)
 
 		if(ret == 1){
 			if(file_compare("/tmp/HDZERO_TX.bin","/tmp/HDZERO_TX_RB.bin")) {
-				lv_label_set_text(label0, "#000FF00 SUCCESS#");
+				lv_label_set_text(btn_vtx, "#000FF00 SUCCESS#");
 			}
 			else
-				lv_label_set_text(label0, "#FF0000 Verification failed, try it again#");
+				lv_label_set_text(btn_vtx, "#FF0000 Verification failed, try it again#");
 		}
 		else if(ret == 2) {
-			lv_label_set_text(label0, "#FFFF00 No firmware found.#");
+			lv_label_set_text(btn_vtx, "#FFFF00 No firmware found.#");
 		}
 		else{
-			lv_label_set_text(label0, "#FF0000 Failed, check connection...#");
+			lv_label_set_text(btn_vtx, "#FF0000 Failed, check connection...#");
 		}
 		system("rm /tmp/HDZERO_TX.bin");
 		system("rm /tmp/HDZERO_TX_RB.bin");
-		lv_obj_add_flag(bar0, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
 	}
 	else if((sel == 2) && !reboot_flag) {
 		uint8_t ret = 0;
-		lv_obj_clear_flag(bar1, LV_OBJ_FLAG_HIDDEN);
-		lv_label_set_text(label1, "WAIT... DO NOT POWER OFF... ");
+		lv_obj_clear_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
+		lv_label_set_text(btn_goggle, "WAIT... DO NOT POWER OFF... ");
 		lv_timer_handler();
 
 		is_need_update_progress = true;
 		ret = command_monitor("/mnt/app/script/update_goggle.sh");
 		is_need_update_progress = false;
-		lv_obj_add_flag(bar1, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 		if(ret == 1)
 		{
 			//bool b1 = file_compare("/tmp//tmp/goggle_update/HDZERO_RX.bin","/tmp//tmp/goggle_update/HDZERO_RX_RBL.bin");
@@ -232,46 +320,57 @@ void version_update(int sel)
 			//if(b1 && b2 && b3) {
 			if(1){
 				lv_timer_handler();
-				lv_label_set_text(label1, "#00FF00 Update success, repower goggle NOW!#");
+				lv_label_set_text(btn_goggle, "#00FF00 Update success, repower goggle NOW!#");
 				beep();usleep(1000000); beep();usleep(1000000);beep();
 			}
 			else
-				lv_label_set_text(label1, "#FF0000 FAILED#");
+				lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
 			reboot_flag = true;
 			lv_timer_handler();
 			while(1); //dead loop
 		}
 		else if(ret == 2)
 		{
-			lv_label_set_text(label1, "#FFFF00 No firmware found.#");
+			lv_label_set_text(btn_goggle, "#FFFF00 No firmware found.#");
 		}
 		else if(ret == 3)
 		{
-			lv_label_set_text(label1, "#FFFF00 Multiple versions been found. Keep only one.#");
+			lv_label_set_text(btn_goggle, "#FFFF00 Multiple versions been found. Keep only one.#");
 		}
 		else
-			lv_label_set_text(label1, "#FF0000 FAILED#");
-		lv_obj_add_flag(bar1, LV_OBJ_FLAG_HIDDEN);
+			lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
+		lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
+	}
+	else if(sel == 3) { // flash ESP via SD
+		lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+		lv_label_set_text(btn_esp, "Flashing...");
+		lv_timer_handler();
+		esp_loader_error_t ret = flash_elrs();
+		lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+		if(ret == ESP_LOADER_SUCCESS)
+			lv_label_set_text(btn_esp, "#00FF00 Success#");
+		else
+			lv_label_set_text(btn_esp, "#FF0000 FAILED#");
 	}
 }
 
 void process_bar_update(const int value0,
 		const int value1)
 {
-	if(bar0 && bar1)
+	if(bar_vtx && bar_goggle)
 	{
-		//LOGI("v0=%d, v1=%d", value0, value1);
-		lv_bar_set_value(bar0, value0, LV_ANIM_OFF);
-		lv_bar_set_value(bar1, value1, LV_ANIM_OFF);
+		//LOGI("v0=%d, v1=%d\n", value0, value1);
+		lv_bar_set_value(bar_vtx, value0, LV_ANIM_OFF);
+		lv_bar_set_value(bar_goggle, value1, LV_ANIM_OFF);
 	}
 }
 
 void bar_update(int sel, int value)
 {
-	if(bar1 && sel)
-		lv_bar_set_value(bar1, value, LV_ANIM_OFF);
-	else if(bar0 && !sel)
-		lv_bar_set_value(bar0, value, LV_ANIM_OFF);
+	if(bar_goggle && sel)
+		lv_bar_set_value(bar_goggle, value, LV_ANIM_OFF);
+	else if(bar_vtx && !sel)
+		lv_bar_set_value(bar_vtx, value, LV_ANIM_OFF);
 	lv_timer_handler();
 }
 
@@ -293,9 +392,10 @@ void update_current_version()
 void version_update_title()
 {
 	update_current_version();
-	lv_label_set_text(label0, "Update VTX");
+	lv_label_set_text(btn_vtx, "Update VTX");
 	if(!reboot_flag)
-		lv_label_set_text(label1, "Update Goggle");
+		lv_label_set_text(btn_goggle, "Update Goggle");
+	lv_label_set_text(btn_esp, "Update ESP32");
 }
 
 
