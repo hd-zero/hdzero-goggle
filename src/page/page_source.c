@@ -109,7 +109,7 @@ void source_mode_set(int sel)
 			HDZero_open();
 			switch_to_video(true);
 			g_menu_op = OPLEVEL_VIDEO;
-			g_source_info.source = 0;
+			g_source_info.source = SOURCE_HDZERO;
 			sel_audio_source(2);
 			enable_line_out(true);			
 			break;
@@ -122,7 +122,7 @@ void source_mode_set(int sel)
 		case 2://AV in
 			switch_to_analog(0);
 			g_menu_op = OPLEVEL_VIDEO;
-			g_source_info.source = 2;
+			g_source_info.source = SOURCE_AV_IN;
 			sel_audio_source(2);
 			enable_line_out(true);
 			break;
@@ -130,7 +130,7 @@ void source_mode_set(int sel)
 		case 3: //Module in
 			switch_to_analog(1);
 			g_menu_op = OPLEVEL_VIDEO;
-			g_source_info.source = 3;
+			g_source_info.source = SOURCE_EXPANSION;
 			sel_audio_source(2);
 			enable_line_out(true);
 			break;
@@ -191,7 +191,7 @@ void switch_to_hdmiin()
 	lv_timer_handler();
 	
 	g_menu_op = OPLEVEL_VIDEO;
-	g_source_info.source = 1;
+	g_source_info.source = SOURCE_HDMI_IN;
 	enable_line_out(false);
 	g_setting.autoscan.last_source = 4;
 	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);

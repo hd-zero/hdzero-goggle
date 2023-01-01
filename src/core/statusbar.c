@@ -206,15 +206,15 @@ void  statubar_update(void)
 	if((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source))
 	{
 		memset(buf, 0, sizeof(buf));
-		if(g_source_info.source == 0) { //HDZero
+		if(g_source_info.source == SOURCE_HDZERO) { //HDZero
 			if(g_setting.scan.channel > 8)
 				sprintf(buf, "RF:HDZero F%d", (g_setting.scan.channel - 8)*2);
 			else
 				sprintf(buf, "RF:HDZero R%d", g_setting.scan.channel);
 		}
-		else if(g_source_info.source == 1) 
+		else if(g_source_info.source == SOURCE_HDMI_IN)
 			sprintf(buf, "HDMI In");
-		else if(g_source_info.source == 2) 
+		else if(g_source_info.source == SOURCE_AV_IN)
 			sprintf(buf, "AV In");
 		else	
 			sprintf(buf, "Expansion Module");

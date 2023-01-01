@@ -127,8 +127,15 @@ typedef struct {
 	elrs_t elrs;
 } setting_t;
 
+typedef enum {
+    SOURCE_HDZERO = 0,
+    SOURCE_HDMI_IN = 1,
+    SOURCE_AV_IN = 2,
+    SOURCE_EXPANSION = 3
+} source_t;
+
 typedef struct _source_info {
-	uint8_t source; //0=HDZero,1=HDMI in,2=AV in,3=AV Bay
+	source_t source;
 	uint8_t hdmi_in_status; //0=not detected, 1= detected
     uint8_t av_in_status;   //0=not detected, 1= detected
     uint8_t av_bay_status;   //0=not detected, 1= detected

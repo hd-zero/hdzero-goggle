@@ -430,7 +430,7 @@ int scan_reinit(void)
 int scan(void)
 {
 	g_scanning = true;
-	g_source_info.source = 0;
+	g_source_info.source = SOURCE_HDZERO;
 	int8_t ret = scan_now();
 	g_scanning = false;
 	return ret;
