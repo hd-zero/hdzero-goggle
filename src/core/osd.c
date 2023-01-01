@@ -95,7 +95,7 @@ void update_record_conf()
 	else
 		ini_puts("record", "type", "mp4", REC_CONF);
 
-	if(g_source_info.source == 0) {
+	if(g_source_info.source == SOURCE_HDZERO) {
 		if(CAM_MODE == VR_540P90 || CAM_MODE == VR_540P90_CROP) {  //90fps
 			ini_putl("venc", "fps", 90,    REC_CONF);
 			ini_putl("venc", "kbps",34000, REC_CONF);
@@ -382,8 +382,8 @@ uint8_t RSSI2Ant(uint8_t rssi)
 void osd_hdzero_update(void)
 {
 	char buf[128],i;
-	bool showRXOSD = g_showRXOSD && (g_source_info.source == 0);
-	
+	bool showRXOSD = g_showRXOSD && (g_source_info.source == SOURCE_HDZERO);
+
 	osd_battery_show();
 	osd_rec_show(g_showRXOSD);
 	osd_llock_show(g_showRXOSD);

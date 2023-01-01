@@ -166,7 +166,7 @@ void start_running(void)
 		source = g_setting.autoscan.source;
 
 	if(source == SETTING_SOURCE_HDZERO) {//HDZero
-		g_source_info.source = 0;
+		g_source_info.source = SOURCE_HDZERO;
 		HDZero_open();
 		if(g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) {
 			pthread_t pid;
@@ -185,21 +185,21 @@ void start_running(void)
 		g_menu_op = OPLEVEL_VIDEO;
 		if(source == SETTING_SOURCE_EXPANSION) {//module Bay
 			switch_to_analog(1);
-			g_source_info.source = 3;
+			g_source_info.source = SOURCE_EXPANSION;
 		}
 		else if(source == SETTING_SOURCE_AV_IN) {//AV in
 			switch_to_analog(0);
-			g_source_info.source = 2;
+			g_source_info.source = SOURCE_AV_IN;
 		}
 		else { //HDMI in
 			sleep(2);
 			g_source_info.hdmi_in_status = IT66021_Sig_det();
 			if(g_source_info.hdmi_in_status) {
 				switch_to_hdmiin();
-				g_source_info.source = 1;
+				g_source_info.source = SOURCE_HDMI_IN;
 			}
 			else {
-				g_source_info.source = 0;
+				g_source_info.source = SOURCE_HDZERO;
 				g_menu_op = OPLEVEL_MAINMENU;
 			}
 		}

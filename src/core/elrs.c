@@ -218,7 +218,7 @@ void msp_process_packet()
 			case MSP_SET_BAND_CHAN:
 				{
 					uint8_t chan = packet.payload[0];
-					if (g_source_info.source == 0) {	// HDZero mode
+					if (g_source_info.source == SOURCE_HDZERO) {	// HDZero mode
 						chan = chan < 48 ? channel_map[chan] : 0;
 						if (chan != 0 && (chan != g_setting.scan.channel || g_menu_op != OPLEVEL_VIDEO)) {
 							g_setting.scan.channel = chan;
@@ -242,7 +242,7 @@ void msp_process_packet()
 			case MSP_SET_FREQ:
 				{
 					uint16_t freq = packet.payload[0] | (uint16_t)packet.payload[1] << 8;
-					if (g_source_info.source == 0) {	// HDZero mode
+					if (g_source_info.source == SOURCE_HDZERO) {	// HDZero mode
 						for (int i=0 ; i<10 ; i++) {
 							int chan = i+1;
 							if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_menu_op != OPLEVEL_VIDEO) && chan>0 && chan<11) {

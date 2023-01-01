@@ -95,8 +95,8 @@ static void check_hdzero_signal(int vtmg_change)
 	static uint8_t cnt = 0;
 	uint8_t is_valid;
 
-	//HDZero digital 
-	if(g_source_info.source == 0) {
+	//HDZero digital
+	if(g_source_info.source == SOURCE_HDZERO) {
 		DM5680_req_rssi();
 		DM5680_req_vldflg();
 		tune_channel_timer();
@@ -105,10 +105,10 @@ static void check_hdzero_signal(int vtmg_change)
 	if(g_setting.record.mode_manual || !g_sdcard_enable || (g_menu_op != OPLEVEL_VIDEO)) return;
 
 	//exit if HDMI in
-	if(g_source_info.source == 1) return; 
+	if(g_source_info.source == SOURCE_HDMI_IN) return;
 
 	//Analog VTMG change -> Restart recording
-	if(g_source_info.source >= 2) {
+	if(g_source_info.source >= SOURCE_AV_IN) {
 		if(vtmg_change && is_recording) {
 			Printf("AV VTMG change\n");
 			rbtn_click(1,1);
@@ -117,14 +117,14 @@ static void check_hdzero_signal(int vtmg_change)
 	}
 
 	//HDZero VTMG change -> stop recording first
-	if((g_source_info.source == 0) && vtmg_change) {
+	if((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
 		Printf("HDZero VTMG change\n");
 		rbtn_click(1,1);
 		cnt = 0;
 	}
 
-	is_valid = (g_source_info.source == 2)? g_source_info.av_in_status: \
-			   (g_source_info.source == 3)? g_source_info.av_bay_status: \
+	is_valid = (g_source_info.source == SOURCE_AV_IN)? g_source_info.av_in_status: \
+			   (g_source_info.source == SOURCE_EXPANSION)? g_source_info.av_bay_status: \
 			   								(rx_status[0].rx_valid || rx_status[1].rx_valid);
 	
 	if(is_recording) { //in-recording

@@ -148,7 +148,7 @@ static void switch_to_menumode()
 	main_menu_show(true);
 	HDZero_Close(); 
 	g_sdcard_det_req = 1;
-	if(g_source_info.source == 1) //HDMI
+	if(g_source_info.source == SOURCE_HDMI_IN) //HDMI
 		IT66121_init();
 }
 
@@ -162,19 +162,24 @@ static void btn_press(void) //long press left key
 	g_autoscan_exit = true;
 	if(g_menu_op == OPLEVEL_MAINMENU) //Main menu -> Video
 	{
-		if(g_source_info.source == 0) { //HDZero
-			progress_bar.start  = 1;
-			HDZero_open();
-			switch_to_video(true);
+		switch(g_source_info.source)
+		{
+			case SOURCE_HDZERO:
+				progress_bar.start = 1;
+				HDZero_open();
+				switch_to_video(true);
+				break;
+			case SOURCE_HDMI_IN:
+				switch_to_hdmiin();
+				break;
+			case SOURCE_AV_IN:
+				switch_to_analog(0);
+				break;
+			case SOURCE_EXPANSION:
+				switch_to_analog(1);
+				break;
 		}
-		else if(g_source_info.source == 1) //HDMI
-			switch_to_hdmiin();
-		else if(g_source_info.source == 2) //AV in
-			switch_to_analog(0);    
-		else							//Expansion Module
-			switch_to_analog(1);  
-
-		g_menu_op = OPLEVEL_VIDEO;			
+		g_menu_op = OPLEVEL_VIDEO;
 	}
 	else if((g_menu_op == OPLEVEL_VIDEO) || (g_menu_op == OPLEVEL_IMS)) //video -> Main menu
 		switch_to_menumode();
@@ -253,7 +258,7 @@ static void roller_up(void)
 	}
 	else if(g_menu_op == OPLEVEL_VIDEO)
 	{
-		if(g_source_info.source == 0) tune_channel(DIAL_KEY_UP);
+		if(g_source_info.source == SOURCE_HDZERO) tune_channel(DIAL_KEY_UP);
 	}
 	else if(g_menu_op == OPLEVEL_IMS)
 	{
@@ -289,7 +294,7 @@ static void roller_down(void)
 	}
 	else if(g_menu_op == OPLEVEL_VIDEO)
 	{
-		if(g_source_info.source == 0) tune_channel(DIAL_KEY_DOWN);
+		if(g_source_info.source == SOURCE_HDZERO) tune_channel(DIAL_KEY_DOWN);
 	}
 	else if(g_menu_op == OPLEVEL_IMS)
 	{
