@@ -56,15 +56,17 @@ static void load_ini_setting(void)
 	g_setting.fans.right_speed = atoi(str);
 
   	ini_gets("autoscan", "status", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0)
 	{
-		g_setting.autoscan.status = true;
+		g_setting.autoscan.status = 0;
+	}else if(strcmp(str, "disable") == 0 || strcmp(str, "last") == 0){
+		g_setting.autoscan.status = 1;
 	}else{
-		g_setting.autoscan.status = false;
+		g_setting.autoscan.status = 2;
 	}
 	g_setting.autoscan.source = ini_getl("autoscan", "source", 0, SETTING_INI);
 	g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", 1, SETTING_INI);
-	
+
 	//power
   	ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
 	g_setting.power.voltage = atoi(str);
@@ -166,18 +168,17 @@ void start_running(void)
 	if(source == 1) {//HDZero
 		g_source_info.source = 0;
 		HDZero_open();
-		if(g_setting.autoscan.status) {//autoscan =1
-			/* //Auto scan Disabled per request 
+		if(g_setting.autoscan.status == 0) {
 			pthread_t pid;
 			g_autoscan_exit = false;
 			pthread_create(&pid,NULL,thread_autoscan,NULL);
-			*/
-			g_source_info.source = 0;
-			g_menu_op = OPLEVEL_MAINMENU;
 		}
-		else{ //auto scan disabled, go directly to last saved channel
+		else if(g_setting.autoscan.status == 1) {
 			g_menu_op = OPLEVEL_VIDEO;
 			switch_to_video(true);
+		}
+		else{ //auto scan disabled, go to go directly to last saved channel
+			g_menu_op = OPLEVEL_MAINMENU;
 		}
 	}
 	else {
