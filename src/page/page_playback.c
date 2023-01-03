@@ -3,7 +3,11 @@
 #include "page_common.h"
 #include "style.h"
 
+/////////////////////////////////////////////////////////////////////////
+// global
+page_pack_t pp_playback;
 
+//local
 static lv_coord_t col_dsc[] = {320,320,320, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {150,30,150,30,150,30,30, LV_GRID_TEMPLATE_LAST};
 

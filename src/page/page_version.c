@@ -19,9 +19,18 @@
 #include "../core/esp32_flash.h"
 #include "../core/elrs.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_version = {
+	.p_arr = {
+		.cur = 0,
+		.max = 5,
+	}
+};
+
+//local
 static lv_coord_t col_dsc[] = {160,160,160,160,160,160,160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_LAST};
-
 
 static lv_obj_t *bar_vtx = NULL;
 static lv_obj_t *btn_vtx = NULL;

@@ -6,6 +6,16 @@
 #include "playback.h"
 #include "../core/common.hh"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_record = {
+	.p_arr = {
+		.cur = 0,
+		.max = 7,
+	}
+};
+
+//local
 static btn_group_t btn_group0;
 static btn_group_t btn_group1;
 static btn_group_t btn_group2;

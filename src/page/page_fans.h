@@ -16,6 +16,7 @@
 #include "page_common.h"
 
 lv_obj_t *page_fans_create(lv_obj_t *parent, struct panel_arr *arr);
+extern page_pack_t pp_fans;
 
 void fans_mode_toggle(int sel);
 void fans_speed_dec(void);

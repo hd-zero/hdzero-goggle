@@ -14,8 +14,15 @@
 #include "minIni.h"
 
 /////////////////////////////////////////////////////////////////////////
-// global
+//global
 bool in_sourcepage = false; 
+
+page_pack_t pp_source = {
+	.p_arr = {
+		.cur = 0,
+		.max = 4,
+	}
+};
 
 //local
 static lv_coord_t col_dsc[] = {160,160,160,160,160,160, LV_GRID_TEMPLATE_LAST};

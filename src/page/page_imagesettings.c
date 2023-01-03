@@ -9,9 +9,19 @@
 #include "oled.h"
 #include "../driver/hardware.h"
 
-
 #include <stdlib.h>
 #include <stdio.h>
+
+/////////////////////////////////////////////////////////////////////////
+// global
+page_pack_t pp_imagesettings = {
+	.p_arr = {
+		.cur = 0,
+		.max = 6,
+	}
+};
+
+//local
 static lv_coord_t col_dsc[] = {160,160,160,160,140,220, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_LAST};
 

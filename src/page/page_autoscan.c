@@ -4,7 +4,16 @@
 #include "style.h"
 #include "minIni.h"
 
+/////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_autoscan = {
+	.p_arr = {
+		.cur = 0,
+		.max = 4,
+	}
+};
 
+//local
 static lv_coord_t col_dsc[] = {100,150,180,220,180,160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_LAST};
 

@@ -4,7 +4,16 @@
 #include "style.h"
 #include "ht.h"
 
+/////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_headtracker = {
+	.p_arr = {
+		.cur = 0,
+		.max = 3,
+	}
+};
 
+//local
 static btn_group_t btn_group;
 
 static lv_coord_t col_dsc[] = {160,200,160,160,160,160, LV_GRID_TEMPLATE_LAST};

@@ -30,58 +30,6 @@ lv_obj_t * menu;
 lv_obj_t * root_page;
 progress_bar_t progress_bar;
 
-page_pack_t pp_scannow;
-page_pack_t pp_source = {
-	.p_arr = {
-		.cur = 0,
-		.max = 4,
-	}
-};
-page_pack_t pp_imagesettings = {
-	.p_arr = {
-		.cur = 0,
-		.max = 6,
-	}
-};
-page_pack_t pp_power = {
-	.p_arr = {
-		.cur = 0,
-		.max = 4,
-	}
-};
-page_pack_t pp_fans = {
-	.p_arr = {
-		.cur = 0,
-		.max = 4,
-	}
-};
-page_pack_t pp_record = {
-	.p_arr = {
-		.cur = 0,
-		.max = 7,
-	}
-};
-page_pack_t pp_autoscan = {
-	.p_arr = {
-		.cur = 0,
-		.max = 4,
-	}
-};
-page_pack_t pp_headtracker = {
-	.p_arr = {
-		.cur = 0,
-		.max = 3,
-	}
-};
-page_pack_t pp_playback;
-
-page_pack_t pp_version = {
-	.p_arr = {
-		.cur = 0,
-		.max = 5,
-	}
-};
-
 #define CURRENT_SELECTION (pp->p_arr.max == -1 ? pp->p_arr.items[pp->p_arr.cur] : pp->p_arr.cur)
 
 LV_IMG_DECLARE(img_arrow);

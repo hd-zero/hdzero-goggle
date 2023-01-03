@@ -14,6 +14,16 @@
 #include "../page/page_common.h"
 #include "../page/page_fans.h"
 
+/////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_fans = {
+	.p_arr = {
+		.cur = 0,
+		.max = 4,
+	}
+};
+
+//local
 typedef enum {
 	FANS_MODE_TOP = 0,
 	FANS_MODE_SIDE,

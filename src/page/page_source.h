@@ -6,6 +6,7 @@
 #include "page_common.h"
 
 lv_obj_t *page_source_create(lv_obj_t *parent, struct panel_arr *arr);
+extern page_pack_t pp_source;
 
 void source_mode_set(int sel);
 

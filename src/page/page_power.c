@@ -10,6 +10,16 @@
 #include "mcp3021.h"
 #include "../core/common.hh"
 
+/////////////////////////////////////////////////////////////////////////
+//global
+page_pack_t pp_power = {
+	.p_arr = {
+		.cur = 0,
+		.max = 4,
+	}
+};
+
+//local
 static btn_group_t btn_group1;
 static slider_group_t slider_group;
 
