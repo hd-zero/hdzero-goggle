@@ -293,60 +293,47 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
     return ret;
 }
 
-#define AV_DET_CNT1  5
-#define AV_DET_CNT2  1
+#define AV_DET_CNT1  1
+#define AV_DET_CNT2  3
 int AV_in_detect() // return = 1: vtmg to V536 changed
 {
-    static uint8_t det_last = 0, det2_last = 0;
+    static int det_last = -1, det2_last = -1;
     static int det_cnt = 0, det2_cnt = 0;
-    uint8_t det, det2;
+    int det, det2;
     int ret = 0;
 
     pthread_mutex_lock(&hardware_mutex);
 
     det = I2C_Read(ADDR_TP2825, 0x01);
 
-    if(g_hw_stat.source_mode == HW_SRC_MODE_UI){ //detect in UI mode
+    if(g_hw_stat.source_mode == HW_SRC_MODE_UI) { //detect in UI mode
         TP2825_Set_Clamp(0);
 
         det = ((det & 0x80) == 0x80) ? 0 : 1;
-        //det = (det == 0x2C) ? 2 : (det == 0x28) ? 1 : 0;
+        if(det_last != det) {
+            det_last = det;
+        }
+        else {
+            g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
+            g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
+            TP2825_Switch_CH(g_hw_stat.av_chid);
+            det_last = -1;
+        }
+
+        det_cnt = det2_cnt = 0;
+    }
+    else if(g_hw_stat.source_mode == HW_SRC_MODE_AV) { //detect in AV_in/Module_bay mode
+        det &= 0xAF;
+        det2 = (g_hw_stat.av_pal == 1 && det == 0x2C) ? 2 :
+               (g_hw_stat.av_pal == 0 && det == 0x28) ? 1 : 0;
+        det  = (det == (g_hw_stat.av_pal ? 0x28 : 0x2C)) ? 1 : 0;
+
         if(det_last != det) {
             det_last = det;
             det_cnt = 0;
         }
         else if(det_cnt < AV_DET_CNT1) {
             det_cnt++;
-        }
-        else {
-            det_cnt = det_last = 0;
-            
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
-            
-            g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
-            TP2825_Switch_CH(g_hw_stat.av_chid);
-        }
-
-        det2_cnt = 0;
-    }
-    else if(g_hw_stat.source_mode == HW_SRC_MODE_AV) { //detect in AV_in/Module_bay mode
-        det &= 0xAF;
-
-        det2 = (g_hw_stat.av_pal == 1 && det == 0x2C) ? 2 :
-               (g_hw_stat.av_pal == 0 && det == 0x28) ? 1 : 0;
-
-        det  = (det == (g_hw_stat.av_pal ? 0x28 : 0x2C)) ? 1 : 0;
-
-        if(det_last != det) {
-            det_last = det;
-        }
-        else if(det){
-            g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
-            TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
-            AV_Mode_Switch(g_hw_stat.av_pal);
-
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
-            det2_cnt = det2_last = det_last = 0;
         }
 
         if(det2_last != det2) {
@@ -356,14 +343,32 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
         else if(det2_cnt < AV_DET_CNT2) {
             det2_cnt++;
         }
-        else {
-            if((g_hw_stat.av_valid[g_hw_stat.av_chid] == 0) && (det2 > 0))
-                ret = 1;
 
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = det2;
+        if(g_hw_stat.av_valid[g_hw_stat.av_chid]) {
+            if(det2 == 0 && det2_cnt == AV_DET_CNT2) {
+                TP2825_Set_Clamp(0);
+                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+            }
+        }
+        else {
+            if(det && det_cnt == AV_DET_CNT1) {
+                g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
+                TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
+                AV_Mode_Switch(g_hw_stat.av_pal);
+            }
+
+            if(det2_cnt == AV_DET_CNT2) {
+                if(det2){
+                    TP2825_Set_Clamp(1);
+                    g_hw_stat.av_valid[g_hw_stat.av_chid] = det2;
+                    ret = 1;
+                }
+                else
+                    TP2825_Set_Clamp(0);
+            }
         }
 
-        det_cnt = 0;
+        //printf("det=%d, det2=%d, det_cnt=%d, det2_cnt=%d, is_pal=%d, vld=%d\n", det, det2, det_cnt, det2_cnt, g_hw_stat.av_pal, g_hw_stat.av_valid[g_hw_stat.av_chid]);
     }
 
     pthread_mutex_unlock(&hardware_mutex);
@@ -411,7 +416,7 @@ void HDMI_in_detect()
                     else if(vtmg == 2){
                         system("dispw -s vdpo 720p60");
                         g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x14); //0x14 for 720p100, 0x04 for 720p60
                         I2C_Write(ADDR_FPGA, 0x8e, 0x04);
                         I2C_Write(ADDR_AL, 0x14, 0x01);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);

@@ -55,8 +55,8 @@ lv_obj_t *page_fans_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_select_item(arr, cont);
 
 	create_btn_group_item(&btn_group_fans, cont, 2, "Auto Control", "On", "Off", "","",  0);
-	create_slider_item(&slider_group[0], cont, "Top Fan", 5, 2, 1);
-	create_slider_item(&slider_group[1], cont, "Side Fans", 5, 2, 2);
+	create_slider_item(&slider_group[0], cont, "Top Fan", MAX_FAN_TOP, 2, 1);
+	create_slider_item(&slider_group[1], cont, "Side Fans", MAX_FAN_SIDE, 2, 2);
 
 	create_label_item(cont, "<Back", 1, 3,1);
 	
@@ -82,7 +82,7 @@ void fans_speed_inc(void)
 	if( fans_mode == FANS_MODE_TOP)
 	{
 		 value = lv_slider_get_value(slider_group[0].slider);
-		if(value <= 4)
+		if(value < MAX_FAN_TOP)
 			value += 1;
 
 		lv_slider_set_value(slider_group[0].slider, value, LV_ANIM_OFF);	
@@ -98,7 +98,7 @@ void fans_speed_inc(void)
 	else if( fans_mode == FANS_MODE_SIDE)
 	{
 		 value = lv_slider_get_value(slider_group[1].slider);
-		if(value <= 4)
+		if(value < MAX_FAN_SIDE)
 			value += 1;
 
 		lv_slider_set_value(slider_group[1].slider, value, LV_ANIM_OFF);	
@@ -121,7 +121,7 @@ void fans_speed_dec(void)
 	{
 		value = lv_slider_get_value(slider_group[0].slider);
 
-		if(value >= 1)
+		if(value > 0)
 			value -= 1;
 
 		lv_slider_set_value(slider_group[0].slider, value, LV_ANIM_OFF);	
@@ -137,7 +137,7 @@ void fans_speed_dec(void)
 	{
 		value = lv_slider_get_value(slider_group[1].slider);
 
-		if(value >= 1)
+		if(value > 0)
 			value -= 1;
 
 		lv_slider_set_value(slider_group[1].slider, value, LV_ANIM_OFF);	
@@ -203,8 +203,8 @@ void step_topfan()
 {
 	char str[10];
 	
-	g_setting.fans.top_speed++;
-	if(g_setting.fans.top_speed == 6)  g_setting.fans.top_speed = 0;
+	if(g_setting.fans.top_speed == MAX_FAN_TOP)  g_setting.fans.top_speed = 0;
+	else g_setting.fans.top_speed++;
 
 	fans_top_setspeed(g_setting.fans.top_speed);
 	ini_putl("fans", "top_speed", g_setting.fans.top_speed, SETTING_INI);
@@ -220,7 +220,7 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe,uint8_t is_left)
 	uint8_t new_speed = cur_speed;
 
 	if(tempe > FAN_TEMPERATURE_THR_H) {
-		if(new_speed != 5) {
+		if(new_speed != MAX_FAN_SIDE) {
 			new_speed++;
 			respeeding[is_left] = true;  respeed_cnt[is_left] = 0;
 		}
@@ -240,13 +240,13 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe,uint8_t is_left)
 
 void fans_auto_ctrl_core(bool is_left,int tempe, bool binit)
 {
-	static uint8_t speed[2]={1,1};
+	static uint8_t speed[2]={2,2};
 	uint8_t new_spd;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//reinit auto speed
 	if(binit) {
-		speed[0] = speed[1] = 2;
+		speed[0] = speed[1] = 2;  //Initial fan speed for auto mode
 		respeed_cnt[0] = respeed_cnt[1] = 0;
 		respeeding[0] = respeeding[1] = false;
 		fans_right_setspeed(speed[0]);
@@ -282,7 +282,7 @@ bool rescue_from_hot()
 		if(!respeeding[0]) {
 			speeds_saved[0] = fan_speeds[0];
 			respeeding[0] = true;
-			fans_right_setspeed(5);
+			fans_right_setspeed(MAX_FAN_SIDE);
 			Printf("Right fan: rescue ON.\n");
 		}
 	}
@@ -297,7 +297,7 @@ bool rescue_from_hot()
 		if(!respeeding[1]) {
 			speeds_saved[1] = fan_speeds[1];
 			respeeding[1] = true;
-			fans_left_setspeed(5);
+			fans_left_setspeed(MAX_FAN_SIDE);
 			Printf("Left fan: rescue ON.\n");
 		}
 	}
@@ -312,7 +312,7 @@ bool rescue_from_hot()
 		if(!respeeding[2]) {
 			speeds_saved[2] = fan_speeds[2];
 			respeeding[2] = true;
-			fans_top_setspeed(5);
+			fans_top_setspeed(MAX_FAN_TOP);
 			Printf("Top fan: rescue ON.\n");
 		}
 	}

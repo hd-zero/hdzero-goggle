@@ -1,9 +1,12 @@
 #ifndef _PAGE_FANS_H
 #define _PAGE_FANS_H
 
+#define MAX_FAN_TOP     5  //0:5
+#define MAX_FAN_SIDE    9  //0:9
+
 #define FAN_TEMPERATURE_THR_H  750  //75C
 #define FAN_TEMPERATURE_THR_L  650  //65C
-#define RESPEED_WAIT_TIME      200  //200 = 30s 
+#define RESPEED_WAIT_TIME      50   //200 = 30s 
 
 #define SIDE_TEMPERATURE_RISKH 850  //85C Risk high
 #define TOP_TEMPERATURE_RISKH  500  //

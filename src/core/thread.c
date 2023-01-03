@@ -170,7 +170,7 @@ static void *thread_peripheral(void *ptr)
 				k = 0;
 				g_battery.voltage = mcp_read_vatage();
 				g_temperature.top = nct_read_temperature(NCT_TOP);
-				g_temperature.left = nct_read_temperature(NCT_LEFT);
+				g_temperature.left = nct_read_temperature(NCT_LEFT) + 100; 
 				g_temperature.right= nct_read_temperature(NCT_RIGHT);
 				confirm_recording();
 			}
