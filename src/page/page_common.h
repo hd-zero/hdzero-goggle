@@ -172,7 +172,16 @@ struct panel_arr{
 
 	int cur;
 	int max;
+	int items[10];
 };
+
+typedef struct {
+	lv_obj_t *page;
+	lv_obj_t *icon;
+
+	struct panel_arr p_arr;
+} page_pack_t;
+
 struct menu_obj_s{
 	lv_obj_t *cont;
 	lv_obj_t *icon;

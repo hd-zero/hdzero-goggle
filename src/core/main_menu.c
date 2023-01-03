@@ -67,12 +67,6 @@ page_pack_t pp_autoscan = {
 		.max = 4,
 	}
 };
-page_pack_t pp_connections = {
-	.p_arr = {
-		.cur = 0,
-		.max = 8,
-	}
-};
 page_pack_t pp_headtracker = {
 	.p_arr = {
 		.cur = 0,
@@ -88,6 +82,7 @@ page_pack_t pp_version = {
 	}
 };
 
+#define CURRENT_SELECTION (pp->p_arr.max == -1 ? pp->p_arr.items[pp->p_arr.cur] : pp->p_arr.cur)
 
 LV_IMG_DECLARE(img_arrow);
 
@@ -195,7 +190,7 @@ void submenu_enter(void)
 	}
 
 	pp->p_arr.cur = 0;
-	set_select_item(&pp->p_arr, pp->p_arr.cur);
+	set_select_item(&pp->p_arr, CURRENT_SELECTION);
 }
 
 void submenu_nav(uint8_t key)
@@ -216,18 +211,31 @@ void submenu_nav(uint8_t key)
 			page_connections_reset();
 
 		if(key == DIAL_KEY_UP) {
-			if(pp->p_arr.cur < pp->p_arr.max - 1)
+			if (pp->p_arr.max == -1) {
+				pp->p_arr.cur++;
+				if (pp->p_arr.items[pp->p_arr.cur] == -1)
+					pp->p_arr.cur = 0;
+			}
+			else if(pp->p_arr.cur < pp->p_arr.max - 1)
 				pp->p_arr.cur++;
 			else
 				pp->p_arr.cur = 0;
 		}
 		else if(key == DIAL_KEY_DOWN) {
-			if(pp->p_arr.cur > 0)
+			if (pp->p_arr.max == -1) {
+				pp->p_arr.cur--;
+				if (pp->p_arr.cur == -1) {
+					for (int i=0;pp->p_arr.items[i] != -1;i++) {
+						pp->p_arr.cur = i;
+					}
+				}
+			}
+			else if(pp->p_arr.cur > 0)
 				pp->p_arr.cur--;
 			else
 				pp->p_arr.cur = pp->p_arr.max -1;
 		}
-		set_select_item(&pp->p_arr, pp->p_arr.cur);
+		set_select_item(&pp->p_arr, CURRENT_SELECTION);
 	}
 }
 
@@ -273,49 +281,44 @@ void submenu_fun(void)
 	{
 		if((pp == &pp_fans) )
 		{
-			fans_mode_toggle(pp->p_arr.cur);
+			fans_mode_toggle(CURRENT_SELECTION);
 		}
 		if((pp == &pp_source) )
 		{
-			source_mode_set(pp->p_arr.cur);
+			source_mode_set(CURRENT_SELECTION);
 		}
 		if((pp == &pp_autoscan) )
 		{
-			autoscan_toggle(pp->p_arr.cur);
+			autoscan_toggle(CURRENT_SELECTION);
 		}
 		if((pp == &pp_power) )
 		{
-			power_set_toggle(pp->p_arr.cur);
+			power_set_toggle(CURRENT_SELECTION);
 		}
 		if((pp == &pp_connections) )
 		{
-			connect_function(pp->p_arr.cur);
+			connect_function(CURRENT_SELECTION);
 		}
 		if((pp == &pp_record) )
 		{
-			record_set_toggle(pp->p_arr.cur);
+			record_set_toggle(CURRENT_SELECTION);
 		}
 
 		if(pp == &pp_headtracker)
 		{
-			headtracker_set_toggle(pp->p_arr.cur);
+			headtracker_set_toggle(CURRENT_SELECTION);
 		}
 
 		if((pp == &pp_version) )
 		{
-			version_update(pp->p_arr.cur);
+			version_update(CURRENT_SELECTION);
 		}
 
-
-		if(pp->p_arr.cur ==  pp->p_arr.max - 1)
+		// Exit sub-menu if this element is the last item in the list
+		if ((pp->p_arr.max == -1 && pp->p_arr.items[pp->p_arr.cur+1] == -1) || (pp->p_arr.cur == pp->p_arr.max - 1))
 		{
-				submenu_exit();
+			submenu_exit();
 		}
-		else
-		{
-
-		}
-
 	}
 }
 
@@ -455,7 +458,7 @@ static void menu_reinit(void)
 	else
 	{
 		pp->p_arr.cur = -1;
-		set_select_item(&pp->p_arr, pp->p_arr.cur);
+		set_select_item(&pp->p_arr, CURRENT_SELECTION);
 	}
 }
 

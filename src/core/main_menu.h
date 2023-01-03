@@ -9,14 +9,6 @@
 #include "../page/page_common.h"
 
 typedef struct {
-	lv_obj_t *page;
-	lv_obj_t *icon;
-
-	struct panel_arr p_arr;
-}page_pack_t;
-
-
-typedef struct {
 	lv_obj_t *bar;
 	int       start;
 	int	      val;

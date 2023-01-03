@@ -29,6 +29,14 @@ static lv_obj_t *btn_bind;
 static btn_group_t elrs_group;
 static lv_obj_t *elrs_bar = NULL;
 
+page_pack_t pp_connections = {
+	.p_arr = {
+		.cur = 0,
+		.max = -1,
+		.items = {0, 1, 2, 3, 4, 7, -1}
+	}
+};
+
 lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
