@@ -129,7 +129,7 @@ void uart_parse(uint8_t sel,uint8_t* state, uint8_t* len, uint8_t* payload,uint8
 				break;
 
 			default:
-				LOGI("UART%d bad command",sel+1);
+				LOGE("UART%d bad command",sel+1);
 				break;
 		}
 		(*payload_ptr) -= (ptr[0]+1);
@@ -164,7 +164,7 @@ static void *pthread_recv_dm5680l(void *arg)
 		while(FD_ISSET(fd_dm5680l,&rd))
 		{
 		  if(select(fd_dm5680l+1,&rd,NULL,NULL,NULL) < 0)
-			LOGI("UART1:select error!");
+			LOGE("UART1:select error!");
 		  else
 		  {
 			len = uart_read(fd_dm5680l, buffer, 128);
@@ -175,7 +175,7 @@ static void *pthread_recv_dm5680l(void *arg)
 				uart_wptr[0]++; 
 
 				if(uart_wptr[0] == uart_rptr[0]) 
-					LOGI("UART1 fifo full!");
+					LOGW("UART1 fifo full!");
 			}
 			if(len) 
 				uart_parse(0,&state, &len8, payload,&payload_ptr);
@@ -207,7 +207,7 @@ static void *pthread_recv_dm5680r(void *arg)
 		while(FD_ISSET(fd_dm5680r,&rd))
 		{
 		  if(select(fd_dm5680r+1,&rd,NULL,NULL,NULL) < 0)
-			LOGI("UART2:select error!");
+			LOGE("UART2:select error!");
 		  else
 		  {
 			len = uart_read(fd_dm5680r, buffer, 128);
@@ -218,7 +218,7 @@ static void *pthread_recv_dm5680r(void *arg)
 				uart_wptr[1]++; 
 
 				if(uart_wptr[1] == uart_rptr[1]) 
-					LOGI("UART2 fifo full!");
+					LOGW("UART2 fifo full!");
 			}
 			if(len) 
 				uart_parse(1,&state, &len8, payload,&payload_ptr);

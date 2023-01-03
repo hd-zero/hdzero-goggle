@@ -96,7 +96,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 #define RETURN_ON_ERROR(m, x) do {      \
     esp_loader_error_t _err_ = (x);     \
     if (_err_ != ESP_LOADER_SUCCESS) {  \
-		LOGI("ERR %s: %d", m, _err_);   \
+		LOGE("ERR %s: %d", m, _err_);   \
         return _err_;                   \
     }                                   \
 } while(0)

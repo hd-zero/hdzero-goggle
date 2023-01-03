@@ -88,7 +88,7 @@ void enable_bmi270()
         LOGI("[Pass] BMI270 enabled.");
     }
     else
-        LOGI("[Error] BMI270 failed.");
+        LOGE("[Error] BMI270 failed.");
 }
 
 void disable_bmi270()

@@ -24,19 +24,19 @@ int fb_open(PFBDEV pFbdev)
     pFbdev->fb = open(pFbdev->dev, O_RDWR);
     if(pFbdev->fb < 0)
     {
-        LOGI("Error opening %s: %m. Check kernel config", pFbdev->dev);
+        LOGE("Error opening %s: %m. Check kernel config", pFbdev->dev);
         return -1;
     }
 
     if (-1 == ioctl(pFbdev->fb,FBIOGET_VSCREENINFO,&(pFbdev->fb_var)))
     {
-        LOGI("ioctl FBIOGET_VSCREENINFO");
+        LOGE("ioctl FBIOGET_VSCREENINFO");
         return -1;
     }
 
     if (-1 == ioctl(pFbdev->fb,FBIOGET_FSCREENINFO,&(pFbdev->fb_fix)))
     {
-        LOGI("ioctl FBIOGET_FSCREENINFO");
+        LOGE("ioctl FBIOGET_FSCREENINFO");
         return -1;
     }
 
@@ -46,7 +46,7 @@ int fb_open(PFBDEV pFbdev)
 
     if (MAP_FAILED == pFbdev->fb_mem)
     {
-        LOGI("mmap error! mem:%p offset:%ld", pFbdev->fb_mem, pFbdev->fb_mem_offset);
+        LOGE("mmap error! mem:%p offset:%ld", pFbdev->fb_mem, pFbdev->fb_mem_offset);
         return -1;
     }
     return 0;
@@ -68,7 +68,7 @@ int get_display_depth(PFBDEV pFbdev)
 {
     if(pFbdev->fb<=0)
     {
-        LOGI("fb device not open, open it first");
+        LOGE("fb device not open, open it first");
         return -1;
     }
     return pFbdev->fb_var.bits_per_pixel;
@@ -113,7 +113,7 @@ int fb_clean()
     strncpy(fbdev.dev, "/dev/fb0", sizeof(fbdev.dev));
     if(fb_open(&fbdev)==-1)
     {
-        LOGI("open frame buffer error");
+        LOGE("open frame buffer error");
         return -1;
     }
 

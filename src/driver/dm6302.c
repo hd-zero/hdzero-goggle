@@ -125,15 +125,15 @@ void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat)
     SPI_Read(page, addr, &r0, &r1);
     if(sel == 1){
         if(dat != r0)
-            LOGI("                           --- W or R error !!   wdat=%x", dat);
+            LOGE("                           --- W or R error !!   wdat=%x", dat);
     }
     else if(sel == 2){
         if(dat != r1)
-            LOGI("                           --- W or R error !!   wdat=%x", dat);
+            LOGE("                           --- W or R error !!   wdat=%x", dat);
     }
     else {
         if(dat != r1 || dat != r0)
-            LOGI("                           --- W or R error !!   wdat=%x", dat);
+            LOGE("                           --- W or R error !!   wdat=%x", dat);
     }
 #endif
 }
@@ -1419,7 +1419,7 @@ int DM6302_init(uint8_t freq)
 
         to_cnt++;
         if(to_cnt >= 10){
-            LOGI("Error: DM6302s have no response.");
+            LOGE("Error: DM6302s have no response.");
             return 1;
         }
     }

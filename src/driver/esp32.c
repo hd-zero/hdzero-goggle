@@ -59,14 +59,14 @@ static void *pthread_recv_esp32(void *arg)
 			return NULL;
 		}
 		if(select(fd_esp32+1,&rd,NULL,NULL,&tv) < 0) {
-			LOGI("UART3:select error!");
+			LOGE("UART3:select error!");
 			return NULL;
 		}
 		if (FD_ISSET(fd_esp32,&rd))
 		{
 			len = uart_read(fd_esp32, buffer, 128);
 			if (len < 0) {
-				LOGI("UART3:read error, exiting thread.");
+				LOGE("UART3:read error, exiting thread.");
 				return NULL;
 			}
 			for(i=0;i<len;i++)
@@ -75,7 +75,7 @@ static void *pthread_recv_esp32(void *arg)
 				uart3_wptr++;
 
 				if(uart3_wptr == uart3_rptr)
-					LOGI("UART3:fifo full!");
+					LOGW("UART3:fifo full!");
 			}
 			if(len)
 				esp32_rx();
