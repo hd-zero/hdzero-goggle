@@ -47,7 +47,7 @@ int lvgl_init_porting(void)
     strncpy(fbdev.dev, "/dev/fb0", sizeof(fbdev.dev));
     if(fb_open(&fbdev)==-1)
     {
-        LOGI("open frame buffer error");
+        LOGE("open frame buffer error");
         return -1;
     }
 	LOGI("register disp drv");

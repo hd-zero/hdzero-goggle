@@ -177,7 +177,7 @@ bool esp32_handler_process_byte(uint8_t c)
                 msp_process_packet();
             }
             else {
-                LOGI("CRC failure on MSP packet - Got %d expected %d", c, crc);
+                LOGE("CRC failure on MSP packet - Got %d expected %d", c, crc);
             }
 			input_state = MSP_IDLE;
             break;
@@ -322,7 +322,7 @@ bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *paylo
 {
 	struct timespec ts;
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		LOGI("clock_gettime failed");
+		LOGE("clock_gettime failed");
 		return false;
 	}
 

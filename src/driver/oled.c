@@ -249,7 +249,7 @@ void OLED_Startup()
 
     if( !(I2C_Read(ADDR_AL, 0x00) & 0x01) )
     {
-        LOGI("OLED_Startup failed: Auto init is not ready...");
+        LOGW("OLED_Startup failed: Auto init is not ready...");
     }
 
     I2C_Write(ADDR_AL, 0x10, 0x01);

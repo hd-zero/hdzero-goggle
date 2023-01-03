@@ -40,7 +40,7 @@ int mcp_read_vatage(void)
 	if(!fp) {
       static bool bFirst = true;
       if(bFirst) {
-		   LOGI("mcp_read_vatage: open error.");
+		   LOGE("mcp_read_vatage: open error.");
          bFirst = false;
       }
 		return -1;

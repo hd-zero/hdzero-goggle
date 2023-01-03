@@ -279,7 +279,7 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
                     Display_720P90_t(CAM_MODE);
                     break;
                 default:
-                    LOGI("cam_mode =%d not suppored!!\n ",CAM_MODE);
+                    LOGW("cam_mode =%d not suppored!!\n ",CAM_MODE);
                     break;
             }
 
