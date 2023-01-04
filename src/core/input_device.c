@@ -38,9 +38,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Tune channel on video mode
 #define TUNER_TIMER_LEN 	30
+
 uint8_t    tune_state = 0; //0=init; 1=waiting for key; 2=tuning 
 uint16_t   tune_timer = 0;
 
+#define EPOLL_FD_CNT 4
+
+static int epfd;
+static pthread_t input_device_pid;
 
 //action: 1 = tune up, 2 = tune down, 3 = confirm
 void exit_tune_channel()
@@ -128,10 +133,8 @@ void tune_channel_timer()
 			channel_osd_mode--;
 	}
 }
-
-
 ///////////////////////////////////////////////////////////////////////////////
-extern pthread_mutex_t lvgl_mutex;
+
 
 static void switch_to_menumode()
 {
@@ -403,55 +406,51 @@ static void get_event(int fd)
     }
 }
 
-static void add_to_epfd(int epfd, int fd)
-{
-    int ret;
+static void add_to_epfd(int epfd, int fd) {
     struct epoll_event event = {
         .events = EPOLLIN,
-        .data    = {
+        .data = {
             .fd = fd,
         },
     };
 
-    ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
+    int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
     assert(ret == 0);
 }
 
-#define ID_LEN 64
-#define ID_CNT 4
-static int epfd;
-static struct epoll_event events[ID_CNT];
-int input_device_open(void)
-{
-    char buf[ID_LEN];
-    int fd;
-    int i;
-    int nFrom=0, nCount=ID_CNT;
-    epfd = epoll_create(ID_CNT);
-    assert(epfd > 0);
+static void *thread_input_device(void *ptr) {
+    for (;;) {
+		struct epoll_event events[EPOLL_FD_CNT];
 
-    for (i = nFrom; i < nFrom+nCount; i++) {
-        snprintf(buf, ID_LEN, "/dev/input/event%d", i);
-        fd = open(buf, O_RDONLY);
-        if (fd >= 0) {
-            add_to_epfd(epfd, fd);
-            LOGI("opened %s", buf);
-        }
+		int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, -1);
+		if (ret < 0) {
+			perror("epoll_wait");
+			continue;
+		}
+
+		for (int i = 0; i < ret; i++) {
+			if (events[i].events & EPOLLIN) {
+				get_event(events[i].data.fd);
+			}
+		}
     }
-	return 0;
+    return NULL;
 }
 
-void input_device_loop(void)
-{
-	int ret = epoll_wait(epfd, events, ID_CNT, -1);
-	if (ret < 0) {
-		perror("epoll_wait");
-		return;
-	}
+void input_device_init() {
+    epfd = epoll_create(EPOLL_FD_CNT);
+    assert(epfd > 0);
 
-	for (int i = 0; i < ret; i++) {
-		if (events[i].events&EPOLLIN) {
-			get_event(events[i].data.fd);
+    char buf[64];
+    for (int i = 0; i < EPOLL_FD_CNT; i++) {
+		snprintf(buf, 64, "/dev/input/event%d", i);
+
+		int fd = open(buf, O_RDONLY);
+		if (fd >= 0) {
+			add_to_epfd(epfd, fd);
+			LOGI("opened %s", buf);
 		}
-	}
+    }
+
+    pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
 }
