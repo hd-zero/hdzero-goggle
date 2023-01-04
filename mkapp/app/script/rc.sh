@@ -46,13 +46,17 @@ source /mnt/app//app/record/record-env.sh
 GLOG_minloglevel=3 /mnt/app/app/record/record & > /dev/null 2>&1
 /mnt/app/app/record/gogglecmd -rec startao
 
-#start applicaion
-if [ -e /mnt/extsd/HDZGOGGLE.log ]; then
-	/mnt/app/app/HDZGOGGLE > /mnt/extsd/HDZGOGGLE.log 2>&1 &
-else
-	#GLOG_minloglevel=3 /mnt/app/app/HDZGOGGLE &  > /dev/null 2>&1
-	/mnt/app/app/HDZGOGGLE &
-fi
-
 #system led
 /mnt/app/script/system_daemon.sh &
+
+#start applicaion
+if [ -e /mnt/extsd/develop.sh ]; then
+	/mnt/extsd/develop.sh
+else
+	if [ -e /mnt/extsd/HDZGOGGLE.log ]; then
+		/mnt/app/app/HDZGOGGLE > /mnt/extsd/HDZGOGGLE.log 2>&1 &
+	else
+		#GLOG_minloglevel=3 /mnt/app/app/HDZGOGGLE &  > /dev/null 2>&1
+		/mnt/app/app/HDZGOGGLE &
+	fi
+fi
