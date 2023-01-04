@@ -1,5 +1,6 @@
 #ifndef _PORTING_H
 #define _PORTING_H
+
 #include <stdbool.h>
 
 int lvgl_init_porting(void);
