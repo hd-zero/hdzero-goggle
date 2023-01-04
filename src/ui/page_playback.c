@@ -1,7 +1,7 @@
 #include "page_playback.h"
-#include "../core/playback.h"
+#include "ui/playback.h"
 #include "page_common.h"
-#include "style.h"
+#include "ui/style.h"
 
 
 static lv_coord_t col_dsc[] = {320,320,320, LV_GRID_TEMPLATE_LAST};

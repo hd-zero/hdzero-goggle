@@ -1,7 +1,9 @@
 #include "page_common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "../core/ui_attribute.h"
+
+#include "ui/ui_attribute.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // global 

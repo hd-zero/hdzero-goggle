@@ -8,14 +8,14 @@
 #include <log/log.h>
 
 #include "common.hh"
-#include "style.h"
+#include "ui/style.h"
 #include "ui/page_common.h"
 #include "../driver/i2c.h"
 #include "../driver/uart.h"
 #include "../driver/fans.h"
 #include "../driver/dm5680.h"
 #include "../driver/esp32.h"
-#include "../core/main_menu.h"
+#include "ui/main_menu.h"
 #include "../core/esp32_flash.h"
 #include "../core/elrs.h"
 

@@ -2,7 +2,7 @@
 #define _PAGE_COMMON_H
 
 #include "defines.h"
-#include "style.h"
+#include "ui/style.h"
 
 #define TMP_DIR         "/tmp"
 #define MEDIA_FILES_DIR "/mnt/extsd/movies"

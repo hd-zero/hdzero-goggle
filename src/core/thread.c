@@ -24,7 +24,7 @@
 #include "../driver/mcp3021.h"
 #include "../driver/nct75.h"
 #include "../driver/oled.h"
-#include "../driver/porting.h"
+#include "ui/porting.h"
 #include "ui/page_fans.h"
 #include "ui/page_version.h"
 
