@@ -43,7 +43,7 @@ add_subdirectory(lib/softwinner)
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
 file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
-file(GLOB SRC_FILES_PAGE   "src/page/*.c" "src/page/*.h")
+file(GLOB SRC_FILES_UI   "src/ui/*.c" "src/ui/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
@@ -52,7 +52,7 @@ add_executable(${PROJECT_NAME}
 	${SRC_FILES_CORE}
 	${SRC_FILES_DRIVER}
 	${SRC_FILES_IMAGE}
-	${SRC_FILES_PAGE}
+	${SRC_FILES_UI}
 	${SRC_FILES_BMI}
 	${SRC_FILES_WINDOW}
 	${SRC_FILES_PLAYER}
@@ -62,7 +62,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	src/
 	src/core
 	src/driver
-	src/page
 	src/player
 	src/player/media/app
 	src/window

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "statusbar.h"
 #include "lvgl/lvgl.h"
-#include "page_common.h"
+#include "ui/page_common.h"
 #include "playback.h"
 #include "style.h"
 #include "mcp3021.h"

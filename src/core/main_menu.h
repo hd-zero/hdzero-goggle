@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "lvgl/lvgl.h"
-#include "../page/page_common.h"
+#include "ui/page_common.h"
 
 typedef struct {
 	lv_obj_t *page;

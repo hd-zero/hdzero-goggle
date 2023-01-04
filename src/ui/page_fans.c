@@ -11,8 +11,8 @@
 #include "../core/common.hh"
 #include "../driver/fans.h"
 #include "../driver/nct75.h"
-#include "../page/page_common.h"
-#include "../page/page_fans.h"
+#include "ui/page_common.h"
+#include "ui/page_fans.h"
 
 typedef enum {
 	FANS_MODE_TOP = 0,

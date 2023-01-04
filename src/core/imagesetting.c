@@ -6,7 +6,7 @@
 #include <log/log.h>
 
 #include "oled.h"
-#include "page_common.h"
+#include "ui/page_common.h"
 #include "minIni.h"
 #include "hardware.h"
 #include "common.hh"

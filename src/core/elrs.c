@@ -25,9 +25,9 @@
 #include "../driver/dm5680.h"
 #include "../driver/mcp3021.h"
 
-#include "../page/page_common.h"
-#include "../page/page_scannow.h"
-#include "../page/page_version.h"
+#include "ui/page_common.h"
+#include "ui/page_scannow.h"
+#include "ui/page_version.h"
 
 static mspState_e  input_state;
 static uint16_t    offset;

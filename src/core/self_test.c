@@ -14,7 +14,7 @@
 #include "../driver/it66121.h"
 #include "../driver/it66021.h"
 #include "../driver/dm6302.h"
-#include "../page/page_common.h"
+#include "ui/page_common.h"
 #include "common.hh"
 
 

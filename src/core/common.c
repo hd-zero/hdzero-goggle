@@ -5,7 +5,7 @@
 #include "defines.h"
 #include "common.hh"
 #include "self_test.h"
-#include "../page/page_common.h"
+#include "ui/page_common.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //globals

@@ -9,7 +9,7 @@
 
 #include "common.hh"
 #include "style.h"
-#include "../page/page_common.h"
+#include "ui/page_common.h"
 #include "../driver/i2c.h"
 #include "../driver/uart.h"
 #include "../driver/fans.h"
