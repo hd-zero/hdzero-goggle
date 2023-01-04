@@ -4,12 +4,12 @@
 #include "../core/osd.h"
 #include <stdio.h>
 #include "page_common.h"
-#include "ui/style.h"
-#include "ui/porting.h"
+#include "ui/ui_style.h"
+#include "ui/ui_porting.h"
 #include "../driver/oled.h"
 #include "../driver/it66121.h"
 #include "../core/common.hh"
-#include "ui/main_menu.h"
+#include "ui/ui_main_menu.h"
 #include "page_scannow.h"
 #include "minIni.h"
 

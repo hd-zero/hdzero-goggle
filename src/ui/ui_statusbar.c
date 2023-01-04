@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "ui/statusbar.h"
+#include "ui/ui_statusbar.h"
 #include "lvgl/lvgl.h"
 #include "ui/page_common.h"
-#include "playback.h"
-#include "ui/style.h"
+#include "ui/ui_playback.h"
+#include "ui/ui_style.h"
 #include "mcp3021.h"
 #include "osd.h"
 #include "common.hh"

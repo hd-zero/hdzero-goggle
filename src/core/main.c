@@ -20,7 +20,6 @@
 #include "../driver/it66121.h"
 #include "../driver/mcp3021.h"
 #include "../driver/oled.h"
-#include "ui/porting.h"
 #include "../driver/TP2825.h"
 #include "common.hh"
 #include "elrs.h"
@@ -30,12 +29,13 @@
 #include "self_test.h"
 #include "thread.h"
 #include "thread.h"
-#include "ui/imagesetting.h"
-#include "ui/main_menu.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
-#include "ui/statusbar.h"
+#include "ui/ui_image_setting.h"
+#include "ui/ui_main_menu.h"
+#include "ui/ui_porting.h"
+#include "ui/ui_statusbar.h"
 
 static void load_ini_setting(void)
 {

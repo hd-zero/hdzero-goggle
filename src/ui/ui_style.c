@@ -1,4 +1,4 @@
-#include "ui/style.h"
+#include "ui/ui_style.h"
 
 const lv_style_prop_t props[] = {LV_STYLE_BG_COLOR, 0};
 lv_style_transition_dsc_t transition_dsc;

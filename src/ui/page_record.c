@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include "page_record.h"
 #include "page_common.h"
-#include "ui/style.h"
+#include "ui/ui_style.h"
 #include "minIni.h"
-#include "playback.h"
+#include "ui/ui_playback.h"
 #include "../core/common.hh"
 
 static btn_group_t btn_group0;

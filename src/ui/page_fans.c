@@ -6,7 +6,7 @@
 #include <log/log.h>
 
 #include "fans.h"
-#include "ui/style.h"
+#include "ui/ui_style.h"
 #include "ui_attribute.h"
 #include "../core/common.hh"
 #include "../driver/fans.h"

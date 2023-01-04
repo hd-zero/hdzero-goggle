@@ -1,12 +1,12 @@
-#include "ui/main_menu.h"
+#include "ui/ui_main_menu.h"
 
 #include <stdio.h>
 
 #include <lvgl/lvgl.h>
 #include <log/log.h>
 
-#include "ui/style.h"
-#include "ui/porting.h"
+#include "ui/ui_style.h"
+#include "ui/ui_porting.h"
 #include "common.hh"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -23,8 +23,8 @@
 #include "../driver/hardware.h"
 #include "../driver/mcp3021.h"
 #include "../driver/oled.h"
-#include "ui/imagesetting.h"
-#include "playback.h"
+#include "ui/ui_image_setting.h"
+#include "ui/ui_playback.h"
 
 lv_obj_t * menu;
 lv_obj_t * root_page;

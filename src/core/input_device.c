@@ -14,11 +14,11 @@
 
 #include "defines.h"
 #include "input_device.h"
-#include "ui/porting.h"
+#include "ui/ui_porting.h"
 
-#include "ui/main_menu.h"
+#include "ui/ui_main_menu.h"
 #include "osd.h"
-#include "ui/imagesetting.h"
+#include "ui/ui_image_setting.h"
 #include "common.hh"
 #include "ui/page_scannow.h"
 #include "ui/page_common.h"
