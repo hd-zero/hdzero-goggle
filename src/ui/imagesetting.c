@@ -1,4 +1,4 @@
-#include "imagesetting.h"
+#include "ui/imagesetting.h"
 
 #include <stdio.h>
 

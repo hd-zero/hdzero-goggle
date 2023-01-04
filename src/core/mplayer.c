@@ -4,7 +4,7 @@
 #include <lvgl/lvgl.h>
 #include <log/log.h>
 
-#include "style.h"
+#include "ui/style.h"
 #include "mplayer.h"
 #include "common.hh"
 #include "../player/media.h"

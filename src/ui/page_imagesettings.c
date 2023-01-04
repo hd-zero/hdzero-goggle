@@ -1,13 +1,14 @@
 #include "page_imagesettings.h"
-#include "page_common.h"
-#include "../core/main_menu.h"
+
 #include "../core/common.hh"
-#include "../core/imagesetting.h"
+#include "../driver/hardware.h"
+#include "oled.h"
+#include "page_common.h"
 #include "page_scannow.h"
 #include "page_source.h"
-#include "style.h"
-#include "oled.h"
-#include "../driver/hardware.h"
+#include "ui/style.h"
+#include "ui/imagesetting.h"
+#include "ui/main_menu.h"
 
 
 #include <stdlib.h>

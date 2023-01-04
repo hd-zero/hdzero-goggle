@@ -6,7 +6,7 @@
 #include <minIni.h>
 
 #include "page_common.h"
-#include "style.h"
+#include "ui/style.h"
 #include "mcp3021.h"
 #include "../core/common.hh"
 
