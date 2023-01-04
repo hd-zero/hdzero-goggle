@@ -1,7 +1,7 @@
 #include "page_autoscan.h"
 
 #include "page_common.h"
-#include "ui/style.h"
+#include "ui/ui_style.h"
 #include "minIni.h"
 
 

@@ -14,7 +14,7 @@
 #include <minIni.h>
 #include <log/log.h>
 
-#include "ui/style.h"
+#include "ui/ui_style.h"
 #include "page_version.h"
 #include "page_common.h"
 #include "../driver/esp32.h"

@@ -6,9 +6,9 @@
 #include "page_common.h"
 #include "page_scannow.h"
 #include "page_source.h"
-#include "ui/style.h"
-#include "ui/imagesetting.h"
-#include "ui/main_menu.h"
+#include "ui/ui_style.h"
+#include "ui/ui_image_setting.h"
+#include "ui/ui_main_menu.h"
 
 
 #include <stdlib.h>

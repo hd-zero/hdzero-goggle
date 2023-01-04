@@ -25,7 +25,7 @@
 #include "../driver/hardware.h"
 #include "fbtools.h"
 #include "../driver/fans.h"
-#include "ui/imagesetting.h"
+#include "ui/ui_image_setting.h"
 
 //////////////////////////////////////////////////////////////////
 //Global
