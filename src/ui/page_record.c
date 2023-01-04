@@ -3,7 +3,7 @@
 #include "page_common.h"
 #include "ui/ui_style.h"
 #include "minIni.h"
-#include "ui/ui_playback.h"
+#include "ui/page_playback.h"
 #include "../core/common.hh"
 
 static btn_group_t btn_group0;
