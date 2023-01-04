@@ -171,7 +171,7 @@ void switch_to_analog(bool is_bay)
 
 	Display_Osd(g_setting.record.osd); 
 
-	g_setting.autoscan.last_source = is_bay? 2:3;
+	g_setting.autoscan.last_source = is_bay ? SETTING_SOURCE_EXPANSION : SETTING_SOURCE_AV_IN;
 	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }
 
@@ -193,6 +193,6 @@ void switch_to_hdmiin()
 	g_menu_op = OPLEVEL_VIDEO;
 	g_source_info.source = SOURCE_HDMI_IN;
 	enable_line_out(false);
-	g_setting.autoscan.last_source = 4;
+	g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;
 	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }

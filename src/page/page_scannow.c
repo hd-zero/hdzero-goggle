@@ -416,7 +416,7 @@ void switch_to_video(bool is_default)
 	lv_timer_handler();
 
 	Display_Osd(g_setting.record.osd); 
-	g_setting.autoscan.last_source = 1;
+	g_setting.autoscan.last_source = SETTING_SOURCE_HDZERO;
 	ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }
 

@@ -64,8 +64,8 @@ static void load_ini_setting(void)
 	}else{
 		g_setting.autoscan.status = 2;
 	}
-	g_setting.autoscan.source = ini_getl("autoscan", "source", 0, SETTING_INI);
-	g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", 1, SETTING_INI);
+	g_setting.autoscan.source = ini_getl("autoscan", "source", SETTING_SOURCE_LAST, SETTING_INI);
+	g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", SETTING_SOURCE_HDZERO, SETTING_INI);
 
 	//power
   	ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
