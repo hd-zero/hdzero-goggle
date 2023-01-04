@@ -26,7 +26,7 @@
 
 #include "uart.h"
 #include "../core/common.hh"
-#include "../page/page_common.h"
+#include "ui/page_common.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////

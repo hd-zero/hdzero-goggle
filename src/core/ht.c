@@ -13,8 +13,8 @@
 #include "../driver/hardware.h"
 #include "../driver/dm6302.h"
 #include "../driver/oled.h"
-#include "../page/page_common.h"
-#include "../page/page_scannow.h"
+#include "ui/page_common.h"
+#include "ui/page_scannow.h"
 
 
 //#define FAST_SIM

@@ -12,7 +12,7 @@
 #include <log/log.h>
 
 #include "style.h"
-#include "page_common.h"
+#include "ui/page_common.h"
 #include "mplayer.h"
 #include "common.hh"
 

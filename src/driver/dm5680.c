@@ -25,7 +25,7 @@
 
 #include "uart.h"
 #include "common.hh"
-#include "page_common.h"
+#include "ui/page_common.h"
 #include "msp_displayport.h"
 #include "../core/osd.h"
 
