@@ -12,8 +12,8 @@
 #include <log/log.h>
 
 #include "common.hh"
-#include "mplayer.h"
 #include "ui/page_common.h"
+#include "ui/ui_player.h"
 #include "ui/ui_style.h"
 
 LV_IMG_DECLARE(img_arrow1);
@@ -255,7 +255,7 @@ void pb_key(uint8_t key) {
 
     if (!key || !media_db.count || !done) {
         return;
-	}
+    }
 
     if (state == 1) {
         if (mplayer_on_key(key)) {
