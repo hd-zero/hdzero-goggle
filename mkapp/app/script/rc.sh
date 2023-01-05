@@ -43,7 +43,11 @@ aww 0x050967c0 0x110e6100
 
 #record process
 source /mnt/app//app/record/record-env.sh
-GLOG_minloglevel=3 /mnt/app/app/record/record & > /dev/null 2>&1
+if [ -e /mnt/extsd/RECORD.log ]; then
+	/mnt/app/app/record/record > /mnt/extsd/RECORD.log 2>&1 &
+else
+	/mnt/app/app/record/record &
+fi
 /mnt/app/app/record/gogglecmd -rec startao
 
 #system led
