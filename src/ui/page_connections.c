@@ -68,7 +68,7 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr)
 	//create_label_item(cont,  "Pass: hdzero123", 2, 6, 1);
 	create_label_item(cont,  "Broadcast ID: Yes", 2, 6, 1);
 
-	create_label_item(cont, "<Back", 1, 7, 1);
+	create_label_item(cont, "< Back", 1, 7, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
    	lv_label_set_text(label2, "*Expansion module is required.");

@@ -49,7 +49,7 @@ lv_obj_t *page_record_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_btn_group_item(&btn_group3, cont, 2, "Record Audio", "Yes", "No", "","",  3);
 	create_btn_group_item(&btn_group4, cont, 3, "Audio Source", "Mic", "Line In", "A/V In", "", 4);
 	label_formatSD = create_label_item(cont, "Format SD Card", 1, 5,3);
-	create_label_item(cont, "<Back", 1, 6,1);
+	create_label_item(cont, "< Back", 1, 6,1);
 
 	btn_group_set_sel(&btn_group0, g_setting.record.mode_manual ? 1 : 0);
 	btn_group_set_sel(&btn_group1, g_setting.record.format_ts ? 1 : 0);
