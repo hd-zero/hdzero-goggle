@@ -58,7 +58,7 @@ lv_obj_t *page_record_create(lv_obj_t *parent, struct panel_arr *arr)
 	btn_group_set_sel(&btn_group4, g_setting.record.audio_source );
 
 	lv_obj_t *label2 = lv_label_create(cont);
-   	lv_label_set_text(label2, "MP4 format requires closing file properly or leads to corrupted files. \nTS format is highly recommended.");
+   	lv_label_set_text(label2, "MP4 format requires properly closing files or the files will be corrupt. \nTS format is highly recommended.");
 	lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
 	lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
@@ -126,7 +126,7 @@ void record_set_toggle(int sel)
 	}
 	else if(sel == 5) { //format sd card
 		if(bConfirmed) {
-			lv_label_set_text(label_formatSD, "Formating... ");
+			lv_label_set_text(label_formatSD, "Formatting... ");
 			lv_timer_handler();
 			system("/mnt/app/script/formatsd.sh");
 			clear_videofile_cnt();
@@ -135,7 +135,7 @@ void record_set_toggle(int sel)
 			bConfirmed = false;
 		}
 		else {
-			lv_label_set_text(label_formatSD, "#FFFF00 Confirm to Format SD Card? Enter to continue...#");
+			lv_label_set_text(label_formatSD, "#FFFF00 Formatting will delete all data on the SD Card. Press Enter to confirm...#");
 			lv_timer_handler();
 			bConfirmed = true;
 		}
