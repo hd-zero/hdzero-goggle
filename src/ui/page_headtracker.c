@@ -50,14 +50,14 @@ lv_obj_t *page_headtracker_create(lv_obj_t *parent, struct panel_arr *arr)
 
 void headtracker_set_toggle(int sel)
 {
-	if(sel == 0)	
+	if(sel == 0)
 	{
 		btn_group_toggle_sel(&btn_group);
 		g_setting.ht.enable = btn_group_get_sel(&btn_group) == 0 ? 1 : 0;
 		ini_putl("ht", "enable", g_setting.ht.enable, SETTING_INI);
 		if(g_setting.ht.enable )
 			enable_ht();
-		else	
+		else
 			disable_ht();
 	}
 	else if(sel == 1)
