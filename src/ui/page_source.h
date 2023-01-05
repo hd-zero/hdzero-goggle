@@ -1,9 +1,8 @@
 #ifndef _PAGE_SOURCE_H
 #define _PAGE_SOURCE_H
 
-
-#include "lvgl/lvgl.h"
 #include "page_common.h"
+#include <lvgl/lvgl.h>
 
 lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr);
 
