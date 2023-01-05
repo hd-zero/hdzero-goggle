@@ -60,7 +60,7 @@ lv_obj_t *page_fans_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_slider_item(&slider_group[0], cont, "Top Fan", MAX_FAN_TOP, 2, 1);
 	create_slider_item(&slider_group[1], cont, "Side Fans", MAX_FAN_SIDE, 2, 2);
 
-	create_label_item(cont, "<Back", 1, 3,1);
+	create_label_item(cont, "< Back", 1, 3,1);
 	
 	btn_group_set_sel(&btn_group_fans, !g_setting.fans.auto_mode);
 	

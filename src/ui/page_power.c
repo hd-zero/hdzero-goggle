@@ -52,7 +52,7 @@ lv_obj_t *page_power_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_btn_group_item(&btn_group1, cont, 3, "Warning Type", "Beep", "Visual", "Both","",  2);
     lv_slider_set_range(slider_group.slider, 28, 42);
    	lv_label_set_text(slider_group.label, str);
-	create_label_item(cont, "<Back", 1, 3, 1);
+	create_label_item(cont, "< Back", 1, 3, 1);
 
 	return page;
 }

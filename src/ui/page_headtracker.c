@@ -41,7 +41,7 @@ lv_obj_t *page_headtracker_create(lv_obj_t *parent, struct panel_arr *arr)
 
 	label_cali = create_label_item(cont, "Calibrate", 1, 1 ,1);
 
-	create_label_item(cont, "<Back", 1, 2, 1);
+	create_label_item(cont, "< Back", 1, 2, 1);
 
 	btn_group_set_sel(&btn_group, !g_setting.ht.enable);
 

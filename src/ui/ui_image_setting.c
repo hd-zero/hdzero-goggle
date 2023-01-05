@@ -79,7 +79,7 @@ static void init_ims_page(uint8_t* val)
     ims_page.items[5].x = x; 
     ims_page.items[5].y = y+125;
     ims_page.items[5].type = 0;
-    strcpy(ims_page.items[5].title,"<Back");
+    strcpy(ims_page.items[5].title,"< Back");
     ims_page.items[5].state = 0;
 
     ims_page.items[6].x = x+200; 

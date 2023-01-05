@@ -55,7 +55,7 @@ lv_obj_t *page_imagesettings_create(lv_obj_t *parent, struct panel_arr *arr)
 	create_slider_item(&slider_group3, cont, "Contrast", 47, g_setting.image.contrast, 3);
 	create_slider_item(&slider_group4, cont, "OLED Auto off", 3, g_setting.image.auto_off, 4);
 
-	create_label_item(cont, "<Back", 1, 5, 1);
+	create_label_item(cont, "< Back", 1, 5, 1);
 
 	lv_obj_t *label2 = lv_label_create(cont);
    	lv_label_set_text(label2, "To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video.");

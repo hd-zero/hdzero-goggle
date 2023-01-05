@@ -195,7 +195,7 @@ lv_obj_t *page_version_create(lv_obj_t *parent, struct panel_arr *arr)
 	btn_vtx = create_label_item(cont, "Update VTX", 1, 1, 2);
 	btn_goggle = create_label_item(cont, "Update Goggle", 1, 2, 2);
 	btn_esp = create_label_item(cont, "Update ESP32", 1, 3, 2);
-	create_label_item(cont, "<Back", 1, 4, 1);
+	create_label_item(cont, "< Back", 1, 4, 1);
 
 	bar_vtx = lv_bar_create(cont);
     lv_obj_set_size(bar_vtx, 320, 20);

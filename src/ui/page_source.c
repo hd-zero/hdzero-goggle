@@ -56,11 +56,11 @@ lv_obj_t *page_source_create(lv_obj_t *parent, struct panel_arr *arr)
 	label[3] = create_label_item(cont,  "Expansion Module", 1, 3, 3);
 	if(g_test_en) {
 		label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 4,3);
-		create_label_item(cont, "<Back", 1, 5,3);
+		create_label_item(cont, "< Back", 1, 5,3);
 	}
 	else {
 		label[4] = NULL;
-		create_label_item(cont, "<Back", 1, 4,3);
+		create_label_item(cont, "< Back", 1, 4,3);
 	}
 
 	return page;
