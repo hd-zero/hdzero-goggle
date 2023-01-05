@@ -58,7 +58,7 @@ int create_text(struct menu_obj_s *s, lv_obj_t * parent, bool is_icon, const cha
     return 0;
 }
 
-void create_select_item(struct panel_arr *arr, lv_obj_t *parent)
+void create_select_item(panel_arr_t *arr, lv_obj_t *parent)
 {
     arr->panel0 = lv_obj_create(parent);
     arr->panel1 = lv_obj_create(parent);
@@ -118,7 +118,7 @@ void create_select_item(struct panel_arr *arr, lv_obj_t *parent)
 	lv_obj_set_grid_cell(arr->panel8, LV_GRID_ALIGN_STRETCH, 0, 6,
 						 LV_GRID_ALIGN_STRETCH, 8, 1);
 }
-void set_select_item(const struct panel_arr *arr, int row)
+void set_select_item(const panel_arr_t *arr, int row)
 {
 	lv_obj_add_flag(arr->panel0, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(arr->panel1, LV_OBJ_FLAG_HIDDEN);

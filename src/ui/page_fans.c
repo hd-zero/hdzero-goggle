@@ -30,7 +30,7 @@ static btn_group_t btn_group_fans;
 static slider_group_t slider_group[2];
 
 
-lv_obj_t *page_fans_create(lv_obj_t *parent, struct panel_arr *arr)
+lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr)
 {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
 	lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);

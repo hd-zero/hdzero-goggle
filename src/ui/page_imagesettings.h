@@ -4,7 +4,7 @@
 
 #include "lvgl/lvgl.h"
 #include "page_common.h"
-lv_obj_t *page_imagesettings_create(lv_obj_t *parent, struct panel_arr *arr);
+lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr);
 
 void page_ims_click();
 void set_slider_value();

@@ -11,7 +11,7 @@ static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_L
 static btn_group_t btn_group0;
 static btn_group_t btn_group1;
 
-lv_obj_t *page_autoscan_create(lv_obj_t *parent, struct panel_arr *arr)
+lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr)
 {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
 	lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);

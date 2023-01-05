@@ -14,7 +14,7 @@ typedef struct {
     lv_obj_t *page;
     lv_obj_t *icon;
 
-    struct panel_arr p_arr;
+    panel_arr_t p_arr;
 } page_pack_t;
 
 typedef struct {

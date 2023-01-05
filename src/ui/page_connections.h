@@ -4,7 +4,7 @@
 
 #include "lvgl/lvgl.h"
 #include "page_common.h"
-lv_obj_t *page_connections_create(lv_obj_t *parent, struct panel_arr *arr);
+lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr);
 void connect_function(int sel);
 void page_connections_reset();
 
