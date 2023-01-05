@@ -11,21 +11,21 @@
   History       :
 ******************************************************************************/
 
-//#define LOG_NDEBUG 0
-#define LOG_TAG "adec2ao"
-#include <log/log.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-#include <cdx_list.h>
 #include "adec2ao.h"
 
 
-static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
-{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <cdx_list.h>
+
+// #define LOG_NDEBUG 0
+#define LOG_TAG "adec2ao"
+#include <log/log.h>
+
+static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData) {
     Adec2AoContext_t *aa = (Adec2AoContext_t *)cookie;
 
     if (pChn->mModId == MOD_ID_ADEC) {
@@ -40,10 +40,8 @@ static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYP
         default:
             break;
         }
-    }
-    else if (pChn->mModId == MOD_ID_AO) {
-        switch (event)
-        {
+    } else if (pChn->mModId == MOD_ID_AO) {
+        switch (event) {
         case MPP_EVENT_NOTIFY_EOF:
             LOGD("ao get EOF flag");
             aa->flagEOF |= ADEC2AO_aoEOF;
@@ -56,8 +54,7 @@ static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYP
     return SUCCESS;
 }
 
-static ERRORTYPE adec2ao_createClockChn(Adec2AoContext_t* aa)
-{
+static ERRORTYPE adec2ao_createClockChn(Adec2AoContext_t *aa) {
     ERRORTYPE ret;
     BOOL bSuccessFlag = FALSE;
     CLOCK_CHN_ATTR_S clkChnAttr;
@@ -65,7 +62,7 @@ static ERRORTYPE adec2ao_createClockChn(Adec2AoContext_t* aa)
 
     aa->clkChn = 0;
     clkChnAttr.nWaitMask = 0;
-    clkChnAttr.nWaitMask |= 1<<CLOCK_PORT_INDEX_AUDIO;
+    clkChnAttr.nWaitMask |= 1 << CLOCK_PORT_INDEX_AUDIO;
     while (clkChn < CLOCK_MAX_CHN_NUM) {
         ret = AW_MPI_CLOCK_CreateChn(clkChn, &clkChnAttr);
         if (SUCCESS == ret) {
@@ -91,8 +88,7 @@ static ERRORTYPE adec2ao_createClockChn(Adec2AoContext_t* aa)
     return SUCCESS;
 }
 
-static ERRORTYPE adec2ao_configAdecChnAttr(ADEC_CHN_ATTR_S* adecChnAttr, AdecParams_t* params)
-{
+static ERRORTYPE adec2ao_configAdecChnAttr(ADEC_CHN_ATTR_S *adecChnAttr, AdecParams_t *params) {
     memset(adecChnAttr, 0, sizeof(ADEC_CHN_ATTR_S));
     adecChnAttr->mType = params->codecType;
     adecChnAttr->sampleRate = params->sampleRate;
@@ -102,8 +98,7 @@ static ERRORTYPE adec2ao_configAdecChnAttr(ADEC_CHN_ATTR_S* adecChnAttr, AdecPar
     return SUCCESS;
 }
 
-static ERRORTYPE adec2ao_createAdecChn(Adec2AoContext_t* aa, AdecParams_t* params)
-{
+static ERRORTYPE adec2ao_createAdecChn(Adec2AoContext_t *aa, AdecParams_t *params) {
     ERRORTYPE ret;
     BOOL nSuccessFlag = FALSE;
     ADEC_CHN_ATTR_S adecChnAttr;
@@ -137,24 +132,22 @@ static ERRORTYPE adec2ao_createAdecChn(Adec2AoContext_t* aa, AdecParams_t* param
 
     LOGD("add call back");
     MPPCallbackInfo cbInfo;
-    cbInfo.cookie = (void*)aa;
+    cbInfo.cookie = (void *)aa;
     cbInfo.callback = (MPPCallbackFuncType)&MPPCallbackWrapper;
     AW_MPI_ADEC_RegisterCallback(aa->adecChn, &cbInfo);
 
     return SUCCESS;
 }
 
-static void adec2ao_config_AioAttr(AIO_ATTR_S *pAioAttr, AdecParams_t* params)
-{
+static void adec2ao_config_AioAttr(AIO_ATTR_S *pAioAttr, AdecParams_t *params) {
     memset(pAioAttr, 0, sizeof(AIO_ATTR_S));
     pAioAttr->u32ChnCnt = params->channels;
-    pAioAttr->enBitwidth = (AUDIO_BIT_WIDTH_E)(params->bitsPerSample/8 - 1);
+    pAioAttr->enBitwidth = (AUDIO_BIT_WIDTH_E)(params->bitsPerSample / 8 - 1);
     pAioAttr->enSamplerate = (AUDIO_SAMPLE_RATE_E)params->sampleRate;
 }
 
-static ERRORTYPE adec2ao_createAOChn(Adec2AoContext_t* aa, AdecParams_t* params)
-{
-    ERRORTYPE  ret;
+static ERRORTYPE adec2ao_createAOChn(Adec2AoContext_t *aa, AdecParams_t *params) {
+    ERRORTYPE ret;
     AIO_ATTR_S aioAttr;
 
     aa->aoDev = 0;
@@ -162,24 +155,24 @@ static ERRORTYPE adec2ao_createAOChn(Adec2AoContext_t* aa, AdecParams_t* params)
     adec2ao_config_AioAttr(&aioAttr, params);
     AW_MPI_AO_SetPubAttr(aa->aoDev, &aioAttr);
 
-    //enable audio_hw_ao
+    // enable audio_hw_ao
     ret = AW_MPI_AO_Enable(aa->aoDev);
 
-    //create ao channel
+    // create ao channel
     BOOL bSuccessFlag = FALSE;
     AO_CHN aoChn = 0;
     aa->aoChn = 0;
 
-    while(aoChn < AIO_MAX_CHN_NUM) {
+    while (aoChn < AIO_MAX_CHN_NUM) {
         ret = AW_MPI_AO_EnableChn(aa->aoDev, aoChn);
-        if(SUCCESS == ret) {
+        if (SUCCESS == ret) {
             bSuccessFlag = TRUE;
             LOGD("create ao channel[%d] success!", aoChn);
             break;
         } else if (ERR_AO_EXIST == ret) {
             LOGD("ao channel[%d] exist, find next!", aoChn);
             aoChn++;
-        } else if(ERR_AO_NOT_ENABLED == ret) {
+        } else if (ERR_AO_NOT_ENABLED == ret) {
             LOGE("audio_hw_ao not started!");
             break;
         } else {
@@ -187,7 +180,7 @@ static ERRORTYPE adec2ao_createAOChn(Adec2AoContext_t* aa, AdecParams_t* params)
             break;
         }
     }
-    if(FALSE == bSuccessFlag) {
+    if (FALSE == bSuccessFlag) {
         aa->aoChn = MM_INVALID_CHN;
         LOGE("fatal error! create ao channel fail!");
         ret = FAILURE;
@@ -196,15 +189,14 @@ static ERRORTYPE adec2ao_createAOChn(Adec2AoContext_t* aa, AdecParams_t* params)
 
     LOGD("add call back");
     MPPCallbackInfo cbInfo;
-    cbInfo.cookie = (void*)aa;
+    cbInfo.cookie = (void *)aa;
     cbInfo.callback = (MPPCallbackFuncType)&MPPCallbackWrapper;
     AW_MPI_AO_RegisterCallback(aa->aoDev, aa->aoChn, &cbInfo);
 
     return SUCCESS;
 }
 
-static void adec2ao_destroy(Adec2AoContext_t* aa)
-{
+static void adec2ao_destroy(Adec2AoContext_t *aa) {
     LOGD("begin");
 
     if (aa->aoDev >= 0) {
@@ -225,11 +217,9 @@ static void adec2ao_destroy(Adec2AoContext_t* aa)
     LOGD("done");
 }
 
-Adec2AoContext_t* adec2ao_initSys(void)
-{
-    Adec2AoContext_t* aa = (Adec2AoContext_t*)malloc(sizeof(Adec2AoContext_t));
-    if( aa == NULL )
-    {
+Adec2AoContext_t *adec2ao_initSys(void) {
+    Adec2AoContext_t *aa = (Adec2AoContext_t *)malloc(sizeof(Adec2AoContext_t));
+    if (aa == NULL) {
         return NULL;
     }
 
@@ -237,21 +227,19 @@ Adec2AoContext_t* adec2ao_initSys(void)
     aa->aoDev = MM_INVALID_DEV;
     aa->aoChn = MM_INVALID_CHN;
     aa->adecChn = MM_INVALID_DEV;
-    aa->clkChn= MM_INVALID_DEV;
+    aa->clkChn = MM_INVALID_DEV;
 
     return aa;
 }
 
-void adec2ao_deinitSys(Adec2AoContext_t* aa)
-{
+void adec2ao_deinitSys(Adec2AoContext_t *aa) {
     adec2ao_destroy(aa);
     free(aa);
 
     LOGD("done");
 }
 
-ERRORTYPE adec2ao_prepare(Adec2AoContext_t* aa, AdecParams_t* params)
-{
+ERRORTYPE adec2ao_prepare(Adec2AoContext_t *aa, AdecParams_t *params) {
     ERRORTYPE ret;
 
     aa->dmxChn = params->dmxChn;
@@ -280,10 +268,9 @@ ERRORTYPE adec2ao_prepare(Adec2AoContext_t* aa, AdecParams_t* params)
     return ret;
 }
 
-ERRORTYPE adec2ao_start(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_start(Adec2AoContext_t *aa) {
     LOGD("start stream");
-    //AW_MPI_CLOCK_Start(aa->clkChn);
+    // AW_MPI_CLOCK_Start(aa->clkChn);
 
     if (aa->aoChn >= 0) {
         AW_MPI_AO_StartChn(aa->aoDev, aa->aoChn);
@@ -297,8 +284,7 @@ ERRORTYPE adec2ao_start(Adec2AoContext_t* aa)
     return SUCCESS;
 }
 
-ERRORTYPE adec2ao_pause(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_pause(Adec2AoContext_t *aa) {
     if (aa->adecChn >= 0) {
         AW_MPI_ADEC_Pause(aa->adecChn);
     }
@@ -309,8 +295,7 @@ ERRORTYPE adec2ao_pause(Adec2AoContext_t* aa)
     return SUCCESS;
 }
 
-ERRORTYPE adec2ao_stop(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_stop(Adec2AoContext_t *aa) {
     if (aa->adecChn >= 0) {
         AW_MPI_ADEC_StopRecvStream(aa->adecChn);
     }
@@ -321,8 +306,7 @@ ERRORTYPE adec2ao_stop(Adec2AoContext_t* aa)
     return SUCCESS;
 }
 
-ERRORTYPE adec2ao_seekTo(Adec2AoContext_t *aa)
-{
+ERRORTYPE adec2ao_seekTo(Adec2AoContext_t *aa) {
     ERRORTYPE ret = SUCCESS;
 
     LOGD("seek to");
@@ -344,13 +328,11 @@ ERRORTYPE adec2ao_seekTo(Adec2AoContext_t *aa)
     return ret;
 }
 
-ERRORTYPE adec2ao_setAdecEof(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_setAdecEof(Adec2AoContext_t *aa) {
     ERRORTYPE ret = SUCCESS;
 
-    if( !(aa->flagEOF & ADEC2AO_adecEOF_N) ) {
-        if(aa->adecChn >= 0)
-        {
+    if (!(aa->flagEOF & ADEC2AO_adecEOF_N)) {
+        if (aa->adecChn >= 0) {
             ret = AW_MPI_ADEC_SetStreamEof(aa->adecChn, TRUE);
         }
 
@@ -360,13 +342,11 @@ ERRORTYPE adec2ao_setAdecEof(Adec2AoContext_t* aa)
     return ret;
 }
 
-ERRORTYPE adec2ao_setAoEof(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_setAoEof(Adec2AoContext_t *aa) {
     ERRORTYPE ret = SUCCESS;
 
-    if( !(aa->flagEOF & ADEC2AO_aoEOF_N) ) {
-        if(aa->aoChn >= 0)
-        {
+    if (!(aa->flagEOF & ADEC2AO_aoEOF_N)) {
+        if (aa->aoChn >= 0) {
             ret = AW_MPI_AO_SetStreamEof(aa->aoDev, aa->aoChn, TRUE, FALSE);
         }
 
@@ -376,20 +356,18 @@ ERRORTYPE adec2ao_setAoEof(Adec2AoContext_t* aa)
     return ret;
 }
 
-ERRORTYPE adec2ao_checkEof(Adec2AoContext_t* aa)
-{
+ERRORTYPE adec2ao_checkEof(Adec2AoContext_t *aa) {
     ERRORTYPE ret = SUCCESS;
 
     ret = adec2ao_setAdecEof(aa);
 
-    if( aa->flagEOF & ADEC2AO_adecEOF ) {
+    if (aa->flagEOF & ADEC2AO_adecEOF) {
         adec2ao_setAoEof(aa);
     }
 
     return ret;
 }
 
-bool adec2ao_isEOF(Adec2AoContext_t *aa)
-{
+bool adec2ao_isEOF(Adec2AoContext_t *aa) {
     return aa->flagEOF & ADEC2AO_aoEOF;
 }

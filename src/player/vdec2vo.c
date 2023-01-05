@@ -1,31 +1,32 @@
-//#define LOG_NDEBUG 0
-#define LOG_TAG "vdec2vo"
-#include <log/log.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <signal.h>
-#include <time.h>
-
 #include "vdec2vo.h"
 
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+// #define LOG_NDEBUG 0
+#define LOG_TAG "vdec2vo"
+#include <log/log.h>
+
+
 enum CLOCK_COMP_PORT_INDEX {
-    CLOCK_PORT_AUDIO = 0, //to audio render
-    CLOCK_PORT_VIDEO = 1, //to video render
-    CLOCK_PORT_DEMUX = 2, //to demux
-    CLOCK_PORT_VDEC  = 3, //to vdec
+    CLOCK_PORT_AUDIO = 0, // to audio render
+    CLOCK_PORT_VIDEO = 1, // to video render
+    CLOCK_PORT_DEMUX = 2, // to demux
+    CLOCK_PORT_VDEC = 3,  // to vdec
 };
 
-static void vdec2vo_initContext(Vdec2VoContext_t* vvCtx)
-{
+static void vdec2vo_initContext(Vdec2VoContext_t *vvCtx) {
     memset(vvCtx, 0, sizeof(Vdec2VoContext_t));
 
     vvCtx->params.initRotation = 0;
     vvCtx->params.pixelFormat = MM_PIXEL_FORMAT_YVU_PLANAR_420;
-    //vvCtx->pixelFormat = MM_PIXEL_FORMAT_YVU_SEMIPLANAR_420;
+    // vvCtx->pixelFormat = MM_PIXEL_FORMAT_YVU_SEMIPLANAR_420;
 
     vvCtx->params.vdec.codecType = PT_H264;
     vvCtx->params.vdec.width = 1280;
@@ -46,8 +47,7 @@ static void vdec2vo_initContext(Vdec2VoContext_t* vvCtx)
     vvCtx->flagEOF = 0;
 }
 
-static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
-{
+static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData) {
     Vdec2VoContext_t *vvCtx = (Vdec2VoContext_t *)cookie;
 
     if (pChn->mModId == MOD_ID_VDEC) {
@@ -82,8 +82,7 @@ static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYP
     return SUCCESS;
 }
 
-static ERRORTYPE vdec2vo_createClockChn(Vdec2VoContext_t *vvCtx, CLOCK_CHN_ATTR_S* clockChnAttr)
-{
+static ERRORTYPE vdec2vo_createClockChn(Vdec2VoContext_t *vvCtx, CLOCK_CHN_ATTR_S *clockChnAttr) {
     ERRORTYPE ret;
     BOOL bSuccessFlag = FALSE;
     CLOCK_CHN clkChn = 0;
@@ -115,23 +114,21 @@ static ERRORTYPE vdec2vo_createClockChn(Vdec2VoContext_t *vvCtx, CLOCK_CHN_ATTR_
     return SUCCESS;
 }
 
-static void vdec2vo_configVdecChnAttr(VDEC_CHN_ATTR_S* vdecChnAttr, Vdec2VoParams_t* config)
-{
+static void vdec2vo_configVdecChnAttr(VDEC_CHN_ATTR_S *vdecChnAttr, Vdec2VoParams_t *config) {
     memset(vdecChnAttr, 0, sizeof(VDEC_CHN_ATTR_S));
     vdecChnAttr->mPicWidth = config->vdec.width;
     vdecChnAttr->mPicHeight = config->vdec.height;
     vdecChnAttr->mInitRotation = config->initRotation;
     vdecChnAttr->mOutputPixelFormat = config->pixelFormat;
     vdecChnAttr->mType = config->vdec.codecType;
-    vdecChnAttr->mVdecVideoAttr.mSupportBFrame = 0; //1
+    vdecChnAttr->mVdecVideoAttr.mSupportBFrame = 0; // 1
     vdecChnAttr->mVdecVideoAttr.mMode = VIDEO_MODE_FRAME;
 }
 
-static ERRORTYPE vdec2vo_createVdecChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* config)
-{
+static ERRORTYPE vdec2vo_createVdecChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t *config) {
     ERRORTYPE ret;
     BOOL nSuccessFlag = FALSE;
-    VDEC_CHN_ATTR_S  vdecChnAttr;
+    VDEC_CHN_ATTR_S vdecChnAttr;
 
     vdec2vo_configVdecChnAttr(&vdecChnAttr, config);
     vvCtx->vdecChn = 0;
@@ -157,21 +154,19 @@ static ERRORTYPE vdec2vo_createVdecChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t*
     } else {
         LOGD("add call back");
         MPPCallbackInfo cbInfo;
-        cbInfo.cookie = (void*)vvCtx;
+        cbInfo.cookie = (void *)vvCtx;
         cbInfo.callback = (MPPCallbackFuncType)&MPPCallbackWrapper;
         AW_MPI_VDEC_RegisterCallback(vvCtx->vdecChn, &cbInfo);
         return SUCCESS;
     }
 }
 
-static ERRORTYPE vdec2vo_setLayerTop(VO_LAYER voLayer)
-{
+static ERRORTYPE vdec2vo_setLayerTop(VO_LAYER voLayer) {
     return AW_MPI_VO_SetVideoLayerPriority(voLayer, ZORDER_MAX);
 }
 
-static ERRORTYPE vdec2vo_setLayerAlpha(VO_LAYER voLayer, unsigned char alpha)
-{
-   VO_VIDEO_LAYER_ALPHA_S stAlpha;
+static ERRORTYPE vdec2vo_setLayerAlpha(VO_LAYER voLayer, unsigned char alpha) {
+    VO_VIDEO_LAYER_ALPHA_S stAlpha;
     stAlpha.mAlphaMode = 0;
     stAlpha.mAlphaValue = alpha;
 
@@ -184,8 +179,7 @@ static ERRORTYPE vdec2vo_setLayerAlpha(VO_LAYER voLayer, unsigned char alpha)
     return ret;
 }
 
-static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* config)
-{
+static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t *config) {
     ERRORTYPE ret;
     BOOL nSuccessFlag = FALSE;
     VO_VIDEO_LAYER_ATTR_S voLayerAttr;
@@ -193,13 +187,13 @@ static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* c
     memset(&voLayerAttr, 0, sizeof(voLayerAttr));
 
     vvCtx->voDev = 0;
-    vvCtx->uiLayer = HLAY(config->vo.uiChn, 0);//HLAY(2, 0);
+    vvCtx->uiLayer = HLAY(config->vo.uiChn, 0); // HLAY(2, 0);
 
     AW_MPI_VO_Enable(vvCtx->voDev);
     AW_MPI_VO_AddOutsideVideoLayer(vvCtx->uiLayer);
-    //AW_MPI_VO_CloseVideoLayer(vvCtx->uiLayer);//close ui layer.
+    // AW_MPI_VO_CloseVideoLayer(vvCtx->uiLayer);//close ui layer.
 
-    //enable vo layer
+    // enable vo layer
     int hlay0 = 0;
     while (hlay0 < VO_MAX_LAYER_NUM) {
         if (SUCCESS == AW_MPI_VO_EnableVideoLayer(hlay0)) {
@@ -223,13 +217,13 @@ static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* c
     AW_MPI_VO_SetPubAttr(vvCtx->voDev, &spPubAttr);
 
     vvCtx->voLayer = hlay0;
-    //AW_MPI_VO_SetVideoLayerPriority(vvCtx->voLayer, 11);
+    // AW_MPI_VO_SetVideoLayerPriority(vvCtx->voLayer, 11);
     AW_MPI_VO_GetVideoLayerAttr(vvCtx->voLayer, &voLayerAttr);
 
     voLayerAttr.stDispRect.X = 0;
     voLayerAttr.stDispRect.Y = 0;
-    voLayerAttr.stDispRect.Width = config->vo.width;//720;//1920;
-    voLayerAttr.stDispRect.Height = config->vo.height;//1280;//1080;
+    voLayerAttr.stDispRect.Width = config->vo.width;   // 720;//1920;
+    voLayerAttr.stDispRect.Height = config->vo.height; // 1280;//1080;
     voLayerAttr.enPixFormat = config->pixelFormat;
     AW_MPI_VO_SetVideoLayerAttr(vvCtx->voLayer, &voLayerAttr);
 
@@ -240,7 +234,7 @@ static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* c
             nSuccessFlag = TRUE;
             LOGD("create vo channel[%d] success!", vvCtx->voChn);
             break;
-        } else if(ERR_VO_CHN_NOT_DISABLE == ret) {
+        } else if (ERR_VO_CHN_NOT_DISABLE == ret) {
             LOGD("vo channel[%d] is exist, find next!", vvCtx->voChn);
             vvCtx->voChn++;
         } else {
@@ -255,7 +249,7 @@ static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* c
         return FAILURE;
     } else {
         MPPCallbackInfo cbInfo;
-        cbInfo.cookie = (void*)vvCtx;
+        cbInfo.cookie = (void *)vvCtx;
         cbInfo.callback = (MPPCallbackFuncType)&MPPCallbackWrapper;
         AW_MPI_VO_RegisterCallback(vvCtx->voLayer, vvCtx->voChn, &cbInfo);
         AW_MPI_VO_SetChnDispBufNum(vvCtx->voLayer, vvCtx->voChn, 2);
@@ -263,11 +257,10 @@ static ERRORTYPE vdec2vo_createVoChn(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* c
     }
 }
 
-static void vdec2vo_destroy(Vdec2VoContext_t* vvCtx)
-{
+static void vdec2vo_destroy(Vdec2VoContext_t *vvCtx) {
     LOGD("begin");
 
-    //vo stop/destroy must before vdec stop (when vo destroy, will return buffer to vdec(2 frames), just all buffer sync)
+    // vo stop/destroy must before vdec stop (when vo destroy, will return buffer to vdec(2 frames), just all buffer sync)
     if (vvCtx->voLayer >= 0) {
         if (vvCtx->voChn >= 0) {
             AW_MPI_VO_DisableChn(vvCtx->voLayer, vvCtx->voChn);
@@ -287,8 +280,7 @@ static void vdec2vo_destroy(Vdec2VoContext_t* vvCtx)
     LOGD("done");
 }
 
-ERRORTYPE vdec2vo_prepare(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t* params)
-{
+ERRORTYPE vdec2vo_prepare(Vdec2VoContext_t *vvCtx, Vdec2VoParams_t *params) {
     ERRORTYPE ret;
 
     ret = vdec2vo_createVdecChn(vvCtx, params);
@@ -321,8 +313,7 @@ failed:
     return ret;
 }
 
-ERRORTYPE vdec2vo_start(Vdec2VoContext_t *vvCtx)
-{
+ERRORTYPE vdec2vo_start(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
     LOGD("start stream");
@@ -340,33 +331,31 @@ ERRORTYPE vdec2vo_start(Vdec2VoContext_t *vvCtx)
     return ret;
 }
 
-ERRORTYPE vdec2vo_pause(Vdec2VoContext_t *vvCtx)
-{
+ERRORTYPE vdec2vo_pause(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
     if (vvCtx->vdecChn >= 0) {
         ret = AW_MPI_VDEC_Pause(vvCtx->vdecChn);
     }
-    if ((ret==ERR_VDEC_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF>0)) {
+    if ((ret == ERR_VDEC_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF > 0)) {
         ret = SUCCESS;
     }
 
     if ((vvCtx->voLayer >= 0) && (vvCtx->voChn >= 0)) {
         ret = AW_MPI_VO_PauseChn(vvCtx->voLayer, vvCtx->voChn);
     }
-    if ((ret==ERR_VO_CHN_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF>0)) {
+    if ((ret == ERR_VO_CHN_INCORRECT_STATE_TRANSITION) && (vvCtx->flagEOF > 0)) {
         ret = SUCCESS;
     }
 
     return ret;
 }
 
-ERRORTYPE vdec2vo_stop(Vdec2VoContext_t *vvCtx)
-{
+ERRORTYPE vdec2vo_stop(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
-//vo stop must before vdec stop (when vo stop, will return buffer to vdec, just all buffer sync)
-    if ((vvCtx->voLayer >=0) && (vvCtx->voChn >= 0)) {
+    // vo stop must before vdec stop (when vo stop, will return buffer to vdec, just all buffer sync)
+    if ((vvCtx->voLayer >= 0) && (vvCtx->voChn >= 0)) {
         LOGD("stop vo chn");
         ret = AW_MPI_VO_StopChn(vvCtx->voLayer, vvCtx->voChn);
     }
@@ -378,8 +367,7 @@ ERRORTYPE vdec2vo_stop(Vdec2VoContext_t *vvCtx)
     return ret;
 }
 
-ERRORTYPE vdec2vo_seekTo(Vdec2VoContext_t *vvCtx)
-{
+ERRORTYPE vdec2vo_seekTo(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
     LOGD("seek to");
@@ -401,8 +389,7 @@ ERRORTYPE vdec2vo_seekTo(Vdec2VoContext_t *vvCtx)
     return ret;
 }
 
-ERRORTYPE vdec2vo_currentMediaTime(Vdec2VoContext_t *vvCtx, int* mediaTime)
-{
+ERRORTYPE vdec2vo_currentMediaTime(Vdec2VoContext_t *vvCtx, int *mediaTime) {
     ERRORTYPE ret = SUCCESS;
 
     if (vvCtx->params.clkChn >= 0) {
@@ -412,10 +399,9 @@ ERRORTYPE vdec2vo_currentMediaTime(Vdec2VoContext_t *vvCtx, int* mediaTime)
     return ret;
 }
 
-Vdec2VoContext_t* vdec2vo_initSys(void)
-{
-    Vdec2VoContext_t* vvCtx = (Vdec2VoContext_t*)malloc(sizeof(Vdec2VoContext_t));
-    if( vvCtx != NULL ) {
+Vdec2VoContext_t *vdec2vo_initSys(void) {
+    Vdec2VoContext_t *vvCtx = (Vdec2VoContext_t *)malloc(sizeof(Vdec2VoContext_t));
+    if (vvCtx != NULL) {
         MPP_SYS_CONF_S mSysConf;
         mSysConf.nAlignWidth = 32;
         AW_MPI_SYS_SetConf(&mSysConf);
@@ -427,21 +413,18 @@ Vdec2VoContext_t* vdec2vo_initSys(void)
     return vvCtx;
 }
 
-void vdec2vo_deinitSys(Vdec2VoContext_t* vvCtx)
-{
-    if( vvCtx != NULL ) {
+void vdec2vo_deinitSys(Vdec2VoContext_t *vvCtx) {
+    if (vvCtx != NULL) {
         vdec2vo_destroy(vvCtx);
         AW_MPI_SYS_Exit();
     }
 }
 
-ERRORTYPE vdec2vo_setVdecEof(Vdec2VoContext_t* vvCtx)
-{
+ERRORTYPE vdec2vo_setVdecEof(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
-    if( !(vvCtx->flagEOF & VDEC2VO_vdecEOF_N) ) {
-        if(vvCtx->vdecChn >= 0)
-        {
+    if (!(vvCtx->flagEOF & VDEC2VO_vdecEOF_N)) {
+        if (vvCtx->vdecChn >= 0) {
             ret = AW_MPI_VDEC_SetStreamEof(vvCtx->vdecChn, TRUE);
         }
 
@@ -451,13 +434,11 @@ ERRORTYPE vdec2vo_setVdecEof(Vdec2VoContext_t* vvCtx)
     return ret;
 }
 
-ERRORTYPE vdec2vo_setVoEof(Vdec2VoContext_t* vvCtx)
-{
+ERRORTYPE vdec2vo_setVoEof(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
-    if( !(vvCtx->flagEOF & VDEC2VO_voEOF_N) ) {
-        if(vvCtx->voChn >= 0)
-        {
+    if (!(vvCtx->flagEOF & VDEC2VO_voEOF_N)) {
+        if (vvCtx->voChn >= 0) {
             ret = AW_MPI_VO_SetStreamEof(vvCtx->voLayer, vvCtx->voChn, TRUE);
         }
 
@@ -467,20 +448,18 @@ ERRORTYPE vdec2vo_setVoEof(Vdec2VoContext_t* vvCtx)
     return ret;
 }
 
-ERRORTYPE vdec2vo_checkEof(Vdec2VoContext_t* vvCtx)
-{
+ERRORTYPE vdec2vo_checkEof(Vdec2VoContext_t *vvCtx) {
     ERRORTYPE ret = SUCCESS;
 
     ret = vdec2vo_setVdecEof(vvCtx);
 
-    if( vvCtx->flagEOF & VDEC2VO_vdecEOF ) {
+    if (vvCtx->flagEOF & VDEC2VO_vdecEOF) {
         vdec2vo_setVoEof(vvCtx);
     }
 
     return ret;
 }
 
-bool vdec2vo_isEOF(Vdec2VoContext_t *vvCtx)
-{
+bool vdec2vo_isEOF(Vdec2VoContext_t *vvCtx) {
     return vvCtx->flagEOF & VDEC2VO_voEOF;
 }
