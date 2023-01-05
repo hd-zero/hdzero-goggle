@@ -382,7 +382,7 @@ void update_current_version()
 		sys_version_t sys_version;
 		generate_current_version(&sys_version);
 		memset(strtmp, 0, sizeof(strtmp));
-		strcat(strtmp, "Current Version:");
+		strcat(strtmp, "Current Version: ");
 		strcat(strtmp, sys_version.current);
 		lv_label_set_text(cur_ver_label, strtmp);
 		bInit = false;
