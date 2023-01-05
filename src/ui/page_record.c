@@ -126,7 +126,7 @@ void record_set_toggle(int sel)
 	}
 	else if(sel == 5) { //format sd card
 		if(bConfirmed) {
-			lv_label_set_text(label_formatSD, "Formatting... ");
+			lv_label_set_text(label_formatSD, "Formatting...");
 			lv_timer_handler();
 			system("/mnt/app/script/formatsd.sh");
 			clear_videofile_cnt();
