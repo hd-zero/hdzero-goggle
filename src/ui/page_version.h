@@ -15,7 +15,7 @@ typedef struct {
 
 int generate_current_version(sys_version_t *sys_ver);
 
-lv_obj_t *page_version_create(lv_obj_t *parent, struct panel_arr *arr);
+lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr);
 void version_update(int sel);
 void process_bar_update(const int value0,
 		const int value1);

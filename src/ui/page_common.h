@@ -159,7 +159,7 @@ typedef struct {
 	lv_obj_t *label;
 } slider_group_t;
 
-struct panel_arr{
+typedef struct {
 	lv_obj_t *panel0;
 	lv_obj_t *panel1;
 	lv_obj_t *panel2;
@@ -172,7 +172,8 @@ struct panel_arr{
 
 	int cur;
 	int max;
-};
+} panel_arr_t;
+
 struct menu_obj_s{
 	lv_obj_t *cont;
 	lv_obj_t *icon;
@@ -210,9 +211,9 @@ void create_btn_group_item(btn_group_t *btn_group,lv_obj_t *parent,int count,con
 void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent,int count,const char *name, const char *name0,const char *name1,\
 							const char *name2,const char *name3, const char *name4,const char *name5,int row);
 
-void set_select_item(const struct panel_arr *arr, int row);
+void set_select_item(const panel_arr_t *arr, int row);
 
-void create_select_item(struct panel_arr *arr, lv_obj_t *parent);
+void create_select_item(panel_arr_t *arr, lv_obj_t *parent);
 
 void btn_group_set_sel(btn_group_t *btn_group, int sel);
 

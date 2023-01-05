@@ -24,7 +24,7 @@ static lv_coord_t row_dsc[] = {60,60,60,60,60,60,60,60,60,60, LV_GRID_TEMPLATE_L
 static lv_obj_t* label[5];
 static uint8_t oled_tst_mode = 0; //0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 
-lv_obj_t *page_source_create(lv_obj_t *parent, struct panel_arr *arr)
+lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr)
 {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
 	lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
