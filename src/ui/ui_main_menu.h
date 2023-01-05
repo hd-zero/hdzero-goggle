@@ -1,26 +1,27 @@
 #ifndef __MAIN_MENU_H__
 #define __MAIN_MENU_H__
 
-#define MAIN_MENU_ITEMS	    11
-
 #include <stdbool.h>
 #include <stdint.h>
-#include "lvgl/lvgl.h"
+
+#include <lvgl/lvgl.h>
+
 #include "ui/page_common.h"
 
-typedef struct {
-	lv_obj_t *page;
-	lv_obj_t *icon;
-
-	struct panel_arr p_arr;
-}page_pack_t;
-
+#define MAIN_MENU_ITEMS 11
 
 typedef struct {
-	lv_obj_t *bar;
-	int       start;
-	int	      val;
-}progress_bar_t;
+    lv_obj_t *page;
+    lv_obj_t *icon;
+
+    struct panel_arr p_arr;
+} page_pack_t;
+
+typedef struct {
+    lv_obj_t *bar;
+    int start;
+    int val;
+} progress_bar_t;
 
 extern progress_bar_t progress_bar;
 
