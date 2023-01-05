@@ -278,7 +278,9 @@ void media_seek(uint32_t seekto) {
     media_control(media, &cmd);
 
     // start
-    media_start();
+    if (controller.is_playing) {
+        media_start();
+    }
 
     // LOGI("media_seek %d",seekto);
 }
