@@ -233,13 +233,13 @@ void  statubar_update(void)
 		lv_img_set_src(img_sdc, &img_sdcard);
 		if(cnt != 0) {
 			if(bFull) 
-				sprintf(buf, "%d clip(s), SD Card Full", cnt);
+				sprintf(buf, "%d clip(s), SD Card full", cnt);
 			else 	
  				sprintf(buf, "%d clip(s), %.2fGB available", cnt,gb);
 		}
 		else {
 			if(bFull)
-				sprintf(buf, "#FF0000 SD Card Full#");
+				sprintf(buf, "#FF0000 SD Card full#");
 			else 
 				sprintf(buf, "%.2fGB available", gb);
 		}
