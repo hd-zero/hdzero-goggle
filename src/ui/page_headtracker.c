@@ -62,7 +62,7 @@ void headtracker_set_toggle(int sel)
 	}
 	else if(sel == 1)
 	{
-		lv_label_set_text(label_cali, "Calibrating ... ");
+		lv_label_set_text(label_cali, "Calibrating...");
 		lv_timer_handler();
     	calibrate_ht();
 		lv_label_set_text(label_cali, "Re-calibrate");

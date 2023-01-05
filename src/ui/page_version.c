@@ -277,7 +277,7 @@ void version_update(int sel)
 	else if(sel == 1) {
 		uint8_t ret;
 		lv_obj_clear_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
-		lv_label_set_text(btn_vtx, "Flashing..");
+		lv_label_set_text(btn_vtx, "Flashing...");
 		lv_timer_handler();
 
 		is_need_update_progress = true;
