@@ -20,6 +20,7 @@ typedef enum {
     PAGE_SCAN_NOW,
     PAGE_SOURCE,
     PAGE_VERSION,
+    PAGE_FOCUS_CHART,
 
     PAGE_MAX,
 } pages_t;
@@ -46,7 +47,6 @@ typedef struct {
 extern progress_bar_t progress_bar;
 
 void main_menu_init();
-void main_menu_show_toggle(void);
 void main_menu_show(bool is_show);
 bool main_menu_isshow(void);
 

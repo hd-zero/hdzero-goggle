@@ -13,6 +13,7 @@
 #include "ui/page_common.h"
 #include "ui/page_connections.h"
 #include "ui/page_fans.h"
+#include "ui/page_focus_chart.h"
 #include "ui/page_headtracker.h"
 #include "ui/page_imagesettings.h"
 #include "ui/page_playback.h"
@@ -44,6 +45,7 @@ static page_pack_t *page_packs[PAGE_MAX] = {
     [PAGE_SCAN_NOW] = &pp_scannow,
     [PAGE_SOURCE] = &pp_source,
     [PAGE_VERSION] = &pp_version,
+    [PAGE_FOCUS_CHART] = &pp_focus_chart,
 };
 
 static page_pack_t *find_pp(lv_obj_t *page) {
@@ -251,6 +253,7 @@ void main_menu_init(void) {
     main_menu_create_entry(menu, section, "Head Tracker", &pp_headtracker);
     main_menu_create_entry(menu, section, "Playback", &pp_playback);
     main_menu_create_entry(menu, section, "Firmware", &pp_version);
+    main_menu_create_entry(menu, section, "Focus Chart", &pp_focus_chart);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
