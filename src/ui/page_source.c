@@ -202,9 +202,9 @@ page_pack_t pp_source = {
         .max = 4,
     },
 
-    .create = &page_source_create,
-    .enter = &page_source_enter,
-    .exit = &page_source_exit,
+    .create = page_source_create,
+    .enter = page_source_enter,
+    .exit = page_source_exit,
     .on_roller = NULL,
-    .on_click = &page_source_on_click,
+    .on_click = page_source_on_click,
 };

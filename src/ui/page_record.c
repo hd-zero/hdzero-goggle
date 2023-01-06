@@ -154,9 +154,9 @@ page_pack_t pp_record = {
         .max = 7,
     },
 
-    .create = &page_record_create,
-    .enter = &page_record_enter,
-    .exit = &page_record_exit,
-    .on_roller = &page_record_on_roller,
-    .on_click = &page_record_on_click,
+    .create = page_record_create,
+    .enter = page_record_enter,
+    .exit = page_record_exit,
+    .on_roller = page_record_on_roller,
+    .on_click = page_record_on_click,
 };

@@ -72,9 +72,9 @@ page_pack_t pp_headtracker = {
         .max = 3,
     },
 
-    .create = &page_headtracker_create,
+    .create = page_headtracker_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,
-    .on_click = &page_headtracker_on_click,
+    .on_click = page_headtracker_on_click,
 };

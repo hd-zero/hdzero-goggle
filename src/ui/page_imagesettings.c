@@ -132,8 +132,8 @@ page_pack_t pp_imagesettings = {
         .max = 6,
     },
 
-    .create = &page_imagesettings_create,
-    .enter = &page_imagesettings_enter,
+    .create = page_imagesettings_create,
+    .enter = page_imagesettings_enter,
     .exit = NULL,
     .on_roller = NULL,
     .on_click = NULL,

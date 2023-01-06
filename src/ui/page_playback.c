@@ -314,9 +314,9 @@ static void page_playback_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_playback = {
-    .create = &page_playback_create,
-    .enter = &page_playback_enter,
-    .exit = &page_playback_exit,
-    .on_roller = &page_playback_on_roller,
-    .on_click = &page_playback_on_click,
+    .create = page_playback_create,
+    .enter = page_playback_enter,
+    .exit = page_playback_exit,
+    .on_roller = page_playback_on_roller,
+    .on_click = page_playback_on_click,
 };
