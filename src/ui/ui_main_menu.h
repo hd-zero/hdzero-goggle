@@ -8,13 +8,32 @@
 
 #include "ui/page_common.h"
 
-#define MAIN_MENU_ITEMS 11
+typedef enum {
+    PAGE_AUTO_SCAN,
+    PAGE_CONNECTIONS,
+    PAGE_FANS,
+    PAGE_HEADTRACKER,
+    PAGE_IMAGE_SETTINGS,
+    PAGE_PLAYBACK,
+    PAGE_POWER,
+    PAGE_RECORD,
+    PAGE_SCAN_NOW,
+    PAGE_SOURCE,
+    PAGE_VERSION,
+
+    PAGE_MAX,
+} pages_t;
 
 typedef struct {
+    panel_arr_t p_arr;
+
     lv_obj_t *page;
     lv_obj_t *icon;
 
-    panel_arr_t p_arr;
+    void (*enter)();
+    void (*exit)();
+    void (*on_roller)(uint8_t key);
+    void (*on_click)(uint8_t key, int sel);
 } page_pack_t;
 
 typedef struct {
@@ -37,7 +56,5 @@ void submenu_exit();
 void submenu_enter();
 void submenu_fun(void);
 void progress_bar_update();
-
-void autoscan_exit(void);
 
 #endif

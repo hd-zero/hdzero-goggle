@@ -241,7 +241,7 @@ uint8_t command_monitor(char *cmd) {
     return ret;
 }
 
-void version_update(int sel) {
+static void page_version_on_click(uint8_t key, int sel) {
     version_update_title();
     if (sel == 0) {
         FILE *fp;
@@ -471,3 +471,23 @@ void *thread_version(void *ptr) {
     }
     return NULL;
 }
+
+static void page_version_enter() {
+    version_update_title();
+}
+
+static void page_version_on_roller(uint8_t key) {
+    version_update_title();
+}
+
+page_pack_t pp_version = {
+    .p_arr = {
+        .cur = 0,
+        .max = 5,
+    },
+
+    .enter = &page_version_enter,
+    .exit = NULL,
+    .on_roller = &page_version_on_roller,
+    .on_click = &page_version_on_click,
+};

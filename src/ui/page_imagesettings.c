@@ -99,7 +99,7 @@ void set_slider_value() {
     lv_slider_set_value(slider_group4.slider, g_setting.image.auto_off, LV_ANIM_OFF);
 }
 
-void page_ims_click() {
+static void page_imagesettings_enter() {
     g_menu_op = OPLEVEL_IMS;
     switch (g_source_info.source) {
     case SOURCE_HDZERO:
@@ -125,3 +125,15 @@ void page_ims_click() {
         break;
     }
 }
+
+page_pack_t pp_imagesettings = {
+    .p_arr = {
+        .cur = 0,
+        .max = 6,
+    },
+
+    .enter = &page_imagesettings_enter,
+    .exit = NULL,
+    .on_roller = NULL,
+    .on_click = NULL,
+};

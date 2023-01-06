@@ -14,10 +14,9 @@
 #include <log/log.h>
 #include <minIni.h>
 
-#include "../core/common.hh"
-#include "../core/elrs.h"
-#include "../driver/esp32.h"
-#include "page_common.h"
+#include "core/common.hh"
+#include "core/elrs.h"
+#include "driver/esp32.h"
 #include "page_version.h"
 #include "ui/ui_style.h"
 
@@ -87,12 +86,16 @@ lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-void page_connections_reset() {
+static void page_connections_reset() {
     lv_label_set_text(btn_wifi, "Start Backpack Wifi");
     lv_label_set_text(btn_bind, "Start Backpack Binding");
 }
 
-void connect_function(int sel) {
+static void page_connections_on_roller(uint8_t key) {
+    page_connections_reset();
+}
+
+static void page_connections_on_click(uint8_t key, int sel) {
     page_connections_reset();
     if (sel == 0) {
         btn_group_toggle_sel(&elrs_group);
@@ -127,3 +130,15 @@ void connect_function(int sel) {
         }
     }
 }
+
+page_pack_t pp_connections = {
+    .p_arr = {
+        .cur = 0,
+        .max = 8,
+    },
+
+    .enter = NULL,
+    .exit = NULL,
+    .on_roller = &page_connections_on_roller,
+    .on_click = &page_connections_on_click,
+};

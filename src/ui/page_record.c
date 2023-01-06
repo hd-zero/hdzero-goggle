@@ -72,7 +72,24 @@ lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-void record_set_toggle(int sel) {
+static void page_record_cancel() {
+    bConfirmed = false;
+    lv_label_set_text(label_formatSD, "Format SD Card");
+}
+
+static void page_record_enter() {
+    page_record_cancel();
+}
+
+static void page_record_exit() {
+    page_record_cancel();
+}
+
+static void page_record_on_roller(uint8_t key) {
+    page_record_cancel();
+}
+
+static void page_record_on_click(uint8_t key, int sel) {
     if (sel != 5)
         bConfirmed = false;
 
@@ -131,7 +148,14 @@ void record_set_toggle(int sel) {
     }
 }
 
-void formatsd_negtive() {
-    bConfirmed = false;
-    lv_label_set_text(label_formatSD, "Format SD Card");
-}
+page_pack_t pp_record = {
+    .p_arr = {
+        .cur = 0,
+        .max = 7,
+    },
+
+    .enter = &page_record_enter,
+    .exit = &page_record_exit,
+    .on_roller = &page_record_on_roller,
+    .on_click = &page_record_on_click,
+};

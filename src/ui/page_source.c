@@ -16,16 +16,13 @@
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
-/////////////////////////////////////////////////////////////////////////
-// global
-bool in_sourcepage = false;
-
 // local
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
+static bool in_sourcepage = false;
 
 lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -101,7 +98,7 @@ void source_status_timer() {
     }
 }
 
-void source_mode_set(int sel) {
+static void page_source_on_click(uint8_t key, int sel) {
     switch (sel) {
     case 0:
         progress_bar.start = 1;
@@ -148,12 +145,17 @@ void source_mode_set(int sel) {
     }
 }
 
-void pp_source_exit() {
-    // LOGI("pp_source_exit %d",oled_tst_mode);
+static void page_source_enter() {
+    in_sourcepage = true;
+}
+
+static void page_source_exit() {
+    // LOGI("page_source_exit %d",oled_tst_mode);
     if ((oled_tst_mode != 0) && g_test_en) {
         OLED_Pattern(0, 0, 4);
         oled_tst_mode = 0;
     }
+    in_sourcepage = false;
 }
 
 void switch_to_analog(bool is_bay) {
@@ -191,3 +193,15 @@ void switch_to_hdmiin() {
     g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }
+
+page_pack_t pp_source = {
+    .p_arr = {
+        .cur = 0,
+        .max = 4,
+    },
+
+    .enter = &page_source_enter,
+    .exit = &page_source_exit,
+    .on_roller = NULL,
+    .on_click = &page_source_on_click,
+};

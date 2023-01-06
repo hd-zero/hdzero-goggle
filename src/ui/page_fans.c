@@ -5,10 +5,9 @@
 #include <log/log.h>
 #include <minIni.h>
 
-#include "../core/common.hh"
-#include "../driver/fans.h"
-#include "../driver/nct75.h"
-#include "fans.h"
+#include "core/common.hh"
+#include "driver/fans.h"
+#include "driver/nct75.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
 #include "ui/ui_style.h"
@@ -142,7 +141,7 @@ void fans_speed_dec(void) {
     }
 }
 
-void fans_mode_toggle(int sel) {
+static void page_fans_mode_on_click(uint8_t key, int sel) {
     lv_obj_t *slider = slider_group[0].slider;
     int value = 0;
 
@@ -174,9 +173,6 @@ void fans_mode_toggle(int sel) {
         g_menu_op = PAGE_FAN_SLIDE;
         lv_obj_add_style(slider, &style_silder_select, LV_PART_MAIN);
     }
-}
-
-void page_fans_key(uint8_t key) {
 }
 
 void step_topfan() {
@@ -337,3 +333,15 @@ void fans_auto_ctrl() {
         }
     }
 }
+
+page_pack_t pp_fans = {
+    .p_arr = {
+        .cur = 0,
+        .max = 4,
+    },
+
+    .enter = NULL,
+    .exit = NULL,
+    .on_roller = NULL,
+    .on_click = &page_fans_mode_on_click,
+};

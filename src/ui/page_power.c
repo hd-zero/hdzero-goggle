@@ -5,7 +5,7 @@
 #include <log/log.h>
 #include <minIni.h>
 
-#include "../core/common.hh"
+#include "core/common.hh"
 #include "mcp3021.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
@@ -106,7 +106,7 @@ void power_voltage_dec(void) {
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 
-void power_set_toggle(int sel) {
+static void page_power_on_click(uint8_t key, int sel) {
     if (sel == 1) {
         if (g_menu_op == PAGE_POWER_SLIDE) {
             g_menu_op = OPLEVEL_SUBMENU;
@@ -121,3 +121,15 @@ void power_set_toggle(int sel) {
         ini_putl("power", "warning_type", g_setting.power.warning_type, SETTING_INI);
     }
 }
+
+page_pack_t pp_power = {
+    .p_arr = {
+        .cur = 0,
+        .max = 4,
+    },
+
+    .enter = NULL,
+    .exit = NULL,
+    .on_roller = NULL,
+    .on_click = &page_power_on_click,
+};

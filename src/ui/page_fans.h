@@ -12,13 +12,14 @@
 #define TOP_TEMPERATURE_RISKH  500 //
 #define TOP_TEMPERATURE_NORM   400 //
 
-#include "page_common.h"
-
 #include <lvgl/lvgl.h>
+
+#include "ui/ui_main_menu.h"
+
+extern page_pack_t pp_fans;
 
 lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr);
 
-void fans_mode_toggle(int sel);
 void fans_speed_dec(void);
 void fans_speed_inc(void);
 void step_topfan();
