@@ -12,7 +12,7 @@ static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 160, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 lv_obj_t *label_cali;
 
-lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
+static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -72,6 +72,7 @@ page_pack_t pp_headtracker = {
         .max = 3,
     },
 
+    .create = &page_headtracker_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,

@@ -24,7 +24,7 @@ static lv_coord_t row_dsc[] = {150, 30, 150, 30, 150, 30, 30, LV_GRID_TEMPLATE_L
 static media_db_t media_db;
 static pb_ui_item_t pb_ui[ITEMS_LAYOUT_CNT];
 
-lv_obj_t *page_playback_create(lv_obj_t *parent) {
+static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1142, 900);
@@ -314,6 +314,7 @@ static void page_playback_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_playback = {
+    .create = &page_playback_create,
     .enter = &page_playback_enter,
     .exit = &page_playback_exit,
     .on_roller = &page_playback_on_roller,

@@ -30,6 +30,7 @@ typedef struct {
     lv_obj_t *page;
     lv_obj_t *icon;
 
+    lv_obj_t *(*create)(lv_obj_t *parent, panel_arr_t *arr);
     void (*enter)();
     void (*exit)();
     void (*on_roller)(uint8_t key);
@@ -51,10 +52,10 @@ bool main_menu_isshow(void);
 
 void menu_nav(uint8_t key);
 
-void submenu_nav(uint8_t key);
-void submenu_exit();
 void submenu_enter();
-void submenu_fun(void);
+void submenu_exit();
+void submenu_roller(uint8_t key);
+void submenu_click(void);
 void progress_bar_update();
 
 #endif

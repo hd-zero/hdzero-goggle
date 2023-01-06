@@ -7,6 +7,4 @@
 
 extern page_pack_t pp_autoscan;
 
-lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr);
-
 #endif

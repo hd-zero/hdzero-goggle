@@ -158,7 +158,7 @@ static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, ch
 // 255.6
 // 1420-256
 // 1164
-lv_obj_t *page_scannow_create(lv_obj_t *parent) {
+static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1158, 900);
@@ -438,6 +438,7 @@ static void page_scannow_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_scannow = {
+    .create = &page_scannow_create,
     .enter = &page_scannow_enter,
     .exit = &page_scannow_exit,
     .on_roller = &page_scannow_on_roller,

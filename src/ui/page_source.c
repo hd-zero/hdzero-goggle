@@ -24,7 +24,7 @@ static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
 
-lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
+static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -54,9 +54,11 @@ lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     label[2] = create_label_item(cont, "AV In", 1, 2, 3);
     label[3] = create_label_item(cont, "Expansion Module", 1, 3, 3);
     if (g_test_en) {
+        pp_source.p_arr.max = 6;
         label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 4, 3);
         create_label_item(cont, "< Back", 1, 5, 3);
     } else {
+        pp_source.p_arr.max = 5;
         label[4] = NULL;
         create_label_item(cont, "< Back", 1, 4, 3);
     }
@@ -200,6 +202,7 @@ page_pack_t pp_source = {
         .max = 4,
     },
 
+    .create = &page_source_create,
     .enter = &page_source_enter,
     .exit = &page_source_exit,
     .on_roller = NULL,
