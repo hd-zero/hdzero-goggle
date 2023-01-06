@@ -7,8 +7,6 @@
 
 extern page_pack_t pp_imagesettings;
 
-lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr);
-
 void set_slider_value();
 
 #endif

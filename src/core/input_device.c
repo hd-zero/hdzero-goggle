@@ -233,15 +233,15 @@ static void btn_click(void)  //short press enter key
 	}
 	else if((g_menu_op == OPLEVEL_SUBMENU) ||(g_menu_op == OPLEVEL_PLAYBACK))
 	{ 
-		submenu_fun();	
+		submenu_click();	
 	}
 	else if(g_menu_op == PAGE_FAN_SLIDE)
 	{ 
-		submenu_fun();	
+		submenu_click();	
 	}
 	else if(g_menu_op == PAGE_POWER_SLIDE)
 	{ 
-		submenu_fun();	
+		submenu_click();	
 	}
 	pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -260,7 +260,7 @@ static void roller_up(void)
 	}
 	else if((g_menu_op == OPLEVEL_SUBMENU) ||(g_menu_op == OPLEVEL_PLAYBACK))
 	{
-		submenu_nav(DIAL_KEY_UP);
+		submenu_roller(DIAL_KEY_UP);
 	}
 	else if(g_menu_op == OPLEVEL_VIDEO)
 	{
@@ -296,7 +296,7 @@ static void roller_down(void)
 	}
 	else if((g_menu_op == OPLEVEL_SUBMENU) ||(g_menu_op == OPLEVEL_PLAYBACK))
 	{
-		submenu_nav(DIAL_KEY_DOWN);
+		submenu_roller(DIAL_KEY_DOWN);
 	}
 	else if(g_menu_op == OPLEVEL_VIDEO)
 	{

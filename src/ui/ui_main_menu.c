@@ -88,7 +88,7 @@ void submenu_enter(void) {
     }
 }
 
-void submenu_nav(uint8_t key) {
+void submenu_roller(uint8_t key) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (!pp) {
         return;
@@ -137,7 +137,7 @@ void submenu_exit() {
     }
 }
 
-void submenu_fun(void) {
+void submenu_click(void) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (!pp) {
         return;
@@ -169,99 +169,6 @@ void menu_nav(uint8_t key) {
             selected -= PAGE_MAX;
     }
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
-}
-
-static void ui_create_rootpage(lv_obj_t *parent) {
-    lv_obj_t *cont;
-    lv_obj_t *section;
-
-    /*Create a root page*/
-    root_page = lv_menu_page_create(parent, "aaa");
-    section = lv_menu_section_create(root_page);
-    lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_event_cb(parent, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
-
-    struct menu_obj_s s;
-
-    create_text(&s, section, true, "Scan Now", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_scannow.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_scannow.page);
-
-    create_text(&s, section, true, "Source", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_source.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_source.page);
-
-    create_text(&s, section, true, "Image Settings", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_imagesettings.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_imagesettings.page);
-
-    create_text(&s, section, true, "Power", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_power.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_power.page);
-
-    create_text(&s, section, true, "Fans", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_fans.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_fans.page);
-
-    create_text(&s, section, true, "Record Options", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_record.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_record.page);
-
-    create_text(&s, section, true, "Auto Scan", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_autoscan.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_autoscan.page);
-
-    create_text(&s, section, true, "Connections", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_connections.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_connections.page);
-
-    create_text(&s, section, true, "Head Tracker", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_headtracker.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_headtracker.page);
-
-    create_text(&s, section, true, "Playback", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_playback.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_playback.page);
-
-    create_text(&s, section, true, "Firmware", LV_MENU_ITEM_BUILDER_VARIANT_1);
-    pp_version.icon = s.icon;
-    cont = s.cont;
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
-    lv_menu_set_load_page_event(parent, cont, pp_version.page);
-
-    lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 250, 975);
-    lv_obj_set_pos(section, 0, 0);
-
-    lv_obj_set_size(root_page, 250, 975);
-    lv_obj_set_pos(root_page, 0, 0);
-    lv_obj_set_style_border_width(root_page, 0, 0);
-    lv_obj_set_style_radius(root_page, 0, 0);
-
-    lv_menu_set_sidebar_page(parent, root_page);
-    lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(parent), 0), 0), LV_EVENT_CLICKED, NULL);
-    lv_obj_add_flag(lv_menu_get_sidebar_header(parent), LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(lv_menu_get_cur_sidebar_page(parent), LV_OBJ_FLAG_SCROLLABLE);
 }
 
 static void menu_reinit(void) {
@@ -296,13 +203,23 @@ void main_menu_show(bool is_show) {
     }
 }
 
-void main_menu_toggle(void) {
-    if (lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN)) {
-        lv_obj_clear_flag(menu, LV_OBJ_FLAG_HIDDEN);
-        menu_reinit();
-    } else {
-        lv_obj_add_flag(menu, LV_OBJ_FLAG_HIDDEN);
-    }
+static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, const char *text, page_pack_t *pp) {
+    LOGD("creating main menu entry %s", text);
+
+    pp->page = pp->create(menu, &pp->p_arr);
+
+    lv_obj_t *cont = lv_menu_cont_create(section);
+
+    lv_obj_t *label = lv_label_create(cont);
+    lv_label_set_text(label, text);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+
+    pp->icon = lv_img_create(cont);
+    lv_img_set_src(pp->icon, &img_arrow);
+
+    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
+    lv_menu_set_load_page_event(menu, cont, pp->page);
 }
 
 void main_menu_init(void) {
@@ -317,25 +234,37 @@ void main_menu_init(void) {
     lv_obj_set_size(menu, lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96);
     lv_obj_set_pos(menu, 250, 96);
 
-    pp_scannow.page = page_scannow_create(menu);
+    root_page = lv_menu_page_create(menu, "aaa");
 
-    if (g_test_en)
-        pp_source.p_arr.max = 6;
-    else
-        pp_source.p_arr.max = 5;
-    pp_source.page = page_source_create(menu, &pp_source.p_arr);
+    lv_obj_t *section = lv_menu_section_create(root_page);
+    lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(menu, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
-    pp_imagesettings.page = page_imagesettings_create(menu, &pp_imagesettings.p_arr);
-    pp_power.page = page_power_create(menu, &pp_power.p_arr);
-    pp_fans.page = page_fans_create(menu, &pp_fans.p_arr);
-    pp_record.page = page_record_create(menu, &pp_record.p_arr);
-    pp_autoscan.page = page_autoscan_create(menu, &pp_autoscan.p_arr);
-    pp_connections.page = page_connections_create(menu, &pp_connections.p_arr);
-    pp_headtracker.page = page_headtracker_create(menu, &pp_headtracker.p_arr);
-    pp_playback.page = page_playback_create(menu);
-    pp_version.page = page_version_create(menu, &pp_version.p_arr);
+    main_menu_create_entry(menu, section, "Scan Now", &pp_scannow);
+    main_menu_create_entry(menu, section, "Source", &pp_source);
+    main_menu_create_entry(menu, section, "Image Settings", &pp_imagesettings);
+    main_menu_create_entry(menu, section, "Power", &pp_power);
+    main_menu_create_entry(menu, section, "Fans", &pp_fans);
+    main_menu_create_entry(menu, section, "Record Options", &pp_record);
+    main_menu_create_entry(menu, section, "Auto Scan", &pp_autoscan);
+    main_menu_create_entry(menu, section, "Connections", &pp_connections);
+    main_menu_create_entry(menu, section, "Head Tracker", &pp_headtracker);
+    main_menu_create_entry(menu, section, "Playback", &pp_playback);
+    main_menu_create_entry(menu, section, "Firmware", &pp_version);
 
-    ui_create_rootpage(menu);
+    lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
+    lv_obj_set_size(section, 250, 975);
+    lv_obj_set_pos(section, 0, 0);
+
+    lv_obj_set_size(root_page, 250, 975);
+    lv_obj_set_pos(root_page, 0, 0);
+    lv_obj_set_style_border_width(root_page, 0, 0);
+    lv_obj_set_style_radius(root_page, 0, 0);
+
+    lv_menu_set_sidebar_page(menu, root_page);
+    lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), 0), LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(lv_menu_get_sidebar_header(menu), LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(lv_menu_get_cur_sidebar_page(menu), LV_OBJ_FLAG_SCROLLABLE);
 
     progress_bar.bar = lv_bar_create(lv_scr_act());
     lv_obj_set_size(progress_bar.bar, 320, 20);

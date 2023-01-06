@@ -9,8 +9,6 @@
 
 extern page_pack_t pp_power;
 
-lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr);
-
 void set_voltage(int val);
 void set_warning_type(int type);
 void power_voltage_inc(void);

@@ -7,8 +7,6 @@
 
 extern page_pack_t pp_scannow;
 
-lv_obj_t *page_scannow_create(lv_obj_t *parent);
-
 int scan(void);
 int scan_reinit(void);
 

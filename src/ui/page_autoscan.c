@@ -10,7 +10,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_T
 static btn_group_t btn_group0;
 static btn_group_t btn_group1;
 
-lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
+static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -84,6 +84,7 @@ page_pack_t pp_autoscan = {
         .max = 4,
     },
 
+    .create = &page_autoscan_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,

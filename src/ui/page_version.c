@@ -158,7 +158,7 @@ err_open:
     return -1;
 }
 
-lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
+static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -486,6 +486,7 @@ page_pack_t pp_version = {
         .max = 5,
     },
 
+    .create = &page_version_create,
     .enter = &page_version_enter,
     .exit = NULL,
     .on_roller = &page_version_on_roller,

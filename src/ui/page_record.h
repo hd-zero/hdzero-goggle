@@ -7,6 +7,4 @@
 
 extern page_pack_t pp_record;
 
-lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr);
-
 #endif

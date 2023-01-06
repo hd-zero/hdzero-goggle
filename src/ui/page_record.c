@@ -20,7 +20,7 @@ static lv_coord_t col_dsc[] = {160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 static bool bConfirmed = false;
 
-lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
+static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -154,6 +154,7 @@ page_pack_t pp_record = {
         .max = 7,
     },
 
+    .create = &page_record_create,
     .enter = &page_record_enter,
     .exit = &page_record_exit,
     .on_roller = &page_record_on_roller,
