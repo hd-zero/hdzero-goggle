@@ -240,10 +240,19 @@ static void update_page() {
     }
 }
 
-int init_pb() {
+static void page_playback_exit() {
+    clear_videofile_cnt();
+    update_page();
+}
+
+static void page_playback_enter() {
     const int ret = walk_sdcard();
     update_page();
-    return ret;
+
+    if (ret == 0) {
+        // no files found, back out
+        page_playback_exit();
+    }
 }
 
 void pb_key(uint8_t key) {
@@ -290,9 +299,23 @@ void pb_key(uint8_t key) {
         break;
 
     case DIAL_KEY_PRESS: // long press
-        clear_videofile_cnt();
-        update_page();
+        page_playback_exit();
         break;
     }
     done = true;
 }
+
+static void page_playback_on_roller(uint8_t key) {
+    pb_key(key);
+}
+
+static void page_playback_on_click(uint8_t key, int sel) {
+    pb_key(key);
+}
+
+page_pack_t pp_playback = {
+    .enter = &page_playback_enter,
+    .exit = &page_playback_exit,
+    .on_roller = &page_playback_on_roller,
+    .on_click = &page_playback_on_click,
+};

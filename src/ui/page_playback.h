@@ -3,6 +3,8 @@
 
 #include <lvgl/lvgl.h>
 
+#include "ui/ui_main_menu.h"
+
 #define ITEMS_LAYOUT_ROWS 3
 #define ITEMS_LAYOUT_COLS 3
 #define ITEMS_LAYOUT_CNT  (ITEMS_LAYOUT_ROWS * ITEMS_LAYOUT_COLS)
@@ -41,9 +43,10 @@ typedef struct {
     uint8_t state; // 0: invisible; 1=highlighted; 2= normal
 } pb_ui_item_t;
 
+extern page_pack_t pp_playback;
+
 lv_obj_t *page_playback_create(lv_obj_t *parent);
 
-int init_pb();
 void pb_key(uint8_t key);
 
 int get_videofile_cnt();

@@ -1,21 +1,16 @@
 #ifndef _PAGE_SOURCE_H
 #define _PAGE_SOURCE_H
 
-#include "page_common.h"
 #include <lvgl/lvgl.h>
+
+#include "ui/ui_main_menu.h"
+
+extern page_pack_t pp_source;
 
 lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr);
 
-void source_mode_set(int sel);
-
 void source_status_timer();
-
-void pp_source_exit();
-
 void switch_to_analog(bool is_bay);
-
 void switch_to_hdmiin();
-
-extern bool in_sourcepage;
 
 #endif

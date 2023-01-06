@@ -25,180 +25,82 @@
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
-lv_obj_t *menu;
-lv_obj_t *root_page;
-progress_bar_t progress_bar;
-
-page_pack_t pp_scannow;
-page_pack_t pp_source = {
-    .p_arr = {
-        .cur = 0,
-        .max = 4,
-    }};
-page_pack_t pp_imagesettings = {
-    .p_arr = {
-        .cur = 0,
-        .max = 6,
-    }};
-page_pack_t pp_power = {
-    .p_arr = {
-        .cur = 0,
-        .max = 4,
-    }};
-page_pack_t pp_fans = {
-    .p_arr = {
-        .cur = 0,
-        .max = 4,
-    }};
-page_pack_t pp_record = {
-    .p_arr = {
-        .cur = 0,
-        .max = 7,
-    }};
-page_pack_t pp_autoscan = {
-    .p_arr = {
-        .cur = 0,
-        .max = 4,
-    }};
-page_pack_t pp_connections = {
-    .p_arr = {
-        .cur = 0,
-        .max = 8,
-    }};
-page_pack_t pp_headtracker = {
-    .p_arr = {
-        .cur = 0,
-        .max = 3,
-    }};
-page_pack_t pp_playback;
-
-page_pack_t pp_version = {
-    .p_arr = {
-        .cur = 0,
-        .max = 5,
-    }};
-
 LV_IMG_DECLARE(img_arrow);
 
-page_pack_t *find_pp(lv_obj_t *page) {
-    if (pp_scannow.page == page)
-        return &pp_scannow;
+progress_bar_t progress_bar;
 
-    if (pp_source.page == page)
-        return &pp_source;
+static lv_obj_t *menu;
+static lv_obj_t *root_page;
 
-    if (pp_imagesettings.page == page)
-        return &pp_imagesettings;
+static page_pack_t *page_packs[PAGE_MAX] = {
+    [PAGE_AUTO_SCAN] = &pp_autoscan,
+    [PAGE_CONNECTIONS] = &pp_connections,
+    [PAGE_FANS] = &pp_fans,
+    [PAGE_HEADTRACKER] = &pp_headtracker,
+    [PAGE_IMAGE_SETTINGS] = &pp_imagesettings,
+    [PAGE_PLAYBACK] = &pp_playback,
+    [PAGE_POWER] = &pp_power,
+    [PAGE_RECORD] = &pp_record,
+    [PAGE_SCAN_NOW] = &pp_scannow,
+    [PAGE_SOURCE] = &pp_source,
+    [PAGE_VERSION] = &pp_version,
+};
 
-    if (pp_power.page == page)
-        return &pp_power;
-
-    if (pp_fans.page == page)
-        return &pp_fans;
-
-    if (pp_record.page == page)
-        return &pp_record;
-
-    if (pp_autoscan.page == page)
-        return &pp_autoscan;
-
-    if (pp_connections.page == page)
-        return &pp_connections;
-
-    if (pp_headtracker.page == page)
-        return &pp_headtracker;
-
-    if (pp_playback.page == page)
-        return &pp_playback;
-
-    if (pp_version.page == page)
-        return &pp_version;
-
+static page_pack_t *find_pp(lv_obj_t *page) {
+    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+        if (page_packs[i]->page == page) {
+            return page_packs[i];
+        }
+    }
     return NULL;
 }
 
 static void clear_all_icon(void) {
-    lv_img_set_src(pp_scannow.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_source.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_imagesettings.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_power.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_fans.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_record.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_autoscan.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_connections.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_headtracker.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_playback.icon, LV_SYMBOL_DUMMY);
-    lv_img_set_src(pp_version.icon, LV_SYMBOL_DUMMY);
+    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+        lv_img_set_src(page_packs[i]->icon, LV_SYMBOL_DUMMY);
+    }
 }
 
 static void menu_event_handler(lv_event_t *e) {
-
     clear_all_icon();
 
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
-        return;
-
-    lv_img_set_src(pp->icon, &img_arrow);
+    if (pp) {
+        lv_img_set_src(pp->icon, &img_arrow);
+    }
 }
 
-static int auto_scaned_cnt = 0;
 void submenu_enter(void) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
+    if (!pp) {
         return;
-
-    if (pp == &pp_scannow) {
-        auto_scaned_cnt = scan();
-        LOGI("scan return :%d", auto_scaned_cnt);
-
-        if (auto_scaned_cnt == 1) {
-            if (!g_autoscan_exit)
-                g_autoscan_exit = true;
-
-            g_menu_op = OPLEVEL_VIDEO;
-            switch_to_video(false);
-        }
-
-        if (auto_scaned_cnt == -1)
-            submenu_exit();
-
-        return;
-    } else if (pp == &pp_playback) {
-        if (!init_pb())
-            submenu_exit(); // won't enter sub menu if no video file is found
-        return;
-    } else if (pp == &pp_source) {
-        in_sourcepage = true;
-    } else if (pp == &pp_version) {
-        version_update_title();
-    } else if (pp == &pp_imagesettings) {
-        page_ims_click();
     }
 
-    pp->p_arr.cur = 0;
-    set_select_item(&pp->p_arr, pp->p_arr.cur);
+    if (pp->enter) {
+        // if your page as a enter event handler, call it
+        pp->enter();
+    }
+
+    if (pp->p_arr.max) {
+        // if we have selectable entries, select the first one
+        pp->p_arr.cur = 0;
+        set_select_item(&pp->p_arr, pp->p_arr.cur);
+    }
 }
 
 void submenu_nav(uint8_t key) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
+    if (!pp) {
         return;
+    }
 
-    if (pp == &pp_scannow)
-        user_select(key);
-    else if (pp == &pp_playback)
-        pb_key(key);
-    else {
-        if (pp == &pp_version)
-            version_update_title();
+    if (pp->on_roller) {
+        // if your page as a roller event handler, call it
+        pp->on_roller(key);
+    }
 
-        if (pp == &pp_record)
-            formatsd_negtive();
-
-        if (pp == &pp_connections)
-            page_connections_reset();
-
+    if (pp->p_arr.max) {
+        // if we have selectable entries, move selection
         if (key == DIAL_KEY_UP) {
             if (pp->p_arr.cur < pp->p_arr.max - 1)
                 pp->p_arr.cur++;
@@ -219,67 +121,37 @@ void submenu_exit() {
     g_menu_op = OPLEVEL_MAINMENU;
 
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
+    if (!pp) {
         return;
-    pp->p_arr.cur = 0;
-
-    if (pp == &pp_playback)
-        pb_key(DIAL_KEY_PRESS);
-    else if (pp == &pp_scannow)
-        HDZero_Close();
-    else if (pp == &pp_source) {
-        pp_source_exit();
-        in_sourcepage = false;
-    } else if (pp == &pp_record) {
-        formatsd_negtive();
     }
 
-    // No need to remove the selected bar on ScanNow and Playback page
-    if ((pp != &pp_scannow) && (pp != &pp_playback))
+    if (pp->exit) {
+        // if your page as a exit event handler, call it
+        pp->exit();
+    }
+
+    if (pp->p_arr.max) {
+        // if we have selectable icons, reset the selector
+        pp->p_arr.cur = 0;
         set_select_item(&pp->p_arr, -1);
+    }
 }
 
 void submenu_fun(void) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
+    if (!pp) {
         return;
+    }
 
-    if (pp == &pp_scannow) {
-        g_menu_op = OPLEVEL_VIDEO;
-        switch_to_video(false);
-    } else if (pp == &pp_playback) {
-        pb_key(DIAL_KEY_CLICK);
-    } else {
-        if ((pp == &pp_fans)) {
-            fans_mode_toggle(pp->p_arr.cur);
-        }
-        if ((pp == &pp_source)) {
-            source_mode_set(pp->p_arr.cur);
-        }
-        if ((pp == &pp_autoscan)) {
-            autoscan_toggle(pp->p_arr.cur);
-        }
-        if ((pp == &pp_power)) {
-            power_set_toggle(pp->p_arr.cur);
-        }
-        if ((pp == &pp_connections)) {
-            connect_function(pp->p_arr.cur);
-        }
-        if ((pp == &pp_record)) {
-            record_set_toggle(pp->p_arr.cur);
-        }
+    if (pp->on_click) {
+        // if your page as a click event handler, call it
+        pp->on_click(DIAL_KEY_CLICK, pp->p_arr.cur);
+    }
 
-        if (pp == &pp_headtracker) {
-            headtracker_set_toggle(pp->p_arr.cur);
-        }
-
-        if ((pp == &pp_version)) {
-            version_update(pp->p_arr.cur);
-        }
-
+    if (pp->p_arr.max) {
+        // if we have selectable icons, check if we hit the back button
         if (pp->p_arr.cur == pp->p_arr.max - 1) {
             submenu_exit();
-        } else {
         }
     }
 }
@@ -290,11 +162,11 @@ void menu_nav(uint8_t key) {
     if (key == DIAL_KEY_DOWN) {
         selected--;
         if (selected < 0)
-            selected += MAIN_MENU_ITEMS;
+            selected += PAGE_MAX;
     } else if (key == DIAL_KEY_UP) {
         selected++;
-        if (selected >= MAIN_MENU_ITEMS)
-            selected -= MAIN_MENU_ITEMS;
+        if (selected >= PAGE_MAX)
+            selected -= PAGE_MAX;
     }
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
 }
@@ -393,22 +265,21 @@ static void ui_create_rootpage(lv_obj_t *parent) {
 }
 
 static void menu_reinit(void) {
-    LOGI("reinit");
-    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (!pp)
-        return;
+    LOGI("menu_reinit");
 
-    // LOGI("set select item");
+    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
+    if (!pp) {
+        return;
+    }
 
     if ((pp == &pp_scannow)) {
         scan_reinit();
-    } else if ((pp == &pp_source)) {
-        set_select_item(&pp->p_arr, -1);
-    } else if ((pp == &pp_playback)) {
+    }
 
-    } else {
-        pp->p_arr.cur = -1;
-        set_select_item(&pp->p_arr, pp->p_arr.cur);
+    if (pp->p_arr.max) {
+        // if we have selectable icons, reset the selector
+        pp->p_arr.cur = 0;
+        set_select_item(&pp->p_arr, -1);
     }
 }
 
@@ -426,7 +297,6 @@ void main_menu_show(bool is_show) {
 }
 
 void main_menu_toggle(void) {
-
     if (lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN)) {
         lv_obj_clear_flag(menu, LV_OBJ_FLAG_HIDDEN);
         menu_reinit();
@@ -505,18 +375,5 @@ void progress_bar_update() {
             progress_bar.val += 4;
         lv_bar_set_value(progress_bar.bar, progress_bar.val, LV_ANIM_OFF);
         lv_timer_handler();
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-void autoscan_exit(void) {
-    if (!g_autoscan_exit) {
-        LOGI("autoscan_exit, lelve=1");
-        g_autoscan_exit = true;
-        if (auto_scaned_cnt > 1)
-            g_menu_op = OPLEVEL_SUBMENU;
-        else
-            g_menu_op = OPLEVEL_MAINMENU;
     }
 }

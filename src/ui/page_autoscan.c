@@ -1,7 +1,7 @@
 #include "page_autoscan.h"
 
-#include "minIni.h"
-#include "page_common.h"
+#include <minIni.h>
+
 #include "ui/ui_style.h"
 
 static lv_coord_t col_dsc[] = {100, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
@@ -55,7 +55,7 @@ lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-void autoscan_toggle(int sel) {
+static void page_autoscan_on_click(uint8_t key, int sel) {
     int value = 0;
 
     if (sel == 0) {
@@ -77,3 +77,15 @@ void autoscan_toggle(int sel) {
         g_setting.autoscan.source = value;
     }
 }
+
+page_pack_t pp_autoscan = {
+    .p_arr = {
+        .cur = 0,
+        .max = 4,
+    },
+
+    .enter = NULL,
+    .exit = NULL,
+    .on_roller = NULL,
+    .on_click = &page_autoscan_on_click,
+};

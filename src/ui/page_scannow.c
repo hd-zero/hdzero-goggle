@@ -25,16 +25,6 @@
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// local
-static lv_obj_t *progressbar;
-static lv_obj_t *label;
-static lv_coord_t col_dsc[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 80, LV_GRID_TEMPLATE_LAST};
-
-static lv_coord_t col_dsc2[] = {120, 80, 80, 180, 100, 80, 80, 180, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc2[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
-
 LV_IMG_DECLARE(img_signal_status);
 LV_IMG_DECLARE(img_signal_status2);
 LV_IMG_DECLARE(img_signal_status3);
@@ -67,6 +57,20 @@ typedef struct {
 
 channel_t channel_tb[10];
 channel_status_t channel_status_tb[10];
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// local
+static int auto_scaned_cnt = 0;
+static int valid_channel_tb[11];
+static int user_select_index = 0;
+
+static lv_obj_t *progressbar;
+static lv_obj_t *label;
+static lv_coord_t col_dsc[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 80, LV_GRID_TEMPLATE_LAST};
+
+static lv_coord_t col_dsc2[] = {120, 80, 80, 180, 100, 80, 80, 180, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc2[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static void select_signal(channel_t *channel) {
     for (int i = 0; i < 10; i++) {
@@ -222,22 +226,6 @@ lv_obj_t *page_scannow_create(lv_obj_t *parent) {
     draw_signal(cont2, "F2", 5, 3, &channel_tb[8]);
     draw_signal(cont2, "F4", 5, 4, &channel_tb[9]);
     return page;
-}
-
-static int valid_channel_tb[11];
-static int user_select_index = 0;
-void user_select(uint8_t key) {
-    if (valid_channel_tb[0] == -1)
-        return;
-
-    if (key == DIAL_KEY_UP) {
-        if (valid_channel_tb[user_select_index + 1] != -1)
-            user_select_index++;
-    } else if (key == DIAL_KEY_DOWN) {
-        if (user_select_index > 0)
-            user_select_index--;
-    }
-    select_signal(&channel_tb[valid_channel_tb[user_select_index]]);
 }
 
 static void user_select_signal(void) {
@@ -398,3 +386,60 @@ int scan(void) {
     g_scanning = false;
     return ret;
 }
+
+void autoscan_exit(void) {
+    if (!g_autoscan_exit) {
+        LOGI("autoscan_exit, lelve=1");
+        g_autoscan_exit = true;
+        if (auto_scaned_cnt > 1)
+            g_menu_op = OPLEVEL_SUBMENU;
+        else
+            g_menu_op = OPLEVEL_MAINMENU;
+    }
+}
+
+static void page_scannow_enter() {
+    auto_scaned_cnt = scan();
+    LOGI("scan return :%d", auto_scaned_cnt);
+
+    if (auto_scaned_cnt == 1) {
+        if (!g_autoscan_exit)
+            g_autoscan_exit = true;
+
+        g_menu_op = OPLEVEL_VIDEO;
+        switch_to_video(false);
+    }
+
+    if (auto_scaned_cnt == -1)
+        submenu_exit();
+}
+
+static void page_scannow_exit() {
+    HDZero_Close();
+}
+
+static void page_scannow_on_roller(uint8_t key) {
+    if (valid_channel_tb[0] == -1)
+        return;
+
+    if (key == DIAL_KEY_UP) {
+        if (valid_channel_tb[user_select_index + 1] != -1)
+            user_select_index++;
+    } else if (key == DIAL_KEY_DOWN) {
+        if (user_select_index > 0)
+            user_select_index--;
+    }
+    select_signal(&channel_tb[valid_channel_tb[user_select_index]]);
+}
+
+static void page_scannow_on_click(uint8_t key, int sel) {
+    g_menu_op = OPLEVEL_VIDEO;
+    switch_to_video(false);
+}
+
+page_pack_t pp_scannow = {
+    .enter = &page_scannow_enter,
+    .exit = &page_scannow_exit,
+    .on_roller = &page_scannow_on_roller,
+    .on_click = &page_scannow_on_click,
+};

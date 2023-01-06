@@ -3,13 +3,16 @@
 
 #include <lvgl/lvgl.h>
 
+#include "ui/ui_main_menu.h"
+
+extern page_pack_t pp_scannow;
+
 lv_obj_t *page_scannow_create(lv_obj_t *parent);
 
 int scan(void);
 int scan_reinit(void);
 
-void user_select(uint8_t key);
-
 void switch_to_video(bool is_default);
+void autoscan_exit(void);
 
 #endif
