@@ -486,9 +486,9 @@ page_pack_t pp_version = {
         .max = 5,
     },
 
-    .create = &page_version_create,
-    .enter = &page_version_enter,
+    .create = page_version_create,
+    .enter = page_version_enter,
     .exit = NULL,
-    .on_roller = &page_version_on_roller,
-    .on_click = &page_version_on_click,
+    .on_roller = page_version_on_roller,
+    .on_click = page_version_on_click,
 };

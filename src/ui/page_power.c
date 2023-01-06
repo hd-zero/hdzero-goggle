@@ -128,9 +128,9 @@ page_pack_t pp_power = {
         .max = 4,
     },
 
-    .create = &page_power_create,
+    .create = page_power_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,
-    .on_click = &page_power_on_click,
+    .on_click = page_power_on_click,
 };

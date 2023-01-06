@@ -137,9 +137,9 @@ page_pack_t pp_connections = {
         .max = 8,
     },
 
-    .create = &page_connections_create,
+    .create = page_connections_create,
     .enter = NULL,
     .exit = NULL,
-    .on_roller = &page_connections_on_roller,
-    .on_click = &page_connections_on_click,
+    .on_roller = page_connections_on_roller,
+    .on_click = page_connections_on_click,
 };

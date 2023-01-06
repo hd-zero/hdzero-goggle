@@ -438,9 +438,9 @@ static void page_scannow_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_scannow = {
-    .create = &page_scannow_create,
-    .enter = &page_scannow_enter,
-    .exit = &page_scannow_exit,
-    .on_roller = &page_scannow_on_roller,
-    .on_click = &page_scannow_on_click,
+    .create = page_scannow_create,
+    .enter = page_scannow_enter,
+    .exit = page_scannow_exit,
+    .on_roller = page_scannow_on_roller,
+    .on_click = page_scannow_on_click,
 };

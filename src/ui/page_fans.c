@@ -340,9 +340,9 @@ page_pack_t pp_fans = {
         .max = 4,
     },
 
-    .create = &page_fans_create,
+    .create = page_fans_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,
-    .on_click = &page_fans_mode_on_click,
+    .on_click = page_fans_mode_on_click,
 };

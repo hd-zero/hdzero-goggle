@@ -84,9 +84,9 @@ page_pack_t pp_autoscan = {
         .max = 4,
     },
 
-    .create = &page_autoscan_create,
+    .create = page_autoscan_create,
     .enter = NULL,
     .exit = NULL,
     .on_roller = NULL,
-    .on_click = &page_autoscan_on_click,
+    .on_click = page_autoscan_on_click,
 };
