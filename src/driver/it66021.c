@@ -265,3 +265,14 @@ void IT66021_Set_CSMatrix(int cs)
         IT66021_Mask_WR(0, 0x65, 0x03, 0x00);
     }
 }
+
+int IT66021_Get_PCLKFREQ()
+{
+    int rdat;
+    
+    rdat = I2C_L_Read(ADDR_IT66021, 0x9A);
+    if(rdat != I2C_L_Read(ADDR_IT66021, 0x9A))
+        rdat = 0;
+
+    return rdat;
+}
