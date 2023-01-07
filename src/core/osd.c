@@ -197,11 +197,8 @@ void osd_llock_show(bool bShow)
 		return;
 	}
 	
-	if(g_latency_locked) {
-		sprintf(buf,"%s%s",RESOURCE_PATH,LLOCK_bmp);
-    	lv_img_set_src(g_osd_hdzero.latency_lock, buf);
+	if(g_latency_locked)
 		lv_obj_clear_flag(g_osd_hdzero.latency_lock, LV_OBJ_FLAG_HIDDEN);
-	}
 	else 
 		lv_obj_add_flag(g_osd_hdzero.latency_lock, LV_OBJ_FLAG_HIDDEN);
 }
@@ -484,7 +481,7 @@ static void embedded_osd_init(void)
 	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
 	create_osd_object(&g_osd_hdzero.vrx_temp, buf, 3);
 
-	sprintf(buf,"%s%s",RESOURCE_PATH,VrxTemp7_gif);
+	sprintf(buf,"%s%s",RESOURCE_PATH,LLOCK_bmp);
 	create_osd_object(&g_osd_hdzero.latency_lock, buf, 4);
 		
 	g_osd_hdzero.ch = lv_label_create(scr_osd);
