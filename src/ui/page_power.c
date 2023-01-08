@@ -5,6 +5,7 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/settings.h"
@@ -171,21 +172,21 @@ static void page_power_on_click(uint8_t key, int sel) {
         break;
 
     case ROW_CELL_COUNT:
-        if (g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT) {
-            g_menu_op = OPLEVEL_SUBMENU;
+        if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
+            app_state_push(APP_STATE_SUBMENU);
             lv_obj_add_style(slider_group_cell_count.slider, &style_silder_main, LV_PART_MAIN);
         } else {
-            g_menu_op = PAGE_POWER_SLIDE_CELL_COUNT;
+            app_state_push(PAGE_POWER_SLIDE_CELL_COUNT);
             lv_obj_add_style(slider_group_cell_count.slider, &style_silder_select, LV_PART_MAIN);
         }
         break;
 
     case ROW_CELL_VOLTAGE:
-        if (g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
-            g_menu_op = OPLEVEL_SUBMENU;
+        if (g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
+            app_state_push(APP_STATE_SUBMENU);
             lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_main, LV_PART_MAIN);
         } else {
-            g_menu_op = PAGE_POWER_SLIDE_CELL_VOLTAGE;
+            app_state_push(PAGE_POWER_SLIDE_CELL_VOLTAGE);
             lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_select, LV_PART_MAIN);
         }
         break;

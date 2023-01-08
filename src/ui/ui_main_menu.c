@@ -6,6 +6,7 @@
 #include <lvgl/lvgl.h>
 
 #include "common.hh"
+#include "core/app_state.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
@@ -132,7 +133,7 @@ void submenu_roller(uint8_t key) {
 
 void submenu_exit() {
     LOGI("submenu_exit");
-    g_menu_op = OPLEVEL_MAINMENU;
+    app_state_push(APP_STATE_MAINMENU);
 
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (!pp) {

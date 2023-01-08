@@ -12,6 +12,7 @@
 #include <minIni.h>
 
 #include "bmi270/accel_gyro.h"
+#include "core/app_state.h"
 #include "core/common.hh"
 #include "core/elrs.h"
 #include "core/ht.h"
@@ -44,7 +45,7 @@ static void *thread_autoscan(void *ptr) {
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
         main_menu_show(true);
-        g_menu_op = OPLEVEL_SUBMENU;
+        app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
         pthread_mutex_unlock(&lvgl_mutex);
 
@@ -77,13 +78,13 @@ void start_running(void) {
             g_autoscan_exit = false;
             pthread_create(&pid, NULL, thread_autoscan, NULL);
         } else if (g_setting.autoscan.status == SETTING_AUTOSCAN_LAST) {
-            g_menu_op = OPLEVEL_VIDEO;
+            app_state_push(APP_STATE_VIDEO);
             switch_to_video(true);
         } else { // auto scan disabled, go to go directly to last saved channel
-            g_menu_op = OPLEVEL_MAINMENU;
+            app_state_push(APP_STATE_MAINMENU);
         }
     } else {
-        g_menu_op = OPLEVEL_VIDEO;
+        app_state_push(APP_STATE_VIDEO);
         if (source == SETTING_SOURCE_EXPANSION) { // module Bay
             switch_to_analog(1);
             g_source_info.source = SOURCE_EXPANSION;
@@ -98,7 +99,7 @@ void start_running(void) {
                 g_source_info.source = SOURCE_HDMI_IN;
             } else {
                 g_source_info.source = SOURCE_HDZERO;
-                g_menu_op = OPLEVEL_MAINMENU;
+                app_state_push(APP_STATE_MAINMENU);
             }
         }
     }

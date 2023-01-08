@@ -2,6 +2,7 @@
 
 #include <minIni.h>
 
+#include "core/app_state.h"
 #include "core/settings.h"
 #include "ht.h"
 #include "page_common.h"
@@ -115,12 +116,12 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
     } else if (sel == 2) {
         ht_set_center_position();
     } else if (sel == 3) {
-        if (g_menu_op == PAGE_ANGLE_SLIDE) {
-            g_menu_op = OPLEVEL_SUBMENU;
+        if (g_app_state == PAGE_ANGLE_SLIDE) {
+            app_state_push(APP_STATE_SUBMENU);
             lv_obj_add_style(slider_group.slider, &style_silder_main, LV_PART_MAIN);
             ini_putl("ht", "max_angle", g_setting.ht.max_angle, SETTING_INI);
         } else {
-            g_menu_op = PAGE_ANGLE_SLIDE;
+            app_state_push(PAGE_ANGLE_SLIDE);
             lv_obj_add_style(slider_group.slider, &style_silder_select, LV_PART_MAIN);
         }
     }
