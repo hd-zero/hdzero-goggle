@@ -6,8 +6,6 @@
 #include "ui/ui_attribute.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// global
-op_level_t g_menu_op = OPLEVEL_MAINMENU;
 bool g_sdcard_enable = false;
 bool g_sdcard_det_req = false;
 int g_sdcard_size = 0;

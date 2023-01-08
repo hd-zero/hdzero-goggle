@@ -2,18 +2,6 @@
 #define __DEFINES_H
 
 typedef enum {
-    OPLEVEL_MAINMENU = 0,
-    OPLEVEL_SUBMENU = 1,
-    OPLEVEL_PLAYBACK = 2,
-    OPLEVEL_VIDEO = 10,
-    OPLEVEL_IMS = 11,
-    PAGE_FAN_SLIDE = 100,
-    PAGE_ANGLE_SLIDE = 101,
-    PAGE_POWER_SLIDE_CELL_COUNT = 102,
-    PAGE_POWER_SLIDE_CELL_VOLTAGE = 103
-} op_level_t;
-
-typedef enum {
     LEFT_DAIL_UP = 1,
     LEFT_DAIL_DOWN = 2,
     LEFT_DAIL_CLICK = 3,

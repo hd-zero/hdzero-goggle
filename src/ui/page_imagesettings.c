@@ -3,13 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../core/common.hh"
-#include "../driver/hardware.h"
+#include "core/app_state.h"
+#include "core/common.hh"
 #include "core/settings.h"
-#include "oled.h"
-#include "page_common.h"
-#include "page_scannow.h"
-#include "page_source.h"
+#include "driver/hardware.h"
+#include "driver/oled.h"
+#include "ui/page_common.h"
+#include "ui/page_scannow.h"
+#include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_style.h"
@@ -113,7 +114,7 @@ void set_slider_value() {
 }
 
 static void page_imagesettings_enter() {
-    g_menu_op = OPLEVEL_IMS;
+    app_state_push(APP_STATE_IMS);
     switch (g_source_info.source) {
     case SOURCE_HDZERO:
         progress_bar.start = 1;
@@ -123,7 +124,7 @@ static void page_imagesettings_enter() {
         break;
 
     case SOURCE_HDMI_IN: // no image setting support for HDMI in
-        g_menu_op = OPLEVEL_SUBMENU;
+        app_state_push(APP_STATE_SUBMENU);
         g_bShowIMS = false;
         break;
 

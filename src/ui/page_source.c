@@ -5,12 +5,13 @@
 
 #include <minIni.h>
 
-#include "../core/common.hh"
-#include "../core/osd.h"
-#include "../driver/hardware.h"
-#include "../driver/it66121.h"
-#include "../driver/oled.h"
+#include "core/app_state.h"
+#include "core/common.hh"
+#include "core/osd.h"
 #include "core/settings.h"
+#include "driver/hardware.h"
+#include "driver/it66121.h"
+#include "driver/oled.h"
 #include "page_common.h"
 #include "page_scannow.h"
 #include "ui/ui_main_menu.h"
@@ -107,7 +108,7 @@ static void page_source_on_click(uint8_t key, int sel) {
         progress_bar.start = 1;
         HDZero_open();
         switch_to_video(true);
-        g_menu_op = OPLEVEL_VIDEO;
+        app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_HDZERO;
         sel_audio_source(2);
         enable_line_out(true);
@@ -120,7 +121,7 @@ static void page_source_on_click(uint8_t key, int sel) {
 
     case 2: // AV in
         switch_to_analog(0);
-        g_menu_op = OPLEVEL_VIDEO;
+        app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_AV_IN;
         sel_audio_source(2);
         enable_line_out(true);
@@ -128,7 +129,7 @@ static void page_source_on_click(uint8_t key, int sel) {
 
     case 3: // Module in
         switch_to_analog(1);
-        g_menu_op = OPLEVEL_VIDEO;
+        app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_EXPANSION;
         sel_audio_source(2);
         enable_line_out(true);
@@ -190,7 +191,7 @@ void switch_to_hdmiin() {
     osd_clear();
     lv_timer_handler();
 
-    g_menu_op = OPLEVEL_VIDEO;
+    app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;
     enable_line_out(false);
     g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;

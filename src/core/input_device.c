@@ -19,6 +19,7 @@
 #include "ht.h"
 #include "osd.h"
 
+#include "core/app_state.h"
 #include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
@@ -138,12 +139,12 @@ void tune_channel_timer() {
 ///////////////////////////////////////////////////////////////////////////////
 
 static void switch_to_menumode() {
-    if (g_menu_op == OPLEVEL_IMS) {
+    if (g_app_state == APP_STATE_IMS) {
         ims_save();
         set_slider_value();
     }
 
-    g_menu_op = OPLEVEL_MAINMENU;
+    app_state_push(APP_STATE_MAINMENU);
     // Stop recording if switching to menu mode from video mode regardless
     osd_dvr_cmd(DVR_STOP);
 
@@ -161,14 +162,14 @@ static void switch_to_menumode() {
 
 static void btn_press(void) // long press left key
 {
-    LOGI("btn_press (%d)", g_menu_op);
+    LOGI("btn_press (%d)", g_app_state);
     if (g_scanning || !g_init_done)
         return;
 
     pthread_mutex_lock(&lvgl_mutex);
 
     g_autoscan_exit = true;
-    if (g_menu_op == OPLEVEL_MAINMENU) // Main menu -> Video
+    if (g_app_state == APP_STATE_MAINMENU) // Main menu -> Video
     {
         switch (g_source_info.source) {
         case SOURCE_HDZERO:
@@ -186,14 +187,14 @@ static void btn_press(void) // long press left key
             switch_to_analog(1);
             break;
         }
-        g_menu_op = OPLEVEL_VIDEO;
-    } else if ((g_menu_op == OPLEVEL_VIDEO) || (g_menu_op == OPLEVEL_IMS)) // video -> Main menu
+        app_state_push(APP_STATE_VIDEO);
+    } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
         switch_to_menumode();
-    else if (g_menu_op == OPLEVEL_PLAYBACK)
+    else if (g_app_state == APP_STATE_PLAYBACK)
         pb_key(DIAL_KEY_PRESS);
     else { // Sub-menu  -> Main menu
         submenu_exit();
-        g_menu_op = OPLEVEL_MAINMENU;
+        app_state_push(APP_STATE_MAINMENU);
         main_menu_show(true);
     }
     pthread_mutex_unlock(&lvgl_mutex);
@@ -201,16 +202,16 @@ static void btn_press(void) // long press left key
 
 static void btn_click(void) // short press enter key
 {
-    LOGI("btn_click (%d)", g_menu_op);
+    LOGI("btn_click (%d)", g_app_state);
     if (!g_init_done)
         return;
 
-    if (g_menu_op == OPLEVEL_VIDEO) {
+    if (g_app_state == APP_STATE_VIDEO) {
         pthread_mutex_lock(&lvgl_mutex);
         tune_channel(DIAL_KEY_CLICK);
         pthread_mutex_unlock(&lvgl_mutex);
         return;
-    } else if (g_menu_op == OPLEVEL_IMS) {
+    } else if (g_app_state == APP_STATE_IMS) {
         pthread_mutex_lock(&lvgl_mutex);
         if (ims_key(DIAL_KEY_CLICK))
             switch_to_menumode();
@@ -227,19 +228,19 @@ static void btn_click(void) // short press enter key
     pthread_mutex_lock(&lvgl_mutex);
 
     autoscan_exit();
-    if (g_menu_op == OPLEVEL_MAINMENU) {
+    if (g_app_state == APP_STATE_MAINMENU) {
         LOGI("level = 1");
-        g_menu_op = OPLEVEL_SUBMENU;
+        app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
-    } else if ((g_menu_op == OPLEVEL_SUBMENU) || (g_menu_op == OPLEVEL_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_click();
-    } else if (g_menu_op == PAGE_FAN_SLIDE) {
+    } else if (g_app_state == PAGE_FAN_SLIDE) {
         submenu_click();
-    } else if (g_menu_op == PAGE_ANGLE_SLIDE) {
+    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
         submenu_click();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
         submenu_click();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
         submenu_click();
     }
     pthread_mutex_unlock(&lvgl_mutex);
@@ -248,12 +249,12 @@ static void btn_click(void) // short press enter key
 static void rbtn_click0(bool is_short) {
     // lvgl mutex is already locked either via lv_timer or manually bellow
 
-    switch (g_menu_op) {
-    case OPLEVEL_SUBMENU:
+    switch (g_app_state) {
+    case APP_STATE_SUBMENU:
         submenu_right_button(is_short);
         break;
 
-    case OPLEVEL_VIDEO:
+    case APP_STATE_VIDEO:
         if (is_short) {
             osd_dvr_cmd(DVR_TOGGLE);
         } else {
@@ -280,7 +281,7 @@ void rbtn_click(bool is_short) {
             lv_timer_del(right_click_timer);
             right_click_timer = NULL;
             // double-click handler
-            if (g_menu_op == OPLEVEL_VIDEO) {
+            if (g_app_state == APP_STATE_VIDEO) {
                 ht_set_center_position();
             }
         }
@@ -292,59 +293,59 @@ void rbtn_click(bool is_short) {
 }
 
 static void roller_up(void) {
-    LOGI("roller up (%d)", g_menu_op);
+    LOGI("roller up (%d)", g_app_state);
 
     if (g_scanning)
         return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
-    if (g_menu_op == OPLEVEL_MAINMENU) // main menu
+    if (g_app_state == APP_STATE_MAINMENU) // main menu
     {
         menu_nav(DIAL_KEY_UP);
-    } else if ((g_menu_op == OPLEVEL_SUBMENU) || (g_menu_op == OPLEVEL_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_UP);
-    } else if (g_menu_op == OPLEVEL_VIDEO) {
+    } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_UP);
-    } else if (g_menu_op == OPLEVEL_IMS) {
+    } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
-    } else if (g_menu_op == PAGE_FAN_SLIDE) {
+    } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_dec();
-    } else if (g_menu_op == PAGE_ANGLE_SLIDE) {
+    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
         ht_angle_dec();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
         power_cell_count_dec();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
         power_voltage_dec();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
 static void roller_down(void) {
-    LOGI("roller down (%d)", g_menu_op);
+    LOGI("roller down (%d)", g_app_state);
 
     if (g_scanning)
         return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
-    if (g_menu_op == OPLEVEL_MAINMENU) {
+    if (g_app_state == APP_STATE_MAINMENU) {
         menu_nav(DIAL_KEY_DOWN);
-    } else if ((g_menu_op == OPLEVEL_SUBMENU) || (g_menu_op == OPLEVEL_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_DOWN);
-    } else if (g_menu_op == OPLEVEL_VIDEO) {
+    } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_DOWN);
-    } else if (g_menu_op == OPLEVEL_IMS) {
+    } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
-    } else if (g_menu_op == PAGE_FAN_SLIDE) {
+    } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_inc();
-    } else if (g_menu_op == PAGE_ANGLE_SLIDE) {
+    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
         ht_angle_inc();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
         power_cell_count_inc();
-    } else if (g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
+    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
         power_voltage_inc();
     }
 

@@ -17,6 +17,7 @@
 
 #include <log/log.h>
 
+#include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/ht.h"
@@ -219,14 +220,14 @@ void msp_process_packet() {
             uint8_t chan = packet.payload[0];
             if (g_source_info.source == SOURCE_HDZERO) { // HDZero mode
                 chan = chan < 48 ? channel_map[chan] : 0;
-                if (chan != 0 && (chan != g_setting.scan.channel || g_menu_op != OPLEVEL_VIDEO)) {
+                if (chan != 0 && (chan != g_setting.scan.channel || g_app_state != APP_STATE_VIDEO)) {
                     g_setting.scan.channel = chan;
                     beep();
                     pthread_mutex_lock(&lvgl_mutex);
                     HDZero_open();
                     osd_dvr_cmd(DVR_STOP);
                     switch_to_video(true);
-                    g_menu_op = OPLEVEL_VIDEO;
+                    app_state_push(APP_STATE_VIDEO);
                     pthread_mutex_unlock(&lvgl_mutex);
                 }
             }
@@ -241,13 +242,13 @@ void msp_process_packet() {
             if (g_source_info.source == SOURCE_HDZERO) { // HDZero mode
                 for (int i = 0; i < 10; i++) {
                     int chan = i + 1;
-                    if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_menu_op != OPLEVEL_VIDEO) && chan > 0 && chan < 11) {
+                    if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_app_state != APP_STATE_VIDEO) && chan > 0 && chan < 11) {
                         g_setting.scan.channel = chan;
                         beep();
                         pthread_mutex_lock(&lvgl_mutex);
                         HDZero_open();
                         switch_to_video(true);
-                        g_menu_op = OPLEVEL_VIDEO;
+                        app_state_push(APP_STATE_VIDEO);
                         pthread_mutex_unlock(&lvgl_mutex);
                         break;
                     }
@@ -259,7 +260,7 @@ void msp_process_packet() {
             msp_send_packet(MSP_GET_REC_STATE, MSP_PACKET_RESPONSE, 1, &buf);
         } break;
         case MSP_SET_REC_STATE: {
-            if (g_menu_op == OPLEVEL_VIDEO) {
+            if (g_app_state == APP_STATE_VIDEO) {
                 record_state = packet.payload[0] == 0 ? 1 : 2;
                 uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;
                 if (delay == 0)

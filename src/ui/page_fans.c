@@ -5,14 +5,15 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "core/app_state.h"
 #include "core/common.hh"
 #include "core/settings.h"
 #include "driver/fans.h"
 #include "driver/nct75.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
+#include "ui/ui_attribute.h"
 #include "ui/ui_style.h"
-#include "ui_attribute.h"
 
 typedef enum {
     FANS_MODE_TOP = 0,
@@ -169,11 +170,11 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
         return;
     }
 
-    if (g_menu_op == PAGE_FAN_SLIDE) {
-        g_menu_op = OPLEVEL_SUBMENU;
+    if (g_app_state == PAGE_FAN_SLIDE) {
+        app_state_push(APP_STATE_SUBMENU);
         lv_obj_add_style(slider, &style_silder_main, LV_PART_MAIN);
     } else {
-        g_menu_op = PAGE_FAN_SLIDE;
+        app_state_push(PAGE_FAN_SLIDE);
         lv_obj_add_style(slider, &style_silder_select, LV_PART_MAIN);
     }
 }

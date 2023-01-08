@@ -20,6 +20,7 @@
 
 #include <log/log.h>
 
+#include "core/app_state.h"
 #include "core/common.hh"
 #include "core/input_device.h"
 #include "core/msp_displayport.h"
@@ -419,7 +420,7 @@ void DM5680_get_regval(uint8_t sel, uint8_t *payload) {
 }
 
 void DM5680_OSD_parse(uint8_t *buf, uint8_t len) {
-    if (g_menu_op != OPLEVEL_VIDEO)
+    if (g_app_state != APP_STATE_VIDEO)
         return;
 
     recive_one_frame(buf, len);

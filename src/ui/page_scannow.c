@@ -9,19 +9,20 @@
 #include <log/log.h>
 #include <minIni.h>
 
-#include "../core/common.hh"
-#include "../core/defines.h"
-#include "../core/osd.h"
-#include "../driver/dm5680.h"
-#include "../driver/dm6302.h"
-#include "../driver/hardware.h"
-#include "../driver/i2c.h"
-#include "../driver/oled.h"
-#include "../driver/uart.h"
+#include "core/app_state.h"
+#include "core/common.hh"
+#include "core/defines.h"
+#include "core/msp_displayport.h"
+#include "core/osd.h"
 #include "core/settings.h"
-#include "fbtools.h"
-#include "msp_displayport.h"
-#include "page_common.h"
+#include "driver/dm5680.h"
+#include "driver/dm6302.h"
+#include "driver/fbtools.h"
+#include "driver/hardware.h"
+#include "driver/i2c.h"
+#include "driver/oled.h"
+#include "driver/uart.h"
+#include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
@@ -393,9 +394,9 @@ void autoscan_exit(void) {
         LOGI("autoscan_exit, lelve=1");
         g_autoscan_exit = true;
         if (auto_scaned_cnt > 1)
-            g_menu_op = OPLEVEL_SUBMENU;
+            app_state_push(APP_STATE_SUBMENU);
         else
-            g_menu_op = OPLEVEL_MAINMENU;
+            app_state_push(APP_STATE_MAINMENU);
     }
 }
 
@@ -407,7 +408,7 @@ static void page_scannow_enter() {
         if (!g_autoscan_exit)
             g_autoscan_exit = true;
 
-        g_menu_op = OPLEVEL_VIDEO;
+        app_state_push(APP_STATE_VIDEO);
         switch_to_video(false);
     }
 
@@ -434,7 +435,7 @@ static void page_scannow_on_roller(uint8_t key) {
 }
 
 static void page_scannow_on_click(uint8_t key, int sel) {
-    g_menu_op = OPLEVEL_VIDEO;
+    app_state_push(APP_STATE_VIDEO);
     switch_to_video(false);
 }
 

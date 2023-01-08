@@ -10,13 +10,13 @@
 
 #include <log/log.h>
 
-#include "common.hh"
-#include "defines.h"
-#include "input_device.h"
-#include "msp_displayport.h"
-#include "osd.h"
-
+#include "core/app_state.h"
 #include "core/battery.h"
+#include "core/common.hh"
+#include "core/defines.h"
+#include "core/input_device.h"
+#include "core/msp_displayport.h"
+#include "core/osd.h"
 #include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
@@ -69,7 +69,7 @@ static void check_hdzero_signal(int vtmg_change) {
         tune_channel_timer();
     }
 
-    if (g_setting.record.mode_manual || !g_sdcard_enable || (g_menu_op != OPLEVEL_VIDEO))
+    if (g_setting.record.mode_manual || !g_sdcard_enable || (g_app_state != APP_STATE_VIDEO))
         return;
 
     // exit if HDMI in

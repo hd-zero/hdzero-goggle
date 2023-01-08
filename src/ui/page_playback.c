@@ -12,6 +12,7 @@
 #include <log/log.h>
 
 #include "common.hh"
+#include "core/app_state.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
@@ -357,7 +358,7 @@ void pb_key(uint8_t key) {
     if (state == 1) {
         if (mplayer_on_key(key)) {
             state = 0;
-            g_menu_op = OPLEVEL_SUBMENU;
+            app_state_push(APP_STATE_SUBMENU);
         }
         return;
     }
@@ -382,7 +383,7 @@ void pb_key(uint8_t key) {
         if (get_seleteced(media_db.cur_sel, fname)) {
             mplayer_file(fname);
             state = 1;
-            g_menu_op = OPLEVEL_PLAYBACK;
+            app_state_push(APP_STATE_PLAYBACK);
         }
         break;
 

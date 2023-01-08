@@ -111,7 +111,6 @@ enum {
 };
 typedef uint8_t lv_menu_builder_variant_t;
 
-extern op_level_t g_menu_op;
 extern bool g_sdcard_enable;
 extern bool g_sdcard_det_req;
 extern int g_sdcard_size;
