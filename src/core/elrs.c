@@ -318,6 +318,18 @@ void msp_process_packet()
 	}
 }
 
+bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *payload)
+{
+	if (sem_trywait(&response_semaphore))
+		return false;
+	if (response_packet.function != function)
+		return false;
+	uint16_t size = response_packet.payload_size < *payload_size ? response_packet.payload_size : *payload_size;
+	memcpy(payload, response_packet.payload, size);
+	*payload_size = size;
+	return true;
+}
+
 bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms)
 {
 	struct timespec ts;
@@ -351,6 +363,7 @@ void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_s
 	uint8_t buffer[16] = {'$', 'X', type, 0x00, function & 0xFF, function >> 8, payload_size & 0xFF, payload_size >> 8};
     memcpy(buffer + 8, payload, payload_size);
 	uint8_t crc = 0;
+	while(!sem_trywait(&response_semaphore));
 	for (int i=3 ; i<payload_size + 8 ; i++)
 		crc = msp_crc8_dvb_s2(crc, buffer[i]);
 	buffer[payload_size + 8] = crc;
