@@ -20,7 +20,6 @@
 #include <termios.h> /* POSIX Terminal Control Definitions */
 #include <unistd.h>  /* UNIX Standard Definitions 	   */
 #include <errno.h>   /* ERROR Number Definitions           */
-#include <semaphore.h>
 
 #include <log/log.h>
 
@@ -137,7 +136,7 @@ void esp32_rx()
 			buffer[i++] = ch;
 		if ((processed && i>0) || buffer[i-1]=='\n' || i==80) {
 			buffer[i-1] = 0;
-			//LOGI("[ESP] %s\n", buffer);
+			LOGD("[ESP] %s\n", buffer);
 			i = 0;
 		}
     }

@@ -116,12 +116,14 @@ static void page_connections_on_click(uint8_t key, int sel) {
             lv_label_set_text(btn_wifi, "#00FF00 Success#");
     } else if (sel == 2) // start ESP bind
     {
-        lv_label_set_text(btn_bind, "Binding...");
+        lv_label_set_text(btn_bind, "Starting...");
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
         lv_timer_handler();
         if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000)) {
             lv_label_set_text(btn_bind, "#FF0000 FAILED#");
         } else {
+            lv_label_set_text(btn_bind, "Binding...");
+            lv_timer_handler();
             if (!msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000)) {
                 lv_label_set_text(btn_bind, "#FEBE00 Timeout#");
             } else {
