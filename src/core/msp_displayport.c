@@ -48,7 +48,7 @@ uint8_t vtxFcLock = 0;
 //bit[3] Unlocked VTX
 uint8_t cam_4_3 = 0;  //1=16:9;0=4:3
 
-osd_resolution_t resolution = SD_3016;
+osd_resolution_t osd_resolution = SD_3016;
 static osd_resolution_t resolution_last = HD_5018;
 
 uint8_t lq_err_cnt = 0;
@@ -401,22 +401,22 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
     uint8_t pageNum = 0;
     static uint8_t row_last = 0;
 
-    //detect resolution
+    //detect osd_resolution
     if((row >> 5) == (row_last >> 5))
-        resolution = row >> 5;
-    if(resolution >= RES_MAX)
-        resolution = SD_3016;
+        osd_resolution = row >> 5;
+    if(osd_resolution >= RES_MAX)
+        osd_resolution = SD_3016;
 
     
-    if(resolution != resolution_last)
+    if(osd_resolution != resolution_last)
         clear_screen();
     
-    resolution_last = resolution;
+    resolution_last = osd_resolution;
     row_last = row;
     
     row &= 0x1f;
     
-    if(resolution == HD_5018){
+    if(osd_resolution == HD_5018){
         hmax = HD_HMAX;
         len_mask = 7;
         ptr = 8;
@@ -436,7 +436,7 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
     }
 
     //parse loc
-    if(resolution == SD_3016){
+    if(osd_resolution == SD_3016){
         loc_buf = (uint32_t)rx_buf[5] << 0;
         loc_buf += (uint32_t)rx_buf[6] << 8;
         loc_buf += (uint32_t)rx_buf[7] << 16;
@@ -469,7 +469,7 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
         else
             ch = 0x20;
 
-        if(resolution == SD_3016)
+        if(osd_resolution == SD_3016)
         {
             if((loc_buf >> i) & 1)
                 waddr = scalerX(i);
@@ -478,12 +478,16 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
             if(waddr >= HD_HMAX)
                 waddr = 0;
         }
+        else if(osd_resolution == HD_3016)
+            line_buf[i + 10] = ch;
         else
-        {
             line_buf[i] = ch;
-        }
     }
-    update_osd(line_buf, row);
+
+    if(osd_resolution == HD_3016)
+        update_osd(line_buf, row + 1);
+    else
+        update_osd(line_buf, row);
 }
 
 void clear_screen()

@@ -66,7 +66,7 @@ extern char             fc_variant[5];
 extern uint8_t          link_quality;
 extern uint8_t          vtxTempInfo;  // bit[7]: temp enbale bit[6:0]: temp(0~9)
 extern uint8_t          fontType;
-extern osd_resolution_t resolution;
+extern osd_resolution_t osd_resolution;
 extern uint8_t          vtxVersion;
 extern uint8_t          vtxType;
 extern uint8_t          vtxFcLock;
