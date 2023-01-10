@@ -9,3 +9,4 @@ mkapp/app/app/HDZGOGGLE
 media.tar.gz
 /tmp
 /.vscode/settings.json
+.DS_Store
