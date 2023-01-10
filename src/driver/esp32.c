@@ -136,7 +136,7 @@ void esp32_rx()
 			buffer[i++] = ch;
 		if ((processed && i>0) || buffer[i-1]=='\n' || i==80) {
 			buffer[i-1] = 0;
-			LOGD("[ESP] %s\n", buffer);
+			LOGD("[ESP] %s", buffer);
 			i = 0;
 		}
     }

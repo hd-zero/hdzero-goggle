@@ -243,6 +243,34 @@ uint8_t command_monitor(char *cmd) {
     return ret;
 }
 
+static void elrs_version_timer(struct _lv_timer_t *timer)
+{
+    char label[80];
+    uint8_t version[32] = {0};
+    uint16_t size = sizeof(version) - 1;
+
+    if(!msp_read_resposne(MSP_GET_BP_VERSION, &size, version)) {
+        msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
+        return;
+    }
+    lv_timer_del(timer);
+    sprintf(label, "ver: %s", version);
+    lv_label_set_text(label_esp, label);
+}
+
+static void page_version_enter() {
+    version_update_title();
+
+    lv_label_set_text(label_esp, "");
+    msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
+    lv_timer_t *timer = lv_timer_create(elrs_version_timer, 250, NULL);
+    lv_timer_set_repeat_count(timer, 20);
+}
+
+static void page_version_on_roller(uint8_t key) {
+    version_update_title();
+}
+
 static void page_version_on_click(uint8_t key, int sel) {
     version_update_title();
     if (sel == 0) {
@@ -335,14 +363,17 @@ static void page_version_on_click(uint8_t key, int sel) {
         lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
     } else if (sel == 3) { // flash ESP via SD
         lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(btn_esp, "Flashing...");
         lv_timer_handler();
         esp_loader_error_t ret = flash_elrs();
         lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
         if (ret == ESP_LOADER_SUCCESS)
             lv_label_set_text(btn_esp, "#00FF00 Success#");
         else
             lv_label_set_text(btn_esp, "#FF0000 FAILED#");
+        page_version_enter();
     }
 }
 
@@ -382,6 +413,7 @@ void version_update_title() {
     lv_label_set_text(btn_vtx, "Update VTX");
     if (!reboot_flag)
         lv_label_set_text(btn_goggle, "Update Goggle");
+    lv_label_set_text(btn_esp, "Update ESP32");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -471,34 +503,6 @@ void *thread_version(void *ptr) {
         usleep(100000);
     }
     return NULL;
-}
-
-static void elrs_version_timer(struct _lv_timer_t *timer)
-{
-    char label[80];
-    uint8_t version[32] = {0};
-    uint16_t size = sizeof(version) - 1;
-
-    if(!msp_read_resposne(MSP_GET_BP_VERSION, &size, version)) {
-        msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
-        return;
-    }
-    lv_timer_del(timer);
-    sprintf(label, "ver: %s", version);
-    lv_label_set_text(label_esp, label);
-}
-
-static void page_version_enter() {
-    version_update_title();
-
-    lv_label_set_text(label_esp, "");
-    msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
-    lv_timer_t *timer = lv_timer_create(elrs_version_timer, 250, NULL);
-    lv_timer_set_repeat_count(timer, 20);
-}
-
-static void page_version_on_roller(uint8_t key) {
-    version_update_title();
 }
 
 page_pack_t pp_version = {
