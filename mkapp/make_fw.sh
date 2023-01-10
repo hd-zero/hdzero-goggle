@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 FILE1=`ls ota_app/hdzgoggle_app_ota-*.tar`
 FILE2=hal/HDZGOGGLE_RX.bin
 FILE3=hal/HDZGOGGLE_VA.bin
