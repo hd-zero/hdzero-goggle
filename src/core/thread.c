@@ -73,21 +73,6 @@ static void *thread_imu(void *ptr)
 	return NULL;
 }
 
-void *thread_dialpad(void *ptr)
-{
-	for(;;)
-	{
-		input_device_loop();
-		if(!g_init_done) {
-			pthread_mutex_lock(&lvgl_mutex);
-			lv_timer_handler();
-			pthread_mutex_unlock(&lvgl_mutex);
-		}
-	}
-	return NULL;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Signal loss|accquire processing
 #define SIGNAL_LOSS_DURATION_THR  20 //25=4 seconds, 

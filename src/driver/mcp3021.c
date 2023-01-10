@@ -57,5 +57,5 @@ int mcp_read_vatage(void)
 int mcp_detect_type(void)
 {
 	int v = mcp_read_vatage();
-	return (v*10/1000/43+1);
+	return (v*10/1000/42+1);
 }

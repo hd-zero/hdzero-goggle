@@ -1,11 +1,10 @@
 #ifndef _PAGE_AUTOSCAN_H
 #define _PAGE_AUTOSCAN_H
 
+#include <lvgl/lvgl.h>
 
-#include "lvgl/lvgl.h"
-#include "page_common.h"
+#include "ui/ui_main_menu.h"
 
-lv_obj_t *page_autoscan_create(lv_obj_t *parent, struct panel_arr *arr);
-void autoscan_toggle(int sel);
+extern page_pack_t pp_autoscan;
 
 #endif

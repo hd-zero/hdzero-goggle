@@ -353,7 +353,7 @@ void MFPGA_Set720P90(uint8_t mode)
     I2C_Write(ADDR_FPGA, 0x46, 0x00);
     I2C_Write(ADDR_FPGA, 0x47, 0x00);
     I2C_Write(ADDR_FPGA, 0x48, 0x28);
-    I2C_Write(ADDR_FPGA, 0x49, 0xe2);
+    I2C_Write(ADDR_FPGA, 0x49, 0xde);
     I2C_Write(ADDR_FPGA, 0x4a, 0x01);
     I2C_Write(ADDR_FPGA, 0x4b, 0x05);
     I2C_Write(ADDR_FPGA, 0x4c, 0x11);

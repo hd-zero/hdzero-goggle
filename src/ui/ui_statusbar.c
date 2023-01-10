@@ -2,7 +2,7 @@
 #include "ui/ui_statusbar.h"
 #include "lvgl/lvgl.h"
 #include "ui/page_common.h"
-#include "ui/ui_playback.h"
+#include "ui/page_playback.h"
 #include "ui/ui_style.h"
 #include "mcp3021.h"
 #include "osd.h"
@@ -100,7 +100,7 @@ int statusbar_init(void)
     label1 = lv_label_create(cont);
     lv_label_set_long_mode(label1, LV_LABEL_LONG_DOT);     /*Break the long lines*/
 
-	sprintf(buf, "RF:HDZero %s", channel2str(g_setting.scan.channel));
+	sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel));
 
     lv_label_set_text(label1, buf);
     lv_obj_set_width(label1, 267);  /*Set smaller width to make the lines wrap*/
@@ -111,7 +111,7 @@ int statusbar_init(void)
 
     label2 = lv_label_create(cont);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_DOT);     /*Break the long lines*/
-    lv_label_set_text(label2, "ELRS:Off");
+    lv_label_set_text(label2, "ELRS: Off");
     lv_obj_set_width(label2, 267);  /*Set smaller width to make the lines wrap*/
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label2, lv_color_make(255,255,255), 0);
@@ -120,7 +120,7 @@ int statusbar_init(void)
 
     label3 = lv_label_create(cont);
     lv_label_set_long_mode(label3, LV_LABEL_LONG_DOT);     /*Break the long lines*/
-    lv_label_set_text(label3, "Wifi:Off");
+    lv_label_set_text(label3, "Wifi: Off");
     lv_obj_set_width(label3, 267);  /*Set smaller width to make the lines wrap*/
     lv_obj_set_style_text_align(label3, LV_TEXT_ALIGN_LEFT, 0);
 	lv_obj_set_style_text_color(label3, lv_color_make(255,255,255), 0);
@@ -208,9 +208,9 @@ void  statubar_update(void)
 		memset(buf, 0, sizeof(buf));
 		if(g_source_info.source == SOURCE_HDZERO) { //HDZero
 			if(g_setting.scan.channel > 8)
-				sprintf(buf, "RF:HDZero F%d", (g_setting.scan.channel - 8)*2);
+				sprintf(buf, "RF: HDZero F%d", (g_setting.scan.channel - 8)*2);
 			else
-				sprintf(buf, "RF:HDZero R%d", g_setting.scan.channel);
+				sprintf(buf, "RF: HDZero R%d", g_setting.scan.channel);
 		}
 		else if(g_source_info.source == SOURCE_HDMI_IN)
 			sprintf(buf, "HDMI In");
@@ -233,13 +233,13 @@ void  statubar_update(void)
 		lv_img_set_src(img_sdc, &img_sdcard);
 		if(cnt != 0) {
 			if(bFull) 
-				sprintf(buf, "%d clip(s), SD Card Full", cnt);
+				sprintf(buf, "%d clip(s), SD Card full", cnt);
 			else 	
  				sprintf(buf, "%d clip(s), %.2fGB available", cnt,gb);
 		}
 		else {
 			if(bFull)
-				sprintf(buf, "#FF0000 SD Card Full#");
+				sprintf(buf, "#FF0000 SD Card full#");
 			else 
 				sprintf(buf, "%.2fGB available", gb);
 		}
@@ -252,7 +252,7 @@ void  statubar_update(void)
 	lv_label_set_text(label0, buf);
 
 	if (g_setting.elrs.enable)
-    	lv_label_set_text(label2, "ELRS:On ");
+    	lv_label_set_text(label2, "ELRS: On ");
 	else
-    	lv_label_set_text(label2, "ELRS:Off");
+    	lv_label_set_text(label2, "ELRS: Off");
 }

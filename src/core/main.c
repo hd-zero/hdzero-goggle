@@ -249,14 +249,8 @@ int main(int argc, char* argv[])
 	main_menu_init();
 	statusbar_init();
 	lv_timer_handler();
+	input_device_init(); 
 	
-	g_menu_op = OPLEVEL_MAINMENU;
-	input_device_open(); 
-	{
-		pthread_t pid;
-		pthread_create(&pid,NULL,thread_dialpad,NULL);
-	}
-
 	iic_init();
 	OLED_Startup();
 	Display_UI_init();

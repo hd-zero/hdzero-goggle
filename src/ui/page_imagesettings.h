@@ -1,11 +1,12 @@
 #ifndef _PAGE_IMAGESETTINGS_H
 #define _PAGE_IMAGESETTINGS_H
 
+#include <lvgl/lvgl.h>
 
-#include "lvgl/lvgl.h"
-#include "page_common.h"
-lv_obj_t *page_imagesettings_create(lv_obj_t *parent, struct panel_arr *arr);
+#include "ui/ui_main_menu.h"
 
-void page_ims_click();
+extern page_pack_t pp_imagesettings;
+
 void set_slider_value();
+
 #endif

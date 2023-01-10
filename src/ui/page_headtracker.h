@@ -1,11 +1,10 @@
 #ifndef _PAGE_HEADTRACKER_H
 #define _PAGE_HEADTRACKER_H
 
+#include <lvgl/lvgl.h>
 
-#include "lvgl/lvgl.h"
-#include "page_common.h"
+#include "ui/ui_main_menu.h"
 
-lv_obj_t *page_headtracker_create(lv_obj_t *parent, struct panel_arr *arr);
-void headtracker_set_toggle(int sel);
+extern page_pack_t pp_headtracker;
 
 #endif

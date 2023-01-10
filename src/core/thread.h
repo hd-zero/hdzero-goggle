@@ -15,5 +15,4 @@ typedef struct {
 } threads_obj_t;
 
 int create_threads();
-void *thread_dialpad(void *ptr);
 #endif

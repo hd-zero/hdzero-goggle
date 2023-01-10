@@ -126,7 +126,7 @@ void Display_720P90_t(int mode)
     I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x00); 
     I2C_Write(ADDR_AL, 0x14, 0x01);
-    I2C_Write(ADDR_FPGA, 0x80, 0x01);
+    I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
     DM5680_SetFPS(mode);
     MFPGA_Set720P90(mode);
@@ -372,8 +372,6 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
                     TP2825_Set_Clamp(0);
             }
         }
-
-        //printf("det=%d, det2=%d, det_cnt=%d, det2_cnt=%d, is_pal=%d, vld=%d\n", det, det2, det_cnt, det2_cnt, g_hw_stat.av_pal, g_hw_stat.av_valid[g_hw_stat.av_chid]);
     }
 
     pthread_mutex_unlock(&hardware_mutex);
@@ -407,9 +405,9 @@ void HDMI_in_detect()
                     if(vtmg == 1){
                         system("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x00);
-                        I2C_Write(ADDR_AL, 0x14, 0x01);
+                        //I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
                         
                         OLED_SetTMG(0);
@@ -419,11 +417,11 @@ void HDMI_in_detect()
                         g_hw_stat.hdmiin_vtmg = 1;
                     }
                     else if(vtmg == 2){
-                        system("dispw -s vdpo 720p60");
-                        g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x14); //0x14 for 720p100, 0x04 for 720p60
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
-                        I2C_Write(ADDR_AL, 0x14, 0x01);
+                        system("dispw -s vdpo 720p30"); // 100fps actually
+                        g_hw_stat.vdpo_tmg = HW_VDPO_720P100;
+                        //I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
                         
                         OLED_SetTMG(1);
@@ -432,6 +430,14 @@ void HDMI_in_detect()
                         OLED_display(1);
                         g_hw_stat.hdmiin_vtmg = 2;
                     }
+                }
+
+                cs = IT66021_Get_PCLKFREQ();
+                if(cs > 0) {
+                    if(cs < 63)
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                    else
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x04);
                 }
 
                 cs = IT66021_Get_CS();
