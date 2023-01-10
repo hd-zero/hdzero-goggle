@@ -484,9 +484,6 @@ void parser_osd(uint8_t row, uint8_t *rx_buf)
             line_buf[i] = ch;
     }
 
-    if(row == 0)
-        line_buf[0] = osd_resolution + '0';
-
     if(osd_resolution == HD_3016)
         update_osd(line_buf, row + 1);
     else
