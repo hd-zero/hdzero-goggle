@@ -24,8 +24,8 @@ static lv_coord_t col_dsc[] = {180, 200, 160, 160, 160, 160, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_wifi;
 static lv_obj_t *btn_bind;
+static lv_obj_t *label_bind_status;
 static btn_group_t elrs_group;
-static lv_obj_t *elrs_bar = NULL;
 
 static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -56,6 +56,7 @@ static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
     btn_wifi = create_label_item(cont, "Start Backpack Wifi", 1, 1, 1);
     btn_bind = create_label_item(cont, "Start Backpack Binding", 1, 2, 1);
+    label_bind_status = create_label_item(cont, "Not bound", 3, 2, 1);
 
     btn_group_t btn_group;
     create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "", "", 3);
@@ -76,13 +77,6 @@ static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
                          LV_GRID_ALIGN_START, 8, 2);
-
-    elrs_bar = lv_bar_create(cont);
-    lv_obj_set_size(elrs_bar, 260, 20);
-    lv_obj_set_grid_cell(elrs_bar, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, 1, 1);
-    lv_obj_add_flag(elrs_bar, LV_OBJ_FLAG_HIDDEN);
-
     return page;
 }
 
@@ -93,6 +87,31 @@ static void page_connections_reset() {
 
 static void page_connections_on_roller(uint8_t key) {
     page_connections_reset();
+}
+
+static void elrs_status_timer(struct _lv_timer_t *timer)
+{
+    char label[80];
+    uint8_t status[7] = {0};
+    uint16_t size = sizeof(status) - 1;
+
+    if(!msp_read_resposne(MSP_GET_BP_STATUS, &size, status)) {
+        msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
+        return;
+    }
+    lv_timer_del(timer);
+    if (status[0] & 4) {
+        sprintf(label, "UID: %d,%d,%d,%d,%d,%d", status[1], status[2], status[3], status[4], status[5], status[6]);
+        lv_label_set_text(label_bind_status, label);
+    }
+}
+
+static void page_connections_enter()
+{
+    lv_label_set_text(label_bind_status, "Not bound");
+    msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
+    lv_timer_t *timer = lv_timer_create(elrs_status_timer, 250, NULL);
+    lv_timer_set_repeat_count(timer, 20);
 }
 
 static void page_connections_on_click(uint8_t key, int sel) {
@@ -129,6 +148,7 @@ static void page_connections_on_click(uint8_t key, int sel) {
             } else {
                 lv_label_set_text(btn_bind, "#00FF00 Success#");
             }
+            page_connections_enter();
         }
     }
 }
@@ -140,7 +160,7 @@ page_pack_t pp_connections = {
     },
 
     .create = page_connections_create,
-    .enter = NULL,
+    .enter = page_connections_enter,
     .exit = NULL,
     .on_roller = page_connections_on_roller,
     .on_click = page_connections_on_click,

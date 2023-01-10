@@ -43,6 +43,7 @@ typedef struct __attribute__((packed)) {
 #define MSP_SET_OSD_ELEM    0x00B6
 #define MSP_SET_MODE        0x0380    // goggles to backpack
 #define MSP_GET_BP_VERSION  0x0381    // goggles to backpack
+#define MSP_GET_BP_STATUS   0x0382    // goggles to backpack
 
 #define MSP_PORT_INBUF_SIZE 64
 
