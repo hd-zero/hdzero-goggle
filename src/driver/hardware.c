@@ -80,6 +80,7 @@ void Display_UI_init()
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     OLED_SetTMG(0);
+	system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
 }
 
 void Display_UI()
@@ -114,6 +115,7 @@ void Display_720P60_50_t(int mode,uint8_t is_43) //fps: 0=50, 1=60
     g_hw_stat.source_mode = HW_SRC_MODE_HDZERO;
     Display_VO_SWITCH(1);
     OLED_display(1);
+	system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
 }
 
 void Display_720P90_t(int mode)
@@ -137,6 +139,7 @@ void Display_720P90_t(int mode)
     g_hw_stat.source_mode = HW_SRC_MODE_HDZERO;
     Display_VO_SWITCH(1);
     OLED_display(1);
+	system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
 }
 
 void Display_720P60_50(int mode,uint8_t is_43)
@@ -187,6 +190,7 @@ void AV_Mode_Switch_fpga(int is_pal)
         I2C_Write(ADDR_FPGA, 0x80, 0x00);
     }
     I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+	system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
 }
 
 void AV_Mode_Switch(int is_pal)
