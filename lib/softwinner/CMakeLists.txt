@@ -12,13 +12,7 @@ set(SOFTWINNER_INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include
 )
 
-add_library(softwinner SHARED IMPORTED GLOBAL)
-set_target_properties(softwinner PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/media/lib/libz.so # dummy
-    INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
-)
-target_link_libraries(softwinner INTERFACE
-    log
+set(PREBUILT_LIBRARIES
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/lib_ise_mo.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libadecoder.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libawmjpegplus.so
@@ -52,5 +46,24 @@ target_link_libraries(softwinner INTERFACE
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvencoder.so
     ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvideoengine.so
     ${CMAKE_SOURCE_DIR}/media/lib/libasound.so
+    ${CMAKE_SOURCE_DIR}/media/lib/libasound.so.2
+    ${CMAKE_SOURCE_DIR}/media/lib/libasound.so.2.0.0
     ${CMAKE_SOURCE_DIR}/media/lib/libz.so
+    ${CMAKE_SOURCE_DIR}/media/lib/libz.so.1
+    ${CMAKE_SOURCE_DIR}/media/lib/libz.so.1.2.8
+    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so
+    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so.0
+    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so.0.0.0
 )
+
+add_library(softwinner SHARED IMPORTED GLOBAL)
+set_target_properties(softwinner PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/media/lib/libz.so # dummy
+    INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
+)
+target_link_libraries(softwinner INTERFACE
+    log
+
+    ${PREBUILT_LIBRARIES}
+)
+install(FILES ${PREBUILT_LIBRARIES} TYPE LIB)
