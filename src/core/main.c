@@ -43,34 +43,34 @@ static void load_ini_setting(void)
 	
 	FILE* fp;
 	fp=fopen("/mnt/UDISK/setting.ini","r");
-	if(fp){
+	if(fp) {
 		fclose(fp);
 		sprintf(str,"cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
 		system(str); usleep(10);
 		system("rm /mnt/UDISK/setting.ini");
 	}
 
-  	ini_gets("scan", "channel", "1", str, sizeof(str), SETTING_INI);
+	ini_gets("scan", "channel", "1", str, sizeof(str), SETTING_INI);
 	g_setting.scan.channel = atoi(str);
 
 
-  	ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0)	{
 		g_setting.fans.auto_mode = true;
-	else
+	}else{
 		g_setting.fans.auto_mode = false;
-  	ini_gets("fans", "top_speed", "4", str, sizeof(str), SETTING_INI);
+	}
+	ini_gets("fans", "top_speed", "4", str, sizeof(str), SETTING_INI);
 	g_setting.fans.top_speed = atoi(str);
-  	ini_gets("fans", "left_speed", "5", str, sizeof(str), SETTING_INI);
+	ini_gets("fans", "left_speed", "5", str, sizeof(str), SETTING_INI);
 	g_setting.fans.left_speed = atoi(str);
-  	ini_gets("fans", "right_speed", "5", str, sizeof(str), SETTING_INI);
+	ini_gets("fans", "right_speed", "5", str, sizeof(str), SETTING_INI);
 	g_setting.fans.right_speed = atoi(str);
 
-  	ini_gets("autoscan", "status", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0)
-	{
+	ini_gets("autoscan", "status", "enable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0) {
 		g_setting.autoscan.status = 0;
-	}else if(strcmp(str, "disable") == 0 || strcmp(str, "last") == 0){
+	}else if(strcmp(str, "disable") == 0 || strcmp(str, "last") == 0) {
 		g_setting.autoscan.status = 1;
 	}else{
 		g_setting.autoscan.status = 2;
@@ -78,105 +78,98 @@ static void load_ini_setting(void)
 	g_setting.autoscan.source = ini_getl("autoscan", "source", SETTING_SOURCE_LAST, SETTING_INI);
 	g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", SETTING_SOURCE_HDZERO, SETTING_INI);
 
-	//power
-  	ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
+	//Power
+	ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
 	g_setting.power.voltage = atoi(str);
-  	ini_gets("power", "warning_type", "0", str, sizeof(str), SETTING_INI);
+	ini_gets("power", "warning_type", "0", str, sizeof(str), SETTING_INI);
 	g_setting.power.warning_type = atoi(str);
-  	ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
-	{
+	ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0) {
 		g_setting.record.mode_manual = true;
 	}else{
 		g_setting.record.mode_manual = false;
 	}
-  	ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
-	{
+	ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0) {
 		g_setting.record.format_ts = true;
 	}else{
 		g_setting.record.format_ts = false;
 	}
-  	ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
-	{
+	ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0) {
 		g_setting.record.osd = true;
 	}else{
 		g_setting.record.osd = false;
 	}
-  	ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
-	{
+	ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
+	if(strcmp(str, "enable") == 0) {
 		g_setting.record.audio = true;
 	}else{
 		g_setting.record.audio = false;
 	}
 
-  	ini_gets("record", "audio_source", "0", str, sizeof(str), SETTING_INI);
+	ini_gets("record", "audio_source", "0", str, sizeof(str), SETTING_INI);
 	g_setting.record.audio_source = atoi(str);
 
-		//image
-  	ini_gets("image", "oled", "7", str, sizeof(str), SETTING_INI);
+	//Image
+	ini_gets("image", "oled", "7", str, sizeof(str), SETTING_INI);
 	g_setting.image.oled = atoi(str);
-  	ini_gets("image", "brightness", "0", str, sizeof(str), SETTING_INI);
+	ini_gets("image", "brightness", "0", str, sizeof(str), SETTING_INI);
 	g_setting.image.brightness = atoi(str);
-  	ini_gets("image", "saturation", "0", str, sizeof(str), SETTING_INI);
+	ini_gets("image", "saturation", "0", str, sizeof(str), SETTING_INI);
 	g_setting.image.saturation = atoi(str);
-  	ini_gets("image", "contrast", "0", str, sizeof(str), SETTING_INI);
+	ini_gets("image", "contrast", "0", str, sizeof(str), SETTING_INI);
 	g_setting.image.contrast = atoi(str);
-  	ini_gets("image", "auto_off", "2", str, sizeof(str), SETTING_INI);
+	ini_gets("image", "auto_off", "2", str, sizeof(str), SETTING_INI);
 	g_setting.image.auto_off = atoi(str);
 
 	g_setting.ht.enable = ini_getl("ht", "enable", 0, SETTING_INI);
-	if(!g_setting.ht.enable) 
-			disable_ht();
+	if(!g_setting.ht.enable) disable_ht();
 
 	g_setting.elrs.enable = ini_getl("elrs", "enable", 0, SETTING_INI);
 
 	//Check
-    g_test_en = false;
-    log_file = fopen(LOG_FILE,"r");
-    if(log_file) {
+	g_test_en = false;
+	log_file = fopen(LOG_FILE,"r");
+	if(log_file) {
 		fclose(log_file);
 		log_file = fopen(LOG_FILE,"w+");
-    	if(log_file) g_test_en = true;
+		if(log_file) g_test_en = true;
 	}
 }
 
 static void *thread_autoscan(void *ptr)
 {
-	for(;;)
-	{
+	for(;;) {
 		pthread_mutex_lock(&lvgl_mutex);
 		main_menu_show(true);
 		g_menu_op = OPLEVEL_SUBMENU;
 		submenu_enter();
 		pthread_mutex_unlock(&lvgl_mutex);
 
-		if(g_autoscan_exit)
-			goto a_exit;
+		if(g_autoscan_exit) goto a_exit;
 
 		sleep(5);
 
-		if(g_autoscan_exit)
-			goto a_exit;
+		if(g_autoscan_exit) goto a_exit;
 	}
-	
-a_exit:
+
+	a_exit:
 	pthread_exit(NULL);
-return NULL;
+	return NULL;
 }
 
 
 void start_running(void)
 {
 	int source;
-	if(g_setting.autoscan.source == SETTING_SOURCE_LAST)
+	if(g_setting.autoscan.source == SETTING_SOURCE_LAST) {
 		source = g_setting.autoscan.last_source;
-	else
+	}else{
 		source = g_setting.autoscan.source;
+	}
 
-	if(source == SETTING_SOURCE_HDZERO) {//HDZero
+	if(source == SETTING_SOURCE_HDZERO) { //HDZero
 		g_source_info.source = SOURCE_HDZERO;
 		HDZero_open();
 		if(g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) {
@@ -188,17 +181,17 @@ void start_running(void)
 			g_menu_op = OPLEVEL_VIDEO;
 			switch_to_video(true);
 		}
-		else{ //auto scan disabled, go to go directly to last saved channel
+		else{ //Auto scan disabled, go directly to last saved channel
 			g_menu_op = OPLEVEL_MAINMENU;
 		}
 	}
 	else {
 		g_menu_op = OPLEVEL_VIDEO;
-		if(source == SETTING_SOURCE_EXPANSION) {//module Bay
+		if(source == SETTING_SOURCE_EXPANSION) { //Module Bay
 			switch_to_analog(1);
 			g_source_info.source = SOURCE_EXPANSION;
 		}
-		else if(source == SETTING_SOURCE_AV_IN) {//AV in
+		else if(source == SETTING_SOURCE_AV_IN) { //AV in
 			switch_to_analog(0);
 			g_source_info.source = SOURCE_AV_IN;
 		}
@@ -219,8 +212,7 @@ void start_running(void)
 	set_voltage(g_setting.power.voltage);
 	set_warning_type(g_setting.power.warning_type);
 
-	if (g_setting.elrs.enable)
-		enable_esp32();
+	if (g_setting.elrs.enable) enable_esp32();
 }
 
 static void device_init(void)
@@ -241,10 +233,10 @@ void lvgl_init()
 	lv_init();
 	style_init();
 	lvgl_init_porting();
-    lv_disp_t * dispp = lv_disp_get_default();
-    lv_theme_t * theme = lv_theme_default_init(dispp, lv_color_make(0xff, 0xff, 0xff), lv_palette_main(LV_PALETTE_RED),
+	lv_disp_t * dispp = lv_disp_get_default();
+	lv_theme_t * theme = lv_theme_default_init(dispp, lv_color_make(0xff, 0xff, 0xff), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
-    lv_disp_set_theme(dispp, theme);
+	lv_disp_set_theme(dispp, theme);
 	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
 }
 
@@ -275,11 +267,10 @@ int main(int argc, char* argv[])
 	esp32_init();
 	elrs_init();
 
-	start_running(); //start to run from saved settings
+	start_running(); //Start to run from saved settings
 	create_threads();
 	g_init_done = 1;
-	for(;;)
-	{
+	for(;;) {
 		pthread_mutex_lock(&lvgl_mutex);
 		statubar_update();
 		osd_hdzero_update();
