@@ -50,7 +50,7 @@ else
 fi
 #/mnt/app/app/record/gogglecmd -rec startao
 /mnt/app/script/sdstat_log_backup.sh
-/mnt/app/app/record/sdstat &
+#/mnt/app/app/record/sdstat &
 
 #system led
 /mnt/app/script/system_daemon.sh &

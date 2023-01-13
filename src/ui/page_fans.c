@@ -54,7 +54,9 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_btn_group_item(&btn_group_fans, cont, 2, "Auto Control", "On", "Off", "", "", 0);
     create_slider_item(&slider_group[0], cont, "Top Fan", MAX_FAN_TOP, 2, 1);
+    lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
     create_slider_item(&slider_group[1], cont, "Side Fans", MAX_FAN_SIDE, 2, 2);
+    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
 
     create_label_item(cont, "< Back", 1, 3, 1);
 
@@ -113,7 +115,7 @@ void fans_speed_dec(void) {
     if (fans_mode == FANS_MODE_TOP) {
         value = lv_slider_get_value(slider_group[0].slider);
 
-        if (value > 0)
+        if (value > MIN_FAN_TOP)
             value -= 1;
 
         lv_slider_set_value(slider_group[0].slider, value, LV_ANIM_OFF);
@@ -127,7 +129,7 @@ void fans_speed_dec(void) {
     } else if (fans_mode == FANS_MODE_SIDE) {
         value = lv_slider_get_value(slider_group[1].slider);
 
-        if (value > 0)
+        if (value > MIN_FAN_SIDE)
             value -= 1;
 
         lv_slider_set_value(slider_group[1].slider, value, LV_ANIM_OFF);
@@ -179,7 +181,7 @@ void step_topfan() {
     char str[10];
 
     if (g_setting.fans.top_speed == MAX_FAN_TOP)
-        g_setting.fans.top_speed = 0;
+        g_setting.fans.top_speed = MIN_FAN_TOP;
     else
         g_setting.fans.top_speed++;
 
@@ -202,7 +204,7 @@ uint8_t adj_speed(uint8_t cur_speed, int tempe, uint8_t is_left) {
             respeed_cnt[is_left] = 0;
         }
     } else if (tempe < FAN_TEMPERATURE_THR_L) {
-        if (new_speed != 0) {
+        if (new_speed != MIN_FAN_SIDE) {
             new_speed--;
             respeeding[is_left] = true;
             respeed_cnt[is_left] = 0;
