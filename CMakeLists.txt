@@ -16,16 +16,7 @@ set(STANDARD_LIBRARIES
 	rt
 	stdc++
 )
-set(COMMON_COMPILE_OPTIONS
-	-O3
-	-mfpu=neon
-	-mfloat-abi=hard
-	-Wno-unused-function
-	-Wno-unused-variable
-	-ffunction-sections
-	-fdata-sections 
-	-Wl,-gc-sections
-)
+
 add_definitions(
 	-DAWCHIP=AW_V5 
 	-D_GNU_SOURCE 
@@ -57,7 +48,6 @@ add_executable(${PROJECT_NAME}
 	${SRC_FILES_WINDOW}
 	${SRC_FILES_PLAYER}
 )
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
 target_include_directories(${PROJECT_NAME} PRIVATE 
 	src/
 	src/core
