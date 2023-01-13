@@ -142,7 +142,6 @@ static void page_record_on_click(uint8_t key, int sel) {
             bConfirmed = false;
         } else {
             lv_label_set_text(label_formatSD, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
-            lv_label_set_long_mode(label_formatSD, LV_LABEL_LONG_WRAP);
             lv_timer_handler();
             bConfirmed = true;
         }
