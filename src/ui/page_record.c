@@ -141,7 +141,7 @@ static void page_record_on_click(uint8_t key, int sel) {
             lv_timer_handler();
             bConfirmed = false;
         } else {
-            lv_label_set_text(label_formatSD, "#FFFF00 Formatting will delete all data on the SD Card. Press Enter to confirm...#");
+            lv_label_set_text(label_formatSD, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
             lv_timer_handler();
             bConfirmed = true;
         }
