@@ -40,6 +40,15 @@
 static void load_ini_setting(void)
 {
 	char str[128];
+	
+	FILE* fp;
+	fp=fopen("/mnt/UDISK/setting.ini","r");
+	if(fp){
+		fclose(fp);
+		sprintf(str,"cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
+		system(str); usleep(10);
+		system("rm /mnt/UDISK/setting.ini");
+	}
 
   	ini_gets("scan", "channel", "1", str, sizeof(str), SETTING_INI);
 	g_setting.scan.channel = atoi(str);

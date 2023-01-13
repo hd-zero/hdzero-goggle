@@ -117,6 +117,7 @@ then
 	echo "0"
 	untar_fils
 	mv ${TMP_DIR}/hdzgoggle_app_ota*.tar ${TMP_DIR}/hdzgoggle_app_ota.tar
+	cp -f /mnt/app/setting.ini /mnt/UDISK/
 	#disable it66021
 	i2cset -y 3 0x49 0x10 0xff
 	update_rx
