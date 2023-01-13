@@ -1,8 +1,10 @@
 #ifndef _PAGE_FANS_H
 #define _PAGE_FANS_H
 
-#define MAX_FAN_TOP  5 // 0:5
-#define MAX_FAN_SIDE 9 // 0:9
+#define MIN_FAN_TOP  1
+#define MAX_FAN_TOP  5
+#define MIN_FAN_SIDE 2
+#define MAX_FAN_SIDE 9
 
 #define FAN_TEMPERATURE_THR_H 750 // 75C
 #define FAN_TEMPERATURE_THR_L 650 // 65C

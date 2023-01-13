@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ROOT_DIR=$PWD
 SYS_PARTITION=${ROOT_DIR}/image/sys_partition_nor.fex

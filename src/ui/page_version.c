@@ -28,6 +28,7 @@ static lv_obj_t *bar_goggle = NULL;
 static lv_obj_t *btn_goggle = NULL;
 static lv_obj_t *bar_esp = NULL;
 static lv_obj_t *btn_esp = NULL;
+static lv_obj_t *label_esp = NULL;
 
 #define ADDR_AL            0x65
 #define ADDR_FPGA          0x64
@@ -187,6 +188,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_vtx = create_label_item(cont, "Update VTX", 1, 1, 2);
     btn_goggle = create_label_item(cont, "Update Goggle", 1, 2, 2);
     btn_esp = create_label_item(cont, "Update ESP32", 1, 3, 2);
+    label_esp = create_label_item(cont, "", 3, 3, 2);
     create_label_item(cont, "< Back", 1, 4, 1);
 
     bar_vtx = lv_bar_create(cont);
@@ -239,6 +241,34 @@ uint8_t command_monitor(char *cmd) {
     pclose(stream);
     LOGI("");
     return ret;
+}
+
+static void elrs_version_timer(struct _lv_timer_t *timer)
+{
+    char label[80];
+    uint8_t version[32] = {0};
+    uint16_t size = sizeof(version) - 1;
+
+    if(!msp_read_resposne(MSP_GET_BP_VERSION, &size, version)) {
+        msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
+        return;
+    }
+    lv_timer_del(timer);
+    sprintf(label, "ver: %s", version);
+    lv_label_set_text(label_esp, label);
+}
+
+static void page_version_enter() {
+    version_update_title();
+
+    lv_label_set_text(label_esp, "");
+    msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
+    lv_timer_t *timer = lv_timer_create(elrs_version_timer, 250, NULL);
+    lv_timer_set_repeat_count(timer, 20);
+}
+
+static void page_version_on_roller(uint8_t key) {
+    version_update_title();
 }
 
 static void page_version_on_click(uint8_t key, int sel) {
@@ -333,14 +363,17 @@ static void page_version_on_click(uint8_t key, int sel) {
         lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
     } else if (sel == 3) { // flash ESP via SD
         lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(btn_esp, "Flashing...");
         lv_timer_handler();
         esp_loader_error_t ret = flash_elrs();
         lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
         if (ret == ESP_LOADER_SUCCESS)
             lv_label_set_text(btn_esp, "#00FF00 Success#");
         else
             lv_label_set_text(btn_esp, "#FF0000 FAILED#");
+        page_version_enter();
     }
 }
 
@@ -470,14 +503,6 @@ void *thread_version(void *ptr) {
         usleep(100000);
     }
     return NULL;
-}
-
-static void page_version_enter() {
-    version_update_title();
-}
-
-static void page_version_on_roller(uint8_t key) {
-    version_update_title();
 }
 
 page_pack_t pp_version = {
