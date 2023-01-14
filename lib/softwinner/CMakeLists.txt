@@ -1,64 +1,67 @@
 set(SOFTWINNER_INCLUDE_DIRECTORIES
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/system/public/include
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/system/public/include/vo
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/system/public/include/utils
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/sample/configfileparser
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/media/LIBRARY/libcedarx/libcore/common/iniparser
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/include
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/include/utils
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/include/media
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/media/include/utils
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/media/include/component
-    ${CMAKE_SOURCE_DIR}/media/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/system/public/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/system/public/include/vo
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/system/public/include/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/sample/configfileparser
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/LIBRARY/libcedarx/libcore/common/iniparser
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/include/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/include/media
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/include/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/include/component
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/LIBRARY/libcedarc/include
 )
 
 set(PREBUILT_LIBRARIES
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/lib_ise_mo.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libadecoder.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libawmjpegplus.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcdc_base.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcdx_base.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcdx_common.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcdx_parser.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcdx_stream.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcedarx_aencoder.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcedarx_tencoder.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcedarxrender.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcedarxstream.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libcutils.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libhwdisplay.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libion.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libisp_ini.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libISP.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmedia_mpp.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmedia_utils.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libMemAdapter.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmpp_component.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmpp_ise.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmpp_isp.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmpp_vi.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libmpp_vo.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libsample_confparser.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvdecoder.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libVE.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvenc_base.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvenc_codec.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvencoder.so
-    ${CMAKE_SOURCE_DIR}/media/lib/eyesee-mpp/libvideoengine.so
-    ${CMAKE_SOURCE_DIR}/media/lib/libasound.so
-    ${CMAKE_SOURCE_DIR}/media/lib/libasound.so.2
-    ${CMAKE_SOURCE_DIR}/media/lib/libasound.so.2.0.0
-    ${CMAKE_SOURCE_DIR}/media/lib/libz.so
-    ${CMAKE_SOURCE_DIR}/media/lib/libz.so.1
-    ${CMAKE_SOURCE_DIR}/media/lib/libz.so.1.2.8
-    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so
-    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so.0
-    ${CMAKE_SOURCE_DIR}/media/lib/libglog.so.0.0.0
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/lib_ise_mo.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libadecoder.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawmjpegplus.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcdc_base.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcdx_base.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcdx_common.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcdx_parser.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcdx_stream.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcedarx_aencoder.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcedarx_tencoder.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcedarxrender.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcedarxstream.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcutils.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libhwdisplay.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libion.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libisp_ini.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libISP.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmedia_mpp.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmedia_utils.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libMemAdapter.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmpp_component.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmpp_ise.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmpp_isp.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmpp_vi.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmpp_vo.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libsample_confparser.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libvdecoder.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libVE.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libvenc_base.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libvenc_codec.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libvencoder.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libvideoengine.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libasound.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libasound.so.2
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libasound.so.2.0.0
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so.1
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so.1.2.8
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglog.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglog.so.0
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglog.so.0.0.0
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawh264.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawh265.so
 )
 
 add_library(softwinner SHARED IMPORTED GLOBAL)
 set_target_properties(softwinner PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/media/lib/libz.so # dummy
+    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so # dummy
     INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
 )
 target_link_libraries(softwinner INTERFACE
