@@ -55,8 +55,13 @@ set(PREBUILT_LIBRARIES
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglog.so.0
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libglog.so.0.0.0
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libaw_aacdec.so
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawh264.so
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawh265.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawmd.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libawmjpegplus.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libaw_mp3dec.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/libaw_wavdec.so
 )
 
 add_library(softwinner SHARED IMPORTED GLOBAL)
