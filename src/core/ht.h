@@ -52,7 +52,6 @@ typedef struct {
     int16_t htChannels[3]; //0=Pan, 1=tilt, 2=roll
     
     // internal state
-    uint8_t is_calibrated;
     uint8_t enable;
 	
 } ht_data_t;
