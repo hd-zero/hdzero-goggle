@@ -126,11 +126,7 @@ static void load_ini_setting(void)
 	g_setting.image.contrast = atoi(str);
   	ini_gets("image", "auto_off", "2", str, sizeof(str), SETTING_INI);
 	g_setting.image.auto_off = atoi(str);
-
 	g_setting.ht.enable = ini_getl("ht", "enable", 0, SETTING_INI);
-	if(!g_setting.ht.enable) 
-			disable_ht();
-
 	g_setting.elrs.enable = ini_getl("elrs", "enable", 0, SETTING_INI);
 
 	//Check
@@ -274,9 +270,16 @@ int main(int argc, char* argv[])
 
 	esp32_init();
 	elrs_init();
+	init_ht();
 
 	start_running(); //start to run from saved settings
 	create_threads();
+
+	if(g_setting.ht.enable)
+		enable_ht();
+	else
+		disable_ht();
+
 	g_init_done = 1;
 	for(;;)
 	{

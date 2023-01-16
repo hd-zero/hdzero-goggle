@@ -12,7 +12,6 @@
 
 #include "common.hh"
 #include "defines.h"
-#include "ht.h"
 #include "input_device.h"
 #include "msp_displayport.h"
 #include "osd.h"
@@ -55,22 +54,6 @@ static void detect_sdcard(void)
 		g_sdcard_det_req = 0;
 	}
 	sdcard_enable_last = g_sdcard_enable;
-}
-
-static void *thread_imu(void *ptr)
-{
-	int cnt = 0;
-	for(;;)
-	{
-		get_imu_data(true);
-		calc_ht();
-		if(cnt++ == 9) {
-			cnt = 0;
-			seconds++;
-		}
-		usleep(100000); //0.1s
-	}
-	return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -194,7 +177,6 @@ static void threads_instance(threads_obj_t *obj)
 	obj->instance[0] =  thread_peripheral;
 	obj->instance[1] =  thread_version;
 	obj->instance[2] =  thread_osd;
-	obj->instance[3] =  thread_imu;
 }
 
 int create_threads()
