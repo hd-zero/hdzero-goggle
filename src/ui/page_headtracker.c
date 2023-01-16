@@ -10,7 +10,11 @@ static btn_group_t btn_group;
 
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
-lv_obj_t *label_cali;
+static lv_obj_t *label_cali;
+static lv_timer_t *timer;
+static lv_obj_t *pan;
+static lv_obj_t *tilt;
+static lv_obj_t *roll;
 
 static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -41,10 +45,50 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label_cali = create_label_item(cont, "Calibrate", 1, 1, 1);
 
-    create_label_item(cont, "< Back", 1, 2, 1);
+    create_label_item(cont, "Set Center", 1, 2, 1);
+
+    create_label_item(cont, "< Back", 1, 3, 1);
 
     btn_group_set_sel(&btn_group, !g_setting.ht.enable);
 
+    create_label_item(cont, "Pan", 1, 5, 1);
+    pan = lv_bar_create(cont);
+    lv_bar_set_range(pan, 1000, 2000);
+    lv_obj_set_size(pan, 500, 25);
+    lv_obj_center(pan);
+    lv_bar_set_value(pan, 0, LV_ANIM_OFF);
+    lv_obj_set_style_bg_color(pan, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
+    lv_obj_set_style_radius(pan, 0, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(pan, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
+    lv_obj_set_style_radius(pan, 0, LV_PART_INDICATOR);
+    lv_obj_set_grid_cell(pan, LV_GRID_ALIGN_START, 2, 1,
+                         LV_GRID_ALIGN_CENTER, 5, 1);
+
+    create_label_item(cont, "Tilt", 1, 6, 1);
+    tilt = lv_bar_create(cont);
+    lv_bar_set_range(tilt, 1000, 2000);
+    lv_obj_set_size(tilt, 500, 25);
+    lv_obj_center(tilt);
+    lv_bar_set_value(tilt, 0, LV_ANIM_OFF);
+    lv_obj_set_style_bg_color(tilt, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
+    lv_obj_set_style_radius(tilt, 0, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(tilt, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
+    lv_obj_set_style_radius(tilt, 0, LV_PART_INDICATOR);
+    lv_obj_set_grid_cell(tilt, LV_GRID_ALIGN_START, 2, 1,
+                         LV_GRID_ALIGN_CENTER, 6, 1);
+
+    create_label_item(cont, "Roll", 1, 7, 1);
+    roll = lv_bar_create(cont);
+    lv_bar_set_range(roll, 1000, 2000);
+    lv_obj_set_size(roll, 500, 25);
+    lv_obj_center(roll);
+    lv_bar_set_value(roll, 0, LV_ANIM_OFF);
+    lv_obj_set_style_bg_color(roll, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
+    lv_obj_set_style_radius(roll, 0, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(roll, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
+    lv_obj_set_style_radius(roll, 0, LV_PART_INDICATOR);
+    lv_obj_set_grid_cell(roll, LV_GRID_ALIGN_START, 2, 1,
+                         LV_GRID_ALIGN_CENTER, 7, 1);
     return page;
 }
 
@@ -63,18 +107,39 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
         calibrate_ht();
         lv_label_set_text(label_cali, "Re-calibrate");
         lv_timer_handler();
+    } else if (sel == 2) {
+        set_center_position_ht();
     }
+}
+
+static void page_headtracker_timer(struct _lv_timer_t *timer)
+{
+    int16_t *channels = get_ht_channels();
+    lv_bar_set_value(pan, channels[0], LV_ANIM_OFF);
+    lv_bar_set_value(tilt, channels[1], LV_ANIM_OFF);
+    lv_bar_set_value(roll, channels[2], LV_ANIM_OFF);
+}
+
+static void page_headtracker_enter()
+{
+    timer = lv_timer_create(page_headtracker_timer, 50, NULL);
+    lv_timer_set_repeat_count(timer, -1);
+}
+
+static void page_headtracker_exit()
+{
+    lv_timer_del(timer);
 }
 
 page_pack_t pp_headtracker = {
     .p_arr = {
         .cur = 0,
-        .max = 3,
+        .max = 4,
     },
 
     .create = page_headtracker_create,
-    .enter = NULL,
-    .exit = NULL,
+    .enter = page_headtracker_enter,
+    .exit = page_headtracker_exit,
     .on_roller = NULL,
     .on_click = page_headtracker_on_click,
 };

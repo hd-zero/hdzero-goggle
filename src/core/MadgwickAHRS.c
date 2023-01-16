@@ -21,7 +21,7 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define sampleFreq	512.0f		// sample frequency in Hz
+#define sampleFreq	100.0f		// sample frequency in Hz
 #define betaDef		0.1f		// 2 * proportional gain
 
 //---------------------------------------------------------------------------------------------------
@@ -39,10 +39,11 @@ static char anglesComputed = 0;
 
 float invSqrt(float x) {
 	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long*)&y;
-	i = 0x5f3759df - (i >> 1);
-	y = *(float*)&i;
+	union { float f; long l; } i;
+	i.f = x;
+	i.l = 0x5f3759df - (i.l >> 1);
+	float y = i.f;
+	y = y * (1.5f - (halfx * y * y));
 	y = y * (1.5f - (halfx * y * y));
 	return y;
 }

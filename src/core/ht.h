@@ -20,37 +20,34 @@ typedef struct {
     int32_t gyr_offset[3];
 
     // Final angles for headtracker
-    float tiltAngle;      
-    float tiltAngleLP;    
+    float tiltAngle;
+    float tiltAngleHome;
 
-    float rollAngle;       
-    float rollAngleLP;    
+    float rollAngle;
+    float rollAngleHome;
 
-    float panAngle;       
-    float panAngleLP;     
-
-    float tiltRollBeta;
-    float panBeta; 
+    float panAngle;
+    float panAngleHome;
 
     // Servo settings
-    uint8_t tiltInverse;  //1= inverted
-    uint8_t rollInverse;
-    uint8_t panInverse;
+    int8_t tiltInverse; // -1= inverted
+    int8_t rollInverse;
+    int8_t panInverse;
 
     float   tiltFactor; //Gain
-    float   rollFactor;       
+    float   rollFactor;
     float   panFactor;
 
     //PPM setting
-    int16_t tiltMaxPulse; 
-    int16_t tiltMinPulse; 
-    int16_t tiltCenter; 
+    int16_t tiltMaxPulse;
+    int16_t tiltMinPulse;
+    int16_t tiltCenter;
     int16_t panMaxPulse;
-    int16_t panMinPulse; 
-    int16_t panCenter; 
+    int16_t panMinPulse;
+    int16_t panCenter;
     int16_t rollMaxPulse;
-    int16_t rollMinPulse; 
-    int16_t rollCenter; 
+    int16_t rollMinPulse;
+    int16_t rollCenter;
 
     int16_t htChannels[3]; //0=Pan, 1=tilt, 2=roll
     
@@ -65,8 +62,10 @@ void init_ht();
 void enable_ht();
 void disable_ht();
 void calibrate_ht();
+void set_center_position_ht();
 int calc_ht();
 void get_imu_data(int bCalcDiff);
+int16_t* get_ht_channels();
 
 
 #endif //__HT_C__
