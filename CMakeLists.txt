@@ -4,6 +4,9 @@ project(HDZGOGGLE VERSION 1.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
 set(OS_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app)
 
 # common build settings
