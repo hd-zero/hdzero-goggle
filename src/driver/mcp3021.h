@@ -9,6 +9,6 @@ typedef struct {
 extern sys_battery_t g_battery;
 
 int mcp_detect_type(void);
-int mcp_read_vatage(void);
+int mcp_read_voltage(void);
 
 #endif
