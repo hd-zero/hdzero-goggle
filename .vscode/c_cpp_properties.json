@@ -6,7 +6,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [],
-            "compilerPath": "${workspaceFolder}/toolchain/bin/arm-openwrt-linux-gcc",
+            "compilerPath": "${workspaceFolder}/toolchain/bin/arm-buildroot-linux-musleabihf-gcc",
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-arm",
