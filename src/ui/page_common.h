@@ -109,6 +109,12 @@ typedef struct {
 
 typedef struct {
     int enable;
+    int32_t acc_x;
+    int32_t acc_y;
+    int32_t acc_z;
+    int32_t gyr_x;
+    int32_t gyr_y;
+    int32_t gyr_z;
 } head_tracker_t;
 
 typedef struct {

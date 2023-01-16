@@ -7,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include <minIni.h>
 #include <log/log.h>
 
 #include "common.hh"
@@ -177,8 +178,13 @@ void init_ht()
     ht_data.htChannels[1] = 0;
     ht_data.htChannels[2] = 0;
     
-    ht_data.is_calibrated = 0;
     ht_data.enable = 0;
+    ht_data.acc_offset[0] = g_setting.ht.acc_x;
+    ht_data.acc_offset[1] = g_setting.ht.acc_y;
+    ht_data.acc_offset[2] = g_setting.ht.acc_z;
+    ht_data.gyr_offset[0] = g_setting.ht.gyr_x;
+    ht_data.gyr_offset[1] = g_setting.ht.gyr_y;
+    ht_data.gyr_offset[2] = g_setting.ht.gyr_z;
 
     // start timer
     timer_t timerId = 0;
@@ -282,6 +288,13 @@ void calibrate_ht()
     ht_data.gyr_offset[0] >>= CALIBRATION_BCNT;
     ht_data.gyr_offset[1] >>= CALIBRATION_BCNT;
     ht_data.gyr_offset[2] >>= CALIBRATION_BCNT;
+
+    ini_putl("ht", "acc_x", ht_data.acc_offset[0], SETTING_INI);
+    ini_putl("ht", "acc_y", ht_data.acc_offset[1], SETTING_INI);
+    ini_putl("ht", "acc_z", ht_data.acc_offset[2], SETTING_INI);
+    ini_putl("ht", "gyr_x", ht_data.gyr_offset[0], SETTING_INI);
+    ini_putl("ht", "gyr_y", ht_data.gyr_offset[1], SETTING_INI);
+    ini_putl("ht", "gyr_z", ht_data.gyr_offset[2], SETTING_INI);
 
     LOGI("done!");
 }
