@@ -160,10 +160,6 @@ void init_ht()
     ht_data.rollInverse = -1; 
     ht_data.panInverse = -1; 
 
-    ht_data.tiltFactor = 500.0/180.0;
-    ht_data.rollFactor = 500.0/180.0;
-    ht_data.panFactor = 500.0/180.0;
-    
     ht_data.tiltMaxPulse = 500;
     ht_data.tiltMinPulse = -500; 
     ht_data.tiltCenter = 1500; 
@@ -179,6 +175,7 @@ void init_ht()
     ht_data.htChannels[2] = 0;
     
     ht_data.enable = 0;
+    set_maxangle_ht(g_setting.ht.max_angle);
     ht_data.acc_offset[0] = g_setting.ht.acc_x;
     ht_data.acc_offset[1] = g_setting.ht.acc_y;
     ht_data.acc_offset[2] = g_setting.ht.acc_z;
@@ -208,6 +205,13 @@ void init_ht()
     if (res != 0){
         LOGE("Error timer_settime: %s\n", strerror(errno));
     }
+}
+
+void set_maxangle_ht(int angle)
+{
+    ht_data.tiltFactor = 1000.0 / angle;
+    ht_data.rollFactor = 1000.0 / angle;
+    ht_data.panFactor = 1000.0 / angle;
 }
 
 // Rotate, in Order X -> Y -> Z

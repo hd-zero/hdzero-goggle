@@ -61,6 +61,7 @@ void init_ht();
 void enable_ht();
 void disable_ht();
 void calibrate_ht();
+void set_maxangle_ht(int angle);
 void set_center_position_ht();
 int calc_ht();
 void get_imu_data(int bCalcDiff);

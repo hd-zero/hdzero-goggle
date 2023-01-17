@@ -7,4 +7,7 @@
 
 extern page_pack_t pp_headtracker;
 
+void ht_angle_dec(void);
+void ht_angle_inc(void);
+
 #endif

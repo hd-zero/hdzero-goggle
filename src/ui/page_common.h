@@ -109,6 +109,7 @@ typedef struct {
 
 typedef struct {
     int enable;
+    int max_angle;
     int32_t acc_x;
     int32_t acc_y;
     int32_t acc_z;

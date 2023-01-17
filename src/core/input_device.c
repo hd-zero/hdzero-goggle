@@ -23,6 +23,7 @@
 #include "ui/page_scannow.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
+#include "ui/page_headtracker.h"
 #include "ui/page_power.h"
 #include "ui/page_imagesettings.h"
 #include "ui/page_playback.h"
@@ -239,6 +240,10 @@ static void btn_click(void)  //short press enter key
 	{ 
 		submenu_click();	
 	}
+	else if(g_menu_op == PAGE_ANGLE_SLIDE)
+	{ 
+		submenu_click();	
+	}
 	else if(g_menu_op == PAGE_POWER_SLIDE)
 	{ 
 		submenu_click();	
@@ -273,6 +278,10 @@ static void roller_up(void)
 	else if(g_menu_op == PAGE_FAN_SLIDE)
 	{
 		fans_speed_dec();
+	}
+	else if(g_menu_op == PAGE_ANGLE_SLIDE)
+	{
+		ht_angle_dec();
 	}
 	else if(g_menu_op == PAGE_POWER_SLIDE)
 	{
@@ -309,6 +318,10 @@ static void roller_down(void)
 	else if(g_menu_op == PAGE_FAN_SLIDE)
 	{
 		fans_speed_inc();
+	}
+	else if(g_menu_op == PAGE_ANGLE_SLIDE)
+	{
+		ht_angle_inc();
 	}
 	else if(g_menu_op == PAGE_POWER_SLIDE)
 	{
