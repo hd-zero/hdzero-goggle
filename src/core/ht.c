@@ -213,31 +213,31 @@ void set_maxangle_ht(int angle)
 // Rotate, in Order X -> Y -> Z
 static void rotate(float pn[3], const float rot[3])
 {
-  float out[3];
+    float out[3];
 
-  // X-axis Rotation
-  if (rot[0] != 0) {
-    out[0] = pn[0] * 1 + pn[1] * 0 + pn[2] * 0;
-    out[1] = pn[0] * 0 + pn[1] * cos(rot[0]) - pn[2] * sin(rot[0]);
-    out[2] = pn[0] * 0 + pn[1] * sin(rot[0]) + pn[2] * cos(rot[0]);
-    memcpy(pn, out, sizeof(out[0]) * 3);
-  }
+    // X-axis Rotation
+    if (rot[0] != 0) {
+        out[0] = pn[0] * 1 + pn[1] * 0 + pn[2] * 0;
+        out[1] = pn[0] * 0 + pn[1] * cos(rot[0]) - pn[2] * sin(rot[0]);
+        out[2] = pn[0] * 0 + pn[1] * sin(rot[0]) + pn[2] * cos(rot[0]);
+        memcpy(pn, out, sizeof(out[0]) * 3);
+    }
 
-  // Y-axis Rotation
-  if (rot[1] != 0) {
-    out[0] = pn[0] * cos(rot[1]) - pn[1] * 0 + pn[2] * sin(rot[1]);
-    out[1] = pn[0] * 0 + pn[1] * 1 + pn[2] * 0;
-    out[2] = -pn[0] * sin(rot[1]) + pn[1] * 0 + pn[2] * cos(rot[1]);
-    memcpy(pn, out, sizeof(out[0]) * 3);
-  }
+    // Y-axis Rotation
+    if (rot[1] != 0) {
+        out[0] = pn[0] * cos(rot[1]) - pn[1] * 0 + pn[2] * sin(rot[1]);
+        out[1] = pn[0] * 0 + pn[1] * 1 + pn[2] * 0;
+        out[2] = -pn[0] * sin(rot[1]) + pn[1] * 0 + pn[2] * cos(rot[1]);
+        memcpy(pn, out, sizeof(out[0]) * 3);
+    }
 
-  // Z-axis Rotation
-  if (rot[2] != 0) {
-    out[0] = pn[0] * cos(rot[2]) - pn[1] * sin(rot[2]) + pn[2] * 0;
-    out[1] = pn[0] * sin(rot[2]) + pn[1] * cos(rot[2]) + pn[2] * 0;
-    out[2] = pn[0] * 0 + pn[1] * 0 + pn[2] * 1;
-    memcpy(pn, out, sizeof(out[0]) * 3);
-  }
+    // Z-axis Rotation
+    if (rot[2] != 0) {
+        out[0] = pn[0] * cos(rot[2]) - pn[1] * sin(rot[2]) + pn[2] * 0;
+        out[1] = pn[0] * sin(rot[2]) + pn[1] * cos(rot[2]) + pn[2] * 0;
+        out[2] = pn[0] * 0 + pn[1] * 0 + pn[2] * 1;
+        memcpy(pn, out, sizeof(out[0]) * 3);
+    }
 }
 
 static void calc_gyr(float* gyrAngle) //in degree
@@ -271,11 +271,11 @@ static int constrain(int value, int min, int max)
 // by assuming the range wraps around when going below min or above max
 static float normalize(float value, float start, float end)
 {
-  float width = end - start;          //
-  float offsetValue = value - start;  // value relative to 0
+    float width = end - start;          //
+    float offsetValue = value - start;  // value relative to 0
 
-  return (offsetValue - (floor(offsetValue / width) * width)) + start;
-  // + start to reset back to start of original range
+    return (offsetValue - (floor(offsetValue / width) * width)) + start;
+    // + start to reset back to start of original range
 }
 
 void calibrate_ht()
@@ -336,9 +336,9 @@ int calc_ht()
                           accAngle[0],              accAngle[1],              accAngle[2]);
 
     // Adjust PTR relatice to user specified home position
-	ht_data.panAngle = getYaw() - ht_data.panAngleHome;
-	ht_data.tiltAngle = getPitch() - ht_data.tiltAngleHome;
-	ht_data.rollAngle = getRoll() - ht_data.rollAngleHome;
+    ht_data.panAngle = getYaw() - ht_data.panAngleHome;
+    ht_data.tiltAngle = getPitch() - ht_data.tiltAngleHome;
+    ht_data.rollAngle = getRoll() - ht_data.rollAngleHome;
 
     tmp = normalize(ht_data.panAngle, -180.0, 180.0) * ht_data.panInverse * ht_data.panFactor + 0.5;
     ht_data.htChannels[0] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
@@ -350,7 +350,7 @@ int calc_ht()
     ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
     Set_HT_dat(ht_data.htChannels[0], ht_data.htChannels[1], ht_data.htChannels[2]);
-	return 1;
+    return 1;
 }
 
 void set_center_position_ht()
