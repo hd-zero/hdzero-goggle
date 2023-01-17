@@ -9,7 +9,7 @@
 static btn_group_t btn_group;
 
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 40, 40, 40, 60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *label_cali;
 static lv_timer_t *timer;
 static lv_obj_t *pan;
@@ -55,7 +55,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     btn_group_set_sel(&btn_group, !g_setting.ht.enable);
 
-    create_label_item(cont, "Pan", 1, 5, 1);
+    create_label_item(cont, "Pan", 1, 6, 1);
     pan = lv_bar_create(cont);
     lv_bar_set_range(pan, 1000, 2000);
     lv_obj_set_size(pan, 500, 25);
@@ -66,9 +66,9 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_bg_color(pan, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
     lv_obj_set_style_radius(pan, 0, LV_PART_INDICATOR);
     lv_obj_set_grid_cell(pan, LV_GRID_ALIGN_START, 2, 1,
-                         LV_GRID_ALIGN_CENTER, 5, 1);
+                         LV_GRID_ALIGN_CENTER, 6, 1);
 
-    create_label_item(cont, "Tilt", 1, 6, 1);
+    create_label_item(cont, "Tilt", 1, 7, 1);
     tilt = lv_bar_create(cont);
     lv_bar_set_range(tilt, 1000, 2000);
     lv_obj_set_size(tilt, 500, 25);
@@ -79,9 +79,9 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_bg_color(tilt, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
     lv_obj_set_style_radius(tilt, 0, LV_PART_INDICATOR);
     lv_obj_set_grid_cell(tilt, LV_GRID_ALIGN_START, 2, 1,
-                         LV_GRID_ALIGN_CENTER, 6, 1);
+                         LV_GRID_ALIGN_CENTER, 7, 1);
 
-    create_label_item(cont, "Roll", 1, 7, 1);
+    create_label_item(cont, "Roll", 1, 8, 1);
     roll = lv_bar_create(cont);
     lv_bar_set_range(roll, 1000, 2000);
     lv_obj_set_size(roll, 500, 25);
@@ -92,7 +92,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_bg_color(roll, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
     lv_obj_set_style_radius(roll, 0, LV_PART_INDICATOR);
     lv_obj_set_grid_cell(roll, LV_GRID_ALIGN_START, 2, 1,
-                         LV_GRID_ALIGN_CENTER, 7, 1);
+                         LV_GRID_ALIGN_CENTER, 8, 1);
     return page;
 }
 
