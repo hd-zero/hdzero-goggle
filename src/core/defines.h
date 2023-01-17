@@ -8,7 +8,8 @@ typedef enum{
     OPLEVEL_VIDEO = 10,
     OPLEVEL_IMS = 11,
     PAGE_FAN_SLIDE = 100,
-    PAGE_POWER_SLIDE = 102
+    PAGE_ANGLE_SLIDE = 101,
+    PAGE_POWER_SLIDE = 102,
 } op_level_t ;
 
 typedef enum{

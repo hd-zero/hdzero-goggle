@@ -127,6 +127,7 @@ static void load_ini_setting(void)
   	ini_gets("image", "auto_off", "2", str, sizeof(str), SETTING_INI);
 	g_setting.image.auto_off = atoi(str);
 	g_setting.ht.enable = ini_getl("ht", "enable", 0, SETTING_INI);
+	g_setting.ht.max_angle = ini_getl("ht", "max_angle", 120, SETTING_INI);
 	g_setting.ht.acc_x = ini_getl("ht", "acc_x", 0, SETTING_INI);
 	g_setting.ht.acc_y = ini_getl("ht", "acc_y", 0, SETTING_INI);
 	g_setting.ht.acc_z = ini_getl("ht", "acc_z", 0, SETTING_INI);
