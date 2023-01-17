@@ -44,6 +44,7 @@ typedef struct __attribute__((packed)) {
 #define MSP_SET_MODE       0x0380 // goggles to backpack
 #define MSP_GET_BP_VERSION 0x0381 // goggles to backpack
 #define MSP_GET_BP_STATUS  0x0382 // goggles to backpack
+#define MSP_SET_PTR        0x0383 // goggles to backpack
 
 #define MSP_PORT_INBUF_SIZE 64
 
@@ -62,5 +63,6 @@ void elrs_init();
 void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
 bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *payload);
 bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms);
+void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll);
 
 #endif //__ELRS_H__

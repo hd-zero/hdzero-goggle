@@ -344,3 +344,11 @@ void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_s
     buffer[payload_size + 8] = crc;
     uart_write(fd_esp32, buffer, payload_size + 9);
 }
+
+void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll)
+{
+	if (g_setting.elrs.enable) {
+		uint8_t payload[6] = {pan & 0xFF, pan >> 8, tilt & 0xFF, tilt >> 8, roll & 0xFF, roll >> 8};
+		msp_send_packet(MSP_SET_PTR, MSP_PACKET_COMMAND, sizeof(payload), payload);
+	}
+}

@@ -10,6 +10,7 @@
 
 #include "MadgwickAHRS.h"
 #include "common.hh"
+#include "elrs.h"
 #include "ht.h"
 #include "osd.h"
 
@@ -282,7 +283,7 @@ void ht_calibrate() {
 
 static void calculate_orientation() {
     float gyrAngle[3], accAngle[3];
-    int tmp;
+    float tmp;
 
     if (!calibrating && !ht_data.enable)
         return;
@@ -322,6 +323,12 @@ static void calculate_orientation() {
     ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
     Set_HT_dat(ht_data.htChannels[0], ht_data.htChannels[1], ht_data.htChannels[2]);
+
+    uint16_t ptrCRSF[3];
+    ptrCRSF[0] = fmap(ht_data.htChannels[0], ppmMinPulse + ppmCenter, ppmMaxPulse + ppmCenter, 191.0, 1792.0) + 0.5;
+    ptrCRSF[1] = fmap(ht_data.htChannels[1], ppmMinPulse + ppmCenter, ppmMaxPulse + ppmCenter, 191.0, 1792.0) + 0.5;
+    ptrCRSF[2] = fmap(ht_data.htChannels[2], ppmMinPulse + ppmCenter, ppmMaxPulse + ppmCenter, 191.0, 1792.0) + 0.5;
+    msp_ht_update(ptrCRSF[0], ptrCRSF[1], ptrCRSF[2]);
 }
 
 void ht_set_center_position() {
