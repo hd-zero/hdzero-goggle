@@ -40,7 +40,7 @@ The following files must be placed in the root of SD Card in this example. This 
 
 Otherwise, if the HDZGOOGLE binary is not detected, the goggles will continue to load the built-in executable which was previously flashed.
 
-SD Card File Heiarchy:
+SD Card File Hierarchy:
 
 ```
 /develop.sh
