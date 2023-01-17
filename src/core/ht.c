@@ -14,13 +14,12 @@
 #include "ht.h"
 #include "osd.h"
 #include "MadgwickAHRS.h"
-#include "../bmi270/accel_gyro.h"
-#include "../driver/hardware.h"
-#include "../driver/dm6302.h"
-#include "../driver/oled.h"
-#include "ui/page_common.h"
-#include "ui/page_scannow.h"
 
+#include "bmi270/accel_gyro.h"
+#include "driver/hardware.h"
+#include "driver/dm6302.h"
+#include "driver/oled.h"
+#include "ui/page_common.h"
 
 //#define FAST_SIM
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,9 +27,16 @@
 static ht_data_t ht_data;
 static uint8_t frame_period = 10;
 static uint8_t sync_len = 200;
+
 static volatile bool calibrating = false;
 static int calibration_count = 0;
-static float imu_rotation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0+22.0) * DEG_TO_RAD};
+
+static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0+22.0) * DEG_TO_RAD};
+
+static const int ppmMaxPulse = 500;
+static const int ppmMinPulse = -500; 
+static const int ppmCenter = 1500; 
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //no motion to disable OLED display
@@ -142,7 +148,7 @@ void get_imu_data(int bCalcDiff)
     }
 }
 
-static void thread_imu(union sigval timer_data)
+static void timer_callback_imu(union sigval timer_data)
 {
     get_imu_data(true);
     calc_ht();
@@ -159,16 +165,6 @@ void init_ht()
     ht_data.tiltInverse = 1; 
     ht_data.rollInverse = -1; 
     ht_data.panInverse = -1; 
-
-    ht_data.tiltMaxPulse = 500;
-    ht_data.tiltMinPulse = -500; 
-    ht_data.tiltCenter = 1500; 
-    ht_data.panMaxPulse = 500;
-    ht_data.panMinPulse = -500; 
-    ht_data.panCenter = 1500; 
-    ht_data.rollMaxPulse = 500;
-    ht_data.rollMinPulse = -500; 
-    ht_data.rollCenter = 1500; 
 
     ht_data.htChannels[0] = 0;
     ht_data.htChannels[1] = 0;
@@ -193,7 +189,7 @@ void init_ht()
                             };
 
     sev.sigev_notify = SIGEV_THREAD;
-    sev.sigev_notify_function = &thread_imu;
+    sev.sigev_notify_function = &timer_callback_imu;
 
     int res = timer_create(CLOCK_REALTIME, &sev, &timerId);
     if (res != 0){
@@ -219,7 +215,7 @@ static void rotate(float pn[3], const float rot[3])
 {
   float out[3];
 
-  // X Rotation
+  // X-axis Rotation
   if (rot[0] != 0) {
     out[0] = pn[0] * 1 + pn[1] * 0 + pn[2] * 0;
     out[1] = pn[0] * 0 + pn[1] * cos(rot[0]) - pn[2] * sin(rot[0]);
@@ -227,7 +223,7 @@ static void rotate(float pn[3], const float rot[3])
     memcpy(pn, out, sizeof(out[0]) * 3);
   }
 
-  // Y Rotation
+  // Y-axis Rotation
   if (rot[1] != 0) {
     out[0] = pn[0] * cos(rot[1]) - pn[1] * 0 + pn[2] * sin(rot[1]);
     out[1] = pn[0] * 0 + pn[1] * 1 + pn[2] * 0;
@@ -235,7 +231,7 @@ static void rotate(float pn[3], const float rot[3])
     memcpy(pn, out, sizeof(out[0]) * 3);
   }
 
-  // Z Rotation
+  // Z-axis Rotation
   if (rot[2] != 0) {
     out[0] = pn[0] * cos(rot[2]) - pn[1] * sin(rot[2]) + pn[2] * 0;
     out[1] = pn[0] * sin(rot[2]) + pn[1] * cos(rot[2]) + pn[2] * 0;
@@ -246,23 +242,34 @@ static void rotate(float pn[3], const float rot[3])
 
 static void calc_gyr(float* gyrAngle) //in degree
 {
+    // convert gyro readings to degrees/sec (with calibration offsets)
     gyrAngle[0] = gyr_to_dps(ht_data.sensor_data.gyr.x - ht_data.gyr_offset[0]);
     gyrAngle[1] = gyr_to_dps(ht_data.sensor_data.gyr.y - ht_data.gyr_offset[1]);
     gyrAngle[2] = gyr_to_dps(ht_data.sensor_data.gyr.z - ht_data.gyr_offset[2]);
-    rotate(gyrAngle, imu_rotation);
+    rotate(gyrAngle, imu_orientation);
 }
 
 static void calc_acc(float* accAngle) //in G
 {
-    accAngle[0] = acc_to_g(ht_data.sensor_data.acc.x);// - ht_data.acc_offset[0]); 
-    accAngle[1] = acc_to_g(ht_data.sensor_data.acc.y);// - ht_data.acc_offset[1]);
-    accAngle[2] = acc_to_g(ht_data.sensor_data.acc.z);// - ht_data.acc_offset[2]);
-    rotate(accAngle, imu_rotation);
+    // convert accelerometer readings to G forces
+    accAngle[0] = acc_to_g(ht_data.sensor_data.acc.x);
+    accAngle[1] = acc_to_g(ht_data.sensor_data.acc.y);
+    accAngle[2] = acc_to_g(ht_data.sensor_data.acc.z);
+    rotate(accAngle, imu_orientation);
+}
+
+static int constrain(int value, int min, int max)
+{
+    if (value < min)
+        return min;
+    if (value > max)
+        return max;
+    return value;
 }
 
 // Normalizes any number to an arbitrary range
 // by assuming the range wraps around when going below min or above max
-float normalize(float value, float start, float end)
+static float normalize(float value, float start, float end)
 {
   float width = end - start;          //
   float offsetValue = value - start;  // value relative to 0
@@ -273,9 +280,6 @@ float normalize(float value, float start, float end)
 
 void calibrate_ht()
 {
-    uint16_t i;
-    float accAngle[3];
-
     LOGI("HT calibration...");
     ht_data.acc_offset[0] = ht_data.acc_offset[1] = ht_data.acc_offset[2] = 0;
     ht_data.gyr_offset[0] = ht_data.gyr_offset[1] = ht_data.gyr_offset[2] = 0;
@@ -305,7 +309,8 @@ void calibrate_ht()
 
 int calc_ht()
 {
-    float gyrAngle[3], accAngle[3], tmp;
+    float gyrAngle[3], accAngle[3];
+    int tmp;
 
     if(!calibrating && !ht_data.enable) return 0;
 
@@ -330,27 +335,19 @@ int calc_ht()
 	MadgwickAHRSupdateIMU(gyrAngle[0] * DEG_TO_RAD, gyrAngle[1] * DEG_TO_RAD, gyrAngle[2] * DEG_TO_RAD, \
                           accAngle[0],              accAngle[1],              accAngle[2]);
 
+    // Adjust PTR relatice to user specified home position
 	ht_data.panAngle = getYaw() - ht_data.panAngleHome;
 	ht_data.tiltAngle = getPitch() - ht_data.tiltAngleHome;
 	ht_data.rollAngle = getRoll() - ht_data.rollAngleHome;
 
-    tmp = normalize(ht_data.panAngle, -180.0, 180.0) * ht_data.panInverse * ht_data.panFactor;
-    if ((tmp > ht_data.panMinPulse) && (tmp < ht_data.panMaxPulse)) {
-        tmp += ht_data.panCenter;
-        ht_data.htChannels[0] = (int16_t)tmp;
-    }    
+    tmp = normalize(ht_data.panAngle, -180.0, 180.0) * ht_data.panInverse * ht_data.panFactor + 0.5;
+    ht_data.htChannels[0] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
-    tmp = normalize(ht_data.tiltAngle, -180.0, 180.0) * ht_data.tiltInverse * ht_data.tiltFactor;
-    if((tmp > ht_data.tiltMinPulse) && (tmp < ht_data.tiltMaxPulse)) {
-        tmp += ht_data.tiltCenter;
-        ht_data.htChannels[1] = (int16_t)tmp;
-    }
+    tmp = normalize(ht_data.tiltAngle, -180.0, 180.0) * ht_data.tiltInverse * ht_data.tiltFactor + 0.5;
+    ht_data.htChannels[1] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
-    tmp = normalize(ht_data.rollAngle, -180.0, 180.0) * ht_data.rollInverse * ht_data.rollFactor;
-    if((tmp > ht_data.rollMinPulse) && (tmp < ht_data.rollMaxPulse)) {
-        tmp += ht_data.rollCenter;
-        ht_data.htChannels[2] = (int16_t)tmp;
-    }
+    tmp = normalize(ht_data.rollAngle, -180.0, 180.0) * ht_data.rollInverse * ht_data.rollFactor + 0.5;
+    ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
     Set_HT_dat(ht_data.htChannels[0], ht_data.htChannels[1], ht_data.htChannels[2]);
 	return 1;
