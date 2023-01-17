@@ -38,6 +38,7 @@ file(GLOB SRC_FILES_UI   "src/ui/*.c" "src/ui/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_WINDOW "src/window/*.c" "src/window/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
+file(GLOB SRC_FILES_UTIL "src/util/*.c" "src/util/*.h")
 
 add_executable(${PROJECT_NAME}
 	${SRC_FILES_CORE}
@@ -47,6 +48,7 @@ add_executable(${PROJECT_NAME}
 	${SRC_FILES_BMI}
 	${SRC_FILES_WINDOW}
 	${SRC_FILES_PLAYER}
+	${SRC_FILES_UTIL}
 )
 target_include_directories(${PROJECT_NAME} PRIVATE 
 	src/
