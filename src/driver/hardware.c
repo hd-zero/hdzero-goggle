@@ -80,7 +80,7 @@ void Display_UI_init()
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     OLED_SetTMG(0);
-	system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
+    system("aww 0x06542018 0x00000044"); //disable horizontal chroma FIR filter.
 }
 
 void Display_UI()
