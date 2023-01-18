@@ -101,7 +101,7 @@ void tune_channel(uint8_t action)
 			if(	g_setting.scan.channel != channel) {
 				g_setting.scan.channel = channel;
 				ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
-				rbtn_click(1,1); //stop recording
+				osd_dvr_cmd(DVR_STOP);
 				switch_to_video(true);
 			}
 			tune_timer = 0;
@@ -145,7 +145,8 @@ static void switch_to_menumode()
 	}
 
 	g_menu_op = OPLEVEL_MAINMENU;
-	rbtn_click(true, 1); //Stop recording if switching to menu mode from video mode regardless 
+	//Stop recording if switching to menu mode from video mode regardless 
+	osd_dvr_cmd(DVR_STOP);
 
 	Display_UI();
 	lvgl_switch_to_1080p();
@@ -249,6 +250,14 @@ static void btn_click(void)  //short press enter key
 		submenu_click();	
 	}
 	pthread_mutex_unlock(&lvgl_mutex);
+}
+
+void rbtn_click(bool is_short) {
+    if (is_short) { // short press right button
+       osd_dvr_cmd(DVR_TOGGLE);
+    } else { // long press right button
+        step_topfan();
+    }
 }
 
 static void roller_up(void)

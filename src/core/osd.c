@@ -119,49 +119,40 @@ void update_record_conf() {
     sel_audio_source(g_setting.record.audio_source);
 }
 
-//////////////////////////////////////////////////////////////////
-// is_short:
-//  =1: short pressed right button
-//  =0: long press
-// mode:
-//   = 0 to toggle
-//   = 1 to stop
-//   = 2 to start
-void rbtn_click(bool is_short, int mode) {
-    bool start_rec;
+void osd_dvr_cmd(osd_dvr_cmd_t cmd) {
+    LOGI("osd_dvr_cmd: sdcard=%d, recording=%d, cmd=%d", g_sdcard_enable, is_recording, cmd);
 
-    LOGI("rbtn_click: sdcard=%d, recording=%d, mode=%d", g_sdcard_enable, is_recording, mode);
+    if (!g_sdcard_enable)
+        return;
 
-    if (is_short) { // short press right button
-        if (!g_sdcard_enable)
-            return;
+    pthread_mutex_lock(&dvr_mutex);
 
-        pthread_mutex_lock(&dvr_mutex);
-        if (mode == 1)
-            start_rec = false;
-        else if (mode == 2)
-            start_rec = true;
-        else
-            start_rec = !is_recording;
+    bool start_rec = is_recording;
 
-        if (!start_rec) {
-            if (is_recording) {
-                osd_rec_update(false);
-                system(REC_STOP);
-                usleep(200000); // 200ms
-            }
-        } else {
-            if ((!is_recording) && (g_sdcard_size >= 103)) {
-                update_record_conf();
-                osd_rec_update(true);
-                system(REC_START);
-                sleep(2); // wait for record process
-            }
-        }
-        pthread_mutex_unlock(&dvr_mutex);
-    } else { // long press right button
-        step_topfan();
+    switch (cmd) {
+    case DVR_TOGGLE:
+        start_rec = !is_recording;
+    case DVR_STOP:
+        start_rec = false;
+    case DVR_START:
+        start_rec = true;
     }
+
+    if (!start_rec) {
+        if (is_recording) {
+            osd_rec_update(false);
+            system(REC_STOP);
+            usleep(200000); // 200ms
+        }
+    } else {
+        if ((!is_recording) && (g_sdcard_size >= 103)) {
+            update_record_conf();
+            osd_rec_update(true);
+            system(REC_START);
+            sleep(2); // wait for record process
+        }
+    }
+    pthread_mutex_unlock(&dvr_mutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

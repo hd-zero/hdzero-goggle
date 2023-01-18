@@ -198,7 +198,7 @@ void esp32_handler_timeout()
 {
 	if (record_time != 0 && record_time <= time(NULL)) {
 		record_time = 0;
-		rbtn_click(true, record_state);
+		osd_dvr_cmd(record_state);
 	}
 }
 
@@ -272,7 +272,7 @@ void msp_process_packet()
 					record_state = packet.payload[0] == 0 ? 1 : 2;
 					uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2]<<8;
 					if (delay == 0)
-						rbtn_click(true, record_state);
+						osd_dvr_cmd(record_state);
 					else
 						record_time = time(NULL) + delay;
 				}
