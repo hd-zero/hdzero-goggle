@@ -15,6 +15,7 @@
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
+#include "util/file.h"
 
 LV_IMG_DECLARE(img_arrow1);
 

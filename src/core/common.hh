@@ -1,13 +1,15 @@
 #ifndef __COMMON_HH__
 #define __COMMON_HH__
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <pthread.h>
 #include <stdatomic.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#include <lvgl/lvgl.h>
+
 #include "defines.h"
-#include "lvgl/lvgl.h"      
 
 #define DIAL_KEY_UP     1
 #define DIAL_KEY_DOWN   2
@@ -22,10 +24,6 @@ extern pthread_mutex_t lvgl_mutex;
 
 uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt);
 
-bool file_compare(char* f1,char* f2);
-bool file_exists(const char* filename);
-long file_get_size(const char* filename);
-
 void    gpio_init();
 void    open_gpio(int port_num);
 void    set_gpio(int port_num, int isHigh);
@@ -34,4 +32,3 @@ void    beep_n(int dur_us);
 #define beep()            beep_n(500)
 
 #endif //__COMMON_HH__
-  
