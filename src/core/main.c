@@ -23,6 +23,7 @@
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
+#include "driver/gpio.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
 #include "driver/it66021.h"

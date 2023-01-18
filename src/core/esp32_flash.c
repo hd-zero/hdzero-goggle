@@ -12,7 +12,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "../core/common.hh"
+#include "core/common.hh"
+#include "driver/gpio.h"
 #include "uart.h"
 
 #include "serial_io.h"
@@ -22,20 +23,20 @@ static int64_t s_time_end;
 
 void loader_port_enter_bootloader(void)
 {
-	set_gpio(GPIO_ESP32_EN, 0);
-	set_gpio(GPIO_ESP32_BOOT0, 0);
+	gpio_set(GPIO_ESP32_EN, 0);
+	gpio_set(GPIO_ESP32_BOOT0, 0);
     loader_port_delay_ms(100);
-	set_gpio(GPIO_ESP32_BOOT0, 0);
-	set_gpio(GPIO_ESP32_EN, 1);
+	gpio_set(GPIO_ESP32_BOOT0, 0);
+	gpio_set(GPIO_ESP32_EN, 1);
     loader_port_delay_ms(100);
 }
 
 void loader_port_reset_target(void)
 {
-	set_gpio(GPIO_ESP32_EN, 0);
-	set_gpio(GPIO_ESP32_BOOT0, 1);
+	gpio_set(GPIO_ESP32_EN, 0);
+	gpio_set(GPIO_ESP32_BOOT0, 1);
     loader_port_delay_ms(100);
-	set_gpio(GPIO_ESP32_EN, 1);
+	gpio_set(GPIO_ESP32_EN, 1);
 }
 
 void loader_port_delay_ms(uint32_t ms)

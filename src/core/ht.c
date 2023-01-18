@@ -15,6 +15,7 @@
 
 #include "bmi270/accel_gyro.h"
 #include "driver/dm6302.h"
+#include "driver/gpio.h"
 #include "driver/hardware.h"
 #include "driver/oled.h"
 #include "ui/page_common.h"
