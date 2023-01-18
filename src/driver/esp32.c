@@ -23,8 +23,9 @@
 
 #include <log/log.h>
 
+#include "core/common.hh"
+#include "driver/gpio.h"
 #include "uart.h"
-#include "../core/common.hh"
 #include "ui/page_common.h"
 
 
@@ -93,11 +94,11 @@ void enable_esp32()
 	fd_esp32 = uart_open(3);
 	if(fd_esp32 != -1) {
 		LOGI("[ESP32] Powering on");
-		set_gpio(GPIO_ESP32_EN,0);
-		set_gpio(GPIO_ESP32_BOOT0,1);
+		gpio_set(GPIO_ESP32_EN,0);
+		gpio_set(GPIO_ESP32_BOOT0,1);
 		pthread_create(&tid, NULL, pthread_recv_esp32, NULL);
 		usleep(50000);
-		set_gpio(GPIO_ESP32_EN,1);
+		gpio_set(GPIO_ESP32_EN,1);
 		esp32_handler_set_uart(fd_esp32);
 	}
 }
@@ -106,7 +107,7 @@ void disable_esp32()
 {
 	if (fd_esp32 != -1) {
 		LOGI("[ESP32] Powering off");
-		set_gpio(GPIO_ESP32_EN, 0);
+		gpio_set(GPIO_ESP32_EN, 0);
 		stopping = true;
 		pthread_join(tid, NULL);
 		uart_close(fd_esp32);

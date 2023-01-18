@@ -22,13 +22,6 @@ extern atomic_int g_key;
 extern atomic_int g_init_done;
 extern pthread_mutex_t lvgl_mutex;
 
-uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt);
-
-void    gpio_init();
-void    open_gpio(int port_num);
-void    set_gpio(int port_num, int isHigh);
-
-void    beep_n(int dur_us);
-#define beep()            beep_n(500)
+uint8_t slow_key(left_dial_t key, uint8_t *state, uint8_t *cnt);
 
 #endif //__COMMON_HH__

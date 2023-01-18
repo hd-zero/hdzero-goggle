@@ -7,6 +7,7 @@
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/osd.h"
+#include "driver/gpio.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
 #include "ui/ui_style.h"

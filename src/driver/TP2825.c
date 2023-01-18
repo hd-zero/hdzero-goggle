@@ -1,17 +1,21 @@
+#include "TP2825.h"
+
 #include <stdint.h>
 #include <stdlib.h>
- #include <unistd.h>
+#include <unistd.h>
+
 #include "i2c.h"
-#include "../core/common.hh"
+#include "core/common.hh"
+#include "driver/gpio.h"
 
 void TP2825_close()
 {
-    set_gpio(GPIO_TP2825_RSTB,0);
+    gpio_set(GPIO_TP2825_RSTB,0);
 }
 
 void TP2825_open()
 {
-    set_gpio(GPIO_TP2825_RSTB,1);
+    gpio_set(GPIO_TP2825_RSTB,1);
 }
 
 void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
