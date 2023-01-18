@@ -30,7 +30,7 @@ static uint8_t sync_len = 200;
 static volatile bool calibrating = false;
 static int calibration_count = 0;
 
-static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0+22.0) * DEG_TO_RAD};
+static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0+23.0) * DEG_TO_RAD};
 
 static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500; 
