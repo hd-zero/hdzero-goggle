@@ -137,4 +137,5 @@ page_pack_t pp_imagesettings = {
     .exit = NULL,
     .on_roller = NULL,
     .on_click = NULL,
+    .on_right_button = NULL,
 };

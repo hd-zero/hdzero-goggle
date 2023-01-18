@@ -164,4 +164,5 @@ page_pack_t pp_connections = {
     .exit = NULL,
     .on_roller = page_connections_on_roller,
     .on_click = page_connections_on_click,
+    .on_right_button = NULL,
 };

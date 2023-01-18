@@ -319,4 +319,5 @@ page_pack_t pp_playback = {
     .exit = page_playback_exit,
     .on_roller = page_playback_on_roller,
     .on_click = page_playback_on_click,
+    .on_right_button = NULL,
 };

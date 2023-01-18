@@ -133,4 +133,5 @@ page_pack_t pp_power = {
     .exit = NULL,
     .on_roller = NULL,
     .on_click = page_power_on_click,
+    .on_right_button = NULL,
 };

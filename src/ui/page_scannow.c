@@ -443,4 +443,5 @@ page_pack_t pp_scannow = {
     .exit = page_scannow_exit,
     .on_roller = page_scannow_on_roller,
     .on_click = page_scannow_on_click,
+    .on_right_button = NULL,
 };

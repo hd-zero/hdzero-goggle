@@ -192,4 +192,5 @@ page_pack_t pp_headtracker = {
     .exit = page_headtracker_exit,
     .on_roller = NULL,
     .on_click = page_headtracker_on_click,
+    .on_right_button = NULL,
 };

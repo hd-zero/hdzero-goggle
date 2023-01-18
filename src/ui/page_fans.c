@@ -347,4 +347,5 @@ page_pack_t pp_fans = {
     .exit = NULL,
     .on_roller = NULL,
     .on_click = page_fans_mode_on_click,
+    .on_right_button = NULL,
 };
