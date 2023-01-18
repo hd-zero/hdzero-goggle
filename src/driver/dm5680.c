@@ -27,7 +27,8 @@
 #include "common.hh"
 #include "ui/page_common.h"
 #include "msp_displayport.h"
-#include "../core/osd.h"
+#include "core/osd.h"
+#include "core/input_device.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ void uart_parse(uint8_t sel,uint8_t* state, uint8_t* len, uint8_t* payload,uint8
 					g_key = RIGHT_KEY_CLICK+(ptr[2]&1);
 					LOGI("btn:%x\n", ptr[2]);	//0=short,1=long
 					if((g_source_info.source != SOURCE_HDMI_IN) && (g_menu_op == OPLEVEL_VIDEO)) //no record feature for HDMI in or non-Video mode
-						rbtn_click(!ptr[2], 0);
+						rbtn_click(!ptr[2]);
 				}
 				break;
 

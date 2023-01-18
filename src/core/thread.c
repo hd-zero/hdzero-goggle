@@ -81,15 +81,15 @@ static void check_hdzero_signal(int vtmg_change)
 	if(g_source_info.source >= SOURCE_AV_IN) {
 		if(vtmg_change && is_recording) {
 			LOGI("AV VTMG change");
-			rbtn_click(1,1);
-			rbtn_click(1,2);
+			osd_dvr_cmd(DVR_STOP);
+			osd_dvr_cmd(DVR_START);
 		}
 	}
 
 	//HDZero VTMG change -> stop recording first
 	if((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
 		LOGI("HDZero VTMG change\n");
-		rbtn_click(1,1);
+		osd_dvr_cmd(DVR_STOP);
 		cnt = 0;
 	}
 
@@ -103,7 +103,7 @@ static void check_hdzero_signal(int vtmg_change)
 			if(cnt >= SIGNAL_LOSS_DURATION_THR) {
 				cnt = 0;
 				LOGI("Signal lost");
-				rbtn_click(1,1);
+				osd_dvr_cmd(DVR_STOP);
 			}
 		}
 		else 
@@ -115,7 +115,7 @@ static void check_hdzero_signal(int vtmg_change)
 			if(cnt >= SIGNAL_ACCQ_DURATION_THR) {
 				cnt = 0;
 				LOGI("Signal accquired");
-				rbtn_click(1,2);
+				osd_dvr_cmd(DVR_START);
 			}
 		}
 		else 

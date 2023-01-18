@@ -66,6 +66,12 @@ typedef struct {
     lv_img_dsc_t data[512];
 } osd_font_t;
 
+typedef enum {
+    DVR_TOGGLE,
+    DVR_STOP,
+    DVR_START,
+} osd_dvr_cmd_t;
+
 extern bool is_recording;
 extern uint8_t channel_osd_mode;
 
@@ -78,7 +84,7 @@ void osd_show(bool show);
 char *channel2str(uint8_t channel);
 
 void load_fc_osd_font(void);
-void rbtn_click(bool is_short, int mode);
+void osd_dvr_cmd(osd_dvr_cmd_t cmd);
 
 void *thread_osd(void *ptr);
 
