@@ -159,4 +159,5 @@ page_pack_t pp_record = {
     .exit = page_record_exit,
     .on_roller = page_record_on_roller,
     .on_click = page_record_on_click,
+    .on_right_button = NULL,
 };

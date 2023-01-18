@@ -207,4 +207,5 @@ page_pack_t pp_source = {
     .exit = page_source_exit,
     .on_roller = NULL,
     .on_click = page_source_on_click,
+    .on_right_button = NULL,
 };

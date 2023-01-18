@@ -59,4 +59,5 @@ page_pack_t pp_focus_chart = {
     .exit = page_focus_chart_exit,
     .on_roller = NULL,
     .on_click = page_focus_chart_on_click,
+    .on_right_button = NULL,
 };

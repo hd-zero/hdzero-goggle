@@ -253,10 +253,27 @@ static void btn_click(void)  //short press enter key
 }
 
 void rbtn_click(bool is_short) {
-    if (is_short) { // short press right button
-       osd_dvr_cmd(DVR_TOGGLE);
-    } else { // long press right button
-        step_topfan();
+    switch (g_menu_op) {
+    case OPLEVEL_SUBMENU:
+		pthread_mutex_lock(&lvgl_mutex);
+        submenu_right_button(is_short);
+		pthread_mutex_unlock(&lvgl_mutex);
+        break;
+
+    case OPLEVEL_VIDEO:
+        if (g_source_info.source == SOURCE_HDMI_IN) {
+            // not record for hdmi-in :<
+            break;
+        }
+        if (is_short) {
+            osd_dvr_cmd(DVR_TOGGLE);
+        } else {
+            step_topfan();
+        }
+        break;
+
+    default:
+        break;
     }
 }
 

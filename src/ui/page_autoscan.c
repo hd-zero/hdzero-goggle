@@ -89,4 +89,5 @@ page_pack_t pp_autoscan = {
     .exit = NULL,
     .on_roller = NULL,
     .on_click = page_autoscan_on_click,
+    .on_right_button = NULL,
 };

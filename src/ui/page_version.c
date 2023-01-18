@@ -516,4 +516,5 @@ page_pack_t pp_version = {
     .exit = NULL,
     .on_roller = page_version_on_roller,
     .on_click = page_version_on_click,
+    .on_right_button = NULL,
 };
