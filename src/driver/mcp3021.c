@@ -17,7 +17,7 @@
 sys_battery_t g_battery;
 
 /*
-int mcp_read_vatage(void)
+int mcp_read_voltage(void)
 {
    FILE   *stream;  
    char   buf[128]; 
@@ -30,7 +30,7 @@ int mcp_read_vatage(void)
 	return atoi(buf);
 }
 */
-int mcp_read_vatage(void)
+int mcp_read_voltage(void)
 {
 	char  buf[128]; 
 	FILE* fp;  
@@ -40,7 +40,7 @@ int mcp_read_vatage(void)
 	if(!fp) {
       static bool bFirst = true;
       if(bFirst) {
-		   LOGE("mcp_read_vatage: open error.");
+		   LOGE("mcp_read_voltage: open error.");
          bFirst = false;
       }
 		return -1;
@@ -56,6 +56,6 @@ int mcp_read_vatage(void)
 
 int mcp_detect_type(void)
 {
-	int v = mcp_read_vatage();
+	int v = mcp_read_voltage();
 	return (v*10/1000/42+1);
 }

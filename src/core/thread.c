@@ -155,7 +155,7 @@ static void *thread_peripheral(void *ptr)
 			detect_sdcard();
 			if(k++ == 4) {
 				k = 0;
-				g_battery.voltage = mcp_read_vatage();
+				g_battery.voltage = mcp_read_voltage();
 				g_temperature.top = nct_read_temperature(NCT_TOP);
 				g_temperature.left = nct_read_temperature(NCT_LEFT) + 100; 
 				g_temperature.right= nct_read_temperature(NCT_RIGHT);

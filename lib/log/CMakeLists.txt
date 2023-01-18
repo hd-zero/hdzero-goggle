@@ -1,5 +1,5 @@
 file(GLOB SRC_FILES "src/*.c")
 
-add_library(log OBJECT ${SRC_FILES})
-target_compile_options(log PRIVATE ${COMMON_COMPILE_OPTIONS})
+add_library(log SHARED ${SRC_FILES})
 target_include_directories(log PUBLIC include)
+install(TARGETS log)
