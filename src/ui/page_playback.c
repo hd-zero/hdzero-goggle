@@ -109,17 +109,6 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_obj_clear_flag(pb_ui[pos]._img, LV_OBJ_FLAG_HIDDEN);
 }
 
-static int insert_to_list(char *fname, char *label, int size) {
-    media_file_node_t *pnode = &media_db.list[media_db.count];
-    strcpy(pnode->filename, fname);
-    strcpy(pnode->label, label);
-    pnode->size = size;
-
-    LOGI("%d: %s-%dMB", media_db.count, fname, size);
-    media_db.count++;
-    return 1;
-}
-
 int get_videofile_cnt() {
     return media_db.count;
 }
@@ -143,10 +132,6 @@ static bool get_seleteced(int seq, char *fname) {
 }
 
 static int walk_sdcard() {
-    DIR *FD;
-    struct dirent *in_file;
-    FILE *entry_file;
-    int i, j, k, len;
     char label[64], fname[128];
     long int res;
 
@@ -154,51 +139,48 @@ static int walk_sdcard() {
     media_db.cur_sel = 0;
 
     /* Scanning the in directory */
+    DIR *FD;
     if (NULL == (FD = opendir(MEDIA_FILES_DIR)))
         return 0;
 
+    struct dirent *in_file;
     while ((in_file = readdir(FD))) {
-        if (!strcmp(in_file->d_name, "."))
-            continue;
-        if (!strcmp(in_file->d_name, ".."))
+        if (!strcmp(in_file->d_name, ".") || !strcmp(in_file->d_name, ".."))
             continue;
 
-        // .ts or .mp4 only
-        len = strlen(in_file->d_name);
-        for (i = len - 1; i > 0; i--) {
-            if (in_file->d_name[i] == '.')
-                break;
+        const char *dot = strrchr(in_file->d_name, '.');
+        if(dot == NULL) {
+            // '.' not found
+            continue;
         }
-        if (i == 0)
+
+        if (strcasecmp(dot, ".ts") != 0 && strcasecmp(dot, ".mp4") != 0) {
             continue;
+        }
 
-        k = i; // save the '.' position
-
-        j = 0; // .TS and .MP4 only
-        while (i < len)
-            label[j++] = toupper(in_file->d_name[i++]);
-        label[j] = 0;
-        if ((strcmp(label, ".TS") != 0) && (strcmp(label, ".MP4") != 0))
-            continue;
-
-        strncpy(label, in_file->d_name, k);
-        label[k] = 0;
-
+        char fname[128];
         sprintf(fname, "%s/%s", MEDIA_FILES_DIR, in_file->d_name);
-        entry_file = fopen(fname, "r");
-        if (!entry_file)
-            continue;
-        fseek(entry_file, 0L, SEEK_END);
-        res = ftell(entry_file);
-        fclose(entry_file);
-        res >>= 20;  // in MB
-        if (res < 5) // skip small files
-            continue;
 
-        if (media_db.count < MAX_VIDEO_FILES)
-            insert_to_list(in_file->d_name, label, (int)res);
-        else
+        long size = file_get_size(fname);
+        size >>= 20; // in MB
+        if (size < 5) {
+            // skip small files
+            continue;
+        }
+
+        if (media_db.count >= MAX_VIDEO_FILES) {
             LOGI("max video file cnt reached %d,skipped", MAX_VIDEO_FILES);
+            continue;
+        }
+
+        media_file_node_t *pnode = &media_db.list[media_db.count];
+        strcpy(pnode->filename, in_file->d_name);
+        strncpy(pnode->label, in_file->d_name, dot - in_file->d_name);
+        pnode->size = size;
+
+        LOGI("%d: %s-%dMB", media_db.count, pnode->filename, size);
+
+        media_db.count++;
     }
     closedir(FD);
 
@@ -240,6 +222,22 @@ static void update_page() {
     }
 }
 
+static void mark_video_file(int seq) {
+    media_file_node_t *pnode = get_list(seq);
+    if (!pnode) {
+        return;
+    }
+
+    char cmd[128];
+    sprintf(cmd, "mv  %s/%s %s/hot_%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, pnode->filename);
+    system(cmd);
+    sprintf(cmd, "mv %s/%s.jpg %s/hot_%s.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, pnode->label);
+    system(cmd);
+
+    walk_sdcard();
+    update_page();
+}
+
 static void page_playback_exit() {
     clear_videofile_cnt();
     update_page();
@@ -251,7 +249,7 @@ static void page_playback_enter() {
 
     if (ret == 0) {
         // no files found, back out
-        page_playback_exit();
+        submenu_exit();
     }
 }
 
@@ -301,6 +299,10 @@ void pb_key(uint8_t key) {
     case DIAL_KEY_PRESS: // long press
         page_playback_exit();
         break;
+
+    case RIGHT_KEY_CLICK:
+        mark_video_file(media_db.cur_sel);
+        break;
     }
     done = true;
 }
@@ -313,11 +315,15 @@ static void page_playback_on_click(uint8_t key, int sel) {
     pb_key(key);
 }
 
+static void page_playback_on_right_button(bool is_short) {
+    pb_key(is_short ? RIGHT_KEY_CLICK : RIGHT_KEY_PRESS);
+}
+
 page_pack_t pp_playback = {
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,
     .on_roller = page_playback_on_roller,
     .on_click = page_playback_on_click,
-    .on_right_button = NULL,
+    .on_right_button = page_playback_on_right_button,
 };
