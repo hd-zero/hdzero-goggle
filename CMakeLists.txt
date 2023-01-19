@@ -86,7 +86,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
-	COMMAND cd ${PROJECT_SOURCE_DIR}/mkapp && rm -f ./ota_app/hdzgoggle_app_ota*.tar && ./mkapp_ota.sh && ./make_fw.sh
+	COMMAND cd ${PROJECT_SOURCE_DIR}/mkapp && ./mkapp_ota.sh && ./make_fw.sh
 	COMMAND mv ${PROJECT_SOURCE_DIR}/mkapp/HDZERO_GOGGLE-*.bin ${PROJECT_SOURCE_DIR}/out/
 )
 
