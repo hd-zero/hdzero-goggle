@@ -1,9 +1,12 @@
+#include "common.hh"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
+#include <sys/stat.h>
+
 #include "defines.h"
-#include "common.hh"
 #include "self_test.h"
 #include "ui/page_common.h"
 
@@ -91,6 +94,14 @@ bool file_compare(char* f1,char* f2)
 
 bool file_exists(const char* filename) {
     return access(filename, F_OK) == 0;
+}
+
+long file_get_size(const char* filename) {
+    struct stat st;
+    if (stat(filename, &st) != 0) {
+        return 0;
+    }
+    return st.st_size;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

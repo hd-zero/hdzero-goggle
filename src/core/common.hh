@@ -24,6 +24,7 @@ uint8_t slow_key(left_dial_t key,uint8_t* state,uint8_t* cnt);
 
 bool file_compare(char* f1,char* f2);
 bool file_exists(const char* filename);
+long file_get_size(const char* filename);
 
 void    gpio_init();
 void    open_gpio(int port_num);
