@@ -139,18 +139,19 @@ static int walk_sdcard() {
     media_db.count = 0;
     media_db.cur_sel = 0;
 
-    /* Scanning the in directory */
-    DIR *FD;
-    if (NULL == (FD = opendir(MEDIA_FILES_DIR)))
+    DIR *fd = opendir(MEDIA_FILES_DIR);
+    if (!fd) {
         return 0;
+    }
 
     struct dirent *in_file;
-    while ((in_file = readdir(FD))) {
-        if (!strcmp(in_file->d_name, ".") || !strcmp(in_file->d_name, ".."))
+    while ((in_file = readdir(fd))) {
+        if (in_file->d_name[0] == '.') {
             continue;
+        }
 
         const char *dot = strrchr(in_file->d_name, '.');
-        if(dot == NULL) {
+        if (dot == NULL) {
             // '.' not found
             continue;
         }
@@ -177,19 +178,57 @@ static int walk_sdcard() {
         media_file_node_t *pnode = &media_db.list[media_db.count];
         strcpy(pnode->filename, in_file->d_name);
         strncpy(pnode->label, in_file->d_name, dot - in_file->d_name);
+        strcpy(pnode->ext, dot + 1);
         pnode->size = size;
 
         LOGI("%d: %s-%dMB", media_db.count, pnode->filename, size);
 
         media_db.count++;
     }
-    closedir(FD);
+    closedir(fd);
 
     // copy all thumbnail files to /tmp
     sprintf(fname, "cp %s/*.jpg %s", MEDIA_FILES_DIR, TMP_DIR);
     system(fname);
 
     return media_db.count;
+}
+
+static int find_hot_index() {
+    DIR *fd = opendir(MEDIA_FILES_DIR);
+    if (!fd) {
+        return 1;
+    }
+
+    int result = 0;
+    struct dirent *in_file;
+    while ((in_file = readdir(fd))) {
+        if (in_file->d_name[0] == '.' || strncmp(in_file->d_name, "hot_", 4) != 0) {
+            continue;
+        }
+
+        const char *dot = strrchr(in_file->d_name, '.');
+        if (dot == NULL) {
+            // '.' not found
+            continue;
+        }
+
+        if (strcasecmp(dot, ".ts") != 0 && strcasecmp(dot, ".mp4") != 0) {
+            continue;
+        }
+
+        int index = 0;
+        if (sscanf(in_file->d_name, "hot_hdz_%d", &index) != 1) {
+            continue;
+        }
+
+        if (index > result) {
+            result = index;
+        }
+    }
+    closedir(fd);
+
+    return result + 1;
 }
 
 static void update_page() {
@@ -228,11 +267,17 @@ static void mark_video_file(int seq) {
     if (!pnode) {
         return;
     }
+    if (strncmp(pnode->filename, "hot_", 4) == 0) {
+        // file already marked hot
+        return;
+    }
+
+    const int index = find_hot_index();
 
     char cmd[128];
-    sprintf(cmd, "mv  %s/%s %s/hot_%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, pnode->filename);
+    sprintf(cmd, "mv  %s/%s %s/hot_hdz_%03d.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, index, pnode->ext);
     system(cmd);
-    sprintf(cmd, "mv %s/%s.jpg %s/hot_%s.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, pnode->label);
+    sprintf(cmd, "mv %s/%s.jpg %s/hot_hdz_%03d.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, index);
     system(cmd);
 
     walk_sdcard();

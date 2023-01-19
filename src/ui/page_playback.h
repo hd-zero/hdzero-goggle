@@ -25,6 +25,7 @@
 typedef struct {
     char filename[64];
     char label[64];
+    char ext[16];
     int size;
 } media_file_node_t;
 
