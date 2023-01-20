@@ -51,9 +51,9 @@ static void detect_motion(int is_moving) {
             cnt++;
             if (g_setting.image.auto_off != 3) {
 #ifdef FAST_SIM
-                if (cnt > (MOVTION_DUR_1MINUTE * (g_setting.image.auto_off + 1))) {
+                if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off + 1))) {
 #else
-                if (cnt > (MOVTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 3))) {
+                if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 3))) {
 #endif
                     state = 1;
                     cnt = 0;
@@ -75,7 +75,7 @@ static void detect_motion(int is_moving) {
             OLED_Brightness(g_setting.image.oled);
         } else {
             cnt++;
-            if (cnt == MOVTION_DUR_1MINUTE) { // 1-min
+            if (cnt == MOTION_DUR_1MINUTE) { // 1-min
                 LOGI("OLED OFF for protection.");
                 beep();
 
@@ -132,7 +132,7 @@ static void get_imu_data(int bCalcDiff) {
         dy = ht_data.sensor_data.gyr.y - gyr_last.y;
         dz = ht_data.sensor_data.gyr.z - gyr_last.z;
         diff = dx * dx + dy * dy + dz * dz;
-        is_moving = (diff > MOVTION_GYRO_THR) || g_key > 0;
+        is_moving = (diff > MOTION_GYRO_THR) || g_key > 0;
 
         g_key = 0;
         gyr_last = ht_data.sensor_data.gyr;

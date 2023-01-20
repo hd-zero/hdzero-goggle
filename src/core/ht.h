@@ -7,8 +7,8 @@
 #define CALIBRATION_BCNT   8 // calibartion loop cnt = (1<<CALIBRATION_BCNT)
 #define gyroWeightTiltRoll 0.98
 
-#define MOVTION_GYRO_THR    3000
-#define MOVTION_DUR_1MINUTE 60
+#define MOTION_GYRO_THR    3000
+#define MOTION_DUR_1MINUTE 60
 
 #include "bmi270/bmi2_defs.h"
 
