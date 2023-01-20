@@ -135,7 +135,7 @@ void get_imu_data(int bCalcDiff)
         dy = ht_data.sensor_data.gyr.y - gyr_last.y;
         dz = ht_data.sensor_data.gyr.z - gyr_last.z;
         diff = dx*dx+dy*dy+dz*dz;
-        is_moving = (diff > MOVTION_GYRO_THR) | g_key;
+        is_moving = (diff > MOVTION_GYRO_THR) || g_key > 0;
         
         g_key = 0;
         gyr_last = ht_data.sensor_data.gyr;    
