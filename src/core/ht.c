@@ -127,7 +127,7 @@ void get_imu_data(int bCalcDiff)
     get_bmi270(&ht_data.sensor_data);
 
     dec_cnt++;
-    if(dec_cnt != 10) return;  //calibrate dec_cnt to make sure the following code runs at 1Hz
+    if(dec_cnt != 100) return;  //calibrate dec_cnt to make sure the following code runs at 1Hz
     dec_cnt = 0;
 
     if(bCalcDiff) {
