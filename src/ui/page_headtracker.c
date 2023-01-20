@@ -102,17 +102,17 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
         g_setting.ht.enable = btn_group_get_sel(&btn_group) == 0 ? 1 : 0;
         ini_putl("ht", "enable", g_setting.ht.enable, SETTING_INI);
         if (g_setting.ht.enable)
-            enable_ht();
+            ht_enable();
         else
-            disable_ht();
+            ht_disable();
     } else if (sel == 1) {
         lv_label_set_text(label_cali, "Calibrating...");
         lv_timer_handler();
-        calibrate_ht();
+        ht_calibrate();
         lv_label_set_text(label_cali, "Re-calibrate");
         lv_timer_handler();
     } else if (sel == 2) {
-        set_center_position_ht();
+        ht_set_center_position();
     } else if (sel == 3) {
         if (g_menu_op == PAGE_ANGLE_SLIDE) {
             g_menu_op = OPLEVEL_SUBMENU;
@@ -127,7 +127,7 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
 
 static void page_headtracker_timer(struct _lv_timer_t *timer)
 {
-    int16_t *channels = get_ht_channels();
+    int16_t *channels = ht_get_channels();
     lv_bar_set_value(pan, channels[0], LV_ANIM_OFF);
     lv_bar_set_value(tilt, channels[1], LV_ANIM_OFF);
     lv_bar_set_value(roll, channels[2], LV_ANIM_OFF);
@@ -158,7 +158,7 @@ void ht_angle_inc(void) {
     sprintf(buf, "%d", value);
     lv_label_set_text(slider_group.label, buf);
 
-    set_maxangle_ht(value);
+    ht_set_maxangle(value);
 
     g_setting.ht.max_angle = value;
 }
@@ -176,7 +176,7 @@ void ht_angle_dec(void) {
     sprintf(buf, "%d", value);
     lv_label_set_text(slider_group.label, buf);
 
-    set_maxangle_ht(value);
+    ht_set_maxangle(value);
 
     g_setting.ht.max_angle = value;
 }
