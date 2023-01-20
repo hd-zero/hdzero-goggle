@@ -133,19 +133,17 @@ static bool get_seleteced(int seq, char *fname) {
 }
 
 static int walk_sdcard() {
-    char label[64], fname[128];
-    long int res;
-
     media_db.count = 0;
     media_db.cur_sel = 0;
 
-    DIR *fd = opendir(MEDIA_FILES_DIR);
-    if (!fd) {
+    struct dirent **namelist;
+    int count = scandir(MEDIA_FILES_DIR, &namelist, NULL, alphasort);
+    if (count == -1) {
         return 0;
     }
 
-    struct dirent *in_file;
-    while ((in_file = readdir(fd))) {
+    for (size_t i = 0; i < count; i++) {
+        struct dirent *in_file = namelist[i];
         if (in_file->d_name[0] == '.') {
             continue;
         }
@@ -185,9 +183,14 @@ static int walk_sdcard() {
 
         media_db.count++;
     }
-    closedir(fd);
+
+    for (size_t i = 0; i < count; i++) {
+        free(namelist[i]);
+    }
+    free(namelist);
 
     // copy all thumbnail files to /tmp
+    char fname[128];
     sprintf(fname, "cp %s/*.jpg %s", MEDIA_FILES_DIR, TMP_DIR);
     system(fname);
 
