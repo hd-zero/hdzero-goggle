@@ -1,8 +1,6 @@
 #include "ui/ui_porting.h"
 
 #include <stdio.h>
-#include <sys/time.h>
-#include <time.h>
 
 #include <log/log.h>
 
@@ -75,19 +73,4 @@ int lvgl_switch_to_1080p(void) {
 
     h_resolution = 1920;
     return 0;
-}
-
-uint32_t wk_tick_get(void) {
-    static uint64_t start_ms = 0;
-    if (start_ms == 0) {
-        struct timeval tv_start;
-        gettimeofday(&tv_start, NULL);
-        start_ms = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
-    }
-
-    struct timeval tv_now;
-    gettimeofday(&tv_now, NULL);
-
-    const uint64_t now_ms = (tv_now.tv_sec * 1000000 + tv_now.tv_usec) / 1000;
-    return now_ms - start_ms;
 }

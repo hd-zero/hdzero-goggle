@@ -87,9 +87,9 @@
  *It removes the need to manually update the tick with `lv_tick_inc()`)*/
 #define LV_TICK_CUSTOM 1
 #if LV_TICK_CUSTOM
-    extern uint32_t wk_tick_get(void);
+    extern uint32_t time_ms();
     #define LV_TICK_CUSTOM_INCLUDE <stdint.h>         /*Header for the system time function*/
-    #define LV_TICK_CUSTOM_SYS_TIME_EXPR (wk_tick_get())    /*Expression evaluating to current system time in ms*/
+    #define LV_TICK_CUSTOM_SYS_TIME_EXPR (time_ms())    /*Expression evaluating to current system time in ms*/
 #endif   /*LV_TICK_CUSTOM*/
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
