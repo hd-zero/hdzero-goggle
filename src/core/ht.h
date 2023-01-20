@@ -40,10 +40,10 @@ typedef struct {
 
     //PPM setting
     int16_t htChannels[3]; //0=Pan, 1=tilt, 2=roll
-    
+
     // internal state
     uint8_t enable;
-	
+
 } ht_data_t;
 
 
@@ -53,8 +53,6 @@ void disable_ht();
 void calibrate_ht();
 void set_maxangle_ht(int angle);
 void set_center_position_ht();
-int calc_ht();
-void get_imu_data(int bCalcDiff);
 int16_t* get_ht_channels();
 
 
