@@ -1,18 +1,11 @@
-//#include "common.h"
-//#include "uart.h"
-//#include "global.h"
-//#include "print.h"
-//#include "cmd_struct.h"
+#include "msp_displayport.h"
+
 #include <string.h>
 #include <stdio.h>
-#include "msp_displayport.h"
+
 #include "osd.h"
-//#include "i2c_device.h"
-//#include "isr.h"
-//#include "hardware.h"
+#include "util/time.h"
 
-
-int seconds = 0;
 
 uint8_t crc8tab[256] = {
     0x00, 0xD5, 0x7F, 0xAA, 0xFE, 0x2B, 0x81, 0x54, 0x29, 0xFC, 0x56, 0x83, 0xD7, 0x02, 0xA8, 0x7D,
@@ -102,7 +95,7 @@ void recive_one_frame(uint8_t* uart_buf,uint8_t uart_buf_len)
         //rx = RS_rx1();
         rx = uart_buf[uart_buf_ptr];
 
-        last_rcv_seconds1 = seconds;
+        last_rcv_seconds1 = time_s();
         #if(0)
         _outchar(rx);
         #endif
@@ -203,7 +196,7 @@ void recive_one_frame(uint8_t* uart_buf,uint8_t uart_buf_len)
             case RX_CRC1:
                 if(rx == crc1){
                     parser_rx(function, index, rx_buf);
-                    last_rcv_seconds0 = seconds;
+                    last_rcv_seconds0 = time_s();
                 }
                 rx_state = RX_HEADER0;
                 break;
@@ -299,8 +292,9 @@ void lqDetect(uint8_t rData)
 void lqStatistics()
 {
     static uint16_t last_sec = 0;
+    const uint32_t now = time_s();
     
-    if(seconds != last_sec){
+    if(now != last_sec){
         if(lq_rcv_cnt>=8)
             link_quality = 8;
         else if(lq_rcv_cnt == 7){
@@ -320,7 +314,7 @@ void lqStatistics()
         else
             link_quality = lq_rcv_cnt;
         
-        last_sec = seconds;
+        last_sec = now;
         lq_rcv_cnt = 0;
         lq_err_cnt = 0;
     }
