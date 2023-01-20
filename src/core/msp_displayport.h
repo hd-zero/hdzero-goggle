@@ -71,7 +71,6 @@ extern uint8_t          vtxVersion;
 extern uint8_t          vtxType;
 extern uint8_t          vtxFcLock;
 extern uint8_t          cam_4_3;
-extern int              seconds;
 
 extern uint8_t fc_init_done;
 extern uint16_t osd_buf[HD_VMAX][HD_HMAX];
