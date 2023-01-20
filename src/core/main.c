@@ -40,7 +40,7 @@
 static void load_ini_setting(void)
 {
 	char str[128];
-	
+
 	FILE* fp;
 	fp=fopen("/mnt/UDISK/setting.ini","r");
 	if(fp){
@@ -55,7 +55,7 @@ static void load_ini_setting(void)
 
 
   	ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0)
 		g_setting.fans.auto_mode = true;
 	else
 		g_setting.fans.auto_mode = false;
@@ -84,28 +84,28 @@ static void load_ini_setting(void)
   	ini_gets("power", "warning_type", "0", str, sizeof(str), SETTING_INI);
 	g_setting.power.warning_type = atoi(str);
   	ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0)
 	{
 		g_setting.record.mode_manual = true;
 	}else{
 		g_setting.record.mode_manual = false;
 	}
   	ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0)
 	{
 		g_setting.record.format_ts = true;
 	}else{
 		g_setting.record.format_ts = false;
 	}
   	ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0)
 	{
 		g_setting.record.osd = true;
 	}else{
 		g_setting.record.osd = false;
 	}
   	ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
-	if(strcmp(str, "enable") == 0)	
+	if(strcmp(str, "enable") == 0)
 	{
 		g_setting.record.audio = true;
 	}else{
@@ -164,7 +164,7 @@ static void *thread_autoscan(void *ptr)
 		if(g_autoscan_exit)
 			goto a_exit;
 	}
-	
+
 a_exit:
 	pthread_exit(NULL);
 return NULL;
@@ -234,7 +234,7 @@ static void device_init(void)
 	IT66121_init();
 	TP2825_Config(0, 0);
 	g_battery.type = 2;
-	DM5680_req_ver(); 
+	DM5680_req_ver();
 	fans_top_setspeed(g_setting.fans.top_speed);
 }
 
@@ -261,31 +261,31 @@ int main(int argc, char* argv[])
 	main_menu_init();
 	statusbar_init();
 	lv_timer_handler();
-	input_device_init(); 
-	
+	input_device_init();
+
 	iic_init();
 	OLED_Startup();
 	Display_UI_init();
 	OLED_Pattern(0, 0, 0);
-	
+
 	uart_init();
 	hw_stat_init();
 	device_init();
 
-	osd_init(); 
+	osd_init();
 	ims_init();
 
 	esp32_init();
 	elrs_init();
-	init_ht();
+	ht_init();
 
 	start_running(); //start to run from saved settings
 	create_threads();
 
 	if(g_setting.ht.enable)
-		enable_ht();
+		ht_enable();
 	else
-		disable_ht();
+		ht_disable();
 
 	g_init_done = 1;
 	for(;;)
@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
 		lv_timer_handler();
 		source_status_timer();
 		pthread_mutex_unlock(&lvgl_mutex);
-		usleep(5000); 
+		usleep(5000);
 	}
 	return 0;
 }

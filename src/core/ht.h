@@ -46,12 +46,12 @@ typedef struct {
 
 } ht_data_t;
 
-void init_ht();
-void enable_ht();
-void disable_ht();
-void calibrate_ht();
-void set_maxangle_ht(int angle);
-void set_center_position_ht();
-int16_t *get_ht_channels();
+void ht_init();
+void ht_enable();
+void ht_disable();
+void ht_calibrate();
+void ht_set_maxangle(int angle);
+void ht_set_center_position();
+int16_t *ht_get_channels();
 
 #endif //__HT_C__

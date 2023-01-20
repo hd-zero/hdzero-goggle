@@ -36,7 +36,7 @@ static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500;
 static const int ppmCenter = 1500;
 
-static void calc_ht();
+static void calculate_orientation();
 
 ///////////////////////////////////////////////////////////////////////////////
 // no motion to disable OLED display
@@ -146,12 +146,12 @@ static void get_imu_data(int bCalcDiff) {
 
 static void timer_callback_imu(union sigval timer_data) {
     get_imu_data(true);
-    calc_ht();
+    calculate_orientation();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 // HT function
-void init_ht() {
+void ht_init() {
     ht_data.tiltAngle = 0;
     ht_data.rollAngle = 0;
     ht_data.panAngle = 0;
@@ -165,7 +165,7 @@ void init_ht() {
     ht_data.htChannels[2] = 0;
 
     ht_data.enable = 0;
-    set_maxangle_ht(g_setting.ht.max_angle);
+    ht_set_maxangle(g_setting.ht.max_angle);
     ht_data.acc_offset[0] = g_setting.ht.acc_x;
     ht_data.acc_offset[1] = g_setting.ht.acc_y;
     ht_data.acc_offset[2] = g_setting.ht.acc_z;
@@ -196,7 +196,7 @@ void init_ht() {
     }
 }
 
-void set_maxangle_ht(int angle) {
+void ht_set_maxangle(int angle) {
     ht_data.tiltFactor = 1000.0 / angle;
     ht_data.rollFactor = 1000.0 / angle;
     ht_data.panFactor = 1000.0 / angle;
@@ -220,7 +220,7 @@ static void calc_acc(float *accAngle) // in G
     rotate(accAngle, imu_orientation);
 }
 
-void calibrate_ht() {
+void ht_calibrate() {
     LOGI("HT calibration...");
     ht_data.acc_offset[0] = ht_data.acc_offset[1] = ht_data.acc_offset[2] = 0;
     ht_data.gyr_offset[0] = ht_data.gyr_offset[1] = ht_data.gyr_offset[2] = 0;
@@ -248,7 +248,7 @@ void calibrate_ht() {
     LOGI("done!");
 }
 
-static void calc_ht() {
+static void calculate_orientation() {
     float gyrAngle[3], accAngle[3];
     int tmp;
 
@@ -292,22 +292,22 @@ static void calc_ht() {
     Set_HT_dat(ht_data.htChannels[0], ht_data.htChannels[1], ht_data.htChannels[2]);
 }
 
-void set_center_position_ht() {
+void ht_set_center_position() {
     ht_data.panAngleHome += ht_data.panAngle;
     ht_data.tiltAngleHome += ht_data.tiltAngle;
     ht_data.rollAngleHome += ht_data.rollAngle;
 }
 
-void enable_ht() {
+void ht_enable() {
     ht_data.enable = 1;
     Set_HT_status(ht_data.enable, frame_period, sync_len);
 }
 
-void disable_ht() {
+void ht_disable() {
     ht_data.enable = 0;
     Set_HT_status(ht_data.enable, frame_period, sync_len);
 }
 
-int16_t *get_ht_channels() {
+int16_t *ht_get_channels() {
     return ht_data.htChannels;
 }
