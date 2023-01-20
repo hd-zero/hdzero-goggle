@@ -4,18 +4,18 @@
 #define DEG_TO_RAD 0.017453295199
 #define RAD_TO_DEG 57.29577951308
 
-#define CALIBRATION_BCNT   8  //calibartion loop cnt = (1<<CALIBRATION_BCNT)
+#define CALIBRATION_BCNT   8 // calibartion loop cnt = (1<<CALIBRATION_BCNT)
 #define gyroWeightTiltRoll 0.98
 
 #define MOVTION_GYRO_THR    3000
 #define MOVTION_DUR_1MINUTE 60
 
-#include "../bmi270/bmi2_defs.h"
+#include "bmi270/bmi2_defs.h"
 
 typedef struct {
-	struct bmi2_sens_data sensor_data;
+    struct bmi2_sens_data sensor_data;
 
-    //offset
+    // offset
     int32_t acc_offset[3];
     int32_t gyr_offset[3];
 
@@ -34,18 +34,17 @@ typedef struct {
     int8_t rollInverse;
     int8_t panInverse;
 
-    float   tiltFactor; //Gain
-    float   rollFactor;
-    float   panFactor;
+    float tiltFactor; // Gain
+    float rollFactor;
+    float panFactor;
 
-    //PPM setting
-    int16_t htChannels[3]; //0=Pan, 1=tilt, 2=roll
+    // PPM setting
+    int16_t htChannels[3]; // 0=Pan, 1=tilt, 2=roll
 
     // internal state
     uint8_t enable;
 
 } ht_data_t;
-
 
 void init_ht();
 void enable_ht();
@@ -53,7 +52,6 @@ void disable_ht();
 void calibrate_ht();
 void set_maxangle_ht(int angle);
 void set_center_position_ht();
-int16_t* get_ht_channels();
-
+int16_t *get_ht_channels();
 
 #endif //__HT_C__
