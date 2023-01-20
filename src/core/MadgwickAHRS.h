@@ -13,6 +13,8 @@
 #ifndef MadgwickAHRS_h
 #define MadgwickAHRS_h
 
+#define AHRS_UPDATE_FREQUENCY   100
+
 //---------------------------------------------------------------------------------------------------
 // Function declarations
 void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);

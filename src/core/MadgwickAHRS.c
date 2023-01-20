@@ -21,7 +21,6 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define sampleFreq	100.0f		// sample frequency in Hz
 #define betaDef		0.1f		// 2 * proportional gain
 
 //---------------------------------------------------------------------------------------------------
@@ -79,7 +78,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 		recipNorm = invSqrt(ax * ax + ay * ay + az * az);
 		ax *= recipNorm;
 		ay *= recipNorm;
-		az *= recipNorm;   
+		az *= recipNorm;
 
 		// Normalise magnetometer measurement
 		recipNorm = invSqrt(mx * mx + my * my + mz * mz);
@@ -136,10 +135,10 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
-	q0 += qDot1 * (1.0f / sampleFreq);
-	q1 += qDot2 * (1.0f / sampleFreq);
-	q2 += qDot3 * (1.0f / sampleFreq);
-	q3 += qDot4 * (1.0f / sampleFreq);
+	q0 += qDot1 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q1 += qDot2 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q2 += qDot3 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q3 += qDot4 * (1.0f / AHRS_UPDATE_FREQUENCY);
 
 	// Normalise quaternion
 	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
@@ -172,7 +171,7 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 		recipNorm = invSqrt(ax * ax + ay * ay + az * az);
 		ax *= recipNorm;
 		ay *= recipNorm;
-		az *= recipNorm;   
+		az *= recipNorm;
 
 		// Auxiliary variables to avoid repeated arithmetic
 		_2q0 = 2.0f * q0;
@@ -208,10 +207,10 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
-	q0 += qDot1 * (1.0f / sampleFreq);
-	q1 += qDot2 * (1.0f / sampleFreq);
-	q2 += qDot3 * (1.0f / sampleFreq);
-	q3 += qDot4 * (1.0f / sampleFreq);
+	q0 += qDot1 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q1 += qDot2 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q2 += qDot3 * (1.0f / AHRS_UPDATE_FREQUENCY);
+	q3 += qDot4 * (1.0f / AHRS_UPDATE_FREQUENCY);
 
 	// Normalise quaternion
 	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);

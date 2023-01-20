@@ -127,7 +127,7 @@ void get_imu_data(int bCalcDiff)
     get_bmi270(&ht_data.sensor_data);
 
     dec_cnt++;
-    if(dec_cnt != 100) return;  //calibrate dec_cnt to make sure the following code runs at 1Hz
+    if(dec_cnt != AHRS_UPDATE_FREQUENCY) return;  //calibrate dec_cnt to make sure the following code runs at 1Hz
     dec_cnt = 0;
 
     if(bCalcDiff) {
@@ -184,7 +184,7 @@ void init_ht()
     struct itimerspec its = {   .it_value.tv_sec  = 1,
                                 .it_value.tv_nsec = 0,
                                 .it_interval.tv_sec  = 0,
-                                .it_interval.tv_nsec = 10000000
+                                .it_interval.tv_nsec = 1000000000 / AHRS_UPDATE_FREQUENCY
                             };
 
     sev.sigev_notify = SIGEV_THREAD;
