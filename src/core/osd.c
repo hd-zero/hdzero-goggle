@@ -42,19 +42,17 @@ extern pthread_mutex_t lvgl_mutex;
 // 0=idle,1=recording,2=stopped,3=No SD card,4=recorf file path error,
 // 5=SD card Full,6=Encoder error
 void confirm_recording() {
-    int ret = -1;
-    FILE *fp;
     pthread_mutex_lock(&dvr_mutex);
     if (is_recording) {
-
-        fp = fopen("/tmp/record.dat", "r");
+        int ret = -1;
+        FILE *fp = fopen("/tmp/record.dat", "r");
         if (fp) {
             fscanf(fp, "%d", &ret);
             fclose(fp);
-            // LOGI("SD card %d",ret);
         }
-        if (ret != 1)
-            osd_rec_update(false);
+        if (ret != 1) {
+            is_recording = false;
+        }
     }
     pthread_mutex_unlock(&dvr_mutex);
 }
@@ -132,26 +130,35 @@ void osd_dvr_cmd(osd_dvr_cmd_t cmd) {
     switch (cmd) {
     case DVR_TOGGLE:
         start_rec = !is_recording;
+        break;
     case DVR_STOP:
         start_rec = false;
+        break;
     case DVR_START:
         start_rec = true;
+        break;
     }
 
-    if (!start_rec) {
-        if (is_recording) {
-            osd_rec_update(false);
-            system(REC_STOP);
-            usleep(200000); // 200ms
-        }
-    } else {
-        if ((!is_recording) && (g_sdcard_size >= 103)) {
+    if (g_source_info.source == SOURCE_HDMI_IN) {
+        // no record for hdmi-in :<
+        start_rec = false;
+    }
+
+    if (start_rec) {
+        if (!is_recording && g_sdcard_size >= 103) {
             update_record_conf();
-            osd_rec_update(true);
+            is_recording = true;
             system(REC_START);
             sleep(2); // wait for record process
         }
+    } else {
+        if (is_recording) {
+            is_recording = false;
+            system(REC_STOP);
+            sleep(2); // wait for record process
+        }
     }
+
     pthread_mutex_unlock(&dvr_mutex);
 }
 
@@ -163,10 +170,6 @@ static lv_obj_t *scr_main;
 static lv_obj_t *scr_osd;
 static uint32_t osdFont[OSD_VNUM][OSD_HNUM][OSD_HEIGHT][OSD_WIDTH]; // 0x00bbggrr
 static osd_font_t osd_font;
-
-void osd_rec_update(bool enable) {
-    is_recording = enable;
-}
 
 void osd_llock_show(bool bShow) {
     char buf[128];

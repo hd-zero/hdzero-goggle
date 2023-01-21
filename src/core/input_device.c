@@ -261,10 +261,6 @@ void rbtn_click(bool is_short) {
         break;
 
     case OPLEVEL_VIDEO:
-        if (g_source_info.source == SOURCE_HDMI_IN) {
-            // not record for hdmi-in :<
-            break;
-        }
         if (is_short) {
             osd_dvr_cmd(DVR_TOGGLE);
         } else {
