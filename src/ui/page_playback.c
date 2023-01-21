@@ -16,6 +16,7 @@
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
 #include "util/file.h"
+#include "util/math.h"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -284,6 +285,7 @@ static void mark_video_file(int seq) {
     system(cmd);
 
     walk_sdcard();
+    media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
     update_page();
 }
 
