@@ -13,7 +13,7 @@
             // Set *default* container specific settings.json values on container create.
             "settings": {
                 "cmake.configureArgs": [
-                    "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/toolchain.cmake"
+                    "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/toolchain/share/buildroot/toolchainfile.cmake"
                 ]
             },
             // Add the IDs of extensions you want installed when the container is created.
