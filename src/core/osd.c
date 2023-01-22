@@ -501,10 +501,10 @@ static void embedded_osd_init(void)
 	create_osd_object(&g_osd_hdzero.vlq,   buf, 6);
 
 	sprintf(buf,"%s%s",RESOURCE_PATH,ant1_bmp);
-	create_osd_object(&g_osd_hdzero.ant0,     buf, 7);
-	create_osd_object(&g_osd_hdzero.ant1,     buf, 8);
-	create_osd_object(&g_osd_hdzero.ant2,     buf, 9);
-	create_osd_object(&g_osd_hdzero.ant3,     buf, 10);
+	create_osd_object(&g_osd_hdzero.ant0,     buf, 8);
+	create_osd_object(&g_osd_hdzero.ant1,     buf, 7);
+	create_osd_object(&g_osd_hdzero.ant2,     buf, 10);
+	create_osd_object(&g_osd_hdzero.ant3,     buf, 9);
 	
 	if(g_test_en){
 		g_osd_hdzero.osd_tempe[0] = lv_label_create(scr_osd);
