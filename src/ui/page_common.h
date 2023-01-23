@@ -129,6 +129,15 @@ typedef struct {
     int enable;
 } elrs_t;
 
+typedef enum {
+    EMBEDDED_4x3,
+    EMBEDDED_16x9
+} embedded_mode_t;
+
+typedef struct {
+    embedded_mode_t embedded_mode;
+} setting_osd_t;
+
 typedef struct {
     setting_scan_t scan;
     setting_fan_t fans;
@@ -138,6 +147,7 @@ typedef struct {
     setting_image_t image;
     head_tracker_t ht;
     elrs_t elrs;
+    setting_osd_t osd;
 } setting_t;
 
 typedef enum {

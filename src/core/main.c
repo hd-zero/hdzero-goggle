@@ -70,6 +70,9 @@ static void load_ini_setting(void) {
     g_setting.autoscan.source = ini_getl("autoscan", "source", SETTING_SOURCE_LAST, SETTING_INI);
     g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", SETTING_SOURCE_HDZERO, SETTING_INI);
 
+    // embedded osd mode 4x3 default
+    g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", EMBEDDED_4x3, SETTING_INI);
+
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", 35, SETTING_INI);
     g_setting.power.warning_type = ini_getl("power", "warning_type", 0, SETTING_INI);
