@@ -307,6 +307,21 @@ void osd_channel_show(bool bShow) {
 
 static void create_osd_object(lv_obj_t **obj, const char *img, int index) {
     int x = 0;
+    int left_offset = 0;
+    int right_offset = 0;
+
+    switch (g_setting.osd.embedded_mode) {
+    case EMBEDDED_16x9:
+        left_offset = 0;
+        right_offset = 160;
+        break;
+
+    default:
+    case EMBEDDED_4x3:
+        left_offset = 160;
+        right_offset = 0;
+        break;
+    }
 
     if ((index == 2) || (index == 3)) // GIF format for goggle low battery or goggle high temp
     {
@@ -320,9 +335,9 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index) {
     lv_obj_set_size(*obj, 36, 36);
 
     if (index < 5)
-        x = 40 * index + 160;
+        x = 40 * index + left_offset;
     else
-        x = 1080 - (11 - index) * 40;
+        x = (1080 + right_offset) - (11 - index) * 40;
 
     lv_obj_set_pos(*obj, x, 0);
 }
