@@ -49,22 +49,17 @@ static void load_ini_setting(void) {
         system("rm /mnt/UDISK/setting.ini");
     }
 
-    ini_gets("scan", "channel", "1", str, sizeof(str), SETTING_INI);
-    g_setting.scan.channel = atoi(str);
+    g_setting.scan.channel = ini_getl("scan", "channel", 1, SETTING_INI);
 
+    // fans
     ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0)
-        g_setting.fans.auto_mode = true;
-    else
-        g_setting.fans.auto_mode = false;
-    ini_gets("fans", "top_speed", "4", str, sizeof(str), SETTING_INI);
-    g_setting.fans.top_speed = atoi(str);
-    ini_gets("fans", "left_speed", "5", str, sizeof(str), SETTING_INI);
-    g_setting.fans.left_speed = atoi(str);
-    ini_gets("fans", "right_speed", "5", str, sizeof(str), SETTING_INI);
-    g_setting.fans.right_speed = atoi(str);
+    g_setting.fans.auto_mode = strcmp(str, "enable") == 0;
+    g_setting.fans.top_speed = ini_getl("fans", "top_speed", 4, SETTING_INI);
+    g_setting.fans.left_speed = ini_getl("fans", "left_speed", 5, SETTING_INI);
+    g_setting.fans.right_speed = ini_getl("fans", "right_speed", 5, SETTING_INI);
 
-    ini_gets("autoscan", "status", "enable", str, sizeof(str), SETTING_INI);
+    // autoscan
+    ini_gets("autoscan", "status", "scan", str, sizeof(str), SETTING_INI);
     if (strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0) {
         g_setting.autoscan.status = 0;
     } else if (strcmp(str, "disable") == 0 || strcmp(str, "last") == 0) {
@@ -76,49 +71,27 @@ static void load_ini_setting(void) {
     g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", SETTING_SOURCE_HDZERO, SETTING_INI);
 
     // power
-    ini_gets("power", "voltage", "35", str, sizeof(str), SETTING_INI);
-    g_setting.power.voltage = atoi(str);
-    ini_gets("power", "warning_type", "0", str, sizeof(str), SETTING_INI);
-    g_setting.power.warning_type = atoi(str);
+    g_setting.power.voltage = ini_getl("power", "voltage", 35, SETTING_INI);
+    g_setting.power.warning_type = ini_getl("power", "warning_type", 0, SETTING_INI);
     ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0) {
-        g_setting.record.mode_manual = true;
-    } else {
-        g_setting.record.mode_manual = false;
-    }
+    g_setting.record.mode_manual = strcmp(str, "enable") == 0;
     ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0) {
-        g_setting.record.format_ts = true;
-    } else {
-        g_setting.record.format_ts = false;
-    }
+    g_setting.record.format_ts = strcmp(str, "enable") == 0;
     ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0) {
-        g_setting.record.osd = true;
-    } else {
-        g_setting.record.osd = false;
-    }
+    g_setting.record.osd = strcmp(str, "enable") == 0;
     ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0) {
-        g_setting.record.audio = true;
-    } else {
-        g_setting.record.audio = false;
-    }
+    g_setting.record.audio = strcmp(str, "enable") == 0;
 
-    ini_gets("record", "audio_source", "0", str, sizeof(str), SETTING_INI);
-    g_setting.record.audio_source = atoi(str);
+    g_setting.record.audio_source = ini_getl("record", "audio_source", 0, SETTING_INI);
 
     // image
-    ini_gets("image", "oled", "7", str, sizeof(str), SETTING_INI);
-    g_setting.image.oled = atoi(str);
-    ini_gets("image", "brightness", "0", str, sizeof(str), SETTING_INI);
-    g_setting.image.brightness = atoi(str);
-    ini_gets("image", "saturation", "0", str, sizeof(str), SETTING_INI);
-    g_setting.image.saturation = atoi(str);
-    ini_gets("image", "contrast", "0", str, sizeof(str), SETTING_INI);
-    g_setting.image.contrast = atoi(str);
-    ini_gets("image", "auto_off", "2", str, sizeof(str), SETTING_INI);
-    g_setting.image.auto_off = atoi(str);
+    g_setting.image.oled = ini_getl("image", "oled", 7, SETTING_INI);
+    g_setting.image.brightness = ini_getl("image", "brightness", 0, SETTING_INI);
+    g_setting.image.saturation = ini_getl("image", "saturation", 0, SETTING_INI);
+    g_setting.image.contrast = ini_getl("image", "contrast", 0, SETTING_INI);
+    g_setting.image.auto_off = ini_getl("image", "auto_off", 2, SETTING_INI);
+
+    // head tracker
     g_setting.ht.enable = ini_getl("ht", "enable", 0, SETTING_INI);
     g_setting.ht.max_angle = ini_getl("ht", "max_angle", 120, SETTING_INI);
     g_setting.ht.acc_x = ini_getl("ht", "acc_x", 0, SETTING_INI);
@@ -127,6 +100,7 @@ static void load_ini_setting(void) {
     g_setting.ht.gyr_x = ini_getl("ht", "gyr_x", 0, SETTING_INI);
     g_setting.ht.gyr_y = ini_getl("ht", "gyr_y", 0, SETTING_INI);
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", 0, SETTING_INI);
+
     g_setting.elrs.enable = ini_getl("elrs", "enable", 0, SETTING_INI);
 
     // Check
