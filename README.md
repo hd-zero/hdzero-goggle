@@ -59,3 +59,14 @@ else
 	/mnt/app/app/HDZGOGGLE &
 fi
 ```
+
+## Support and Developer Channels
+
+Join the official Discord server here:
+
+https://discord.gg/kGsnEDMb2V
+
+
+Or the official Facebook group:
+
+https://www.facebook.com/groups/hdzero
