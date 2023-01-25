@@ -439,7 +439,7 @@ void HDMI_in_detect()
                 cs = IT66021_Get_PCLKFREQ();
                 if(cs > 0) {
                     if(cs < 63)
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8d, 0x14);
                     else
                         I2C_Write(ADDR_FPGA, 0x8d, 0x04);
                 }
