@@ -73,6 +73,8 @@ static void load_ini_setting(void) {
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", 35, SETTING_INI);
     g_setting.power.warning_type = ini_getl("power", "warning_type", 0, SETTING_INI);
+    g_setting.power.s_count_mode = ini_getl("power", "s_count_mode", 0, SETTING_INI);
+    g_setting.power.s_count = ini_getl("power", "s_count", 2, SETTING_INI);
     ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
     g_setting.record.mode_manual = strcmp(str, "enable") == 0;
     ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
@@ -176,9 +178,6 @@ void start_running(void) {
             }
         }
     }
-
-    set_voltage(g_setting.power.voltage);
-    set_warning_type(g_setting.power.warning_type);
 
     if (g_setting.elrs.enable)
         enable_esp32();
