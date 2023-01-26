@@ -85,11 +85,16 @@ typedef struct {
     setting_source_t source;
 } setting_autoscan_t;
 
+typedef enum {
+    SETTING_POWER_CELL_COUNT_MODE_AUTO = 0,
+    SETTING_POWER_CELL_COUNT_MODE_MANUAL = 1
+} setting_power_cell_count_mode_t;
+
 typedef struct {
     int voltage;
     bool display_voltage;
     int warning_type; // 0=beep,1=visual,2=both
-    int cell_count_mode; // 0=auto,1=manual
+    setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;
 } setting_power_t;
 
