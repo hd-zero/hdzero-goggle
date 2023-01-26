@@ -2,7 +2,7 @@
 #define _MCP_3021_H
 
 typedef struct {
-	int type;
+	int type; //cell count
 	int voltage;
 }sys_battery_t;
 

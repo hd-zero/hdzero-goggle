@@ -245,7 +245,11 @@ static void btn_click(void)  //short press enter key
 	{ 
 		submenu_click();	
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE)
+	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	{ 
+		submenu_click();	
+	}
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE)
 	{ 
 		submenu_click();	
 	}
@@ -305,7 +309,11 @@ static void roller_up(void)
 	{
 		ht_angle_dec();
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE)
+	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	{
+		power_s_count_dec();
+	}
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE)
 	{
 		power_voltage_dec();
 	}
@@ -345,7 +353,11 @@ static void roller_down(void)
 	{
 		ht_angle_inc();
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE)
+	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	{
+		power_s_count_inc();
+	}
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE)
 	{
 		power_voltage_inc();
 	}
