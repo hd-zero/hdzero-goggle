@@ -79,10 +79,10 @@ void set_battery_cell_count() {
     switch (g_setting.power.cell_count_mode)
     {
     default:
-    case 0: // auto
+    case SETTING_POWER_CELL_COUNT_MODE_AUTO:
         g_battery.type = mcp_detect_type();
         break;
-    case 1: // manual
+    case SETTING_POWER_CELL_COUNT_MODE_MANUAL:
         g_battery.type = g_setting.power.cell_count;
         break;
     }
@@ -208,7 +208,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 page_pack_t pp_power = {
     .p_arr = {
         .cur = 0,
-        .max = 4,
+        .max = 6,
     },
 
     .create = page_power_create,
