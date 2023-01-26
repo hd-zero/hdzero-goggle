@@ -245,7 +245,7 @@ static void btn_click(void)  //short press enter key
 	{ 
 		submenu_click();	
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT)
 	{ 
 		submenu_click();	
 	}
@@ -309,9 +309,9 @@ static void roller_up(void)
 	{
 		ht_angle_dec();
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT)
 	{
-		power_s_count_dec();
+		power_cell_count_dec();
 	}
 	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE)
 	{
@@ -353,9 +353,9 @@ static void roller_down(void)
 	{
 		ht_angle_inc();
 	}
-	else if(g_menu_op == PAGE_POWER_SLIDE_S_COUNT)
+	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_COUNT)
 	{
-		power_s_count_inc();
+		power_cell_count_inc();
 	}
 	else if(g_menu_op == PAGE_POWER_SLIDE_CELL_VOLTAGE)
 	{

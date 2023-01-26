@@ -89,8 +89,8 @@ typedef struct {
     int voltage;
     bool display_voltage;
     int warning_type; // 0=beep,1=visual,2=both
-    int s_count_mode; // 0=auto,1=manual
-    int s_count;
+    int cell_count_mode; // 0=auto,1=manual
+    int cell_count;
 } setting_power_t;
 
 typedef struct {
