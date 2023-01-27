@@ -7,6 +7,7 @@
 #include <minIni.h>
 
 #include "core/common.hh"
+#include "core/osd.h"
 #include "driver/hardware.h"
 #include "driver/oled.h"
 #include "ui/page_common.h"
@@ -76,18 +77,29 @@ static void ims_page_init(uint8_t *val) {
 
     ims_page.items[5].x = x;
     ims_page.items[5].y = y + 125;
-    ims_page.items[5].type = 0;
-    strcpy(ims_page.items[5].title, "< Back");
+    ims_page.items[5].type = 1;
+    strcpy(ims_page.items[5].title, "OSD Mode:");
+    ims_page.items[5].range[0] = 0;
+    ims_page.items[5].range[1] = 1;
+    ims_page.items[5].value = val[5];
     ims_page.items[5].state = 0;
 
-    ims_page.items[6].x = x + 200;
-    ims_page.items[6].y = y + 125;
+    ims_page.items[6].x = x;
+    ims_page.items[6].y = y + 150;
     ims_page.items[6].type = 0;
-    strcpy(ims_page.items[6].title, "Reset All");
+    strcpy(ims_page.items[6].title, "< Back");
     ims_page.items[6].state = 0;
+
+    ims_page.items[7].x = x + 200;
+    ims_page.items[7].y = y + 150;
+    ims_page.items[7].type = 0;
+    strcpy(ims_page.items[7].title, "Reset All");
+    ims_page.items[7].state = 0;
 }
 
-static void show_ims_slider(ims_slider_t *p_slider, bool is_ao) {
+static void show_ims_slider(uint8_t index) {
+    ims_slider_t *p_slider = &ims_page.items[index];
+
     char buf[16];
     lv_point_t points[2];
 
@@ -103,14 +115,28 @@ static void show_ims_slider(ims_slider_t *p_slider, bool is_ao) {
     }
 
     lv_canvas_draw_text(canvas_ims, p_slider->x, p_slider->y, 200, &label_dsc, p_slider->title);
-    if (p_slider->type == 0)
+    if (p_slider->type == 0) {
         return;
+    }
 
-    if (is_ao) {
+    switch (index) {
+    case 4: { // auto off
         char *str_ao[4] = {"3 min", "5 min", "7 min", "Never"};
         strcpy(buf, str_ao[p_slider->value & 3]);
-    } else
+        break;
+    }
+
+    case 5: { // osd mode
+        char *osd_mode[2] = {"4x3", "16x9"};
+        strcpy(buf, osd_mode[p_slider->value & 3]);
+        break;
+    }
+
+    default:
         sprintf(buf, "%d", p_slider->value);
+        break;
+    }
+
     lv_canvas_draw_text(canvas_ims, 340 + p_slider->x, p_slider->y, 200, &label_dsc, buf);
 
     line_dsc.width = 3;
@@ -127,29 +153,30 @@ static void show_ims_slider(ims_slider_t *p_slider, bool is_ao) {
 }
 
 void ims_update() {
-    uint8_t i;
     if (!g_bShowIMS) {
         lv_obj_add_flag(canvas_ims, LV_OBJ_FLAG_HIDDEN);
         return;
-    } else
-        lv_obj_clear_flag(canvas_ims, LV_OBJ_FLAG_HIDDEN);
+    }
 
     // Clear background
+    lv_obj_clear_flag(canvas_ims, LV_OBJ_FLAG_HIDDEN);
     lv_canvas_fill_bg(canvas_ims, DARK, LV_OPA_COVER);
 
     // Draw each items
-    for (i = 0; i < IMS_ITEM_COUNT; i++)
-        show_ims_slider(&ims_page.items[i], (i == 4));
+    for (uint8_t i = 0; i < IMS_ITEM_COUNT; i++) {
+        show_ims_slider(i);
+    }
 }
 
 void ims_init(void) {
-    uint8_t defs[5];
+    uint8_t defs[6];
 
     defs[0] = g_setting.image.oled;
     defs[1] = g_setting.image.brightness;
     defs[2] = g_setting.image.saturation;
     defs[3] = g_setting.image.contrast;
     defs[4] = g_setting.image.auto_off;
+    defs[5] = g_setting.osd.embedded_mode;
 
     canvas_ims = lv_canvas_create(lv_scr_act());
     lv_obj_clear_flag(canvas_ims, LV_OBJ_FLAG_SCROLLABLE);
@@ -171,20 +198,27 @@ void ims_init(void) {
 
 void ims_save() {
     g_setting.image.oled = ims_page.items[0].value;
-    g_setting.image.brightness = ims_page.items[1].value;
-    g_setting.image.saturation = ims_page.items[2].value;
-    g_setting.image.contrast = ims_page.items[3].value;
-    g_setting.image.auto_off = ims_page.items[4].value;
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
+    OLED_Brightness(g_setting.image.oled);
+
+    g_setting.image.brightness = ims_page.items[1].value;
     ini_putl("image", "brightness", g_setting.image.brightness, SETTING_INI);
+    Set_Brightness(g_setting.image.brightness);
+
+    g_setting.image.saturation = ims_page.items[2].value;
     ini_putl("image", "saturation", g_setting.image.saturation, SETTING_INI);
+    Set_Saturation(g_setting.image.saturation);
+
+    g_setting.image.contrast = ims_page.items[3].value;
     ini_putl("image", "contrast", g_setting.image.contrast, SETTING_INI);
+    Set_Contrast(g_setting.image.contrast);
+
+    g_setting.image.auto_off = ims_page.items[4].value;
     ini_putl("image", "auto_off", g_setting.image.auto_off, SETTING_INI);
 
-    OLED_Brightness(g_setting.image.oled);
-    Set_Brightness(g_setting.image.brightness);
-    Set_Saturation(g_setting.image.saturation);
-    Set_Contrast(g_setting.image.contrast);
+    g_setting.osd.embedded_mode = ims_page.items[5].value;
+    ini_putl("osd", "embedded_mode", g_setting.osd.embedded_mode, SETTING_INI);
+    osd_update_mode();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,7 +232,7 @@ void ims_save() {
 uint8_t ims_key(uint8_t key) {
     int16_t value;
     uint8_t ret = 0;
-    LOGI("ims_key (%d),%d -%d", key, ims_state, ims_page.selection);
+    LOGI("ims_key key: %d state: %d selection: %d", key, ims_state, ims_page.selection);
 
     if (ims_state == 0) {
         ims_state = 1;
@@ -226,17 +260,17 @@ uint8_t ims_key(uint8_t key) {
             break;
 
         case DIAL_KEY_CLICK:
-            if (ims_page.selection == 5) { //"<Back"
+            if (ims_page.selection == 6) { //"<Back"
                 ims_state = 0;
                 g_bShowIMS = false;
                 ims_save();
                 ret = 1;
-            } else if (ims_page.selection == 6) { //"Reset All"
+            } else if (ims_page.selection == 7) { //"Reset All"
                 ims_page.items[0].value = IMS_DEFAULT_LUM;
                 ims_page.items[1].value = IMS_DEFAULT_BRI;
                 ims_page.items[2].value = IMS_DEFAULT_SAT;
                 ims_page.items[3].value = IMS_DEFAULT_CON;
-                ims_page.items[4].value = IMS_DEFAULT_AO;
+                ims_page.items[5].value = IMS_DEFAULT_EMB_MODE;
                 ims_save();
             } else {
                 ims_page.items[ims_page.selection].state = 2;
@@ -300,6 +334,12 @@ uint8_t ims_key(uint8_t key) {
         case 4:
             g_setting.image.auto_off = ims_page.items[4].value;
             ini_putl("image", "auto_off", g_setting.image.auto_off, SETTING_INI);
+            break;
+
+        case 5:
+            g_setting.osd.embedded_mode = ims_page.items[5].value;
+            ini_putl("osd", "embedded_mode", g_setting.osd.embedded_mode, SETTING_INI);
+            osd_update_mode();
             break;
 
         default:

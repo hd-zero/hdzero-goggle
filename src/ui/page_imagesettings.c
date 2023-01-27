@@ -21,6 +21,7 @@ static slider_group_t slider_group1;
 static slider_group_t slider_group2;
 static slider_group_t slider_group3;
 static slider_group_t slider_group4;
+static slider_group_t slider_group5;
 
 static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -52,8 +53,9 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group2, cont, "Saturation", 47, g_setting.image.saturation, 2);
     create_slider_item(&slider_group3, cont, "Contrast", 47, g_setting.image.contrast, 3);
     create_slider_item(&slider_group4, cont, "OLED Auto off", 3, g_setting.image.auto_off, 4);
+    create_slider_item(&slider_group5, cont, "Embedded OSD Mode", 2, g_setting.osd.embedded_mode, 5);
 
-    create_label_item(cont, "< Back", 1, 5, 1);
+    create_label_item(cont, "< Back", 1, 6, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, "To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video.");
@@ -63,7 +65,7 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_pad_top(label2, 12, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-                         LV_GRID_ALIGN_START, 6, 2);
+                         LV_GRID_ALIGN_START, 7, 2);
 
     set_slider_value();
 
@@ -97,6 +99,16 @@ void set_slider_value() {
         sprintf(buf, "%d min", g_setting.image.auto_off * 2 + 3);
     lv_label_set_text(slider_group4.label, buf);
     lv_slider_set_value(slider_group4.slider, g_setting.image.auto_off, LV_ANIM_OFF);
+
+    switch (g_setting.osd.embedded_mode) {
+    case EMBEDDED_4x3:
+        lv_label_set_text(slider_group5.label, "4x3");
+        break;
+    case EMBEDDED_16x9:
+        lv_label_set_text(slider_group5.label, "16x9");
+        break;
+    }
+    lv_slider_set_value(slider_group5.slider, g_setting.osd.embedded_mode, LV_ANIM_OFF);
 }
 
 static void page_imagesettings_enter() {
@@ -129,7 +141,7 @@ static void page_imagesettings_enter() {
 page_pack_t pp_imagesettings = {
     .p_arr = {
         .cur = 0,
-        .max = 6,
+        .max = 7,
     },
 
     .create = page_imagesettings_create,

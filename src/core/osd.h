@@ -81,6 +81,7 @@ int osd_init(void);
 void osd_hdzero_update(void);
 void osd_rec_update(bool enable);
 void osd_show(bool show);
+void osd_update_mode();
 char *channel2str(uint8_t channel);
 
 void load_fc_osd_font(void);
