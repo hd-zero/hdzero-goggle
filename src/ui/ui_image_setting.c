@@ -200,25 +200,32 @@ uint8_t ims_key(uint8_t key) {
     uint8_t ret = 0;
     LOGI("ims_key (%d),%d -%d", key, ims_state, ims_page.selection);
 
-    if (ims_state == 0)
+    if (ims_state == 0) {
         ims_state = 1;
+    }
 
     if (ims_state == 1) { // select between items
         g_bShowIMS = true;
-        if (key == 1) {
+
+        switch (key) {
+        case DIAL_KEY_UP:
             ims_page.items[ims_page.selection].state = 0;
             ims_page.selection++;
             if (ims_page.selection == IMS_ITEM_COUNT)
                 ims_page.selection = 0;
             ims_page.items[ims_page.selection].state = 1;
-        } else if (key == 2) {
+            break;
+
+        case DIAL_KEY_DOWN:
             ims_page.items[ims_page.selection].state = 0;
             if (ims_page.selection == 0)
                 ims_page.selection = IMS_ITEM_COUNT - 1;
             else
                 ims_page.selection--;
             ims_page.items[ims_page.selection].state = 1;
-        } else if (key == 3) {
+            break;
+
+        case DIAL_KEY_CLICK:
             if (ims_page.selection == 5) { //"<Back"
                 ims_state = 0;
                 g_bShowIMS = false;
@@ -235,30 +242,44 @@ uint8_t ims_key(uint8_t key) {
                 ims_page.items[ims_page.selection].state = 2;
                 ims_state = 2;
             }
-        } else {
-            perror("ims_key error-1");
+            break;
+
+        default:
+            LOGE("ims_key unhandled key %d", key);
             ims_state = 0;
+            break;
         }
     } else if (ims_state == 2) { // tune up/down values
         g_bShowIMS = true;
         value = 0;
-        if (key == 2) {
+
+        switch (key) {
+        case DIAL_KEY_DOWN:
             value = ims_page.items[ims_page.selection].value;
             if (value != ims_page.items[ims_page.selection].range[1]) {
                 value++;
                 ims_page.items[ims_page.selection].value = value;
             }
-        } else if (key == 1) {
+            break;
+
+        case DIAL_KEY_UP:
             value = ims_page.items[ims_page.selection].value;
             if (value != ims_page.items[ims_page.selection].range[0]) {
                 value--;
                 ims_page.items[ims_page.selection].value = value;
             }
-        } else if (key == 3) {
+            break;
+
+        case DIAL_KEY_CLICK:
             value = ims_page.items[ims_page.selection].value;
             ims_page.items[ims_page.selection].state = 1;
             ims_state = 1;
+            break;
+
+        default:
+            break;
         }
+
         switch (ims_page.selection) {
         case 0:
             OLED_Brightness(value);
@@ -282,7 +303,7 @@ uint8_t ims_key(uint8_t key) {
             break;
 
         default:
-            perror("ims_key error-2");
+            LOGE("ims_key unhandled selection %d", ims_page.selection);
             ims_state = 0;
             g_bShowIMS = false;
             break;
