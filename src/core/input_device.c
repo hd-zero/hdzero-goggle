@@ -140,7 +140,7 @@ void tune_channel_timer()
 static void switch_to_menumode()
 {
 	if(g_menu_op == OPLEVEL_IMS) {
-		save_ims();
+		ims_save();
 		set_slider_value();
 	}
 
