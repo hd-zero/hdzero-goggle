@@ -24,7 +24,7 @@ bool g_bShowIMS = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-static void init_ims_page(uint8_t *val) {
+static void ims_page_init(uint8_t *val) {
     int16_t x = 30;
     int16_t y = 15;
 
@@ -160,7 +160,7 @@ void ims_init(void) {
     lv_draw_line_dsc_init(&line_dsc);
     lv_draw_label_dsc_init(&label_dsc);
     label_dsc.font = &lv_font_montserrat_16; // LV_FONT_DEFAULT;
-    init_ims_page(defs);
+    ims_page_init(defs);
     g_bShowIMS = false;
 
     OLED_Brightness(defs[0]);
@@ -169,7 +169,7 @@ void ims_init(void) {
     Set_Contrast(defs[3]);
 }
 
-void save_ims() {
+void ims_save() {
     g_setting.image.oled = ims_page.items[0].value;
     g_setting.image.brightness = ims_page.items[1].value;
     g_setting.image.saturation = ims_page.items[2].value;
@@ -222,7 +222,7 @@ uint8_t ims_key(uint8_t key) {
             if (ims_page.selection == 5) { //"<Back"
                 ims_state = 0;
                 g_bShowIMS = false;
-                save_ims();
+                ims_save();
                 ret = 1;
             } else if (ims_page.selection == 6) { //"Reset All"
                 ims_page.items[0].value = IMS_DEFAULT_LUM;
@@ -230,7 +230,7 @@ uint8_t ims_key(uint8_t key) {
                 ims_page.items[2].value = IMS_DEFAULT_SAT;
                 ims_page.items[3].value = IMS_DEFAULT_CON;
                 ims_page.items[4].value = IMS_DEFAULT_AO;
-                save_ims();
+                ims_save();
             } else {
                 ims_page.items[ims_page.selection].state = 2;
                 ims_state = 2;

@@ -44,6 +44,6 @@ extern bool g_bShowIMS;
 void ims_init(void);
 uint8_t ims_key(uint8_t key);
 void ims_update();
-void save_ims();
+void ims_save();
 
 #endif
