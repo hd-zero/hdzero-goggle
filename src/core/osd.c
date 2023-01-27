@@ -305,7 +305,7 @@ void osd_channel_show(bool bShow) {
         lv_obj_add_flag(g_osd_hdzero.ch, LV_OBJ_FLAG_HIDDEN);
 }
 
-static void create_osd_object(lv_obj_t **obj, const char *img, int index) {
+static void osd_object_set_pos(lv_obj_t *obj, int index) {
     int x = 0;
     int left_offset = 0;
     int right_offset = 0;
@@ -323,8 +323,18 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index) {
         break;
     }
 
-    if ((index == 2) || (index == 3)) // GIF format for goggle low battery or goggle high temp
-    {
+    if (index < 5) {
+        x = 40 * index + left_offset;
+    } else {
+        x = (1080 + right_offset) - (11 - index) * 40;
+    }
+
+    lv_obj_set_pos(obj, x, 0);
+}
+
+static void osd_object_create(lv_obj_t **obj, const char *img, int index) {
+    if ((index == 2) || (index == 3)) {
+        // GIF format for goggle low battery or goggle high temp
         *obj = lv_gif_create(scr_osd);
         lv_gif_set_src(*obj, img);
     } else {
@@ -333,13 +343,7 @@ static void create_osd_object(lv_obj_t **obj, const char *img, int index) {
     }
 
     lv_obj_set_size(*obj, 36, 36);
-
-    if (index < 5)
-        x = 40 * index + left_offset;
-    else
-        x = (1080 + right_offset) - (11 - index) * 40;
-
-    lv_obj_set_pos(*obj, x, 0);
+    osd_object_set_pos(*obj, index);
 }
 
 void osd_show(bool show) {
@@ -452,19 +456,19 @@ static void embedded_osd_init(void) {
     char buf[128];
 
     sprintf(buf, "%s%s", RESOURCE_PATH, fan1_bmp);
-    create_osd_object(&g_osd_hdzero.topfan_speed, buf, 0);
+    osd_object_create(&g_osd_hdzero.topfan_speed, buf, 0);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, VtxTemp1_bmp);
-    create_osd_object(&g_osd_hdzero.vtx_temp, buf, 1);
+    osd_object_create(&g_osd_hdzero.vtx_temp, buf, 1);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, lowBattery_gif);
-    create_osd_object(&g_osd_hdzero.battery, buf, 2);
+    osd_object_create(&g_osd_hdzero.battery, buf, 2);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, VrxTemp7_gif);
-    create_osd_object(&g_osd_hdzero.vrx_temp, buf, 3);
+    osd_object_create(&g_osd_hdzero.vrx_temp, buf, 3);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, LLOCK_bmp);
-    create_osd_object(&g_osd_hdzero.latency_lock, buf, 4);
+    osd_object_create(&g_osd_hdzero.latency_lock, buf, 4);
 
     g_osd_hdzero.ch = lv_label_create(scr_osd);
     lv_label_set_text(g_osd_hdzero.ch, "CH:-- ");
@@ -477,16 +481,16 @@ static void embedded_osd_init(void) {
     channel_osd_mode = 0;
 
     sprintf(buf, "%s%s", RESOURCE_PATH, noSdcard_bmp);
-    create_osd_object(&g_osd_hdzero.sd_rec, buf, 5);
+    osd_object_create(&g_osd_hdzero.sd_rec, buf, 5);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, VLQ1_bmp);
-    create_osd_object(&g_osd_hdzero.vlq, buf, 6);
+    osd_object_create(&g_osd_hdzero.vlq, buf, 6);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, ant1_bmp);
-    create_osd_object(&g_osd_hdzero.ant0, buf, 8);
-    create_osd_object(&g_osd_hdzero.ant1, buf, 7);
-    create_osd_object(&g_osd_hdzero.ant2, buf, 10);
-    create_osd_object(&g_osd_hdzero.ant3, buf, 9);
+    osd_object_create(&g_osd_hdzero.ant1, buf, 7);
+    osd_object_create(&g_osd_hdzero.ant0, buf, 8);
+    osd_object_create(&g_osd_hdzero.ant3, buf, 9);
+    osd_object_create(&g_osd_hdzero.ant2, buf, 10);
 
     if (g_test_en) {
         g_osd_hdzero.osd_tempe[0] = lv_label_create(scr_osd);
@@ -507,6 +511,20 @@ static void embedded_osd_init(void) {
         lv_obj_set_pos(g_osd_hdzero.osd_tempe[2], 370, 50);
         lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[2], &lv_font_montserrat_26, 0);
     }
+}
+
+void osd_update_mode() {
+    osd_object_set_pos(g_osd_hdzero.topfan_speed, 0);
+    osd_object_set_pos(g_osd_hdzero.vtx_temp, 1);
+    osd_object_set_pos(g_osd_hdzero.battery, 2);
+    osd_object_set_pos(g_osd_hdzero.vrx_temp, 3);
+    osd_object_set_pos(g_osd_hdzero.latency_lock, 4);
+    osd_object_set_pos(g_osd_hdzero.sd_rec, 5);
+    osd_object_set_pos(g_osd_hdzero.vlq, 6);
+    osd_object_set_pos(g_osd_hdzero.ant1, 7);
+    osd_object_set_pos(g_osd_hdzero.ant0, 8);
+    osd_object_set_pos(g_osd_hdzero.ant3, 9);
+    osd_object_set_pos(g_osd_hdzero.ant2, 10);
 }
 
 static void fc_osd_init(void) {

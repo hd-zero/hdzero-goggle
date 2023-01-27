@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define IMS_CANVAS_WIDTH  430
-#define IMS_CANVAS_HEIGHT 160
+#define IMS_CANVAS_HEIGHT 200
 #define SLIDER_XSTART     170
 #define SLIDER_XEND       350
 #define SLIDER_WIDTH      5
@@ -16,13 +16,14 @@
 #define LIGHT_WHITE lv_color_make(254, 254, 254)
 #define LIGHT_GREEN lv_color_make(0, 255, 0)
 
-#define IMS_DEFAULT_LUM 8
-#define IMS_DEFAULT_BRI 39
-#define IMS_DEFAULT_SAT 16
-#define IMS_DEFAULT_CON 16
-#define IMS_DEFAULT_AO  2
+#define IMS_DEFAULT_LUM      8
+#define IMS_DEFAULT_BRI      39
+#define IMS_DEFAULT_SAT      16
+#define IMS_DEFAULT_CON      16
+#define IMS_DEFAULT_AO       2
+#define IMS_DEFAULT_EMB_MODE EMBEDDED_4x3
 
-#define IMS_ITEM_COUNT 7
+#define IMS_ITEM_COUNT 8
 
 typedef struct {
     int16_t x; // start pos
