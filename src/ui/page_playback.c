@@ -133,12 +133,24 @@ static bool get_seleteced(int seq, char *fname) {
     return true;
 }
 
+int hot_alphasort(const struct dirent **a, const struct dirent **b) {
+    const bool a_hot = strncmp((*a)->d_name, "hot_", 4) == 0;
+    const bool b_hot = strncmp((*b)->d_name, "hot_", 4) == 0;
+    if (a_hot && !b_hot) {
+        return -1;
+    }
+    if (!a_hot && b_hot) {
+        return 1;
+    }
+    return strcoll((*a)->d_name, (*b)->d_name);
+}
+
 static int walk_sdcard() {
     media_db.count = 0;
     media_db.cur_sel = 0;
 
     struct dirent **namelist;
-    int count = scandir(MEDIA_FILES_DIR, &namelist, NULL, alphasort);
+    int count = scandir(MEDIA_FILES_DIR, &namelist, NULL, hot_alphasort);
     if (count == -1) {
         return 0;
     }
