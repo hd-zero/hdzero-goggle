@@ -317,7 +317,7 @@ static void page_version_on_click(uint8_t key, int sel) {
 
         if (ret == 1) {
             if (file_compare("/tmp/HDZERO_TX.bin", "/tmp/HDZERO_TX_RB.bin")) {
-                lv_label_set_text(btn_vtx, "#000FF00 SUCCESS#");
+                lv_label_set_text(btn_vtx, "#00FF00 SUCCESS#");
             } else
                 lv_label_set_text(btn_vtx, "#FF0000 Verification failed, try it again#");
         } else if (ret == 2) {
@@ -325,8 +325,15 @@ static void page_version_on_click(uint8_t key, int sel) {
         } else {
             lv_label_set_text(btn_vtx, "#FF0000 Failed, check connection...#");
         }
+        lv_timer_handler();
+
         system("rm /tmp/HDZERO_TX.bin");
         system("rm /tmp/HDZERO_TX_RB.bin");
+
+        sleep(2);
+        beep();
+        sleep(2);
+
         lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
     } else if ((sel == 2) && !reboot_flag) {
         uint8_t ret = 0;
