@@ -228,6 +228,7 @@ void msp_process_packet()
 							beep();
 							pthread_mutex_lock(&lvgl_mutex);
 							HDZero_open();
+							osd_dvr_cmd(DVR_STOP);
 							switch_to_video(true);
 							g_menu_op = OPLEVEL_VIDEO;
 							pthread_mutex_unlock(&lvgl_mutex);
