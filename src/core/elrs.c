@@ -39,6 +39,7 @@ static sem_t response_semaphore;
 static mspPacket_t response_packet;
 static int record_state;
 static uint32_t record_time = 0;
+static bool headtracking_enabled = false;
 
 void msp_process_packet();
 
@@ -288,6 +289,10 @@ void msp_process_packet() {
         case MSP_SET_OSD_ELEM:
             // TODO
             break;
+        case MSP_SET_HT_ENABLE:
+            if (packet.payload_size > 0)
+                headtracking_enabled = packet.payload[0];
+            break;
         }
     } else if (packet.type == MSP_PACKET_RESPONSE) {
         memcpy(&response_packet, &packet, sizeof(response_packet));
@@ -351,4 +356,8 @@ void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll)
 		uint8_t payload[6] = {pan & 0xFF, pan >> 8, tilt & 0xFF, tilt >> 8, roll & 0xFF, roll >> 8};
 		msp_send_packet(MSP_SET_PTR, MSP_PACKET_COMMAND, sizeof(payload), payload);
 	}
+}
+
+bool elrs_headtracking_enabled() {
+	return headtracking_enabled;
 }
