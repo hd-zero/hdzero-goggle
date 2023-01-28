@@ -15,13 +15,13 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#include "core/battery.h"
 #include "core/common.hh"
 #include "core/msp_displayport.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
-#include "driver/mcp3021.h"
 #include "driver/nct75.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
@@ -213,8 +213,7 @@ void osd_battery_show() {
         return;
     }
 
-    int vol_sigle = g_battery.voltage / g_battery.type;
-    if (vol_sigle < g_setting.power.voltage * 100)
+    if (battery_is_low())
         lv_obj_clear_flag(g_osd_hdzero.battery, LV_OBJ_FLAG_HIDDEN);
     else
         lv_obj_add_flag(g_osd_hdzero.battery, LV_OBJ_FLAG_HIDDEN);

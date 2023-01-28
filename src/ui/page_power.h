@@ -1,8 +1,6 @@
 #ifndef _PAGE_POWER_H
 #define _PAGE_POWER_H
 
-#define CELL_MIN_COUNT 2
-#define CELL_MAX_COUNT 6
 #define CELL_VOLTAGE_MIN 28
 #define CELL_VOLTAGE_MAX 42
 
@@ -25,6 +23,5 @@ void power_cell_count_inc(void);
 void power_cell_count_dec(void);
 void power_voltage_inc(void);
 void power_voltage_dec(void);
-void set_battery_cell_count();
 
 #endif

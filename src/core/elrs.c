@@ -21,9 +21,10 @@
 #include "hardware.h"
 #include "osd.h"
 
+#include "core/battery.h"
+
 #include "../driver/uart.h"
 #include "../driver/dm5680.h"
-#include "../driver/mcp3021.h"
 
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"

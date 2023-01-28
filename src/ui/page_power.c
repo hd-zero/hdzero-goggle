@@ -5,8 +5,8 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "core/battery.h"
 #include "core/common.hh"
-#include "mcp3021.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 
@@ -18,6 +18,16 @@ static btn_group_t btn_group_warn_type;
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 lv_obj_t *label_cell_count;
+
+static void page_power_update_cell_count() {
+    char str[10];
+
+    // re-trigger cell detection
+    battery_init();
+
+    sprintf(str, "%dS", g_battery.type);
+    lv_label_set_text(label_cell_count, str);
+}
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -68,27 +78,9 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_slider_set_value(slider_group_cell_count.slider, g_setting.power.cell_count, LV_ANIM_OFF);
     lv_slider_set_value(slider_group_cell_voltage.slider, g_setting.power.voltage, LV_ANIM_OFF);
     btn_group_set_sel(&btn_group_warn_type, g_setting.power.warning_type);
-    set_battery_cell_count();
+    page_power_update_cell_count();
 
     return page;
-}
-
-void set_battery_cell_count() {
-    char str[10];
-
-    switch (g_setting.power.cell_count_mode)
-    {
-    default:
-    case SETTING_POWER_CELL_COUNT_MODE_AUTO:
-        g_battery.type = mcp_detect_type();
-        break;
-    case SETTING_POWER_CELL_COUNT_MODE_MANUAL:
-        g_battery.type = g_setting.power.cell_count;
-        break;
-    }
-
-    sprintf(str, "%dS", g_battery.type);
-    lv_label_set_text(label_cell_count, str);
 }
 
 void power_cell_count_inc(void) {
@@ -107,7 +99,7 @@ void power_cell_count_inc(void) {
     g_setting.power.cell_count = value;
     LOGI("cell_count:%d", g_setting.power.cell_count);
     ini_putl("power", "cell_count", g_setting.power.cell_count, SETTING_INI);
-    set_battery_cell_count();
+    page_power_update_cell_count();
 }
 
 void power_cell_count_dec(void) {
@@ -126,7 +118,7 @@ void power_cell_count_dec(void) {
     g_setting.power.cell_count = value;
     LOGI("cell_count:%d", g_setting.power.cell_count);
     ini_putl("power", "cell_count", g_setting.power.cell_count, SETTING_INI);
-    set_battery_cell_count();
+    page_power_update_cell_count();
 }
 
 void power_voltage_inc(void) {
@@ -171,7 +163,7 @@ static void page_power_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_cell_count_mode);
         g_setting.power.cell_count_mode = btn_group_get_sel(&btn_group_cell_count_mode);
         ini_putl("power", "cell_count_mode", g_setting.power.cell_count_mode, SETTING_INI);
-        set_battery_cell_count();
+        page_power_update_cell_count();
         break;
 
     case ROW_CELL_COUNT:
@@ -193,7 +185,7 @@ static void page_power_on_click(uint8_t key, int sel) {
             lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_select, LV_PART_MAIN);
         }
         break;
-    
+
     case ROW_WARN_TYPE:
         btn_group_toggle_sel(&btn_group_warn_type);
         g_setting.power.warning_type = btn_group_get_sel(&btn_group_warn_type);

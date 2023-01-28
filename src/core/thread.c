@@ -19,10 +19,9 @@
 #include "../driver/dm5680.h"
 #include "../driver/hardware.h"
 #include "../driver/it66021.h"
-#include "../driver/it66021.h"
-#include "../driver/mcp3021.h"
 #include "../driver/nct75.h"
 #include "../driver/oled.h"
+#include "core/battery.h"
 #include "ui/ui_porting.h"
 #include "ui/page_fans.h"
 #include "ui/page_version.h"
@@ -138,7 +137,7 @@ static void *thread_peripheral(void *ptr)
 			detect_sdcard();
 			if(k++ == 4) {
 				k = 0;
-				g_battery.voltage = mcp_read_voltage();
+				battery_update();
 				g_temperature.top = nct_read_temperature(NCT_TOP);
 				g_temperature.left = nct_read_temperature(NCT_LEFT) + 100; 
 				g_temperature.right= nct_read_temperature(NCT_RIGHT);

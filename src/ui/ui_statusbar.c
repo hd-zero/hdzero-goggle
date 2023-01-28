@@ -4,9 +4,9 @@
 
 #include <lvgl/lvgl.h>
 
+#include "core/battery.h"
 #include "core/common.hh"
 #include "core/osd.h"
-#include "driver/mcp3021.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
 #include "ui/ui_style.h"
@@ -158,8 +158,8 @@ void statubar_update(void) {
     {
 #define BEEP_INTERVAL 20
         static uint8_t beep_gap = 0;
-        int vol = g_battery.voltage / g_battery.type;
-        bool low = (vol < g_setting.power.voltage * 100);
+
+        const bool low = battery_is_low();
         if (low)
             lv_img_set_src(img_battery, &img_lowBattery);
         else
