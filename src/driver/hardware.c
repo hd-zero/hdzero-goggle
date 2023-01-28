@@ -8,17 +8,17 @@
 
 #include <log/log.h>
 
-#include "../core/common.hh"
-#include "../core/osd.h"
-#include "TP2825.h"
-#include "defines.h"
-#include "dm5680.h"
-#include "dm6302.h"
-#include "i2c.h"
-#include "it66021.h"
-#include "msp_displayport.h"
-#include "oled.h"
-#include "uart.h"
+#include "core/common.hh"
+#include "core/defines.h"
+#include "core/msp_displayport.h"
+#include "core/osd.h"
+#include "driver/TP2825.h"
+#include "driver/dm5680.h"
+#include "driver/dm6302.h"
+#include "driver/i2c.h"
+#include "driver/it66021.h"
+#include "driver/oled.h"
+#include "driver/uart.h"
 
 /////////////////////////////////////////////////////////////////////////
 // global
