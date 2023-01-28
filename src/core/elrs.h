@@ -40,6 +40,7 @@ typedef struct __attribute__((packed)) {
 #define MSP_GET_BAT_VOLTS  0x0309
 #define MSP_GET_VERSION    0x030A
 #define MSP_SET_BUZZER     0x030B
+#define MSP_SET_HT_ENABLE  0x030D
 #define MSP_SET_OSD_ELEM   0x00B6
 #define MSP_SET_MODE       0x0380 // goggles to backpack
 #define MSP_GET_BP_VERSION 0x0381 // goggles to backpack
@@ -59,6 +60,7 @@ typedef struct {
 } mspPacket_t;
 
 void elrs_init();
+bool elrs_headtracking_enabled();
 
 void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
 bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *payload);
