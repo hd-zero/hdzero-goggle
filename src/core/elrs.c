@@ -299,7 +299,7 @@ void msp_process_packet()
 				{
 					sys_version_t sys_version;
 					if (generate_current_version(&sys_version) == 0) {
-						uint8_t buf[4] = { 3, sys_version.app, sys_version.rx, sys_version.va };
+						uint8_t buf[4] = { 3, sys_version.app_major, sys_version.app_minor, sys_version.app_patch };
 						msp_send_packet(MSP_GET_VERSION, MSP_PACKET_RESPONSE, sizeof(buf), buf);
 					} else {
 						msp_send_packet(MSP_GET_VERSION, MSP_PACKET_UNKNOWN, 0, NULL);

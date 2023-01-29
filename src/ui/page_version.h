@@ -10,7 +10,9 @@
 typedef struct {
     uint8_t rx;
     uint8_t va;
-    uint8_t app;
+    uint8_t app_major;
+    uint8_t app_minor;
+    uint8_t app_patch;
     char current[CURRENT_VER_MAX];
 } sys_version_t;
 
