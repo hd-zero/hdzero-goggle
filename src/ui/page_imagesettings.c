@@ -53,7 +53,7 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group2, cont, "Saturation", 47, g_setting.image.saturation, 2);
     create_slider_item(&slider_group3, cont, "Contrast", 47, g_setting.image.contrast, 3);
     create_slider_item(&slider_group4, cont, "OLED Auto off", 3, g_setting.image.auto_off, 4);
-    create_slider_item(&slider_group5, cont, "Embedded OSD Mode", 2, g_setting.osd.embedded_mode, 5);
+    create_slider_item(&slider_group5, cont, "Embedded OSD Mode", 1, g_setting.osd.embedded_mode, 5);
 
     create_label_item(cont, "< Back", 1, 6, 1);
 
