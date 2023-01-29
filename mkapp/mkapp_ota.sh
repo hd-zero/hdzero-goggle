@@ -6,23 +6,30 @@ function make_img_md5() {
 }
 
 function get_app_version() {
-	local delimeter=' = '
-    local file=$1
-	local section="app"
-    local key="ver"
-    local val=$(awk -F "$delimeter" '/\['${section}'\]/{a=1}a==1&&$1~/'${key}'/{print $2;exit}' $file)
-    echo ${val}
+	local base_version=$(cat "$ROOT_DIR/VERSION")
+
+    # check if we are on a tag
+    git describe --exact-match --tags HEAD > /dev/null 2>&1
+    if [ $? -ne 0 ]; then 
+        # no? attach commit hash
+        echo "${base_version}-$(git rev-parse --short HEAD)"
+    else
+        echo "${base_version}"
+    fi
 }
 
 ROOT_DIR=$PWD
 
-BIN_DIR=$ROOT_DIR/bin
-IMG_DIR=$ROOT_DIR/ota_app
-APP_DIR=$ROOT_DIR/app
+MKAPP_DIR=$ROOT_DIR/mkapp
+BIN_DIR=$MKAPP_DIR/bin
+IMG_DIR=$MKAPP_DIR/ota_app
+APP_DIR=$MKAPP_DIR/app
 
 APP_SIZE=8388608
 APP_IMAGE=${IMG_DIR}/app.fex
-APP_VERSION=$(get_app_version "$ROOT_DIR/app/version")
+APP_VERSION=$(get_app_version)
+
+echo "${APP_VERSION}" > ${APP_DIR}/version
 
 rm -rf $IMG_DIR
 mkdir -p $IMG_DIR
@@ -40,5 +47,23 @@ if (( ${FILESIZE} > ${APP_SIZE})); then
     exit 1
 fi
 
+echo -e "\npacking app:"
 cd $IMG_DIR
 tar cvf $IMG_DIR/hdzgoggle_app_ota-${APP_VERSION}.tar *
+
+HAL_VERSION="$(cat "$MKAPP_DIR/hal/ver.txt")"
+HAL_RX_VER=${HAL_VERSION%-*}
+HAL_VA_VER=${HAL_VERSION#*-}
+
+OTA_VERSION="${HAL_VERSION}-${APP_VERSION}"
+
+cp $MKAPP_DIR/hal/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin 
+cp $MKAPP_DIR/hal/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin 
+
+echo -e "\npacking ota:"
+tar cvf $ROOT_DIR/out/HDZERO_GOGGLE-${OTA_VERSION}.bin \
+    hdzgoggle_app_ota-${APP_VERSION}.tar \
+    HDZGOGGLE_RX-${HAL_RX_VER}.bin \
+    HDZGOGGLE_VA-${HAL_VA_VER}.bin 
+
+echo -e "\ngenerated out/HDZERO_GOGGLE-${OTA_VERSION}.bin"
