@@ -119,45 +119,31 @@ static bool flash_elrs() {
 }
 
 int generate_current_version(sys_version_t *sys_ver) {
-    char strline[128];
-    char strtmp[25];
-    memset(strtmp, 0, sizeof(strtmp));
     sys_ver->va = I2C_Read(ADDR_FPGA, 0xff);
-    sys_ver->app = 0;
     sys_ver->rx = rx_status[0].rx_ver;
 
     FILE *fp = fopen("/mnt/app/version", "r");
-    if (!fp)
-        goto err_open;
-
-    while (!feof(fp)) {
-        char *p = fgets(strline, sizeof(strline), fp);
-        if (!p)
-            goto err_fget;
-
-        if (strncmp(strline, "major", 5) == 0) {
-            strcat(strtmp, &strline[7]);
-            sys_ver->app = atoi(strtmp);
-            break;
-        }
-        LOGI(">>%s", strline);
+    if (!fp) {
+        return -1;
     }
+    fscanf(fp, "%d.%d.%d", &sys_ver->app_major, &sys_ver->app_minor, &sys_ver->app_patch);
+    fclose(fp);
 
-    LOGI("va:%d, rx:%d, app:%d", sys_ver->va,
+    LOGI("va:%d, rx:%d, app: %d.%d.%d",
+         sys_ver->va,
          sys_ver->rx,
-         sys_ver->app);
-    fclose(fp);
+         sys_ver->app_major,
+         sys_ver->app_minor,
+         sys_ver->app_patch);
 
-    sprintf(sys_ver->current, "%d.%d.%d",
-            sys_ver->app,
+    sprintf(sys_ver->current, "%d-%d-%d.%d.%d",
             sys_ver->rx,
-            sys_ver->va);
-    return 0;
+            sys_ver->va,
+            sys_ver->app_major,
+            sys_ver->app_minor,
+            sys_ver->app_patch);
 
-err_fget:
-    fclose(fp);
-err_open:
-    return -1;
+    return 0;
 }
 
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
@@ -244,13 +230,12 @@ uint8_t command_monitor(char *cmd) {
     return ret;
 }
 
-static void elrs_version_timer(struct _lv_timer_t *timer)
-{
+static void elrs_version_timer(struct _lv_timer_t *timer) {
     char label[80];
     uint8_t version[32] = {0};
     uint16_t size = sizeof(version) - 1;
 
-    if(!msp_read_resposne(MSP_GET_BP_VERSION, &size, version)) {
+    if (!msp_read_resposne(MSP_GET_BP_VERSION, &size, version)) {
         msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
         return;
     }
