@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <log/log.h>
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
@@ -35,6 +36,7 @@
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
+#include "util/file.h"
 
 static void load_ini_setting(void) {
     char str[128];
@@ -107,12 +109,8 @@ static void load_ini_setting(void) {
 
     // Check
     g_test_en = false;
-    log_file = fopen(LOG_FILE, "r");
-    if (log_file) {
-        fclose(log_file);
-        log_file = fopen(LOG_FILE, "w+");
-        if (log_file)
-            g_test_en = true;
+    if (file_exists(LOG_FILE) && log_enable_file(LOG_FILE)) {
+        g_test_en = true;
     }
 }
 

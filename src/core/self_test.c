@@ -7,19 +7,15 @@
 
 #include <log/log.h>
 
-#include "../driver/TP2825.h"
-#include "../driver/dm5680.h"
-#include "../driver/dm6302.h"
-#include "../driver/hardware.h"
-#include "../driver/i2c.h"
-#include "../driver/it66021.h"
-#include "../driver/it66121.h"
-#include "common.hh"
+#include "core/common.hh"
+#include "driver/TP2825.h"
+#include "driver/dm5680.h"
+#include "driver/dm6302.h"
+#include "driver/hardware.h"
+#include "driver/i2c.h"
+#include "driver/it66021.h"
+#include "driver/it66121.h"
 #include "ui/page_common.h"
-
-///////////////////////////////////////////////////////////////////////////////
-// log
-FILE *log_file;
 
 #define UART_WAIT (100 * 1000)
 
