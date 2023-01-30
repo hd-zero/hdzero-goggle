@@ -129,19 +129,17 @@ int generate_current_version(sys_version_t *sys_ver) {
     fscanf(fp, "%d.%d.%d", &sys_ver->app_major, &sys_ver->app_minor, &sys_ver->app_patch);
     fclose(fp);
 
-    LOGI("va:%d, rx:%d, app: %d.%d.%d",
-         sys_ver->va,
-         sys_ver->rx,
+    LOGI("app: %d.%d.%d rx: %d va: %d",
          sys_ver->app_major,
          sys_ver->app_minor,
-         sys_ver->app_patch);
+         sys_ver->app_patch,
+         sys_ver->rx, sys_ver->va);
 
-    sprintf(sys_ver->current, "%d-%d-%d.%d.%d",
-            sys_ver->rx,
-            sys_ver->va,
+    sprintf(sys_ver->current, "app: %d.%d.%d rx: %d va: %d",
             sys_ver->app_major,
             sys_ver->app_minor,
-            sys_ver->app_patch);
+            sys_ver->app_patch,
+            sys_ver->rx, sys_ver->va);
 
     return 0;
 }
@@ -170,7 +168,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
-    cur_ver_label = create_label_item(cont, "Current Version:", 1, 0, 2);
+    cur_ver_label = create_label_item(cont, "Current Version", 1, 0, 2);
 
     btn_vtx = create_label_item(cont, "Update VTX", 1, 1, 2);
     btn_goggle = create_label_item(cont, "Update Goggle", 1, 2, 2);
@@ -387,7 +385,7 @@ void update_current_version() {
         sys_version_t sys_version;
         generate_current_version(&sys_version);
         memset(strtmp, 0, sizeof(strtmp));
-        strcat(strtmp, "Current Version: ");
+        strcat(strtmp, "Current Version ");
         strcat(strtmp, sys_version.current);
         lv_label_set_text(cur_ver_label, strtmp);
         bInit = false;
