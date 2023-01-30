@@ -4,7 +4,7 @@
 
 #include "ui/ui_style.h"
 
-static lv_coord_t col_dsc[] = {100, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static btn_group_t btn_group0;

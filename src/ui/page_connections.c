@@ -20,7 +20,7 @@
 #include "page_version.h"
 #include "ui/ui_style.h"
 
-static lv_coord_t col_dsc[] = {180, 200, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_wifi;
 static lv_obj_t *btn_bind;
@@ -38,7 +38,7 @@ static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Connect Options:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, "Connection Options:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
