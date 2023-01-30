@@ -6,6 +6,8 @@
 
 #define get_filename(file) (strrchr(file, '/') ? strrchr(file, '/') + 1 : file)
 
+static FILE *log_file = NULL;
+
 static const char *log_level_names[] = {
     "DEBUG",   // -2
     "VERBOSE", // -1
@@ -25,11 +27,31 @@ int log_printf(const char *file, const char *func, int line, const int level, co
     vsnprintf(buf, sizeof buf, fmt, args2);
     va_end(args2);
 
-    return printf(
+    int ret = printf(
         "[%s][%s:%s:%d] %s\r\n",
         log_level_names[level + 2],
         get_filename(file),
         func,
         line,
         buf);
+
+    if (log_file) {
+        fprintf(log_file, "[%s][%s:%s:%d] %s\r\n",
+                log_level_names[level + 2],
+                get_filename(file),
+                func,
+                line,
+                buf);
+        fflush(log_file);
+    }
+
+    return ret;
+}
+
+bool log_enable_file(const char *filename) {
+    log_file = fopen(filename, "w+");
+    if (log_file) {
+        return true;
+    }
+    return false;
 }
