@@ -1,12 +1,18 @@
 #include "log/log.h"
 
+#include <pthread.h>
 #include <stdarg.h>
+#include <stdatomic.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 #define get_filename(file) (strrchr(file, '/') ? strrchr(file, '/') + 1 : file)
 
 static FILE *log_file = NULL;
+
+static atomic_bool log_mutex_init = ATOMIC_VAR_INIT(false);
+static pthread_mutex_t log_mutex;
 
 static const char *log_level_names[] = {
     "DEBUG",   // -2
@@ -18,6 +24,14 @@ static const char *log_level_names[] = {
 };
 
 int log_printf(const char *file, const char *func, int line, const int level, const char *fmt, ...) {
+    // probably slow to check this every time
+    if (!log_mutex_init) {
+        pthread_mutex_init(&log_mutex, NULL);
+        log_mutex_init = true;
+    }
+
+    pthread_mutex_lock(&log_mutex);
+
     va_list args1;
     va_start(args1, fmt);
     va_list args2;
@@ -44,6 +58,8 @@ int log_printf(const char *file, const char *func, int line, const int level, co
                 buf);
         fflush(log_file);
     }
+
+    pthread_mutex_unlock(&log_mutex);
 
     return ret;
 }
