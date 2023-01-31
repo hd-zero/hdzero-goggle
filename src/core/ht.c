@@ -20,7 +20,13 @@
 #include "ui/page_common.h"
 #include "util/math.h"
 
-//#define FAST_SIM
+// #define FAST_SIM
+typedef enum {
+    OLED_MD_DETECTING, // regular operation, oled on
+    OLED_MD_PRE_OFF,   // pre-sleep, reduced brightness
+    OLED_MD_OFF        // sleep, oled off
+} oled_motion_detect_state_t;
+
 ///////////////////////////////////////////////////////////////////////////////
 // local
 static ht_data_t ht_data;
@@ -29,7 +35,6 @@ static const uint8_t sync_len = 200;
 
 static bool has_motion_data = false;
 static bool is_moving = true;
-
 
 static volatile bool calibrating = false;
 static int calibration_count = 0;
@@ -45,75 +50,95 @@ static void calculate_orientation();
 ///////////////////////////////////////////////////////////////////////////////
 // no motion to disable OLED display
 static void detect_motion(bool is_moving) {
-    static uint8_t state = 0; // 0: detecting motion, 1=oled pre off mode, 2= oled off mode
+    static oled_motion_detect_state_t state = OLED_MD_DETECTING;
     static int cnt = 0;
 
-    if (state == 0) { // in moving
-        if (is_moving)
-            cnt = 0;
-        else {
-            cnt++;
-            if (g_setting.image.auto_off != 3) {
-#ifdef FAST_SIM
-                if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off + 1))) {
-#else
-                if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 3))) {
-#endif
-                    state = 1;
-                    cnt = 0;
-                    LOGI("OLED pre-OFF for protection.");
-                    OLED_Brightness(0);
-                }
-            }
-#ifdef FAST_SIM
-            LOGI("IDLE %d", cnt);
-#endif
+    switch (state) {
+    case OLED_MD_DETECTING:
+        if (g_setting.image.auto_off == 3) {
+            // auto_off disabled, bail
+            break;
         }
-    } else if (state == 1) { // pre -off
+        if (is_moving) {
+            // moving, bail
+            cnt = 0;
+            break;
+        }
+
+        cnt++;
+
+#ifdef FAST_SIM
+        if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off + 1))) {
+#else
+        if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 3))) {
+#endif
+            LOGI("OLED pre-OFF for protection.");
+            OLED_Brightness(0);
+            state = OLED_MD_PRE_OFF;
+            cnt = 0;
+        }
+#ifdef FAST_SIM
+        LOGI("IDLE %d", cnt);
+#endif
+        break;
+
+    case OLED_MD_PRE_OFF:
 #ifdef FAST_SIM
         LOGI("PRE OFF %d", cnt);
 #endif
         if (is_moving) {
-            state = 0;
-            cnt = 0;
+            // we got motion, turn oled back on, start over
             OLED_Brightness(g_setting.image.oled);
-        } else {
-            cnt++;
-            if (cnt == MOTION_DUR_1MINUTE) { // 1-min
-                LOGI("OLED OFF for protection.");
-                beep();
-
-                OLED_ON(0); // Turn off OLED
-
-                if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO)
-                    HDZero_Close(); // Turn off RF
-
-                state = 2;
-                cnt = 0;
-            }
+            state = OLED_MD_DETECTING;
+            cnt = 0;
         }
-    } else { // in stationery
+
+        cnt++;
+
+        if (cnt == MOTION_DUR_1MINUTE) { // 1-min
+            LOGI("OLED OFF for protection.");
+            beep();
+
+            OLED_ON(0); // Turn off OLED
+            if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
+                HDZero_Close(); // Turn off RF
+            }
+
+            state = OLED_MD_OFF;
+            cnt = 0;
+        }
+        break;
+
+    case OLED_MD_OFF:
 #ifdef FAST_SIM
         LOGI("OFF %d", cnt);
 #endif
-        if (is_moving) {
-            cnt++;
-            if (cnt == 2) {
-                state = 0;
-                cnt = 0;
-                if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
-                    HDZero_open();
-                    uint8_t ch = g_setting.scan.channel - 1;
-                    DM6302_SetChannel(ch);
-                }
-                LOGI("OLED ON from protection.");
-                OLED_Brightness(g_setting.image.oled);
-                OLED_ON(1);
-            }
-        } else {
-            if (cnt)
-                cnt = 0;
+        if (!is_moving) {
+            // no motion, stay off
+            cnt = 0;
+            break;
         }
+
+        cnt++;
+
+        if (cnt == 2) {
+            if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
+                HDZero_open();
+                uint8_t ch = g_setting.scan.channel - 1;
+                DM6302_SetChannel(ch);
+            }
+            LOGI("OLED ON from protection.");
+            OLED_Brightness(g_setting.image.oled);
+            OLED_ON(1);
+            state = OLED_MD_DETECTING;
+            cnt = 0;
+        }
+        break;
+
+    default:
+        // wat?
+        state = OLED_MD_DETECTING;
+        break;
     }
 }
 
@@ -124,11 +149,8 @@ void ht_detect_motion() {
     }
 }
 
-static void get_imu_data(int bCalcDiff) {
-    static int dec_cnt;
-    static struct bmi2_sens_axes_data gyr_last;
-    int16_t dx, dy, dz;
-    uint32_t diff;
+static void get_imu_data() {
+    static int dec_cnt = 0;
 
     get_bmi270(&ht_data.sensor_data);
 
@@ -137,25 +159,24 @@ static void get_imu_data(int bCalcDiff) {
         return; // calibrate dec_cnt to make sure the following code runs at 1Hz
     dec_cnt = 0;
 
-    if (bCalcDiff) {
-        dx = ht_data.sensor_data.gyr.x - gyr_last.x;
-        dy = ht_data.sensor_data.gyr.y - gyr_last.y;
-        dz = ht_data.sensor_data.gyr.z - gyr_last.z;
-        diff = dx * dx + dy * dy + dz * dz;
-        is_moving = (diff > MOTION_GYRO_THR) || g_key > 0;
+    static struct bmi2_sens_axes_data gyr_last;
 
-        g_key = 0;
-        gyr_last = ht_data.sensor_data.gyr;
+    const int16_t dx = ht_data.sensor_data.gyr.x - gyr_last.x;
+    const int16_t dy = ht_data.sensor_data.gyr.y - gyr_last.y;
+    const int16_t dz = ht_data.sensor_data.gyr.z - gyr_last.z;
+    const uint32_t diff = dx * dx + dy * dy + dz * dz;
 
-        // if(is_moving)
-        //     LOGI("IMU: %d",diff);
+    is_moving = (diff > MOTION_GYRO_THR) || g_key > 0;
+    // LOGD("diff: %d g_key: %d is_moving: %d", diff, g_key, is_moving);
 
-        has_motion_data = true;
-    }
+    g_key = 0;
+    gyr_last = ht_data.sensor_data.gyr;
+
+    has_motion_data = true;
 }
 
 static void timer_callback_imu(union sigval timer_data) {
-    get_imu_data(true);
+    get_imu_data();
     calculate_orientation();
 }
 
