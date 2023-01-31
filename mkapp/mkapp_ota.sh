@@ -61,6 +61,7 @@ cp $MKAPP_DIR/hal/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin
 cp $MKAPP_DIR/hal/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin 
 
 echo -e "\npacking ota:"
+rm $ROOT_DIR/out/HDZERO_GOGGLE-* || true
 tar cvf $ROOT_DIR/out/HDZERO_GOGGLE-${OTA_VERSION}.bin \
     hdzgoggle_app_ota-${APP_VERSION}.tar \
     HDZGOGGLE_RX-${HAL_RX_VER}.bin \
