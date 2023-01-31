@@ -30,10 +30,15 @@ mkdir -p $IMG_DIR
 ${BIN_DIR}/mkfs.jffs2 \
     --little-endian \
     --eraseblock=0x10000 \
-    --pad=${APP_SIZE} \
     --root=${APP_DIR} \
     --output=${APP_IMAGE}
 make_img_md5 ${APP_IMAGE}
+
+FILESIZE=$(stat -c%s "${APP_IMAGE}")
+if (( ${FILESIZE} > ${APP_SIZE})); then
+    echo -e "\e[31;1mERROR: Firmware size is too large for partition!\e[0m"
+    exit 1
+fi
 
 cd $IMG_DIR
 tar cvf $IMG_DIR/hdzgoggle_app_ota-${APP_VERSION}.tar *
