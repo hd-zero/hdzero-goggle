@@ -246,6 +246,7 @@ int main(int argc, char *argv[]) {
         statubar_update();
         osd_hdzero_update();
         ims_update();
+        ht_detect_motion();
         lv_timer_handler();
         source_status_timer();
         pthread_mutex_unlock(&lvgl_mutex);

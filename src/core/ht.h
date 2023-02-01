@@ -49,6 +49,7 @@ typedef struct {
 void ht_init();
 void ht_enable();
 void ht_disable();
+void ht_detect_motion();
 void ht_calibrate();
 void ht_set_maxangle(int angle);
 void ht_set_center_position();
