@@ -27,6 +27,10 @@ static ht_data_t ht_data;
 static const uint8_t frame_period = 10;
 static const uint8_t sync_len = 200;
 
+static bool has_motion_data = false;
+static int is_moving;
+
+
 static volatile bool calibrating = false;
 static int calibration_count = 0;
 
@@ -113,12 +117,18 @@ static void detect_motion(int is_moving) {
     }
 }
 
+void ht_detect_motion() {
+    if (has_motion_data) {
+        detect_motion(is_moving);
+        has_motion_data = false;
+    }
+}
+
 static void get_imu_data(int bCalcDiff) {
     static int dec_cnt;
     static struct bmi2_sens_axes_data gyr_last;
     int16_t dx, dy, dz;
     uint32_t diff;
-    int is_moving;
 
     get_bmi270(&ht_data.sensor_data);
 
@@ -140,7 +150,7 @@ static void get_imu_data(int bCalcDiff) {
         // if(is_moving)
         //     LOGI("IMU: %d",diff);
 
-        detect_motion(is_moving);
+        has_motion_data = true;
     }
 }
 
