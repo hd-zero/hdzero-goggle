@@ -28,7 +28,7 @@ static const uint8_t frame_period = 10;
 static const uint8_t sync_len = 200;
 
 static bool has_motion_data = false;
-static int is_moving;
+static bool is_moving = true;
 
 
 static volatile bool calibrating = false;
@@ -44,7 +44,7 @@ static void calculate_orientation();
 
 ///////////////////////////////////////////////////////////////////////////////
 // no motion to disable OLED display
-static void detect_motion(int is_moving) {
+static void detect_motion(bool is_moving) {
     static uint8_t state = 0; // 0: detecting motion, 1=oled pre off mode, 2= oled off mode
     static int cnt = 0;
 
