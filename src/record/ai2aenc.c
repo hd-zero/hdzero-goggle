@@ -13,7 +13,7 @@
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ai2aenc"
-#include <plat_log.h>
+#include <log/log.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,17 +81,17 @@ static ERRORTYPE ai2aenc_createAencChn(Ai2Aenc_t* aa, AiParams_t* aiParam, AencP
         if (SUCCESS == ret)
         {
             nSuccessFlag = TRUE;
-            alogd("create aenc channel[%d] success!", aeChn);
+            LOGD("create aenc channel[%d] success!", aeChn);
             break;
         }
         else if(ERR_AENC_EXIST == ret)
         {
-            alogd("aenc channel[%d] exist, find next!", aeChn);
+            LOGD("aenc channel[%d] exist, find next!", aeChn);
             aeChn++;
         }
         else
         {
-            alogd("create aenc channel[%d] ret[0x%x], find next!", aeChn, ret);
+            LOGD("create aenc channel[%d] ret[0x%x], find next!", aeChn, ret);
             aeChn++;
         }
     }
@@ -99,7 +99,7 @@ static ERRORTYPE ai2aenc_createAencChn(Ai2Aenc_t* aa, AiParams_t* aiParam, AencP
     if(FALSE == nSuccessFlag)
     {
         aa->aeChn = MM_INVALID_CHN;
-        aloge("fatal error! create aenc channel fail!");
+        LOGE("fatal error! create aenc channel fail!");
         return FAILURE;
     }
     aa->aeChn = aeChn;
@@ -130,17 +130,17 @@ static ERRORTYPE ai2aenc_createAiChn(Ai2Aenc_t* aa, AiParams_t* aiParam)
         if (SUCCESS == ret)
         {
             bSuccessFlag = TRUE;
-            alogd("create ai channel[%d] success!", aiChn);
+            LOGD("create ai channel[%d] success!", aiChn);
             break;
         }
         else if (ERR_AI_EXIST == ret)
         {
-            alogd("ai channel[%d] exist, find next!", aiChn);
+            LOGD("ai channel[%d] exist, find next!", aiChn);
             aiChn++;
         }
         else
         {
-            alogd("create ai channel[%d] ret[0x%x], find next!", aiChn, ret);
+            LOGD("create ai channel[%d] ret[0x%x], find next!", aiChn, ret);
             aiChn++;
         }
     }
@@ -148,7 +148,7 @@ static ERRORTYPE ai2aenc_createAiChn(Ai2Aenc_t* aa, AiParams_t* aiParam)
     if (FALSE == bSuccessFlag)
     {
         aa->aiChn = MM_INVALID_CHN;
-        aloge("fatal error! create ai channel fail!");
+        LOGE("fatal error! create ai channel fail!");
         return FAILURE;
     }
     aa->aiChn = aiChn;
@@ -165,13 +165,13 @@ static void *ai2aenc_frameProc(void *pThreadData)
     AUDIO_STREAM_S stream;
     Ai2Aenc_t *aa = (Ai2Aenc_t *)pThreadData;
 
-    alogd("aenc thread: dev[%d] chn[%d] ae[%d]", aa->aiDev, aa->aiChn, aa->aeChn);
+    LOGD("aenc thread: dev[%d] chn[%d] ae[%d]", aa->aiDev, aa->aiChn, aa->aeChn);
 
     while (!aa->bExit)
     {
         if (SUCCESS == AW_MPI_AENC_GetStream(aa->aeChn, &stream, 100/*0*/))
         {
-            //alogd("get one stream with size: [%d]", stream.mLen);
+            //LOGD("get one stream with size: [%d]", stream.mLen);
             if( aa->cbOnFrame != NULL)
             {
                 aa->cbOnFrame(aa, stream.pStream, stream.mLen, stream.mTimeStamp, aa->contextOfOnFrame);
@@ -183,7 +183,7 @@ static void *ai2aenc_frameProc(void *pThreadData)
         }
     }
 
-    alogd("aenc thread exit");
+    LOGD("aenc thread exit");
 
     return NULL;
 }
@@ -223,7 +223,7 @@ void ai2aenc_deinitSys(Ai2Aenc_t* aa)
 
     free(aa);
 
-    alogd("done");
+    LOGD("done");
 }
 
 ERRORTYPE ai2aenc_prepare(Ai2Aenc_t* aa, AiParams_t* aiParams, AencParams_t* aeParams)
@@ -231,20 +231,20 @@ ERRORTYPE ai2aenc_prepare(Ai2Aenc_t* aa, AiParams_t* aiParams, AencParams_t* aeP
     ERRORTYPE ret = ai2aenc_createAiChn(aa, aiParams);
     if (ret < 0)
     {
-        aloge("create ai chn fail");
+        LOGE("create ai chn fail");
         return ret;
     }
 
     ret = ai2aenc_createAencChn(aa, aiParams, aeParams);
     if (ret < 0)
     {
-        aloge("create ae chn fail");
+        LOGE("create ae chn fail");
         return ret;
     }
 
     if (aa->aiChn >= 0)
     {
-        alogd("bind ai & aenc");
+        LOGD("bind ai & aenc");
         MPP_CHN_S AiChn = {MOD_ID_AI, aa->aiDev, aa->aiChn};
         MPP_CHN_S AencChn = {MOD_ID_AENC, 0, aa->aeChn};
         ret = AW_MPI_SYS_Bind(&AiChn, &AencChn);
@@ -257,13 +257,13 @@ ERRORTYPE ai2aenc_start(Ai2Aenc_t* aa)
 {
     ERRORTYPE ret = SUCCESS;
 
-    alogd("start");
+    LOGD("start");
 
     //start transe
     ret = AW_MPI_AI_EnableChn(aa->aiDev, aa->aiChn);
     if (ret != SUCCESS)
     {
-        aloge("AI enable error: %d", ret);
+        LOGE("AI enable error: %d", ret);
         return ret;
     }
 
@@ -271,13 +271,13 @@ ERRORTYPE ai2aenc_start(Ai2Aenc_t* aa)
     {
         ret = AW_MPI_AENC_StartRecvPcm(aa->aeChn);
         if( ret != SUCCESS ) {
-            aloge("start recv pic error: %d", ret);
+            LOGE("start recv pic error: %d", ret);
             return ret;
         }
 
         aa->bExit = false;
         pthread_create(&aa->threadId, NULL, ai2aenc_frameProc, aa);
-        alogd("aenc pthread: dev[%d] chn[%d] aeChn[%d]", aa->aiDev, aa->aiChn, aa->aeChn);
+        LOGD("aenc pthread: dev[%d] chn[%d] aeChn[%d]", aa->aiDev, aa->aiChn, aa->aeChn);
     }
 
     return ret;
@@ -285,7 +285,7 @@ ERRORTYPE ai2aenc_start(Ai2Aenc_t* aa)
 
 ERRORTYPE ai2aenc_stop(Ai2Aenc_t* aa, bool disableDev)
 {
-    alogd("stop");
+    LOGD("stop");
 
     aa->bExit = true;
     if( aa->threadId > 0 ) {
@@ -301,7 +301,7 @@ ERRORTYPE ai2aenc_stop(Ai2Aenc_t* aa, bool disableDev)
 
     if (aa->aeChn >= 0)
     {
-        alogd("stop aenc");
+        LOGD("stop aenc");
         AW_MPI_AENC_StopRecvPcm(aa->aeChn);
     }
 
@@ -324,7 +324,7 @@ ERRORTYPE ai2aenc_stop(Ai2Aenc_t* aa, bool disableDev)
         aa->aeChn = MM_INVALID_CHN;
     }
 
-    alogd("done");
+    LOGD("done");
 
     return SUCCESS;
 }

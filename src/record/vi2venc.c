@@ -13,7 +13,7 @@
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "vi2enc"
-#include <plat_log.h>
+#include <log/log.h>
 #include <endian.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -81,7 +81,7 @@ static void* vi2venc_frameProc(void *arg)
     VencFrame.mPackCount = 1;
     VencFrame.mpPack = &venc_pack;
 
-    alogd("venc thread: dev[%d] chn[%d] ve[%d]", vipp_dev, virvi_chn, ve_chn);
+    LOGD("venc thread: dev[%d] chn[%d] ve[%d]", vipp_dev, virvi_chn, ve_chn);
 
     uint8_t* frameData = malloc(2*1024*1024);
     int frameLen = 0;
@@ -103,7 +103,7 @@ static void* vi2venc_frameProc(void *arg)
     while( !vv->bExit ) {
         count++;
         if((ret = AW_MPI_VENC_GetStream(ve_chn,&VencFrame,4000)) < 0) { //6000(25fps) 4000(30fps)
-            aloge("get frame failed!");
+            LOGE("get frame failed!");
             //continue;
             break;
         } else {
@@ -117,7 +117,7 @@ static void* vi2venc_frameProc(void *arg)
             }
             ret = AW_MPI_VENC_ReleaseStream(ve_chn,&VencFrame);
             if(ret < 0) {
-                alogw("release failed!");
+                LOGW("release failed!");
             }
 
             if( frameLen > 0 ) {
@@ -125,7 +125,7 @@ static void* vi2venc_frameProc(void *arg)
                     frameType = vi2venc_frameType(vv, VencFrame.mpPack);
                     //vv->cbOnFrame(vv, frameData, frameLen, frameType, count*30*90, vv->contextOfOnFrame);
                     vv->cbOnFrame(vv, frameData, frameLen, frameType, venc_pack.mPTS, vv->contextOfOnFrame);
-                    //alogd("%llu", venc_pack.mPTS);
+                    //LOGD("%llu", venc_pack.mPTS);
                 }
                 frameLen = 0;
             }
@@ -133,14 +133,14 @@ static void* vi2venc_frameProc(void *arg)
     }
 
     free(frameData);
-    alogd("venc thread exit");
+    LOGD("venc thread exit");
 
     return NULL;
 }
 
 ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
 {
-    alogd("MPPCallbackWrapper: %d\n", event);
+    LOGD("MPPCallbackWrapper: %d\n", event);
 
     if(MOD_ID_VENC == pChn->mModId)
     {
@@ -171,13 +171,13 @@ ERRORTYPE vi2venc_initSys0(void)
     AW_MPI_SYS_SetConf(&mSysConf);
     ret = AW_MPI_SYS_Init();
 
-    aloge("sys init: ret=%x", ret);
+    LOGE("sys init: ret=%x", ret);
 
 #if(0)
     if( ret == SUCCESS ) {
         //AW_MPI_VI_SetVIFreq(0,480000000);
         ret = AW_MPI_VENC_SetVEFreq(MM_INVALID_CHN, 632);
-        alogd("set vefreq %dMHz, ret=%d", 632, ret);
+        LOGD("set vefreq %dMHz, ret=%d", 632, ret);
     }
 #endif
 
@@ -189,7 +189,7 @@ Vi2Venc_t* vi2venc_initSys(CB_onFrame onFrame, void* context)
     Vi2Venc_t* vv = (Vi2Venc_t*)malloc( sizeof(Vi2Venc_t) );
 
     if( vv == NULL ) {
-        aloge("sys init: out of memory");
+        LOGE("sys init: out of memory");
         return NULL;
     }
 
@@ -218,7 +218,7 @@ Vi2Venc_t* vi2venc_initSys(CB_onFrame onFrame, void* context)
 
 void vi2venc_deinitSys(Vi2Venc_t* vv)
 {
-    alogd("begin");
+    LOGD("begin");
 
     /* exit mpp systerm */
     AW_MPI_SYS_Exit();
@@ -229,7 +229,7 @@ void vi2venc_deinitSys(Vi2Venc_t* vv)
 
     free(vv);
 
-    alogd("done");
+    LOGD("done");
 }
 
 ERRORTYPE vi2venc_getSpsPpsInfo(Vi2Venc_t* vv, VencSpspps_t* spsppsInfo, bool patch)
@@ -244,7 +244,7 @@ ERRORTYPE vi2venc_getSpsPpsInfo(Vi2Venc_t* vv, VencSpspps_t* spsppsInfo, bool pa
     if(PT_H264 == codecType) {
         ret = AW_MPI_VENC_GetH264SpsPpsInfo(mVeChn, &veHeader);
         if( ret == SUCCESS ) {
-            //alogd("h264sps: %d, %p", veHeader.nLength, veHeader.pBuffer);
+            //LOGD("h264sps: %d, %p", veHeader.nLength, veHeader.pBuffer);
 #if(VENC_spsppsPATCH)
             if ( patch ) {
                 nLength = max(veHeader.nLength*2, VENC_spsppsLEN);
@@ -416,7 +416,7 @@ static ERRORTYPE vi2venc_configVencChnAttr(ViParams_t* viParams, VencParams_t* v
         veChnAttr->RcAttr.mAttrMjpegeCbr.mBitRate = veParams->bps;
     }
 
-    alogd("venc ste Rcmode=%d", veChnAttr->RcAttr.mRcMode);
+    LOGD("venc ste Rcmode=%d", veChnAttr->RcAttr.mRcMode);
 
     return SUCCESS;
 }
@@ -436,17 +436,17 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
         if (SUCCESS == ret)
         {
             nSuccessFlag = TRUE;
-            alogd("create venc channel[%d] success!", mVeChn);
+            LOGD("create venc channel[%d] success!", mVeChn);
             break;
         }
         else if (ERR_VENC_EXIST == ret)
         {
-            alogd("venc channel[%d] is exist, find next!", mVeChn);
+            LOGD("venc channel[%d] is exist, find next!", mVeChn);
             mVeChn++;
         }
         else
         {
-            alogd("create venc channel[%d] ret[0x%x], find next!", mVeChn, ret);
+            LOGD("create venc channel[%d] ret[0x%x], find next!", mVeChn, ret);
             mVeChn++;
         }
     }
@@ -454,7 +454,7 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
     if (nSuccessFlag == FALSE)
     {
         mVeChn = MM_INVALID_CHN;
-        aloge("fatal error! create venc channel fail!");
+        LOGE("fatal error! create venc channel fail!");
         return FAILURE;
     }
     else
@@ -463,7 +463,7 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
         stFrameRate.SrcFrmRate = viParams->fps;
         stFrameRate.DstFrmRate = veParams->fps;
 
-        alogd("set venc framerate:%d", stFrameRate.DstFrmRate);
+        LOGD("set venc framerate:%d", stFrameRate.DstFrmRate);
         AW_MPI_VENC_SetFrameRate(mVeChn, &stFrameRate);
 
 #if( !VENC_spsppsPATCH )
@@ -478,18 +478,18 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
 
                 ret = AW_MPI_VENC_SetH265Timing(mVeChn, &timing);
                 if( ret == SUCCESS ) {
-                    alogd("h265 timing");
-                    alogd("timing_info_present_flag=%d", timing.timing_info_present_flag);
-                    alogd("num_units_in_tick=%d", timing.num_units_in_tick);
-                    alogd("time_scale=%d", timing.time_scale);
-                    alogd("num_ticks_poc_diff_one=%d", timing.num_ticks_poc_diff_one);
+                    LOGD("h265 timing");
+                    LOGD("timing_info_present_flag=%d", timing.timing_info_present_flag);
+                    LOGD("num_units_in_tick=%d", timing.num_units_in_tick);
+                    LOGD("time_scale=%d", timing.time_scale);
+                    LOGD("num_ticks_poc_diff_one=%d", timing.num_ticks_poc_diff_one);
                 }
             }
             else if ( ret == ERR_VENC_NOT_SUPPORT ) {
-                aloge("require h265 timing not support", ret);
+                LOGE("require h265 timing not support", ret);
             }
             else {
-                aloge("require h265 timing failed %x", ret);
+                LOGE("require h265 timing failed %x", ret);
             }
         }
         else if (PT_H264 == mVencChnAttr.VeAttr.Type) {
@@ -508,18 +508,18 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
                 vui.VuiTimeInfo = timing;
                 ret = AW_MPI_VENC_SetH264Vui(mVeChn, &vui);
                 if( ret == SUCCESS ) {
-                    alogd("h264 timing");
-                    alogd("timing_info_present_flag=%d", timing.timing_info_present_flag);
-                    alogd("num_units_in_tick=%d", timing.num_units_in_tick);
-                    alogd("time_scale=%d", timing.time_scale);
-                    alogd("fixed_frame_rate_flag=%d", timing.fixed_frame_rate_flag);
+                    LOGD("h264 timing");
+                    LOGD("timing_info_present_flag=%d", timing.timing_info_present_flag);
+                    LOGD("num_units_in_tick=%d", timing.num_units_in_tick);
+                    LOGD("time_scale=%d", timing.time_scale);
+                    LOGD("fixed_frame_rate_flag=%d", timing.fixed_frame_rate_flag);
                 }
             }
             else if ( ret == ERR_VENC_NOT_SUPPORT ) {
-                aloge("require h264 timing not support", ret);
+                LOGE("require h264 timing not support", ret);
             }
             else {
-                aloge("require h264 timing failed %x", ret);
+                LOGE("require h264 timing failed %x", ret);
             }
         }
 #endif
@@ -533,7 +533,7 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
             && ((VENC_RC_MODE_H264QPMAP == mVencChnAttr.RcAttr.mRcMode) || (VENC_RC_MODE_H265QPMAP == mVencChnAttr.RcAttr.mRcMode))
            )
         {
-            aloge("fatal error! not support qpmap currently!");
+            LOGE("fatal error! not support qpmap currently!");
             /*
             unsigned int width, heigth;
             int num;
@@ -547,7 +547,7 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
             QpMap.p_info = (VENC_QPMAP_BLOCK_QP_INFO *)malloc(sizeof(VENC_QPMAP_BLOCK_QP_INFO) * num);
             if (QpMap.p_info == NULL)
             {
-                aloge("QPmap buffer malloc fail!!");
+                LOGE("QPmap buffer malloc fail!!");
             }
             else
             {
@@ -565,7 +565,7 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
                     QpMap.p_info[i].mb_qp = 42;
                 }
 
-                alogd("set QPMAP");
+                LOGD("set QPMAP");
                 AW_MPI_VENC_SetH264QPMAP(mVeChn, (const VENC_PARAM_H264_QPMAP_S *)&QpMap);
                 free(QpMap.p_info);
             }
@@ -596,7 +596,7 @@ static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv, ViParams_t* viParams)
     ret = AW_MPI_VI_CreateVipp(mViDev);
     if (ret != SUCCESS)
     {
-        aloge("fatal error! AW_MPI_VI CreateVipp failed");
+        LOGE("fatal error! AW_MPI_VI CreateVipp failed");
     }
 
     memset(&mViAttr, 0, sizeof(VI_ATTR_S));
@@ -609,27 +609,27 @@ static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv, ViParams_t* viParams)
     mViAttr.format.width = viParams->width;
     mViAttr.format.height = viParams->height;
     mViAttr.nbufs = 7; //5
-    aloge("use %d v4l2 buffers!!!", mViAttr.nbufs);
+    LOGE("use %d v4l2 buffers!!!", mViAttr.nbufs);
     mViAttr.nplanes = 2;
     mViAttr.fps = viParams->fps;
 
     ret = AW_MPI_VI_SetVippAttr(mViDev, &mViAttr);
     if (ret != SUCCESS)
     {
-        aloge("fatal error! AW_MPI_VI SetVippAttr failed");
+        LOGE("fatal error! AW_MPI_VI SetVippAttr failed");
     }
 
     ret = AW_MPI_VI_EnableVipp(mViDev);
     if (ret != SUCCESS)
     {
-        aloge("fatal error! enableVipp fail!");
+        LOGE("fatal error! enableVipp fail!");
     }
     AW_MPI_ISP_Run(mIspDev);
 
     ret = AW_MPI_VI_CreateVirChn(mViDev, mViChn, NULL);
     if (ret != SUCCESS)
     {
-        aloge("fatal error! createVirChn[%d] fail!", mViChn);
+        LOGE("fatal error! createVirChn[%d] fail!", mViChn);
     }
 
 #if(0)
@@ -637,7 +637,7 @@ static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv, ViParams_t* viParams)
     ret = AW_MPI_VI_CreateVirChn(mViDev, viChnForSnap, NULL);
     if (ret != SUCCESS)
     {
-        aloge("fatal error! createVirChn[%d] fail!", viChnForSnap);
+        LOGE("fatal error! createVirChn[%d] fail!", viChnForSnap);
     }
 #endif
 
@@ -655,7 +655,7 @@ static ERRORTYPE vi2venc_configRoi(Vi2Venc_t* vv, VencParams_t* veParams)
 #if(0)
     if (veParams->enableRoi)
     {
-alogd("------------------ROI begin-----------------------");
+LOGD("------------------ROI begin-----------------------");
         VENC_ROI_CFG_S VencRoiCfg;
 
         VencRoiCfg.bEnable = TRUE;
@@ -691,7 +691,7 @@ alogd("------------------ROI begin-----------------------");
 //        VencRoiCfg.Rect.Height = 160;
 //        AW_MPI_VENC_SetRoiCfg(vv->veChn, &VencRoiCfg);
 
-        alogd("------------------ROI end-----------------------");
+        LOGD("------------------ROI end-----------------------");
     }
 #endif
 
@@ -705,14 +705,14 @@ ERRORTYPE vi2venc_prepare(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* veP
     ret = vi2venc_createViChn(vv, viParams);
     if (ret != SUCCESS)
     {
-        aloge("create vi chn fail");
+        LOGE("create vi chn fail");
         return ret;
     }
 
     ret = vi2venc_createVencChn(vv, viParams, veParams);
     if (ret != SUCCESS)
     {
-        aloge("create venc chn fail");
+        LOGE("create venc chn fail");
         return ret;
     }
 
@@ -734,12 +734,12 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
 {
     ERRORTYPE ret = SUCCESS;
 
-    alogd("start");
+    LOGD("start");
 
     ret = AW_MPI_VI_EnableVirChn(vv->viDev, vv->viChn);
     if (ret != SUCCESS)
     {
-        aloge("VI enable error: %d", ret);
+        LOGE("VI enable error: %d", ret);
         return FAILURE;
     }
 
@@ -747,7 +747,7 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
     ret = AW_MPI_VI_EnableVirChn(vv->viDev, vv->viChnForSnap);
     if (ret != SUCCESS)
     {
-        aloge("VI enable snap error: %d", ret);
+        LOGE("VI enable snap error: %d", ret);
         return FAILURE;
     }
 #endif
@@ -756,13 +756,13 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
     {
         ret = AW_MPI_VENC_StartRecvPic(vv->veChn);
         if( ret != SUCCESS ) {
-            aloge("start recv pic error: %d", ret);
+            LOGE("start recv pic error: %d", ret);
             return FAILURE;
         }
 
         vv->bExit = false;
         ret = pthread_create(&vv->threadId, NULL, vi2venc_frameProc, (void *)vv);
-        alogd("venc pthread: dev[%d] chn[%d] veChn[%d]", vv->viDev, vv->viChn, vv->veChn);
+        LOGD("venc pthread: dev[%d] chn[%d] veChn[%d]", vv->viDev, vv->viChn, vv->veChn);
     }
 
     return ret;
@@ -770,7 +770,7 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
 
 ERRORTYPE vi2venc_stop(Vi2Venc_t* vv)
 {
-    alogd("stop");
+    LOGD("stop");
 
     vv->bExit = true;
     if( vv->threadId > 0 ) {
@@ -792,7 +792,7 @@ ERRORTYPE vi2venc_stop(Vi2Venc_t* vv)
 
     if (vv->veChn >= 0)
     {
-        alogd("stop venc");
+        LOGD("stop venc");
         AW_MPI_VENC_StopRecvPic(vv->veChn);
     }
 
@@ -809,7 +809,7 @@ ERRORTYPE vi2venc_stop(Vi2Venc_t* vv)
 
     if (vv->veChn >= 0)
     {
-        alogd("destory venc");
+        LOGD("destory venc");
         AW_MPI_VENC_ResetChn(vv->veChn);
         AW_MPI_VENC_DestroyChn(vv->veChn);
         vv->veChn = MM_INVALID_CHN;
@@ -825,19 +825,19 @@ static int vi2venc_startVirvi(VI_DEV ViDev, VI_CHN ViCh, void *pAttr)
     ret = AW_MPI_VI_CreateVirChn(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
-        aloge("Create VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Create VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_SetVirChnAttr(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
-        aloge("Set VI ChnAttr failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Set VI ChnAttr failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_EnableVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("VI Enable VirChn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("VI Enable VirChn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
 
@@ -850,13 +850,13 @@ static int vi2venc_stopVirvi(VI_DEV ViDev, VI_CHN ViCh)
     ret = AW_MPI_VI_DisableVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("Disable VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Disable VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_DestoryVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("Destory VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Destory VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     return 0;
@@ -867,14 +867,14 @@ ERRORTYPE vi2venc_requireRawFrame(Vi2Venc_t* vv, VIDEO_FRAME_INFO_S* frameBuffer
     VI_CHN viChnForSnap = vv->viChn + 1;
     ERRORTYPE ret = vi2venc_startVirvi(vv->viDev, viChnForSnap, NULL);
     if( ret != SUCCESS ) {
-        aloge("start vi chn[%d] failed: %x", viChnForSnap, ret);
+        LOGE("start vi chn[%d] failed: %x", viChnForSnap, ret);
         return ret;
     }
     vv->viChnForSnap = viChnForSnap;
 
     ret = AW_MPI_VI_GetFrame(vv->viDev, vv->viChnForSnap, frameBuffer, 500);
     if( ret == ERR_VI_NOT_PERM ) {
-        aloge("not permitted");
+        LOGE("not permitted");
     }
 
     return ret;
@@ -908,7 +908,7 @@ ERRORTYPE vi2venc_setVencRateControlAttr(Vi2Venc_t* vv, VencRateControlAttr_t* R
                 || mVEncRcAttr->mAttrH264Cbr.mMaxQp != RcAttr->mAttrH264Cbr.mMaxQp
                 || mVEncRcAttr->mAttrH264Cbr.mMinQp != RcAttr->mAttrH264Cbr.mMinQp)
             {
-                alogd("need update h264 cbr bitRate[%d]->[%d], maxQp[%d]->[%d], minQp[%d]->[%d]",
+                LOGD("need update h264 cbr bitRate[%d]->[%d], maxQp[%d]->[%d], minQp[%d]->[%d]",
                     mVEncRcAttr->mAttrH264Cbr.mBitRate, RcAttr->mAttrH264Cbr.mBitRate,
                     mVEncRcAttr->mAttrH264Cbr.mMaxQp, RcAttr->mAttrH264Cbr.mMaxQp,
                     mVEncRcAttr->mAttrH264Cbr.mMinQp, RcAttr->mAttrH264Cbr.mMinQp);
@@ -919,7 +919,7 @@ ERRORTYPE vi2venc_setVencRateControlAttr(Vi2Venc_t* vv, VencRateControlAttr_t* R
                 ret = AW_MPI_VENC_GetChnAttr(mVeChn, &attr);
                 if(attr.RcAttr.mRcMode!=VENC_RC_MODE_H264CBR)
                 {
-                    aloge("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
+                    LOGE("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
                 }
                 attr.RcAttr.mAttrH264Cbr.mBitRate = RcAttr->mAttrH264Cbr.mBitRate;
                 attr.RcAttr.mAttrH264Cbr.mMaxQp = RcAttr->mAttrH264Cbr.mMaxQp;
@@ -931,13 +931,13 @@ ERRORTYPE vi2venc_setVencRateControlAttr(Vi2Venc_t* vv, VencRateControlAttr_t* R
         {
             if(mVEncRcAttr->mAttrH265Cbr.mBitRate != RcAttr->mAttrH265Cbr.mBitRate)
             {
-                alogd("need update h265 cbr bitRate[%d]->[%d]", mVEncRcAttr->mAttrH265Cbr.mBitRate, RcAttr->mAttrH265Cbr.mBitRate);
+                LOGD("need update h265 cbr bitRate[%d]->[%d]", mVEncRcAttr->mAttrH265Cbr.mBitRate, RcAttr->mAttrH265Cbr.mBitRate);
                 mVEncRcAttr->mAttrH265Cbr.mBitRate = RcAttr->mAttrH265Cbr.mBitRate;
                 VENC_CHN_ATTR_S attr;
                 AW_MPI_VENC_GetChnAttr(mVeChn, &attr);
                 if(attr.RcAttr.mRcMode!=VENC_RC_MODE_H265CBR)
                 {
-                    aloge("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
+                    LOGE("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
                 }
                 attr.RcAttr.mAttrH265Cbr.mBitRate = RcAttr->mAttrH265Cbr.mBitRate;
                 ret = AW_MPI_VENC_SetChnAttr(mVeChn, &attr);
@@ -947,13 +947,13 @@ ERRORTYPE vi2venc_setVencRateControlAttr(Vi2Venc_t* vv, VencRateControlAttr_t* R
         {
             if(mVEncRcAttr->mAttrMjpegCbr.mBitRate != RcAttr->mAttrMjpegCbr.mBitRate)
             {
-                alogd("need update mjpeg cbr bitRate[%d]->[%d]", mVEncRcAttr->mAttrMjpegCbr.mBitRate, RcAttr->mAttrMjpegCbr.mBitRate);
+                LOGD("need update mjpeg cbr bitRate[%d]->[%d]", mVEncRcAttr->mAttrMjpegCbr.mBitRate, RcAttr->mAttrMjpegCbr.mBitRate);
                 mVEncRcAttr->mAttrMjpegCbr.mBitRate = RcAttr->mAttrMjpegCbr.mBitRate;
                 VENC_CHN_ATTR_S attr;
                 AW_MPI_VENC_GetChnAttr(mVeChn, &attr);
                 if(attr.RcAttr.mRcMode!=VENC_RC_MODE_MJPEGCBR)
                 {
-                    aloge("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
+                    LOGE("fatal error! check mpp_rcMode[0x%x]", attr.RcAttr.mRcMode);
                 }
                 attr.RcAttr.mAttrMjpegeCbr.mBitRate = RcAttr->mAttrMjpegCbr.mBitRate;
                 ret = AW_MPI_VENC_SetChnAttr(mVeChn, &attr);
@@ -961,7 +961,7 @@ ERRORTYPE vi2venc_setVencRateControlAttr(Vi2Venc_t* vv, VencRateControlAttr_t* R
         }
         else
         {
-            aloge("fatal error! unsupport vencType[0x%x]", RcAttr->mVEncType);
+            LOGE("fatal error! unsupport vencType[0x%x]", RcAttr->mVEncType);
         }
     }
 
@@ -999,7 +999,7 @@ ERRORTYPE vi2venc_requestIFrame(Vi2Venc_t* vv)
     if(mVeChn >= 0)
     {
         ret = AW_MPI_VENC_RequestIDR(mVeChn, TRUE);
-        alogd("done");
+        LOGD("done");
     }
 
     return ret;
@@ -1016,7 +1016,7 @@ ERRORTYPE vi2venc_setVideoEncodingIntraRefresh(Vi2Venc_t* vv, VENC_PARAM_INTRA_R
     }
     else
     {
-        aloge("fatal error! encoder[0x%x] don't support IntraRefresh!", vv->veParams.codecType);
+        LOGE("fatal error! encoder[0x%x] don't support IntraRefresh!", vv->veParams.codecType);
     }
 
     return ret;
@@ -1033,7 +1033,7 @@ ERRORTYPE vi2venc_setVideoEncodingSmartP(Vi2Venc_t* vv, VencSmartFun *pParam)
     }
     else
     {
-        aloge("fatal error! encoder[0x%x] don't support smartP!", vv->veParams.codecType);
+        LOGE("fatal error! encoder[0x%x] don't support smartP!", vv->veParams.codecType);
     }
 
     return ret;
@@ -1183,7 +1183,7 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
         mVEncChnAttr.VeAttr.AttrH264e.FastEncFlag = vv->veParams.fastEnc;
        // mVEncChnAttr.VeAttr.AttrH264e.mVirtualIFrameInterval = vv->veParams.mVirtualIFrameInterval;
         mVEncChnAttr.VeAttr.AttrH264e.mbPIntraEnable = TRUE;//vv->veParams.enablePIntra;
-        alogd("config venc bufSize[%d], threshSize[%d]", mVEncChnAttr.VeAttr.AttrH264e.BufSize, mVEncChnAttr.VeAttr.AttrH264e.mThreshSize);
+        LOGD("config venc bufSize[%d], threshSize[%d]", mVEncChnAttr.VeAttr.AttrH264e.BufSize, mVEncChnAttr.VeAttr.AttrH264e.mThreshSize);
     }
     else if(PT_H265 == mVEncChnAttr.VeAttr.Type)
     {
@@ -1221,7 +1221,7 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
     }
     else
     {
-        aloge("fatal error! unsupported temporary");
+        LOGE("fatal error! unsupported temporary");
     }
     if(PT_H264 == mVEncChnAttr.VeAttr.Type)
     {
@@ -1243,7 +1243,7 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_H264QPMAP;
                 break;
             default:
-                aloge("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
+                LOGE("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_H264CBR;
                 break;
         }
@@ -1278,11 +1278,11 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
         }
         else if(VENC_RC_MODE_H264QPMAP == mVEncChnAttr.RcAttr.mRcMode)
         {
-            aloge("QPMap not support now!");
+            LOGE("QPMap not support now!");
         }
         else
         {
-            aloge("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
+            LOGE("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
         }
     }
     else if(PT_H265 == mVEncChnAttr.VeAttr.Type)
@@ -1305,7 +1305,7 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_H265QPMAP;
                 break;
             default:
-                aloge("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
+                LOGE("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_H265CBR;
                 break;
         }
@@ -1340,11 +1340,11 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
         }
         else if(VENC_RC_MODE_H265QPMAP == mVEncChnAttr.RcAttr.mRcMode)
         {
-            aloge("QPMap not support now!");
+            LOGE("QPMap not support now!");
         }
         else
         {
-            aloge("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
+            LOGE("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
         }
     }
     else if(PT_MJPEG == mVEncChnAttr.VeAttr.Type)
@@ -1358,7 +1358,7 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_MJPEGFIXQP;
                 break;
             default:
-                aloge("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
+                LOGE("fatal error! unknown rcMode[%d]", vv->veParams.rcMode);
                 mVEncChnAttr.RcAttr.mRcMode = VENC_RC_MODE_MJPEGCBR;
                 break;
         }
@@ -1372,12 +1372,12 @@ ERRORTYPE vi2venc_config_VENC_CHN_ATTR_S(Vi2Venc_t* vv, VENC_CHN_ATTR_S* veChnAt
         }
         else
         {
-            aloge("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
+            LOGE("fatal error! unknown rcMode[%d]", mVEncChnAttr.RcAttr.mRcMode);
         }
     }
     else
     {
-        aloge("fatal error! unsupported temporary");
+        LOGE("fatal error! unsupported temporary");
     }
 
     return SUCCESS;
@@ -1400,24 +1400,24 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
         if(SUCCESS == ret)
         {
             nSuccessFlag = true;
-            alogd("create venc channel[%d] success!", mVeChn);
+            LOGD("create venc channel[%d] success!", mVeChn);
             break;
         }
         else if(ERR_VENC_EXIST == ret)
         {
-            alogv("venc channel[%d] is exist, find next!", mVeChn);
+            LOGD("venc channel[%d] is exist, find next!", mVeChn);
             mVeChn++;
         }
         else
         {
-            alogd("create venc channel[%d] ret[0x%x], find next!", mVeChn, ret);
+            LOGD("create venc channel[%d] ret[0x%x], find next!", mVeChn, ret);
             mVeChn++;
         }
     }
     if(false == nSuccessFlag)
     {
         mVeChn = MM_INVALID_CHN;
-        aloge("fatal error! create venc channel fail!");
+        LOGE("fatal error! create venc channel fail!");
         goto _err0;
     }
 
@@ -1454,7 +1454,7 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
             smartParam.img_bin_en = 1;
             smartParam.img_bin_th = 0;
             smartParam.shift_bits = 2;
-            alogd("setSmartP shift_bits=[%d]", smartParam.shift_bits);
+            LOGD("setSmartP shift_bits=[%d]", smartParam.shift_bits);
         }
         AW_MPI_VENC_SetSmartP(mVeChn, &smartParam);
     }
@@ -1540,7 +1540,7 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
             if (SUCCESS == ret)
             {
                 nSuccessFlag = TRUE;
-                alogd("create ai channel[%d] success!", mAiChn);
+                LOGD("create ai channel[%d] success!", mAiChn);
                 break;
             }
             else if (ERR_AI_EXIST == ret)
@@ -1550,19 +1550,19 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
             }
             else if (ERR_AI_NOT_ENABLED == ret)
             {
-                aloge("audio_hw_ai not started!");
+                LOGE("audio_hw_ai not started!");
                 break;
             }
             else
             {
-                aloge("create ai channel[%d] fail! ret[0x%x]!", mAiChn, ret);
+                LOGE("create ai channel[%d] fail! ret[0x%x]!", mAiChn, ret);
                 break;
             }
         }
         if(FALSE == nSuccessFlag)
         {
             mAiChn = MM_INVALID_CHN;
-            aloge("fatal error! create ai channel fail!");
+            LOGE("fatal error! create ai channel fail!");
             result = UNKNOWN_ERROR;
             goto _err0;
         }
@@ -1582,7 +1582,7 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
             if(SUCCESS == ret)
             {
                 nSuccessFlag = TRUE;
-                alogd("create aenc channel[%d] success!", mAeChn);
+                LOGD("create aenc channel[%d] success!", mAeChn);
                 break;
             }
             else if(ERR_AENC_EXIST == ret)
@@ -1592,14 +1592,14 @@ ERRORTYPE vi2venc_prepare2(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* ve
             }
             else
             {
-                alogd("create aenc channel[%d] ret[0x%x], find next!", mAeChn, ret);
+                LOGD("create aenc channel[%d] ret[0x%x], find next!", mAeChn, ret);
                 mAeChn++;
             }
         }
         if(FALSE == nSuccessFlag)
         {
             mAeChn = MM_INVALID_CHN;
-            aloge("fatal error! create aenc channel fail!");
+            LOGE("fatal error! create aenc channel fail!");
             result = UNKNOWN_ERROR;
             goto _err0;
         }
@@ -1622,7 +1622,7 @@ ERRORTYPE vi2venc_start2(Vi2Venc_t* vv)
         ret = AW_MPI_VENC_StartRecvPic(mVeChn);
         if(SUCCESS != ret)
         {
-            aloge("fatal error:%x rec AW_MPI_VENC_StartRecvPic",ret);
+            LOGE("fatal error:%x rec AW_MPI_VENC_StartRecvPic",ret);
         }
     }
 

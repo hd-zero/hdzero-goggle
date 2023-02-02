@@ -13,7 +13,7 @@
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ai2ao"
-#include <plat_log.h>
+#include <log/log.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +58,7 @@ static ERRORTYPE MPPCallbackAoDataListener(void *cookie, MPP_CHN_S *pChn, MPP_EV
 
             ret = AW_MPI_AI_ReleaseFrame(aa->aiDev, aa->aiChn, &pNode->frame, NULL);
             if (SUCCESS != ret) {
-                aloge("release frame to ai fail! ret: %#x", ret);
+                LOGE("release frame to ai fail! ret: %#x", ret);
             } else {
                 pthread_mutex_lock(&aa->pcmlock);
                 list_move_tail(&pNode->mList, &aa->pcmIdleList);
@@ -92,23 +92,23 @@ static ERRORTYPE ai2ao_createAioChn(Ai2Ao_t* aa, AiParams_t* aiParam)
         ret = AW_MPI_AI_CreateChn(aa->aiDev, aiChn);
         if(SUCCESS == ret) {
             bSuccessFlag = TRUE;
-            alogd("create ai channel[%d] success!", aiChn);
+            LOGD("create ai channel[%d] success!", aiChn);
             break;
         } else if (ERR_AI_EXIST == ret) {
-            alogd("ai channel[%d] exist, find next!", aiChn);
+            LOGD("ai channel[%d] exist, find next!", aiChn);
             aiChn++;
         } else if(ERR_AI_NOT_ENABLED == ret) {
-            aloge("audio_hw_ai not started!");
+            LOGE("audio_hw_ai not started!");
             break;
         } else {
-            aloge("create ai channel[%d] fail! ret[0x%x]!", aiChn, ret);
+            LOGE("create ai channel[%d] fail! ret[0x%x]!", aiChn, ret);
             break;
         }
     }
     if (FALSE == bSuccessFlag)
     {
         aa->aiChn = MM_INVALID_CHN;
-        aloge("fatal error! create ai channel fail!");
+        LOGE("fatal error! create ai channel fail!");
         return FAILURE;
     }
     aa->aiChn = aiChn;
@@ -120,23 +120,23 @@ static ERRORTYPE ai2ao_createAioChn(Ai2Ao_t* aa, AiParams_t* aiParam)
         ret = AW_MPI_AO_EnableChn(aa->aoDev, aoChn);
         if(SUCCESS == ret) {
             bSuccessFlag = TRUE;
-            alogd("create ao channel[%d] success!", aoChn);
+            LOGD("create ao channel[%d] success!", aoChn);
             break;
         } else if (ERR_AO_EXIST == ret) {
-            alogd("ao channel[%d] exist, find next!", aoChn);
+            LOGD("ao channel[%d] exist, find next!", aoChn);
             aoChn++;
         } else if(ERR_AO_NOT_ENABLED == ret) {
-            aloge("audio_hw_ao not started!");
+            LOGE("audio_hw_ao not started!");
             break;
         } else {
-            aloge("create ao channel[%d] fail! ret[0x%x]!", aoChn, ret);
+            LOGE("create ao channel[%d] fail! ret[0x%x]!", aoChn, ret);
             break;
         }
     }
     if (FALSE == bSuccessFlag)
     {
         aa->aoChn = MM_INVALID_CHN;
-        aloge("fatal error! create ao channel fail!");
+        LOGE("fatal error! create ao channel fail!");
         return FAILURE;
     }
     aa->aoChn = aoChn;
@@ -150,19 +150,19 @@ static ERRORTYPE ai2ao_createAioChn(Ai2Ao_t* aa, AiParams_t* aiParam)
         ret = AW_MPI_CLOCK_CreateChn(clkChn, &aa->clkChnAttr);
         if(SUCCESS == ret) {
             bSuccessFlag = TRUE;
-            alogd("create clock channel[%d] success!", clkChn);
+            LOGD("create clock channel[%d] success!", clkChn);
             break;
         } else if(ERR_CLOCK_EXIST == ret) {
-            alogd("clock channel[%d] is exist, find next!", clkChn);
+            LOGD("clock channel[%d] is exist, find next!", clkChn);
             clkChn++;
         } else {
-            alogd("create clock channel[%d] ret[0x%x]!", clkChn, ret);
+            LOGD("create clock channel[%d] ret[0x%x]!", clkChn, ret);
             break;
         }
     }
     if(FALSE == bSuccessFlag) {
         aa->clkChn = MM_INVALID_CHN;
-        aloge("fatal error! create clock channel fail!");
+        LOGE("fatal error! create clock channel fail!");
         return FAILURE;
     }
     aa->clkChn = clkChn;
@@ -197,7 +197,7 @@ Ai2Ao_t* ai2ao_initSys(void)
     int i = 0;
     for (; i<audioFrameNum; i++) {
         pcmFrameNode *pPcmNode = malloc(sizeof(pcmFrameNode));
-        //alogd("malloc new pcmNode >>> addr:%p", pPcmNode);
+        //LOGD("malloc new pcmNode >>> addr:%p", pPcmNode);
         list_add_tail(&pPcmNode->mList, &aa->pcmIdleList);
     }
 
@@ -211,12 +211,12 @@ void ai2ao_deinitSys(Ai2Ao_t* aa)
     pcmFrameNode *pEntry, *pTmp;
     pthread_mutex_lock(&aa->pcmlock);
     list_for_each_entry_safe(pEntry, pTmp, &aa->pcmIdleList, mList) {
-        //alogd("delete PcmNode(%p) in IdleList!", pEntry);
+        //LOGD("delete PcmNode(%p) in IdleList!", pEntry);
         list_del(&pEntry->mList);
         free(pEntry);
     }
     list_for_each_entry_safe(pEntry, pTmp, &aa->pcmUsingList, mList) {
-        //alogd("delete PcmNode(%p) in UsingList!", pEntry);
+        //LOGD("delete PcmNode(%p) in UsingList!", pEntry);
         list_del(&pEntry->mList);
         free(pEntry);
     }
@@ -225,7 +225,7 @@ void ai2ao_deinitSys(Ai2Ao_t* aa)
 
     free(aa);
 
-    alogd("done");
+    LOGD("done");
 }
 
 static void *ai2ao_frameProc(void *pThreadData)
@@ -234,14 +234,14 @@ static void *ai2ao_frameProc(void *pThreadData)
     Ai2Ao_t *aa = (Ai2Ao_t *)pThreadData;
     int ret = 0;
 
-    alogd("aio thread: dev[%d] chn[%d]", aa->aoDev, aa->aoChn);
+    LOGD("aio thread: dev[%d] chn[%d]", aa->aoDev, aa->aoChn);
 
     while (!aa->bExit)
     {
         pthread_mutex_lock(&aa->pcmlock);
 
         if (list_empty(&aa->pcmIdleList)) {
-            aloge("why no pcm node?");
+            LOGE("why no pcm node?");
         } else {
             pPcmNode = list_first_entry(&aa->pcmIdleList, pcmFrameNode, mList);
             list_move_tail(&pPcmNode->mList, &aa->pcmUsingList);
@@ -252,12 +252,12 @@ static void *ai2ao_frameProc(void *pThreadData)
         if (SUCCESS == ret) {
             AW_MPI_AO_SendFrame(aa->aoDev, aa->aoChn, &pPcmNode->frame, 0);
         } else {
-            aloge("get pcm from ai in block mode fail! ret: %#x", ret);
+            LOGE("get pcm from ai in block mode fail! ret: %#x", ret);
             break;
         }
     }
 
-    alogd("aio thread exit");
+    LOGD("aio thread exit");
 
     return NULL;
 }
@@ -269,7 +269,7 @@ ERRORTYPE ai2ao_prepare(Ai2Ao_t* aa, AiParams_t* aiParams)
     ret = ai2ao_createAioChn(aa, aiParams);
     if (ret < 0)
     {
-        aloge("create aio chn fail");
+        LOGE("create aio chn fail");
         return ret;
     }
 
@@ -277,7 +277,7 @@ ERRORTYPE ai2ao_prepare(Ai2Ao_t* aa, AiParams_t* aiParams)
     MPP_CHN_S AoChn = {MOD_ID_AO, aa->aoDev, aa->aoChn};
     if(aa->tunnelMode)
     {
-        alogd("bind ai & ao");
+        LOGD("bind ai & ao");
         ret = AW_MPI_SYS_Bind(&AiChn, &AoChn);
     }
 
@@ -292,11 +292,11 @@ ERRORTYPE ai2ao_start(Ai2Ao_t* aa, AiParams_t* aiParams)
 {
     ERRORTYPE ret = SUCCESS;
 
-    alogd("start");
+    LOGD("start");
 
     if(aa->aoChn != MM_INVALID_CHN)
     {
-        alogd("playing");
+        LOGD("playing");
         return ret;
     }
 
@@ -313,7 +313,7 @@ ERRORTYPE ai2ao_start(Ai2Ao_t* aa, AiParams_t* aiParams)
     ret = AW_MPI_AI_EnableChn(aa->aiDev, aa->aiChn);
     if (ret != SUCCESS)
     {
-        aloge("AI enable error: %d", ret);
+        LOGE("AI enable error: %d", ret);
         return ret;
     }
 
@@ -323,7 +323,7 @@ ERRORTYPE ai2ao_start(Ai2Ao_t* aa, AiParams_t* aiParams)
     {
         aa->bExit = false;
         pthread_create(&aa->threadId, NULL, ai2ao_frameProc, aa);
-        alogd("aio pthread: dev[%d] chn[%d] aoChn[%d]", aa->aiDev, aa->aiChn, aa->aoChn);
+        LOGD("aio pthread: dev[%d] chn[%d] aoChn[%d]", aa->aiDev, aa->aiChn, aa->aoChn);
     }
 
     return ret;
@@ -331,7 +331,7 @@ ERRORTYPE ai2ao_start(Ai2Ao_t* aa, AiParams_t* aiParams)
 
 ERRORTYPE ai2ao_stop(Ai2Ao_t* aa, bool disableDev)
 {
-    alogd("stop");
+    LOGD("stop");
 
     if( aa->threadId > 0 ) {
         aa->bExit = true;
@@ -384,7 +384,7 @@ ERRORTYPE ai2ao_stop(Ai2Ao_t* aa, bool disableDev)
         aa->clkChn = MM_INVALID_CHN;
     }
 
-    alogd("done");
+    LOGD("done");
 
     return SUCCESS;
 }

@@ -1,6 +1,6 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "record"
-#include <plat_log.h>
+#include <log/log.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <fcntl.h>
@@ -39,14 +39,14 @@ uint32_t get_tickCount(void)
 ******************************************************************************/
 void signal_pipe( int sig )
 {
-	aloge( "signal sigpipe\n" );
+	LOGE( "signal sigpipe\n" );
 
 	return ;
 }
 
 void signal_segv(int sig)
 {
-	aloge( "signal sigsegv\n" );
+	LOGE( "signal sigsegv\n" );
 
 	abort();
 }
@@ -57,10 +57,10 @@ void dump_bytes(uint8_t* data, int len)
     int nLines = (len / BYTES_perLINE) + ((len & ~BYTES_perLINE) > 0);
     int i;
 
-    alogd("addr=%p len=%d lines=%d", data, len, nLines);
+    LOGD("addr=%p len=%d lines=%d", data, len, nLines);
     for(i=0; i<nLines; i++) {
         if( len >= BYTES_perLINE ) {
-            alogd("%04x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+            LOGD("%04x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
                   i*BYTES_perLINE,
                   data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
                   data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]
@@ -73,7 +73,7 @@ void dump_bytes(uint8_t* data, int len)
             memset(dataLine, 0xFF, BYTES_perLINE);
             memcpy(dataLine, data, len);
             data = dataLine;
-            alogd("%04x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+            LOGD("%04x: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
                   i*BYTES_perLINE,
                   data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
                   data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]
@@ -106,7 +106,7 @@ int already_running(void)
 
     fd = open(LOCKFILE, O_RDWR|O_CREAT, LOCKMODE);
     if (fd < 0) {
-        aloge( "can't open %s: %s", LOCKFILE, strerror(errno));
+        LOGE( "can't open %s: %s", LOCKFILE, strerror(errno));
         exit(1);
     }
     if (lockfile(fd) < 0) {
@@ -115,7 +115,7 @@ int already_running(void)
             close(fd);
             return(1);
         }
-        aloge( "can't lock %s: %s", LOCKFILE, strerror(errno));
+        LOGE( "can't lock %s: %s", LOCKFILE, strerror(errno));
         exit(1);
     }
     ftruncate(fd, 0);
@@ -126,50 +126,50 @@ int already_running(void)
 
 void record_dumpParams(RecordParams_t* params)
 {
-    alogd("record params");
-    alogd("disk: %s", params->diskPath);
-    alogd("path: %s", params->packPath);
-    alogd("type: %s", params->packType);
-    alogd("size: %llu MB", params->packSize/(1024*1024));
-    alogd("full: %d MB", params->minDiskSize);
-    alogd("duration: %d minutes", params->packDuration/(60*1000));
-    alogd("audio   : %s", params->enableAudio ? "yes" : "no");
+    LOGD("record params");
+    LOGD("disk: %s", params->diskPath);
+    LOGD("path: %s", params->packPath);
+    LOGD("type: %s", params->packType);
+    LOGD("size: %llu MB", params->packSize/(1024*1024));
+    LOGD("full: %d MB", params->minDiskSize);
+    LOGD("duration: %d minutes", params->packDuration/(60*1000));
+    LOGD("audio   : %s", params->enableAudio ? "yes" : "no");
 }
 
 void record_dumpVeParams(VencParams_t* params)
 {
-    alogd("venc params");
-    alogd("codec : %s", (params->codecType==PT_H264) ? "H.264" : "H.265" );
-    alogd("width : %d", params->width);
-    alogd("height: %d", params->height);
-    alogd("fps   : %d", params->fps);
-    alogd("bps   : %d", params->bps);
-    alogd("rc    : %s", vi2venc_getRcModeName(params->rcMode) );
-    alogd("profile: %s", vi2venc_getProfileName(params->veAttr.mAttrH264.mProfile, (params->codecType==PT_H265)));
+    LOGD("venc params");
+    LOGD("codec : %s", (params->codecType==PT_H264) ? "H.264" : "H.265" );
+    LOGD("width : %d", params->width);
+    LOGD("height: %d", params->height);
+    LOGD("fps   : %d", params->fps);
+    LOGD("bps   : %d", params->bps);
+    LOGD("rc    : %s", vi2venc_getRcModeName(params->rcMode) );
+    LOGD("profile: %s", vi2venc_getProfileName(params->veAttr.mAttrH264.mProfile, (params->codecType==PT_H265)));
 }
 
 void record_dumpViParams(ViParams_t* params)
 {
-    alogd("vi params");
-    alogd("width : %d", params->width);
-    alogd("height: %d", params->height);
-    alogd("fps   : %d", params->fps);
+    LOGD("vi params");
+    LOGD("width : %d", params->width);
+    LOGD("height: %d", params->height);
+    LOGD("fps   : %d", params->fps);
 }
 
 void record_dumpAeParams(AencParams_t* params)
 {
-    alogd("aenc params");
-    alogd("codec : %s", (params->codecType==PT_AAC) ? "AAC" : "MP3" );
-    alogd("bps   : %d", params->bitRate);
+    LOGD("aenc params");
+    LOGD("codec : %s", (params->codecType==PT_AAC) ? "AAC" : "MP3" );
+    LOGD("bps   : %d", params->bitRate);
 }
 
 void record_dumpAiParams(AiParams_t* params)
 {
-    alogd("ai params");
-    alogd("audio device: %d", params->aiDev);
-    alogd("sample rate : %d", params->sampleRate);
-    alogd("channels    : %d", params->channels);
-    alogd("sample bits : %d", params->bitsPerSample);
+    LOGD("ai params");
+    LOGD("audio device: %d", params->aiDev);
+    LOGD("sample rate : %d", params->sampleRate);
+    LOGD("channels    : %d", params->channels);
+    LOGD("sample bits : %d", params->bitsPerSample);
 }
 
 void record_saveStatus(RecordContext_t* recCtx, RecordStatus_e recStatus)
@@ -189,7 +189,7 @@ void record_saveStatus(RecordContext_t* recCtx, RecordStatus_e recStatus)
 
     fd = open(REC_dataFILE, O_RDWR|O_CREAT, LOCKMODE);
     if (fd < 0) {
-        aloge( "can't open %s: %s", REC_dataFILE, strerror(errno));
+        LOGE( "can't open %s: %s", REC_dataFILE, strerror(errno));
     }
     if (lockfile(fd) < 0) {
         if (errno == EACCES || errno == EAGAIN) {
@@ -197,7 +197,7 @@ void record_saveStatus(RecordContext_t* recCtx, RecordStatus_e recStatus)
             close(fd);
             return;
         }
-        aloge( "can't lock %s: %s", REC_dataFILE, strerror(errno));
+        LOGE( "can't lock %s: %s", REC_dataFILE, strerror(errno));
     }
     ftruncate(fd, 0);
     sprintf(buf, "%d", recCtx->status);
@@ -211,7 +211,7 @@ int record_takePicture(RecordContext_t* recCtx, char* sFile)
 {
     int ret = SUCCESS;
 
-    alogd("start");
+    LOGD("start");
 
 #if(0)
     VIDEO_FRAME_INFO_S frameBuffer;
@@ -230,7 +230,7 @@ int record_takePicture(RecordContext_t* recCtx, char* sFile)
         ret = jpegenc_encodeFrame(&frameBuffer, &jencCfg, NULL, NULL);
         vi2venc_releaseRawFrame(recCtx->vv, &frameBuffer);
     }
-    alogd("done: %x", ret);
+    LOGD("done: %x", ret);
     return ret;
 #else
     JpegEncConfig_t jencCfg;
@@ -256,7 +256,7 @@ int record_takePicture(RecordContext_t* recCtx, char* sFile)
     ret = jpegenc_takePicture(&jencIO, &jencCfg, 500);
 #endif
 
-    alogd("done: %x", ret);
+    LOGD("done: %x", ret);
     return ret;
 }
 
@@ -300,12 +300,12 @@ void record_stop(RecordContext_t* recCtx)
 int record_start(RecordContext_t* recCtx)
 {
     if( recCtx->ff != NULL ) {
-        alogd("recording ...");
+        LOGD("recording ...");
         return 0;
     }
 
     if( record_shouldStop(recCtx) ) {
-        //alogd("sdcard error ...");
+        //LOGD("sdcard error ...");
         return 0;
     }
 
@@ -350,11 +350,11 @@ int record_start(RecordContext_t* recCtx)
 
     ret = vi2venc_getSpsPpsInfo(recCtx->vv, &veHeader, true);
     if( ret == SUCCESS ) {
-        //alogd("dump spspps");
+        //LOGD("dump spspps");
         //dump_bytes(veHeader.pBuffer, veHeader.nLength);
     }
     else {
-        aloge("get sps failed: %x", ret);
+        LOGE("get sps failed: %x", ret);
     }
 
     char sFile[256];
@@ -363,7 +363,7 @@ int record_start(RecordContext_t* recCtx)
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
-        aloge("open failed");
+        LOGE("open failed");
         ret = -1;
         goto failed;
     }
@@ -380,7 +380,7 @@ int record_start(RecordContext_t* recCtx)
     streamParam.spsLen = veHeader.nLength;
     int streamIndex = ffpack_newVideoStream(ff, -1, &streamParam);
     if( streamIndex < 0 ) {
-        aloge("create video stream failed");
+        LOGE("create video stream failed");
         ret = -2;
         goto failed;
     }
@@ -395,7 +395,7 @@ int record_start(RecordContext_t* recCtx)
         streamParam.audio.bits_per_sample = aiParams.bitsPerSample;
         streamIndex = ffpack_newAudioStream(ff, -1, &streamParam);
         if( streamIndex < 0 ) {
-            aloge("create audio stream failed");
+            LOGE("create audio stream failed");
             ret = -3;
             goto failed;
         }
@@ -447,7 +447,7 @@ int record_start(RecordContext_t* recCtx)
     return SUCCESS;
 
 failed:
-    aloge("start failed: %d", ret);
+    LOGE("start failed: %d", ret);
     record_stop(recCtx);
     return ret;
 }
@@ -490,13 +490,13 @@ bool record_pack(RecordContext_t* recCtx)
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
-        aloge("open failed");
+        LOGE("open failed");
         goto failed;
     }
     recCtx->ff = ff;
 
     vi2venc_getSpsPpsInfo(recCtx->vv, &veHeader, true);
-    //alogd("dump spspps");
+    //LOGD("dump spspps");
     //dump_bytes(veHeader.pBuffer, veHeader.nLength);
 
     VencParams_t* veParams = &recCtx->vv->veParams;
@@ -512,7 +512,7 @@ bool record_pack(RecordContext_t* recCtx)
     streamParam.spsLen = veHeader.nLength;
     int streamIndex = ffpack_newVideoStream(ff, -1, &streamParam);
     if( streamIndex < 0 ) {
-        aloge("create video stream failed");
+        LOGE("create video stream failed");
         goto failed;
     }
     recCtx->nbVideoStreamIndex = streamIndex;
@@ -528,7 +528,7 @@ bool record_pack(RecordContext_t* recCtx)
         streamParam.audio.bits_per_sample = aeParams->bitsPerSample;
         streamIndex = ffpack_newAudioStream(ff, -1, &streamParam);
         if( streamIndex < 0 ) {
-            aloge("create audio stream failed");
+            LOGE("create audio stream failed");
             goto failed;
         }
         recCtx->nbAudioStreamIndex = streamIndex;
@@ -550,7 +550,7 @@ bool record_pack(RecordContext_t* recCtx)
     return true;
 
 failed:
-    aloge("create %s failed", sFile);
+    LOGE("create %s failed", sFile);
     remove(sFile);
     if( recCtx->ff != NULL ) {
         ffpack_close(recCtx->ff);
@@ -582,7 +582,7 @@ int vv_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e fr
     int streamIndex = recCtx->nbVideoStreamIndex;
 
     if( recCtx->nbFramesTotal == 0 ) {
-        alogd("first frame (type=%d, len=%d, pts=%llu)", frameType, frameLen, pts);
+        LOGD("first frame (type=%d, len=%d, pts=%llu)", frameType, frameLen, pts);
 
         if( frameType != FRAME_typeI ) {
             pthread_mutex_unlock(&recCtx->mutex);
@@ -595,7 +595,7 @@ int vv_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e fr
         VencSpspps_t veHeader = { NULL, 0, false };
         ret = vi2venc_getSpsPpsInfo(recCtx->vv, &veHeader, true);
         if( ret == SUCCESS ) {
-            alogd("dump spspps on first frame");
+            LOGD("dump spspps on first frame");
             dump_bytes(veHeader.pBuffer, veHeader.nLength);
             vi2venc_freeSpsPpsInfo(&veHeader);
         }
@@ -607,7 +607,7 @@ int vv_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e fr
     }
 
     pts2 = (pts - recCtx->ptsBase + recCtx->ptsBaseDeltaV) / 10;    //unit us to 10us
-    //alogd("%llu, %llu", pts2, recCtx->ptsBase);
+    //LOGD("%llu, %llu", pts2, recCtx->ptsBase);
 
     ret = ffpack_input(ff, streamIndex, frameData, frameLen, frameType==FRAME_typeI, pts2);
     if( ret == -5 ) {
@@ -635,7 +635,7 @@ int aa_onFrame(void* aaPtr, uint8_t* frameData, int frameLen, uint64_t pts, void
 
     if( recCtx->nbAudioFrames == 0 ) {
         recCtx->ptsBaseAudio = pts;
-        alogd("first frame (len=%d, pts=%llu)", frameLen, pts);
+        LOGD("first frame (len=%d, pts=%llu)", frameLen, pts);
 
         #if(0)
         /* no need */
@@ -650,7 +650,7 @@ int aa_onFrame(void* aaPtr, uint8_t* frameData, int frameLen, uint64_t pts, void
     }
 
     pts2 = (pts - recCtx->ptsBaseAudio + recCtx->ptsBaseDeltaA) / 10;    //unit us to 10us
-    //alogd("len=%d, %llu, %llu", frameLen, pts2, recCtx->ptsBaseAudio);
+    //LOGD("len=%d, %llu, %llu", frameLen, pts2, recCtx->ptsBaseAudio);
 
     ret = ffpack_input(ff, streamIndex, frameData, frameLen, FRAME_typeI, pts2);
     if( ret == -5 ) {
@@ -672,17 +672,17 @@ int record_checkDisk(RecordContext_t* recCtx)
     if( disk_sdstat(recCtx->params.minDiskSize, sds) ) {
         if( !sds->inserted || !sds->mounted ) {
             /* disk unmounted */
-            aloge("no sdcard");
+            LOGE("no sdcard");
             record_saveStatus(recCtx, REC_statusDiskUmounted);
         }
         else if ( sds->mounted ) {
             if( !disk_checkPath(recCtx->params.packPath) ) {
                 /* record path check failed */
-                //aloge("no record path");
+                //LOGE("no record path");
                 record_saveStatus(recCtx, REC_statusDiskPathFailed);
             }
             else if ( sds->full ) {
-                aloge("sdcard full");
+                LOGE("sdcard full");
                 record_saveStatus(recCtx, REC_statusDiskFull);
             }
             else {
@@ -690,7 +690,7 @@ int record_checkDisk(RecordContext_t* recCtx)
                 int nIndex = disk_countMovies(recCtx->params.packPath, REC_packPREFIX,
                                               sTypes, REC_packTypesNUM, REC_packIndexLEN);
                 recCtx->nbFileIndex = nIndex+1;
-                alogd("movies index: %d", recCtx->nbFileIndex);
+                LOGD("movies index: %d", recCtx->nbFileIndex);
             }
         }
     }
@@ -836,13 +836,13 @@ int main(int argc, char *argv[])
 {
     show_version(argc, argv);
 
-    alogd("record start ...");
+    LOGD("record start ...");
 
 	signal(SIGPIPE, signal_pipe);
 	signal(SIGSEGV, signal_segv);
 
 	if( already_running() ) {
-		aloge( "already runing... exit!" );
+		LOGE( "already runing... exit!" );
 		exit(1);
 	}
     log_open();
@@ -850,7 +850,7 @@ int main(int argc, char *argv[])
     RecordContext_t recCtx;
     ZeroMemory(&recCtx, sizeof(recCtx));
     record_checkConf( &recCtx, (argc > 1) ? argv[1] : NULL );
-    alogd("record conf: %s", recCtx.confFile);
+    LOGD("record conf: %s", recCtx.confFile);
 
     recCtx.nbFileIndex = 0;
     recCtx.nbFramesTotal = 0;
@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
     main_loop(&recCtx);
 
 failed:
-    alogd("exit ...");
+    LOGD("exit ...");
 
     record_stop(&recCtx);
     ai2ao_deinitSys(recCtx.ao);
@@ -894,7 +894,7 @@ failed:
     pthread_mutex_destroy(&recCtx.mutex);
     disk_sdstat_delete();
 
-    alogd("exit done");
+    LOGD("exit done");
     log_close();
 
     return 0;
