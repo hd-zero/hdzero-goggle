@@ -10,6 +10,8 @@ set(SOFTWINNER_INCLUDE_DIRECTORIES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/include/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/include/component
     ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/LIBRARY/libcedarc/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/LIBRARY/libisp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/middleware/media/LIBRARY/libisp/isp_tuning/
 )
 
 set(PREBUILT_LIBRARIES
