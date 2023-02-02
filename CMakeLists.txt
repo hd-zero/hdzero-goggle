@@ -38,8 +38,9 @@ add_subdirectory(lib/minIni)
 add_subdirectory(lib/log)
 add_subdirectory(lib/esp-loader)
 add_subdirectory(lib/softwinner)
+add_subdirectory(lib/ffmpeg)
 
-# application
+# main application
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
 file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
@@ -77,6 +78,28 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	lvgl
 	minIni
 	esp-loader
+	softwinner
+)
+
+# record application
+file(GLOB SRC_FILES_RECORD   "src/record/*.c" "src/record/*.h")
+
+add_executable(record
+	${SRC_FILES_RECORD}
+)
+target_include_directories(record PRIVATE 
+	src/record
+
+	lib/linux/include
+	lib/linux/include/video
+	lib/linux/include/media
+)
+target_link_libraries(record PRIVATE
+	${STANDARD_LIBRARIES}
+
+	log
+	ffmpeg
+	minIni
 	softwinner
 )
 

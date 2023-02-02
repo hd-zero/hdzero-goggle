@@ -1,6 +1,6 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ffpack"
-#include <plat_log.h>
+#include <log/log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,12 +16,12 @@ void ff_printerr(char* sPrefix, int err)
 	av_strerror(err,strError,256);
 	if(sPrefix==NULL)
     {
-        alogd("ff-failed: %s", strError);
+        LOGD("ff-failed: %s", strError);
     }
     else
     {
-        alogd(sPrefix);
-        alogd("%d: %s", err, strError);
+        LOGD(sPrefix);
+        LOGD("%d: %s", err, strError);
     }
 }
 
@@ -63,7 +63,7 @@ FFPack_t* ffpack_open(CB_onData cbOnData, void* context)
 	ff->cbOnData = cbOnData;
 	ff->cbContext= context;
 
-	alogd("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
+	LOGD("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
 
     return ff;
 }
@@ -99,19 +99,19 @@ FFPack_t* ffpack_openFile(char* sName, void* context)
 
 	ff->cbContext= context;
 
-	alogd("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
+	LOGD("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
 
     return ff;
 }
 
 void ffpack_close(FFPack_t* ff)
 {
-    alogd("ff=%p\n", ff);
+    LOGD("ff=%p\n", ff);
 
     //flush all data
     av_write_frame(ff->ofmtContext, NULL);
 
-    //alogd("ofmt=%p\n", ff->ofmtContext);
+    //LOGD("ofmt=%p\n", ff->ofmtContext);
 
     //Write file trailer
     av_write_trailer(ff->ofmtContext);
@@ -120,11 +120,11 @@ void ffpack_close(FFPack_t* ff)
     {
         if(!(ff->ofmtContext->flags & AVFMT_NOFILE))
         {
-            //alogd("close pb=%p\n", ff->ofmtContext->pb);
+            //LOGD("close pb=%p\n", ff->ofmtContext->pb);
             avio_close(ff->ofmtContext->pb);
         }
         else {
-            //alogd("free pb=%p\n", ff->ofmtContext->pb);
+            //LOGD("free pb=%p\n", ff->ofmtContext->pb);
             avio_context_free(&ff->ofmtContext->pb);
         }
 
@@ -140,13 +140,13 @@ void ffpack_close(FFPack_t* ff)
         }
 #endif
 
-        //alogd("free ofmt\n");
+        //LOGD("free ofmt\n");
         avformat_free_context(ff->ofmtContext);
     }
 
     free(ff);
 
-    alogd("done\n");
+    LOGD("done\n");
 }
 
 int ffpack_newProgram(FFPack_t* ff, char* sName)
@@ -170,14 +170,14 @@ int ffpack_newVideoStream(FFPack_t* ff, uint16_t programId, FFStreamParameters_t
 {
     if(param->mediaType != AVMEDIA_TYPE_VIDEO)
     {
-        alogd("unsupported type: %d", param->mediaType);
+        LOGD("unsupported type: %d", param->mediaType);
         return -1;
     }
 
     AVStream *stream = avformat_new_stream(ff->ofmtContext, NULL);
     if (!stream)
     {
-        alogd("failed!\n");
+        LOGD("failed!\n");
         return -1;
     }
 
@@ -209,7 +209,7 @@ int ffpack_newVideoStream(FFPack_t* ff, uint16_t programId, FFStreamParameters_t
         cp->extradata = av_mallocz(cp->extradata_size + AV_INPUT_BUFFER_PADDING_SIZE);
         if (!cp->extradata)
         {
-            aloge("outof memory");
+            LOGE("outof memory");
             return -1;
         }
         memcpy(cp->extradata, param->spsData, cp->extradata_size);
@@ -227,14 +227,14 @@ int  ffpack_newAudioStream(FFPack_t* ff, uint16_t programId, FFStreamParameters_
 {
     if(param->mediaType != AVMEDIA_TYPE_AUDIO)
     {
-        alogd("unsupported type: %d", param->mediaType);
+        LOGD("unsupported type: %d", param->mediaType);
         return -1;
     }
 
     AVStream *stream = avformat_new_stream(ff->ofmtContext, NULL);
     if (!stream)
     {
-        alogd("failed");
+        LOGD("failed");
         return -1;
     }
 
@@ -259,14 +259,14 @@ int  ffpack_newDataStream (FFPack_t* ff, uint16_t programId, FFStreamParameters_
 {
     if(param->mediaType != AVMEDIA_TYPE_DATA)
     {
-        alogd("unsupported type: %d", param->mediaType);
+        LOGD("unsupported type: %d", param->mediaType);
         return -1;
     }
 
     AVStream *stream = avformat_new_stream(ff->ofmtContext, NULL);
     if (!stream)
     {
-        alogd("failed");
+        LOGD("failed");
         return -1;
     }
 
@@ -309,11 +309,11 @@ void ffpack_dumpTimebase(FFPack_t* ff)
     for( i=0; i<ff->ofmtContext->nb_streams; i++ )
     {
         st = ff->ofmtContext->streams[i];
-        alogd("stream %d: time_base(num,den) = %d,%d", i, st->time_base.num, st->time_base.den);
+        LOGD("stream %d: time_base(num,den) = %d,%d", i, st->time_base.num, st->time_base.den);
         if( ffpack_isVideoStream(st) )
         {
-            alogd("stream %d: avg_framerate(num,den) = %d,%d", i, st->avg_frame_rate.num, st->avg_frame_rate.den);
-            alogd("stream %d: r_framerate(num,den) = %d,%d", i, st->r_frame_rate.num, st->r_frame_rate.den);
+            LOGD("stream %d: avg_framerate(num,den) = %d,%d", i, st->avg_frame_rate.num, st->avg_frame_rate.den);
+            LOGD("stream %d: r_framerate(num,den) = %d,%d", i, st->r_frame_rate.num, st->r_frame_rate.den);
         }
     }
 }
@@ -334,7 +334,7 @@ int ffpack_start(FFPack_t* ff)
     ffpack_dumpTimebase(ff);
     av_dump_format(ff->ofmtContext, 0, ff->ofmtContext->url, 1);
 
-    alogd("done\n");
+    LOGD("done\n");
     return ret;
 }
 
@@ -402,15 +402,15 @@ int ffpack_input(FFPack_t* ff, int streamIndex, uint8_t* frameData, int frameLen
 #if(1)
 	AVStream* st = ff->ofmtContext->streams[streamIndex];
 
-	//alogd("pts0: %lld", pkt.pts);
+	//LOGD("pts0: %lld", pkt.pts);
     AVRational time_base = (AVRational){1, 100000};
     av_packet_rescale_ts(&pkt, time_base, st->time_base);
-	//alogd("pts1: %lld", pkt.pts);
-	//alogd("codec_tag=%d", st->codecpar->codec_tag);
-	//alogd("extradata_size=%d", st->codecpar->extradata_size);
-	//alogd("format=%d", st->codecpar->format);
-	//alogd("sample_aspect_ratio=%d,%d", st->codecpar->sample_aspect_ratio.num, st->codecpar->sample_aspect_ratio.den);
-	//alogd("video_delay=%d", st->codecpar->video_delay);
+	//LOGD("pts1: %lld", pkt.pts);
+	//LOGD("codec_tag=%d", st->codecpar->codec_tag);
+	//LOGD("extradata_size=%d", st->codecpar->extradata_size);
+	//LOGD("format=%d", st->codecpar->format);
+	//LOGD("sample_aspect_ratio=%d,%d", st->codecpar->sample_aspect_ratio.num, st->codecpar->sample_aspect_ratio.den);
+	//LOGD("video_delay=%d", st->codecpar->video_delay);
 #endif
 
 	nRet = av_interleaved_write_frame(ff->ofmtContext, &pkt);

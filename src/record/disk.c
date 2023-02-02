@@ -1,3 +1,5 @@
+#include "disk.h"
+
 #include <stdint.h>
 #include <sys/vfs.h>
 #include <sys/stat.h>
@@ -8,13 +10,13 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include "disk.h"
+
+#include <log/log.h>
+
 #include "log.h"
 
 #define MAX_pathLEN   128
 #define FILE_NAME_LEN 256
-
-#define aloge printf
 
 
 typedef struct
@@ -111,7 +113,7 @@ bool disk_isMounted(char* sPath)
 		{
 			if( strstr(line,"rw,") == NULL)
 			{
-				aloge("sd card is read only");
+				LOGE("sd card is read only");
 				fclose(fp);
 				return false;
 			}
@@ -178,7 +180,7 @@ uint32_t disk_availableSize(char* sPath)
     struct statfs diskinfo;
 
     if( statfs(sPath, &diskinfo) != -1) {
-        //alogd("blocks=%d, f_bsize=%d");
+        //LOGD("blocks=%d, f_bsize=%d");
 
         total_size = kscale(diskinfo.f_blocks, diskinfo.f_bsize);
         total_size = total_size >> 10; //MB
@@ -187,7 +189,7 @@ uint32_t disk_availableSize(char* sPath)
         avail_size = avail_size >> 10; //MB
     }
     else {
-        //alogd("failed");
+        //LOGD("failed");
         //avail_size = 100; //for debug only
     }
 
@@ -225,7 +227,7 @@ int disk_countMovies(char* sPath, char* sPrefix, char* sExts[], int nExts, int n
 {
     DIR* dp = opendir(sPath);
     if( dp == NULL ) {
-        aloge("opendir %s fail\n", sPath);
+        LOGE("opendir %s fail\n", sPath);
         return -1;
     }
 
@@ -243,7 +245,7 @@ int disk_countMovies(char* sPath, char* sPrefix, char* sExts[], int nExts, int n
             continue;
         }
 
-        //alogd("%s", dirp->d_name);
+        //LOGD("%s", dirp->d_name);
 
         int size = strlen(dirp->d_name);
 
@@ -267,7 +269,7 @@ int disk_countMovies(char* sPath, char* sPrefix, char* sExts[], int nExts, int n
         strcpy(sTemp, sPath);
         strcat(sTemp, dirp->d_name);
 
-        //alogd("%s", sTemp);
+        //LOGD("%s", sTemp);
 
         struct stat myStat;
         if( stat(sTemp, &myStat) < 0 ) {
@@ -331,24 +333,24 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
     }
 
     if(mbUpdated) {
-        aloge("sdcard: %s\n", mbInserted ? "plugged" : "unplugged");
-        aloge("sdcard: %s\n", mbMounted ? "mounted" : "unmounted");
-        aloge("sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
+        LOGE("sdcard: %s\n", mbInserted ? "plugged" : "unplugged");
+        LOGE("sdcard: %s\n", mbMounted ? "mounted" : "unmounted");
+        LOGE("sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
         disk_dump(sdstat->path);
 
         log_write(mbInserted?INFO:WARN, "sdcard: %s", mbInserted ? "plugged" : "unplugged");
         log_write(mbMounted ?INFO:WARN, "sdcard: %s", mbMounted ? "mounted" : "unmounted");
         log_write(mbMounted ?INFO:WARN, "sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
-        //aloge("sdcard: logwrite %d, %d, %d\n", x, y, z);
+        //LOGE("sdcard: logwrite %d, %d, %d\n", x, y, z);
 
         sdstat->tkUpdated = tkNow;
         sdstat->updated = mbUpdated;
-        //aloge("log_period: %d\n", log_period());
+        //LOGE("log_period: %d\n", log_period());
     }
     else if( mbSizeUpdated ) {
         if( (tkNow-sdstat->tkUpdated) >= log_period()*1000 ) {
             log_write(mbMounted ?INFO:WARN, "sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
-            aloge("sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
+            LOGE("sdcard: %d/%d (MB)\n", mbAvail, mbTotal);
             sdstat->tkUpdated = tkNow;
         }
     }

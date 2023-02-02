@@ -1,6 +1,6 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CfgParser"
-#include <plat_log.h>
+#include <log/log.h>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -36,6 +36,7 @@ typedef enum{
 
 int  log_open(void);
 int  log_write(LOGLEVEL loglevel,char *fromat, ...);
+uint32_t log_period(void);
 void log_close(void);
 
 #endif /* __LOG_H__ */

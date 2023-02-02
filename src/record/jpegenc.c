@@ -1,12 +1,14 @@
 #define LOG_NDEBUG 0
 #define LOG_TAG "jpegenc"
-#include <plat_log.h>
+#include <log/log.h>
 
 #include <stdlib.h>
 #include <stdbool.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -65,7 +67,7 @@ static JpegEnc_t* jpegenc_new(void)
         jpegenc_init(jenc);
     }
     else {
-        aloge("out of memory");
+        LOGE("out of memory");
     }
     return jenc;
 }
@@ -88,7 +90,7 @@ ERRORTYPE jpegenc_mppCallback(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE even
     {
         if(pChn->mChnId != pThiz->mChn)
         {
-            aloge("fatal error! VO chnId[%d]!=[%d]", pChn->mChnId, pThiz->mChn);
+            LOGE("fatal error! VO chnId[%d]!=[%d]", pChn->mChnId, pThiz->mChn);
         }
         switch(event)
         {
@@ -97,19 +99,19 @@ ERRORTYPE jpegenc_mppCallback(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE even
                 VIDEO_FRAME_INFO_S *pVideoFrameInfo = (VIDEO_FRAME_INFO_S*)pEventData;
                 if(pThiz->mCurFrameId != pVideoFrameInfo->mId)
                 {
-                    aloge("fatal error! frameId is not match[%d]!=[%d]!", pThiz->mCurFrameId, pVideoFrameInfo->mId);
+                    LOGE("fatal error! frameId is not match[%d]!=[%d]!", pThiz->mCurFrameId, pVideoFrameInfo->mId);
                 }
                 pThiz->mSemFrameBack = true;
                 break;
             }
             case MPP_EVENT_VENC_BUFFER_FULL:
             {
-                alogd("jpeg encoder chn[%d] vbvBuffer full", pChn->mChnId);
+                LOGD("jpeg encoder chn[%d] vbvBuffer full", pChn->mChnId);
                 break;
             }
             default:
             {
-                aloge("fatal error! unknown event[0x%x] from channel[0x%x][0x%x][0x%x]!", event, pChn->mModId, pChn->mDevId, pChn->mChnId);
+                LOGE("fatal error! unknown event[0x%x] from channel[0x%x][0x%x][0x%x]!", event, pChn->mModId, pChn->mDevId, pChn->mChnId);
                 ret = ERR_VENC_ILLEGAL_PARAM;
                 break;
             }
@@ -117,7 +119,7 @@ ERRORTYPE jpegenc_mppCallback(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE even
     }
     else
     {
-        aloge("fatal error! why modId[0x%x]?", pChn->mModId);
+        LOGE("fatal error! why modId[0x%x]?", pChn->mModId);
         ret = FAILURE;
     }
     return ret;
@@ -128,7 +130,7 @@ ERRORTYPE jpegenc_initialize(JpegEnc_t* jenc, VIDEO_FRAME_INFO_S* frame, JpegEnc
     ERRORTYPE ret = SUCCESS;
     if(jenc->mChn >= 0)
     {
-        aloge("fatal error! already init jpeg encoder!");
+        LOGE("fatal error! already init jpeg encoder!");
     }
 
     uint16_t picWidth = config->width;
@@ -143,7 +145,7 @@ ERRORTYPE jpegenc_initialize(JpegEnc_t* jenc, VIDEO_FRAME_INFO_S* frame, JpegEnc
     }
     if(vbvBufSize > 16*1024*1024)
     {
-        alogd("Be careful! vbvSize[%d]MB is too large, decrease to 16MB", vbvBufSize/(1024*1024));
+        LOGD("Be careful! vbvSize[%d]MB is too large, decrease to 16MB", vbvBufSize/(1024*1024));
         vbvBufSize = 16*1024*1024;
     }
 
@@ -172,24 +174,24 @@ ERRORTYPE jpegenc_initialize(JpegEnc_t* jenc, VIDEO_FRAME_INFO_S* frame, JpegEnc
         if(SUCCESS == ret)
         {
             bSuccessFlag = true;
-            alogd("create venc channel[%d] success!", mChn);
+            LOGD("create venc channel[%d] success!", mChn);
             break;
         }
         else if(ERR_VENC_EXIST == ret)
         {
-            alogd("venc channel[%d] is exist, find next!", mChn);
+            LOGD("venc channel[%d] is exist, find next!", mChn);
             mChn++;
         }
         else
         {
-            alogd("create venc channel[%d] ret[0x%x], find next!", mChn, ret);
+            LOGD("create venc channel[%d] ret[0x%x], find next!", mChn, ret);
             mChn++;
         }
     }
     if(false == bSuccessFlag)
     {
         mChn = MM_INVALID_CHN;
-        aloge("fatal error! create venc channel fail!");
+        LOGE("fatal error! create venc channel fail!");
         ret = FAILURE;
         goto _err0;
     }
@@ -210,7 +212,7 @@ ERRORTYPE jpegenc_initialize(JpegEnc_t* jenc, VIDEO_FRAME_INFO_S* frame, JpegEnc
     ret = AW_MPI_VENC_StartRecvPic(mChn);
     if(SUCCESS != ret)
     {
-        aloge("fatal error:%x jpegEnc AW_MPI_VENC_StartRecvPic",ret);
+        LOGE("fatal error:%x jpegEnc AW_MPI_VENC_StartRecvPic",ret);
     }
 
 _err0:
@@ -251,7 +253,7 @@ ERRORTYPE jpegenc_encode(JpegEnc_t* jenc, VIDEO_FRAME_INFO_S *frameInfo, VENC_EX
 
         if(0 >= s32MillSec)
         {
-            alogd("Be careful! jpeg encode timeout");
+            LOGD("Be careful! jpeg encode timeout");
             return FAILURE;
         }
     }
@@ -264,7 +266,7 @@ int jpegenc_getFrame(JpegEnc_t* jenc, int32_t s32Timeout)
     ERRORTYPE ret = AW_MPI_VENC_GetStream(jenc->mChn, &jenc->mOutStream, s32Timeout);
     if(ret != SUCCESS)
     {
-        aloge("fatal error! why get stream fail?");
+        LOGE("fatal error! why get stream fail?");
         return -1;
     }
     else
@@ -279,7 +281,7 @@ int jpegenc_returnFrame(JpegEnc_t* jenc, VENC_STREAM_S *pVencStream)
     ERRORTYPE ret = AW_MPI_VENC_ReleaseStream(jenc->mChn, pVencStream);
     if(ret != SUCCESS)
     {
-        aloge("fatal error! why release stream fail?");
+        LOGE("fatal error! why release stream fail?");
         return -1;
     }
     else
@@ -317,14 +319,14 @@ ERRORTYPE jpegenc_getThumbOffset(JpegEnc_t* jenc, off_t* offset, size_t* len)
         if(NULL==jenc->mOutStream.mpPack[0].mpAddr0 || NULL==jenc->mOutStream.mpPack[0].mpAddr1 ||
            0==jenc->mOutStream.mpPack[0].mLen0 || 0==jenc->mOutStream.mpPack[0].mLen1)
         {
-            aloge("fatal error! check code!");
+            LOGE("fatal error! check code!");
         }
         //uint8_t *pExifBufStart = jenc->mOutStream.mpPack[0].mpAddr0;
         if(jenc->mJpegThumbBuf.ThumbAddrVir >= jenc->mOutStream.mpPack[0].mpAddr0)
         {
             if(jenc->mJpegThumbBuf.ThumbAddrVir >= jenc->mOutStream.mpPack[0].mpAddr0+jenc->mOutStream.mpPack[0].mLen0)
             {
-                aloge("fatal error! check code![%p][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
+                LOGE("fatal error! check code![%p][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
                       jenc->mOutStream.mpPack[0].mpAddr0, jenc->mOutStream.mpPack[0].mLen0);
             }
             *offset = jenc->mJpegThumbBuf.ThumbAddrVir - jenc->mOutStream.mpPack[0].mpAddr0;
@@ -333,14 +335,14 @@ ERRORTYPE jpegenc_getThumbOffset(JpegEnc_t* jenc, off_t* offset, size_t* len)
         {
             if(jenc->mJpegThumbBuf.ThumbAddrVir >= jenc->mOutStream.mpPack[0].mpAddr1+jenc->mOutStream.mpPack[0].mLen1)
             {
-                aloge("fatal error! check code![%p][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
+                LOGE("fatal error! check code![%p][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
                       jenc->mOutStream.mpPack[0].mpAddr1, jenc->mOutStream.mpPack[0].mLen1);
             }
             *offset = jenc->mOutStream.mpPack[0].mLen0 + (jenc->mJpegThumbBuf.ThumbAddrVir - jenc->mOutStream.mpPack[0].mpAddr1);
         }
         else
         {
-            aloge("fatal error! check code![%p][%p][%d][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
+            LOGE("fatal error! check code![%p][%p][%d][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir,
                 jenc->mOutStream.mpPack[0].mpAddr0, jenc->mOutStream.mpPack[0].mLen0,
                 jenc->mOutStream.mpPack[0].mpAddr1, jenc->mOutStream.mpPack[0].mLen1);
             ret = FAILURE;
@@ -348,17 +350,17 @@ ERRORTYPE jpegenc_getThumbOffset(JpegEnc_t* jenc, off_t* offset, size_t* len)
     }
     else
     {
-        alogd("jpeg has no thumb picture");
+        LOGD("jpeg has no thumb picture");
         *offset = 0;
         *len = 0;
     }
 
-    //alogd("size of off_t[%d], size_t[%d]", sizeof(off_t), sizeof(size_t));
-    //alogd("thumbBuf [%p][%d], [%p][%d][%p][%d][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir, jenc->mJpegThumbBuf.ThumbLen,
+    //LOGD("size of off_t[%d], size_t[%d]", sizeof(off_t), sizeof(size_t));
+    //LOGD("thumbBuf [%p][%d], [%p][%d][%p][%d][%p][%d]", jenc->mJpegThumbBuf.ThumbAddrVir, jenc->mJpegThumbBuf.ThumbLen,
     //    jenc->mOutStream.mpPack[0].mpAddr0, jenc->mOutStream.mpPack[0].mLen0,
     //    jenc->mOutStream.mpPack[0].mpAddr1, jenc->mOutStream.mpPack[0].mLen1,
     //    jenc->mOutStream.mpPack[0].mpAddr2, jenc->mOutStream.mpPack[0].mLen2);
-    //alogd("offset[%jd], size[%d]", *offset, *len);
+    //LOGD("offset[%jd], size[%d]", *offset, *len);
 
     return ret;
 }
@@ -385,10 +387,10 @@ int jpegenc_encodeFrame(VIDEO_FRAME_INFO_S* frame, JpegEncConfig_t* config, CB_o
     ret = jpegenc_initialize(&jenc, frame, config);
     if (ret != SUCCESS)
     {
-        aloge("CameraJpegEncoder initialize error!");
+        LOGE("CameraJpegEncoder initialize error!");
         goto JPEG_INIT_ERR;
     }
-    alogd("Picture size %dx%d, Thumb size %dx%d", config->width, config->height,
+    LOGD("Picture size %dx%d, Thumb size %dx%d", config->width, config->height,
           config->thumbnailWidth, config->thumbnailHeight);
 
     jpegenc_encode(&jenc, frame, NULL, 50);
@@ -441,19 +443,19 @@ int jpegenc_encodeFrame(VIDEO_FRAME_INFO_S* frame, JpegEncConfig_t* config, CB_o
         if(buf.mLen0 > 0) {
             ret = write(fd, buf.mpData0, buf.mLen0);
             if (ret < 0) {
-                aloge("write data filed(%s)", strerror(errno));
+                LOGE("write data filed(%s)", strerror(errno));
             }
         }
         if(buf.mLen1 > 0) {
             ret = write(fd, buf.mpData1, buf.mLen1);
             if (ret < 0) {
-                aloge("write data filed(%s)", strerror(errno));
+                LOGE("write data filed(%s)", strerror(errno));
             }
         }
         if(buf.mLen2 > 0) {
             ret = write(fd, buf.mpData2, buf.mLen2);
             if (ret < 0) {
-                aloge("write data filed(%s)", strerror(errno));
+                LOGE("write data filed(%s)", strerror(errno));
             }
         }
 	}
@@ -478,19 +480,19 @@ static int jpegenc_startVirvi(VI_DEV ViDev, VI_CHN ViCh, void *pAttr)
     ret = AW_MPI_VI_CreateVirChn(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
-        aloge("Create VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Create VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_SetVirChnAttr(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
-        aloge("Set VI ChnAttr failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Set VI ChnAttr failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_EnableVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("VI Enable VirChn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("VI Enable VirChn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
 
@@ -503,13 +505,13 @@ static int jpegenc_stopVirvi(VI_DEV ViDev, VI_CHN ViCh)
     ret = AW_MPI_VI_DisableVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("Disable VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Disable VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     ret = AW_MPI_VI_DestoryVirChn(ViDev, ViCh);
     if(ret < 0)
     {
-        aloge("Destory VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
+        LOGE("Destory VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
     return 0;
@@ -529,21 +531,21 @@ static void* jpegenc_frameProc(void *arg)
 
     ret = jpegenc_startVirvi(vipp_dev, virvi_chn, NULL);
     if( ret != SUCCESS ) {
-        aloge("start vi chn[%d] failed: %x", vipp_dev, virvi_chn, ret);
+        LOGE("start vi chn[%d] failed: %x", vipp_dev, virvi_chn, ret);
         goto failed;
     }
 
-    alogd("jpeg thread: dev[%d] chn[%d]", vipp_dev, virvi_chn);
+    LOGD("jpeg thread: dev[%d] chn[%d]", vipp_dev, virvi_chn);
 
     ret = AW_MPI_VI_GetFrame(vipp_dev, virvi_chn, &srcFrame, jenc->s32Timeout);
     if( ret != SUCCESS ) {
-        aloge("get vi frame from dev[%d] chn[%d] failed: %x", vipp_dev, virvi_chn);
+        LOGE("get vi frame from dev[%d] chn[%d] failed: %x", vipp_dev, virvi_chn);
         goto failed;
     }
 
     ret = jpegenc_initialize(jenc, &srcFrame, &jenc->config);
     if( ret != SUCCESS ) {
-        aloge("start venc failed: %x", ret);
+        LOGE("start venc failed: %x", ret);
         goto failed;
     }
 
@@ -559,13 +561,13 @@ static void* jpegenc_frameProc(void *arg)
 
     ret = jpegenc_encode(jenc, &srcFrame, pExifInfo, jenc->s32Timeout);
     if( ret != SUCCESS ) {
-        aloge("encode failed: %x", ret);
+        LOGE("encode failed: %x", ret);
         goto failed;
     }
 
     ret = jpegenc_getFrame(jenc, jenc->s32Timeout);
     if( ret != SUCCESS ) {
-        aloge("get encoded frame failed: %x", ret);
+        LOGE("get encoded frame failed: %x", ret);
         goto failed;
     }
 
@@ -591,7 +593,7 @@ static void* jpegenc_frameProc(void *arg)
     if( jenc->io.sFile != NULL ) {
         int fd = -1;
 
-        alogd("write file: %s", jenc->io.sFile);
+        LOGD("write file: %s", jenc->io.sFile);
 
         fd = open(jenc->io.sFile, O_RDWR | O_CREAT, 0666);
         if(fd >= 0) {
@@ -604,19 +606,19 @@ static void* jpegenc_frameProc(void *arg)
                 if(buf.mLen0 > 0) {
                     ret = write(fd, buf.mpData0, buf.mLen0);
                     if (ret < 0) {
-                        aloge("write data failed(%s)", strerror(errno));
+                        LOGE("write data failed(%s)", strerror(errno));
                     }
                 }
                 if(buf.mLen1 > 0) {
                     ret = write(fd, buf.mpData1, buf.mLen1);
                     if (ret < 0) {
-                        aloge("write data failed(%s)", strerror(errno));
+                        LOGE("write data failed(%s)", strerror(errno));
                     }
                 }
                 if(buf.mLen2 > 0) {
                     ret = write(fd, buf.mpData2, buf.mLen2);
                     if (ret < 0) {
-                        aloge("write data failed(%s)", strerror(errno));
+                        LOGE("write data failed(%s)", strerror(errno));
                     }
                 }
                 if( ret > 0 ) {
@@ -633,7 +635,7 @@ failed:
     jpegenc_destroy(jenc);
     jpegenc_free(jenc);
 
-    alogd("jpeg thread done: %x", ret);
+    LOGD("jpeg thread done: %x", ret);
 
     return NULL;
 }
@@ -642,7 +644,7 @@ int jpegenc_takePicture(JpegEncIO_t* io, JpegEncConfig_t* config, int32_t s32Mil
 {
     JpegEnc_t* jenc = jpegenc_new();
     if( jenc == NULL ) {
-            aloge("out of memory");
+            LOGE("out of memory");
         return -1;
     }
 

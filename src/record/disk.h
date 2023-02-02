@@ -2,6 +2,7 @@
 #define __DISK_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 bool     disk_insterted(void);
 void     disk_dump(char* sPath);
