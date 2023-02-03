@@ -104,11 +104,16 @@ target_link_libraries(record PRIVATE
 )
 
 # image build
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
+add_custom_command(
+	OUTPUT ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}
 	COMMAND size -A ${PROJECT_NAME}
 	COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out/
+	COMMAND cp record ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
 	COMMAND cd ${PROJECT_SOURCE_DIR} && ./mkapp/mkapp_ota.sh
+	DEPENDS ${PROJECT_NAME} record
 )
-
+add_custom_target(${PROJECT_NAME}-OTA ALL
+  DEPENDS ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}
+)
