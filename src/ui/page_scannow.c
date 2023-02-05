@@ -363,7 +363,7 @@ void switch_to_video(bool is_default) {
     osd_show(true);
 
     lvgl_switch_to_720p();
-    draw_osd_clear();
+    osd_clear();
     lv_timer_handler();
 
     Display_Osd(g_setting.record.osd);

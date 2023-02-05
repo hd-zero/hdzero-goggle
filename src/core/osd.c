@@ -438,7 +438,7 @@ void osd_hdzero_update(void) {
     }
 }
 
-int draw_osd_clear(void) {
+int osd_clear(void) {
     clear_screen();
     return 0;
 }
