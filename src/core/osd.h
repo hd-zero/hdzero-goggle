@@ -75,7 +75,7 @@ typedef enum {
 extern bool is_recording;
 extern uint8_t channel_osd_mode;
 
-int draw_osd_clear(void);
+int osd_clear(void);
 int draw_osd_on_screen(uint8_t row, uint8_t col);
 int osd_init(void);
 void osd_hdzero_update(void);

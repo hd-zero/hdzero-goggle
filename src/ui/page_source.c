@@ -166,7 +166,7 @@ void switch_to_analog(bool is_bay) {
     osd_show(true);
 
     lvgl_switch_to_720p();
-    draw_osd_clear();
+    osd_clear();
     lv_timer_handler();
 
     Display_Osd(g_setting.record.osd);
@@ -186,7 +186,7 @@ void switch_to_hdmiin() {
         lvgl_switch_to_720p();
 
     osd_show(true);
-    draw_osd_clear();
+    osd_clear();
     lv_timer_handler();
 
     g_menu_op = OPLEVEL_VIDEO;
