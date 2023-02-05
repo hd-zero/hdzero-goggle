@@ -1,11 +1,10 @@
 #include "msp_displayport.h"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "osd.h"
 #include "util/time.h"
-
 
 uint8_t crc8tab[256] = {
     0x00, 0xD5, 0x7F, 0xAA, 0xFE, 0x2B, 0x81, 0x54, 0x29, 0xFC, 0x56, 0x83, 0xD7, 0x02, 0xA8, 0x7D,
@@ -23,23 +22,22 @@ uint8_t crc8tab[256] = {
     0x72, 0xA7, 0x0D, 0xD8, 0x8C, 0x59, 0xF3, 0x26, 0x5B, 0x8E, 0x24, 0xF1, 0xA5, 0x70, 0xDA, 0x0F,
     0x20, 0xF5, 0x5F, 0x8A, 0xDE, 0x0B, 0xA1, 0x74, 0x09, 0xDC, 0x76, 0xA3, 0xF7, 0x22, 0x88, 0x5D,
     0xD6, 0x03, 0xA9, 0x7C, 0x28, 0xFD, 0x57, 0x82, 0xFF, 0x2A, 0x80, 0x55, 0x01, 0xD4, 0x7E, 0xAB,
-    0x84, 0x51, 0xFB, 0x2E, 0x7A, 0xAF, 0x05, 0xD0, 0xAD, 0x78, 0xD2, 0x07, 0x53, 0x86, 0x2C, 0xF9
-};
+    0x84, 0x51, 0xFB, 0x2E, 0x7A, 0xAF, 0x05, 0xD0, 0xAD, 0x78, 0xD2, 0x07, 0x53, 0x86, 0x2C, 0xF9};
 
-video_resolution_t CAM_MODE = VR_720P60; 
+video_resolution_t CAM_MODE = VR_720P60;
 char fc_variant[5] = "BTFL"; // 4 char ASCII from FC
-uint8_t link_quality = 0;   // bit[7:0]: LQ(8~0)
-uint8_t vtxTempInfo = 0;    // bit[7]: temp enbale
-                            // bit[6:0]: temp(0~9)
+uint8_t link_quality = 0;    // bit[7:0]: LQ(8~0)
+uint8_t vtxTempInfo = 0;     // bit[7]: temp enbale
+                             // bit[6:0]: temp(0~9)
 
-uint8_t fontType = 0;       // bit[7:0]: ASCII ('0'~'9' & 'A'~'Z')
+uint8_t fontType = 0; // bit[7:0]: ASCII ('0'~'9' & 'A'~'Z')
 uint8_t vtxVersion = 0;
 uint8_t vtxType = 0;
 uint8_t vtxFcLock = 0;
-//bit[0] msp_displayport_is_OK
-//bit[1] VTX_serial_is_OK
-//bit[3] Unlocked VTX
-uint8_t cam_4_3 = 0;  //1=16:9;0=4:3
+// bit[0] msp_displayport_is_OK
+// bit[1] VTX_serial_is_OK
+// bit[3] Unlocked VTX
+uint8_t cam_4_3 = 0; // 1=16:9;0=4:3
 
 osd_resolution_t osd_resolution = SD_3016;
 static osd_resolution_t resolution_last = HD_5018;
@@ -69,119 +67,111 @@ void fc_msp_displayport()
     }
 }
 */
-void fc_init()
-{
-	clear_screen();
+void fc_init() {
+    clear_screen();
     vtxType = 0;
     vtxTempInfo = 0;
 }
 
-void recive_one_frame(uint8_t* uart_buf,uint8_t uart_buf_len)
-{
+void recive_one_frame(uint8_t *uart_buf, uint8_t uart_buf_len) {
     static uint8_t rx_buf[RXBUF_SIZE];
     static uint8_t rx_state = RX_HEADER0;
     static uint8_t length = 0;
     static uint8_t ptr = 0;
-    static uint8_t function = 0;// 0:osd;  1:config
+    static uint8_t function = 0; // 0:osd;  1:config
     static uint8_t index = 0;
     static uint8_t crc0;
     static uint8_t crc1;
-	uint8_t rx;
-     
+    uint8_t rx;
+
     uint8_t uart_buf_ptr;
-    //while(RS_ready1())
-    for(uart_buf_ptr=0; uart_buf_ptr<uart_buf_len; uart_buf_ptr++)
-    {
-        //rx = RS_rx1();
+    // while(RS_ready1())
+    for (uart_buf_ptr = 0; uart_buf_ptr < uart_buf_len; uart_buf_ptr++) {
+        // rx = RS_rx1();
         rx = uart_buf[uart_buf_ptr];
 
         last_rcv_seconds1 = time_s();
-        #if(0)
+#if (0)
         _outchar(rx);
-        #endif
-        switch(rx_state)
-        {
-		
-            case RX_HEADER0:
-			crc0 = 0;
+#endif
+        switch (rx_state) {
+
+        case RX_HEADER0:
+            crc0 = 0;
             crc1 = 0;
             crc0 ^= rx;
             crc1 = crc8tab[crc1 ^ rx];
-			if(rx == HEADER0)
-				rx_state = RX_HEADER1;
+            if (rx == HEADER0)
+                rx_state = RX_HEADER1;
 
-			break;
+            break;
 
-            case RX_HEADER1:
+        case RX_HEADER1:
             crc0 ^= rx;
             crc1 = crc8tab[crc1 ^ rx];
-			if(rx == HEADER1)
-				rx_state = RX_INDEX;
-			else
-				rx_state = RX_HEADER0;
-				
-			break;
-	
+            if (rx == HEADER1)
+                rx_state = RX_INDEX;
+            else
+                rx_state = RX_HEADER0;
 
-            case RX_INDEX:
-                crc0 ^= rx;
-                crc1 = crc8tab[crc1 ^ rx];
-                index = rx;
-                if(index == 0xff)
-                    function = 1;
-                else
-                    function = 0;
-                //_outchar(index);
-                rx_state = RX_LENGTH;
-                break;
-            
-            case RX_LENGTH:
-                crc0 ^= rx;
-                crc1 = crc8tab[crc1 ^ rx];
-                length = rx;
-                if(length >= 64)
-                    rx_state = RX_HEADER0;
-                else if(length == 0)
-                    rx_state = RX_CRC0;
-                else{
-                    if(function)
-                        rx_state = RX_CONFIG;
-                    else
-                        rx_state = RX_OSD;
-                }
-                ptr = 0;
-                rx_buf[ptr] = length;
-                ptr ++;
-                break;
-            
-            case RX_CONFIG:
-                crc0 ^= rx;
-                crc1 = crc8tab[crc1 ^ rx];
-                rx_buf[ptr] = rx;
-                ptr ++;
-                length --;
-                if(length == 0)
-                    rx_state = RX_CRC0;
-                break;
-            
-            case RX_OSD:
-                crc0 ^= rx;
-                crc1 = crc8tab[crc1 ^ rx];
-                rx_buf[ptr] = rx;
-                ptr ++;
-                length --;
-                if(length == 0)
-                    rx_state = RX_CRC0;
-                break;
+            break;
 
-            case RX_CRC0:
-                if(rx == crc0)
-				{
-                    rx_state = RX_CRC1;
-				}
+        case RX_INDEX:
+            crc0 ^= rx;
+            crc1 = crc8tab[crc1 ^ rx];
+            index = rx;
+            if (index == 0xff)
+                function = 1;
+            else
+                function = 0;
+            //_outchar(index);
+            rx_state = RX_LENGTH;
+            break;
+
+        case RX_LENGTH:
+            crc0 ^= rx;
+            crc1 = crc8tab[crc1 ^ rx];
+            length = rx;
+            if (length >= 64)
+                rx_state = RX_HEADER0;
+            else if (length == 0)
+                rx_state = RX_CRC0;
+            else {
+                if (function)
+                    rx_state = RX_CONFIG;
                 else
-				{
-                    rx_state = RX_HEADER0;
+                    rx_state = RX_OSD;
+            }
+            ptr = 0;
+            rx_buf[ptr] = length;
+            ptr++;
+            break;
+
+        case RX_CONFIG:
+            crc0 ^= rx;
+            crc1 = crc8tab[crc1 ^ rx];
+            rx_buf[ptr] = rx;
+            ptr++;
+            length--;
+            if (length == 0)
+                rx_state = RX_CRC0;
+            break;
+
+        case RX_OSD:
+            crc0 ^= rx;
+            crc1 = crc8tab[crc1 ^ rx];
+            rx_buf[ptr] = rx;
+            ptr++;
+            length--;
+            if (length == 0)
+                rx_state = RX_CRC0;
+            break;
+
+        case RX_CRC0:
+            if (rx == crc0) {
+                rx_state = RX_CRC1;
+            } else {
+                rx_state = RX_HEADER0;
 #if 0
 					for(int i=0; i<10;i++)
 					{
@@ -189,175 +179,160 @@ void recive_one_frame(uint8_t* uart_buf,uint8_t uart_buf_len)
 					}
 					LOGI("");
 #endif
-			//		LOGI("crc0 err");
-				}
-                break;
+                //		LOGI("crc0 err");
+            }
+            break;
 
-            case RX_CRC1:
-                if(rx == crc1){
-                    parser_rx(function, index, rx_buf);
-                    last_rcv_seconds0 = time_s();
-                }
-                rx_state = RX_HEADER0;
-                break;
+        case RX_CRC1:
+            if (rx == crc1) {
+                parser_rx(function, index, rx_buf);
+                last_rcv_seconds0 = time_s();
+            }
+            rx_state = RX_HEADER0;
+            break;
 
-            default:
-                rx_state = RX_HEADER0;
-                break;
+        default:
+            rx_state = RX_HEADER0;
+            break;
 
-        }// switch(rx_state)
-    }// while(RS_ready1())
+        } // switch(rx_state)
+    }     // while(RS_ready1())
 }
 
-void parser_rx(uint8_t function, uint8_t index, uint8_t* rx_buf)
-{
-    if(function)
+void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf) {
+    if (function)
         parser_config(rx_buf);
     else
         parser_osd(index, rx_buf);
 }
 
-void camTypeDetect(uint8_t rData)
-{
+void camTypeDetect(uint8_t rData) {
     static video_resolution_t cur_cam = VR_720P60;
     static video_resolution_t last_cam = VR_720P50;
 
-    switch(rData) {
-        case 0xAA:  
-        case 0x99:  
-                last_cam = cur_cam;
-                cur_cam = VR_720P60;
-                break;
+    switch (rData) {
+    case 0xAA:
+    case 0x99:
+        last_cam = cur_cam;
+        cur_cam = VR_720P60;
+        break;
 
-        case 0x66:  
-                last_cam = cur_cam;
-                cur_cam = VR_720P50;
-                break;
+    case 0x66:
+        last_cam = cur_cam;
+        cur_cam = VR_720P50;
+        break;
 
-        case 0xCC:  
-                last_cam = cur_cam;
-                cur_cam = VR_720P30;
-                break;
+    case 0xCC:
+        last_cam = cur_cam;
+        cur_cam = VR_720P30;
+        break;
 
-        case 0xEE:  
-                last_cam = cur_cam;
-                cur_cam = VR_540P90;
-                break;
+    case 0xEE:
+        last_cam = cur_cam;
+        cur_cam = VR_540P90;
+        break;
 
-        case 0x55:  
-                last_cam = cur_cam;
-                cur_cam = VR_960x720P60;
-                break;
-        
-        case 0x44:  
-                last_cam = cur_cam;
-                cur_cam = VR_540P90_CROP;
-                break;
+    case 0x55:
+        last_cam = cur_cam;
+        cur_cam = VR_960x720P60;
+        break;
+
+    case 0x44:
+        last_cam = cur_cam;
+        cur_cam = VR_540P90_CROP;
+        break;
     }
-    if(cur_cam == last_cam)
+    if (cur_cam == last_cam)
         CAM_MODE = cur_cam;
 
-    //LOGI("Cam:%d",CAM_MODE);
+    // LOGI("Cam:%d",CAM_MODE);
 }
 
-void fcTypeDetect(uint8_t* rData)
-{
+void fcTypeDetect(uint8_t *rData) {
     uint8_t i;
     char fc_variant_rcv[5] = "    ";
-    
-    for(i=0;i<4;i++)
+
+    for (i = 0; i < 4; i++)
         fc_variant_rcv[i] = rData[i];
-    
-    if(strcmp(fc_variant_rcv, fc_variant))
-    {
-        for(i=0;i<4;i++)
+
+    if (strcmp(fc_variant_rcv, fc_variant)) {
+        for (i = 0; i < 4; i++)
             fc_variant[i] = fc_variant_rcv[i];
-        
+
         load_fc_osd_font();
     }
-#if(0)
+#if (0)
     LOGI("fc_variant_rcv:%s", fc_variant_rcv);
 #endif
 }
 
-void lqDetect(uint8_t rData)
-{
+void lqDetect(uint8_t rData) {
     static uint8_t last_lq = 0;
-    
-    if(rData != last_lq + 1)
+
+    if (rData != last_lq + 1)
         lq_err_cnt += (rData - last_lq);
-    lq_rcv_cnt ++;
+    lq_rcv_cnt++;
     last_lq = rData;
 }
-void lqStatistics()
-{
+void lqStatistics() {
     static uint16_t last_sec = 0;
     const uint32_t now = time_s();
-    
-    if(now != last_sec){
-        if(lq_rcv_cnt>=8)
+
+    if (now != last_sec) {
+        if (lq_rcv_cnt >= 8)
             link_quality = 8;
-        else if(lq_rcv_cnt == 7){
-            if(lq_err_cnt == 0)
+        else if (lq_rcv_cnt == 7) {
+            if (lq_err_cnt == 0)
                 link_quality = 8;
             else
                 link_quality = 7;
-        }
-        else if(lq_rcv_cnt == 6){
-            if(lq_err_cnt == 0)
+        } else if (lq_rcv_cnt == 6) {
+            if (lq_err_cnt == 0)
                 link_quality = 8;
-            else if(lq_err_cnt == 1)
+            else if (lq_err_cnt == 1)
                 link_quality = 7;
             else
                 link_quality = 6;
-        }
-        else
+        } else
             link_quality = lq_rcv_cnt;
-        
+
         last_sec = now;
         lq_rcv_cnt = 0;
         lq_err_cnt = 0;
     }
 }
 
-void vtxTempDetect(uint8_t rData)
-{
+void vtxTempDetect(uint8_t rData) {
     vtxTempInfo = rData;
-    //LOGI("temp:%bx",vtxTempInfo);
+    // LOGI("temp:%bx",vtxTempInfo);
 }
 
-void fontTypeDetect(uint8_t rData)
-{
+void fontTypeDetect(uint8_t rData) {
     fontType = rData;
-    //LOGI("font:%bx",fontType);
+    // LOGI("font:%bx",fontType);
 }
 
-void vtxVersionDetect(uint8_t rData)
-{
+void vtxVersionDetect(uint8_t rData) {
     vtxVersion = rData;
 }
 
-void vtxTypeDetect(uint8_t rData)
-{
+void vtxTypeDetect(uint8_t rData) {
     vtxType = rData;
 }
 
-void vtxFcLockDetect(uint8_t rData)
-{
+void vtxFcLockDetect(uint8_t rData) {
     vtxFcLock = rData;
 }
 
-void vtxCamRatioDetect(uint8_t rData)
-{
-    if(rData == 0xaa)
+void vtxCamRatioDetect(uint8_t rData) {
+    if (rData == 0xaa)
         cam_4_3 = 1;
-    else if(rData == 0x55)
+    else if (rData == 0x55)
         cam_4_3 = 0;
 }
-void parser_config(uint8_t *rx_buf)
-{
+void parser_config(uint8_t *rx_buf) {
     camTypeDetect(rx_buf[1]);
-    fcTypeDetect(rx_buf+2);
+    fcTypeDetect(rx_buf + 2);
     lqDetect(rx_buf[6]);
     vtxTempDetect(rx_buf[7]);
     fontTypeDetect(rx_buf[8]);
@@ -370,146 +345,125 @@ void parser_config(uint8_t *rx_buf)
 /*
     scaler from hmax30 to hmax50
 */
-uint8_t scalerX(uint8_t iX)
-{
+uint8_t scalerX(uint8_t iX) {
     uint16_t iX_u16 = (uint16_t)iX;
     uint16_t oX_u16;
-    
+
     oX_u16 = (iX_u16 * 427) >> 8;
-    
+
     return (uint8_t)oX_u16;
 }
 
-
-void parser_osd(uint8_t row, uint8_t *rx_buf)
-{
+void parser_osd(uint8_t row, uint8_t *rx_buf) {
     uint16_t ch;
-    uint8_t i,j,ptr;
+    uint8_t i, j, ptr;
     uint8_t mask[7] = {0};
     uint16_t line_buf[HD_HMAX];
     uint8_t hmax;
     uint8_t len_mask;
     uint32_t loc_buf = 0;
-    uint8_t page_buf[7]={0};
+    uint8_t page_buf[7] = {0};
     uint8_t chNum = 0;
     uint8_t pageNum = 0;
     static uint8_t row_last = 0;
 
-    //detect osd_resolution
-    if((row >> 5) == (row_last >> 5))
+    // detect osd_resolution
+    if ((row >> 5) == (row_last >> 5))
         osd_resolution = row >> 5;
-    if(osd_resolution >= RES_MAX)
+    if (osd_resolution >= RES_MAX)
         osd_resolution = SD_3016;
 
-    
-    if(osd_resolution != resolution_last)
+    if (osd_resolution != resolution_last)
         clear_screen();
-    
+
     resolution_last = osd_resolution;
     row_last = row;
-    
+
     row &= 0x1f;
-    
-    if(osd_resolution == HD_5018){
+
+    if (osd_resolution == HD_5018) {
         hmax = HD_HMAX;
         len_mask = 7;
         ptr = 8;
-    }else{
+    } else {
         ptr = 9;
         len_mask = 4;
         hmax = SD_HMAX;
     }
-    
-    //init line_buf
-    for(i=0;i<HD_HMAX;i++)
+
+    // init line_buf
+    for (i = 0; i < HD_HMAX; i++)
         line_buf[i] = 0x20;
 
-    //parse mask
-    for(i=0;i<len_mask;i++){
-        mask[i] = rx_buf[i+1];
+    // parse mask
+    for (i = 0; i < len_mask; i++) {
+        mask[i] = rx_buf[i + 1];
     }
 
-    //parse loc
-    if(osd_resolution == SD_3016){
+    // parse loc
+    if (osd_resolution == SD_3016) {
         loc_buf = (uint32_t)rx_buf[5] << 0;
         loc_buf += (uint32_t)rx_buf[6] << 8;
         loc_buf += (uint32_t)rx_buf[7] << 16;
         loc_buf += (uint32_t)rx_buf[8] << 24;
     }
-    
-    //parse page
+
+    // parse page
     chNum = 0;
-    for(i=0;i<hmax;i++)
-        chNum += (mask[i>>3]>>(i&7))&1;
+    for (i = 0; i < hmax; i++)
+        chNum += (mask[i >> 3] >> (i & 7)) & 1;
     pageNum = chNum + 7;
     pageNum = pageNum >> 3;
-    
-    for(i=0;i<pageNum;i++)
-        page_buf[i] = rx_buf[ptr+chNum+i];
 
-    //parse one line osd to line_buf
+    for (i = 0; i < pageNum; i++)
+        page_buf[i] = rx_buf[ptr + chNum + i];
+
+    // parse one line osd to line_buf
     uint8_t waddr = 0;
     j = 0;
-    for(i=0;i<hmax;i++)
-    {
-        //parse ch
-        if((mask[i>>3]>>(i&7))&0x01)
-        {
+    for (i = 0; i < hmax; i++) {
+        // parse ch
+        if ((mask[i >> 3] >> (i & 7)) & 0x01) {
             ch = rx_buf[ptr++];
-            if((page_buf[j>>3] >> (j&7))&1)
+            if ((page_buf[j >> 3] >> (j & 7)) & 1)
                 ch += 256;
             j++;
-        }
-        else
+        } else
             ch = 0x20;
 
-        if(osd_resolution == SD_3016)
-        {
-            if((loc_buf >> i) & 1)
+        if (osd_resolution == SD_3016) {
+            if ((loc_buf >> i) & 1)
                 waddr = scalerX(i);
-            
+
             line_buf[waddr++] = ch;
-            if(waddr >= HD_HMAX)
+            if (waddr >= HD_HMAX)
                 waddr = 0;
-        }
-        else if(osd_resolution == HD_3016)
+        } else if (osd_resolution == HD_3016)
             line_buf[i + 10] = ch;
         else
             line_buf[i] = ch;
     }
 
-    if(osd_resolution == HD_3016)
+    if (osd_resolution == HD_3016)
         update_osd(line_buf, row + 1);
     else
         update_osd(line_buf, row);
 }
 
-void clear_screen()
-{
-	for(int i=0; i<HD_VMAX; i++)
-	{
-		for(int j=0; j<HD_HMAX; j++)
-		{
-			osd_buf[i][j] = 0x20;
-		}
-	}
-//	draw_osd_on_console();
-//	draw_osd_on_screen();
+void clear_screen() {
+    for (int i = 0; i < HD_VMAX; i++) {
+        for (int j = 0; j < HD_HMAX; j++) {
+            osd_buf[i][j] = 0x20;
+        }
+    }
 }
 
-void update_osd(uint16_t* line_buf, uint8_t row)
-{
+void update_osd(uint16_t *line_buf, uint8_t row) {
     uint8_t i;
 
-    for(i=0;i<HD_HMAX;i++)
-	{
-		if(osd_buf[row][i] != line_buf[i])
-		{
-        	osd_buf[row][i] = line_buf[i];
-			///draw_osd_on_screen(row, i);
-		}
-	}
-//	draw_osd_on_console();
-//	draw_osd_on_screen();
-
+    for (i = 0; i < HD_HMAX; i++) {
+        if (osd_buf[row][i] != line_buf[i]) {
+            osd_buf[row][i] = line_buf[i];
+        }
+    }
 }
