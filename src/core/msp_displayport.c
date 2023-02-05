@@ -46,7 +46,6 @@ uint8_t lq_err_cnt = 0;
 uint8_t lq_rcv_cnt = 0;
 
 uint16_t osd_buf[HD_VMAX][HD_HMAX];
-uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 uint8_t osd_init_done = 0;
 
 uint16_t last_rcv_seconds0 = 0;
@@ -440,11 +439,11 @@ void clear_screen() {
 }
 
 void update_osd(uint16_t *line_buf, uint8_t row) {
-    uint8_t i;
-
-    for (i = 0; i < HD_HMAX; i++) {
+    for (uint8_t i = 0; i < HD_HMAX; i++) {
         if (osd_buf[row][i] != line_buf[i]) {
             osd_buf[row][i] = line_buf[i];
         }
     }
+
+    osd_signal_update();
 }
