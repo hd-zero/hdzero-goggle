@@ -48,30 +48,9 @@ uint8_t lq_rcv_cnt = 0;
 uint16_t osd_buf[HD_VMAX][HD_HMAX];
 uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 uint8_t osd_init_done = 0;
-uint8_t fc_init_done = 0;
 
 uint16_t last_rcv_seconds0 = 0;
 uint16_t last_rcv_seconds1 = 0;
-
-/*
-void fc_msp_displayport()
-{
-    if(!fc_init_done){
-        fc_init();
-        osd_init_done = 1;
-        fc_init_done = 1;
-        LOGI("fc_init_done");
-    }else{
-        recive_one_frame();
-        lqStatistics();
-    }
-}
-*/
-void fc_init() {
-    clear_screen();
-    vtxType = 0;
-    vtxTempInfo = 0;
-}
 
 void recive_one_frame(uint8_t *uart_buf, uint8_t uart_buf_len) {
     static uint8_t rx_buf[RXBUF_SIZE];
@@ -274,6 +253,7 @@ void lqDetect(uint8_t rData) {
     lq_rcv_cnt++;
     last_lq = rData;
 }
+
 void lqStatistics() {
     static uint16_t last_sec = 0;
     const uint32_t now = time_s();
@@ -330,6 +310,7 @@ void vtxCamRatioDetect(uint8_t rData) {
     else if (rData == 0x55)
         cam_4_3 = 0;
 }
+
 void parser_config(uint8_t *rx_buf) {
     camTypeDetect(rx_buf[1]);
     fcTypeDetect(rx_buf + 2);

@@ -42,10 +42,6 @@ typedef enum {
     RX_CRC1
 } rx_state_e;
 
-// void fc_msp_displayport();
-void fc_init();
-void mcu_osd_init();
-void osd8336_init();
 void recive_one_frame(uint8_t *uart_buf, uint8_t uart_buf_len);
 void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf);
 void parser_config(uint8_t *rx_buf);
@@ -72,7 +68,6 @@ extern uint8_t vtxType;
 extern uint8_t vtxFcLock;
 extern uint8_t cam_4_3;
 
-extern uint8_t fc_init_done;
 extern uint16_t osd_buf[HD_VMAX][HD_HMAX];
 extern uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 extern uint8_t loc_buf[HD_VMAX][4];
