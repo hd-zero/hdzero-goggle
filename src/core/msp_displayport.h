@@ -69,7 +69,6 @@ extern uint8_t vtxFcLock;
 extern uint8_t cam_4_3;
 
 extern uint16_t osd_buf[HD_VMAX][HD_HMAX];
-extern uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 extern uint8_t loc_buf[HD_VMAX][4];
 extern uint8_t osd_page_buf[HD_VMAX][7];
 

@@ -2,6 +2,7 @@
 
 #include <fcntl.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,6 +34,9 @@ bool is_recording = false;
 
 // local
 static pthread_mutex_t dvr_mutex;
+static sem_t osd_semaphore;
+
+static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
@@ -443,7 +447,7 @@ int osd_clear(void) {
     return 0;
 }
 
-int draw_osd_on_screen(uint8_t row, uint8_t col) {
+static int draw_osd_on_screen(uint8_t row, uint8_t col) {
     pthread_mutex_lock(&lvgl_mutex);
     int index = osd_buf_shadow[row][col];
     lv_img_set_src(img_arr[row][col], &osd_font.data[index]);
@@ -560,6 +564,8 @@ int osd_init(void) {
     fc_osd_init();
     embedded_osd_init();
 
+    sem_init(&osd_semaphore, 0, 1);
+
     return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -656,11 +662,18 @@ void load_fc_osd_font(void) {
             LOGE(" failed!");
     }
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 // Threads for updating FC OSD
-void *thread_osd(void *ptr) {
 
+void osd_signal_update() {
+    sem_post(&osd_semaphore);
+}
+
+void *thread_osd(void *ptr) {
     for (;;) {
+        // wait for signal to render
+        sem_wait(&osd_semaphore);
 
         for (int i = 0; i < HD_VMAX; i++) {
             for (int j = 0; j < HD_HMAX; j++) {
@@ -670,7 +683,6 @@ void *thread_osd(void *ptr) {
                 }
             }
         }
-        //	usleep(2000);
     }
     return NULL;
 }
