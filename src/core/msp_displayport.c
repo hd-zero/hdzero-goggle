@@ -439,11 +439,6 @@ void clear_screen() {
 }
 
 void update_osd(uint16_t *line_buf, uint8_t row) {
-    for (uint8_t i = 0; i < HD_HMAX; i++) {
-        if (osd_buf[row][i] != line_buf[i]) {
-            osd_buf[row][i] = line_buf[i];
-        }
-    }
-
+    memcpy(osd_buf[row], line_buf, HD_HMAX * sizeof(uint16_t));
     osd_signal_update();
 }
