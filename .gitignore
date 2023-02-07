@@ -5,6 +5,7 @@ toolchain
 /mkapp/image
 /mkapp/ota_app
 /mkapp/app/app/HDZGOGGLE
+/mkapp/app/app/record/record
 /mkapp/app/version
 /out
 media.tar.gz
