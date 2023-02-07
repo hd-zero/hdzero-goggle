@@ -14,6 +14,7 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 set(OS_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app)
+set(RECORD_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app/record)
 
 # common build settings
 set(STANDARD_LIBRARIES
@@ -111,6 +112,7 @@ add_custom_command(
 	COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp record ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
+	COMMAND cp record ${RECORD_APP_PATH}
 	COMMAND cd ${PROJECT_SOURCE_DIR} && ./mkapp/mkapp_ota.sh
 	DEPENDS ${PROJECT_NAME} record
 )
