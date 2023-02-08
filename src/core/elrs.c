@@ -19,6 +19,7 @@
 
 #include "core/battery.h"
 #include "core/common.hh"
+#include "core/ht.h"
 #include "core/osd.h"
 #include "driver/dm5680.h"
 #include "driver/gpio.h"
@@ -290,8 +291,12 @@ void msp_process_packet() {
             // TODO
             break;
         case MSP_SET_HT_ENABLE:
-            if (packet.payload_size > 0)
+            if (packet.payload_size > 0) {
                 headtracking_enabled = packet.payload[0];
+                if (headtracking_enabled) {
+                    ht_set_center_position();
+                }
+            }
             break;
         }
     } else if (packet.type == MSP_PACKET_RESPONSE) {
@@ -350,14 +355,13 @@ void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_s
     uart_write(fd_esp32, buffer, payload_size + 9);
 }
 
-void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll)
-{
-	if (g_setting.elrs.enable) {
-		uint8_t payload[6] = {pan & 0xFF, pan >> 8, tilt & 0xFF, tilt >> 8, roll & 0xFF, roll >> 8};
-		msp_send_packet(MSP_SET_PTR, MSP_PACKET_COMMAND, sizeof(payload), payload);
-	}
+void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll) {
+    if (g_setting.elrs.enable) {
+        uint8_t payload[6] = {pan & 0xFF, pan >> 8, tilt & 0xFF, tilt >> 8, roll & 0xFF, roll >> 8};
+        msp_send_packet(MSP_SET_PTR, MSP_PACKET_COMMAND, sizeof(payload), payload);
+    }
 }
 
 bool elrs_headtracking_enabled() {
-	return headtracking_enabled;
+    return headtracking_enabled;
 }
