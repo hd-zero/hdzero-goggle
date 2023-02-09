@@ -17,3 +17,4 @@ void battery_init();
 void battery_update();
 
 bool battery_is_low();
+int battery_get_millivolts(bool per_cell);

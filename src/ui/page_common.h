@@ -90,12 +90,18 @@ typedef enum {
     SETTING_POWER_CELL_COUNT_MODE_MANUAL = 1
 } setting_power_cell_count_mode_t;
 
+typedef enum {
+    SETTING_POWER_OSD_DISPLAY_MODE_TOTAL = 0,
+    SETTING_POWER_OSD_DISPLAY_MODE_CELL = 1
+} setting_power_osd_display_mode_t;
+
 typedef struct {
     int voltage;
     bool display_voltage;
     int warning_type; // 0=beep,1=visual,2=both
     setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;
+    setting_power_osd_display_mode_t osd_display_mode;
 } setting_power_t;
 
 typedef struct {
