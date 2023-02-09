@@ -17,6 +17,7 @@
 #include "ui/ui_porting.h"
 
 #include "ui/ui_main_menu.h"
+#include "ht.h"
 #include "osd.h"
 #include "ui/ui_image_setting.h"
 #include "common.hh"
@@ -42,6 +43,8 @@
 
 uint8_t    tune_state = 0; //0=init; 1=waiting for key; 2=tuning 
 uint16_t   tune_timer = 0;
+
+static lv_timer_t *right_click_timer = NULL;
 
 #define EPOLL_FD_CNT 4
 
@@ -256,7 +259,7 @@ static void btn_click(void)  //short press enter key
 	pthread_mutex_unlock(&lvgl_mutex);
 }
 
-void rbtn_click(bool is_short) {
+static void rbtn_click0(bool is_short) {
     switch (g_menu_op) {
     case OPLEVEL_SUBMENU:
 		pthread_mutex_lock(&lvgl_mutex);
@@ -275,6 +278,29 @@ void rbtn_click(bool is_short) {
     default:
         break;
     }
+}
+
+static void short_right_click_timeout(lv_timer_t *timer) {
+	lv_timer_del(timer);
+	right_click_timer = NULL;
+	rbtn_click0(true);
+}
+
+void rbtn_click(bool is_short) {
+	if (is_short) {
+		if (!right_click_timer) {
+			right_click_timer = lv_timer_create(short_right_click_timeout, 200, NULL);
+		} else {
+			lv_timer_del(right_click_timer);
+			right_click_timer = NULL;
+			// double-click handler
+			if (g_menu_op == OPLEVEL_VIDEO) {
+				ht_set_center_position();
+			}
+		}
+	} else {
+		rbtn_click0(false);
+	}
 }
 
 static void roller_up(void)
