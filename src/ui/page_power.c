@@ -13,6 +13,7 @@
 static slider_group_t slider_group_cell_voltage;
 static btn_group_t btn_group_cell_count_mode;
 static slider_group_t slider_group_cell_count;
+static btn_group_t btn_group_osd_display_mode;
 static btn_group_t btn_group_warn_type;
 
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
@@ -60,6 +61,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_cell_count_mode, cont, 2, "Cell Count Mode", "Auto", "Manual", "", "", ROW_CELL_COUNT_MODE);
     create_slider_item(&slider_group_cell_count, cont, "Cell Count", CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
     create_slider_item(&slider_group_cell_voltage, cont, "Cell Voltage", CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_CELL_VOLTAGE);
+    create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "OSD Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
@@ -77,6 +79,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_cell_count_mode, g_setting.power.cell_count_mode);
     lv_slider_set_value(slider_group_cell_count.slider, g_setting.power.cell_count, LV_ANIM_OFF);
     lv_slider_set_value(slider_group_cell_voltage.slider, g_setting.power.voltage, LV_ANIM_OFF);
+    btn_group_set_sel(&btn_group_osd_display_mode, g_setting.power.osd_display_mode);
     btn_group_set_sel(&btn_group_warn_type, g_setting.power.warning_type);
     page_power_update_cell_count();
 
@@ -186,6 +189,12 @@ static void page_power_on_click(uint8_t key, int sel) {
         }
         break;
 
+    case ROW_OSD_DISPLAY_MODE:
+        btn_group_toggle_sel(&btn_group_osd_display_mode);
+        g_setting.power.osd_display_mode = btn_group_get_sel(&btn_group_osd_display_mode);
+        ini_putl("power", "osd_display_mode", g_setting.power.osd_display_mode, SETTING_INI);
+        break;
+
     case ROW_WARN_TYPE:
         btn_group_toggle_sel(&btn_group_warn_type);
         g_setting.power.warning_type = btn_group_get_sel(&btn_group_warn_type);
@@ -200,7 +209,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 page_pack_t pp_power = {
     .p_arr = {
         .cur = 0,
-        .max = 6,
+        .max = 7,
     },
 
     .create = page_power_create,

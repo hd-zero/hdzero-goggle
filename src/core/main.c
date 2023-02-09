@@ -80,6 +80,7 @@ static void load_ini_setting(void) {
     g_setting.power.warning_type = ini_getl("power", "warning_type", 0, SETTING_INI);
     g_setting.power.cell_count_mode = ini_getl("power", "cell_count_mode", 0, SETTING_INI);
     g_setting.power.cell_count = ini_getl("power", "cell_count", 2, SETTING_INI);
+    g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", 0, SETTING_INI);
     ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
     g_setting.record.mode_manual = strcmp(str, "enable") == 0;
     ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);

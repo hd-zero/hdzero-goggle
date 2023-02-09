@@ -149,9 +149,30 @@ int statusbar_init(void) {
 void statubar_update(void) {
     char buf[128];
     memset(buf, 0, sizeof(buf));
-    sprintf(buf, "%dS %d.%dV", g_battery.type,
-            g_battery.voltage / 1000,
-            g_battery.voltage % 1000 / 100);
+
+    // display battery voltage
+    int bat_mv = 0;
+    switch (g_setting.power.osd_display_mode)
+    {
+        default:
+        case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL:
+            bat_mv = battery_get_millivolts(false);
+            sprintf(buf, "%dS %d.%dV", 
+                    g_battery.type,
+                    bat_mv / 1000,
+                    bat_mv % 1000 / 100);
+            
+            break;
+            
+        case SETTING_POWER_OSD_DISPLAY_MODE_CELL:
+            bat_mv = battery_get_millivolts(true);
+            sprintf(buf, "%dS %d.%dV/C", 
+                    g_battery.type,
+                    bat_mv / 1000, 
+                    bat_mv % 1000 / 100);
+
+            break;
+    }
 
     lv_label_set_text(label4, buf);
 
