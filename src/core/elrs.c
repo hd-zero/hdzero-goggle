@@ -250,12 +250,14 @@ void msp_process_packet() {
             msp_send_packet(MSP_GET_REC_STATE, MSP_PACKET_RESPONSE, 1, &buf);
         } break;
         case MSP_SET_REC_STATE: {
-            record_state = packet.payload[0] == 0 ? 1 : 2;
-            uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;
-            if (delay == 0)
-                osd_dvr_cmd(record_state);
-            else
-                record_time = time(NULL) + delay;
+            if (g_menu_op == OPLEVEL_VIDEO) {
+                record_state = packet.payload[0] == 0 ? 1 : 2;
+                uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;
+                if (delay == 0)
+                    osd_dvr_cmd(record_state);
+                else
+                    record_time = time(NULL) + delay;
+            }
         } break;
         case MSP_GET_VRX_MODE:
             break;
