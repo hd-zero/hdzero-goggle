@@ -18,6 +18,7 @@
 
 #include "core/battery.h"
 #include "core/common.hh"
+#include "core/elrs.h"
 #include "core/msp_displayport.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
@@ -40,6 +41,8 @@ static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
+
+extern uint8_t elrs_osd[HD_VMAX][HD_HMAX];
 
 ///////////////////////////////////////////////////////////////////
 //-1=error;
@@ -681,8 +684,10 @@ void *thread_osd(void *ptr) {
 
         for (int i = 0; i < HD_VMAX; i++) {
             for (int j = 0; j < HD_HMAX; j++) {
-                if (osd_buf[i][j] != osd_buf_shadow[i][j]) {
-                    osd_buf_shadow[i][j] = osd_buf[i][j];
+                uint16_t ch = osd_buf[i][j];
+                if (ch == 0x20) ch = elrs_osd[i][j];
+                if (ch != osd_buf_shadow[i][j]) {
+                    osd_buf_shadow[i][j] = ch;
                     draw_osd_on_screen(i, j);
                 }
             }

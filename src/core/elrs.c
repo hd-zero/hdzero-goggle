@@ -20,6 +20,7 @@
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/ht.h"
+#include "core/msp_displayport.h"
 #include "core/osd.h"
 #include "driver/dm5680.h"
 #include "driver/gpio.h"
@@ -42,7 +43,11 @@ static int record_state;
 static uint32_t record_time = 0;
 static bool headtracking_enabled = false;
 
+uint8_t elrs_osd[HD_VMAX][HD_HMAX];
+static uint8_t elrs_osd_overlay[HD_VMAX][HD_HMAX];
+
 void msp_process_packet();
+static void handleOSD(uint8_t *payload, uint8_t size);
 
 static const uint16_t freq_table[] = {
     5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R1-8
@@ -284,11 +289,10 @@ void msp_process_packet() {
             }
         } break;
         case MSP_SET_BUZZER:
-            // TODO after merge
-            // beep_dur((packet.payload[0] | packet.payload[1]<<8) * 1000);
+            beep_dur((packet.payload[0] | packet.payload[1]<<8) * 1000);
             break;
         case MSP_SET_OSD_ELEM:
-            // TODO
+            handleOSD(packet.payload, packet.payload_size);
             break;
         case MSP_SET_HT_ENABLE:
             if (packet.payload_size > 0) {
@@ -364,4 +368,35 @@ void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll) {
 
 bool elrs_headtracking_enabled() {
     return headtracking_enabled;
+}
+
+static void clear_osd() {
+    memset(elrs_osd_overlay, 0x20, sizeof(elrs_osd_overlay));
+}
+
+static void handleOSD(uint8_t payload[], uint8_t size) {
+    switch (payload[0]) {
+    case 0x00: // hearbeat
+        break;
+    case 0x01: // release port
+        clear_osd();
+        memcpy(elrs_osd, elrs_osd_overlay, sizeof(elrs_osd));
+        osd_signal_update();
+        break;
+    case 0x02: // clear screen
+        clear_osd();
+        break;
+    case 0x03: // write string
+    {
+        uint8_t row = payload[1];
+        uint8_t col = payload[2];
+        uint8_t attr = payload[3];
+        uint8_t len = size - 4 < HD_HMAX - col ? size - 4 : HD_HMAX - col;
+        memcpy(&elrs_osd_overlay[row][col], &payload[4], len);
+    } break;
+    case 0x04: // draw screen
+        memcpy(elrs_osd, elrs_osd_overlay, sizeof(elrs_osd));
+        osd_signal_update();
+        break;
+    }
 }
