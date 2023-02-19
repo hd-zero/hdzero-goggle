@@ -245,11 +245,11 @@ static void btn_click(void) // short press enter key
 }
 
 static void rbtn_click0(bool is_short) {
+    // lvgl mutex is already locked either via lv_timer or manually bellow
+
     switch (g_menu_op) {
     case OPLEVEL_SUBMENU:
-        pthread_mutex_lock(&lvgl_mutex);
         submenu_right_button(is_short);
-        pthread_mutex_unlock(&lvgl_mutex);
         break;
 
     case OPLEVEL_VIDEO:
@@ -284,7 +284,9 @@ void rbtn_click(bool is_short) {
             }
         }
     } else {
+        pthread_mutex_lock(&lvgl_mutex);
         rbtn_click0(false);
+        pthread_mutex_unlock(&lvgl_mutex);
     }
 }
 
