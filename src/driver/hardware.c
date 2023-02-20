@@ -20,6 +20,18 @@
 #include "driver/oled.h"
 #include "driver/uart.h"
 
+typedef enum {
+    AV_DETECT_INIT,
+    AV_DETECT_MONITOR,
+    AV_DETECT_INIT_SEARCH,
+    AV_DETECT_SEARCH,
+    AV_DETECT_VERIFY
+} av_detect_state_t;
+
+#define AV_DETECT_DROP_CNT   3
+#define AV_DETECT_DET_CNT    10
+#define AV_DETECT_VERIFY_CNT 50
+
 /////////////////////////////////////////////////////////////////////////
 // global
 hw_status_t g_hw_stat;
@@ -289,73 +301,114 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
     return ret;
 }
 
-#define AV_DET_CNT1 1
-#define AV_DET_CNT2 3
-int AV_in_detect() // return = 1: vtmg to V536 changed
-{
-    static int det_last = -1, det2_last = -1;
-    static int det_cnt = 0, det2_cnt = 0;
-    int det, det2;
+// return = 1: vtmg to V536 changed
+int AV_in_detect() {
     int ret = 0;
 
     pthread_mutex_lock(&hardware_mutex);
 
-    det = I2C_Read(ADDR_TP2825, 0x01);
+    const uint8_t status = I2C_Read(ADDR_TP2825, 0x01);
 
     if (g_hw_stat.source_mode == HW_SRC_MODE_UI) { // detect in UI mode
-        TP2825_Set_Clamp(0);
 
-        det = ((det & 0x80) == 0x80) ? 0 : 1;
-        if (det_last != det) {
-            det_last = det;
+        static uint8_t switch_cnt = 0;
+        static uint8_t vdet_cnt = 0;
+
+        const bool vdet = (status & 0x28) == 0x28;
+        // LOGD("av_chid: %d status: 0x%x vdet: %d", g_hw_stat.av_chid, status, vdet);
+        if (vdet) {
+            vdet_cnt++;
         } else {
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
+            vdet_cnt = 0;
+        }
+        switch_cnt++;
+
+        if (switch_cnt == AV_DETECT_DET_CNT) {
+            g_hw_stat.av_valid[g_hw_stat.av_chid] = vdet_cnt == AV_DETECT_DET_CNT;
             g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
             TP2825_Switch_CH(g_hw_stat.av_chid);
-            det_last = -1;
+            vdet_cnt = 0;
+            switch_cnt = 0;
         }
 
-        det_cnt = det2_cnt = 0;
     } else if (g_hw_stat.source_mode == HW_SRC_MODE_AV) { // detect in AV_in/Module_bay mode
-        det &= 0xAF;
-        det2 = (g_hw_stat.av_pal == 1 && det == 0x2C) ? 2 : (g_hw_stat.av_pal == 0 && det == 0x28) ? 1
-                                                                                                   : 0;
-        det = (det == (g_hw_stat.av_pal ? 0x28 : 0x2C)) ? 1 : 0;
+        static av_detect_state_t state = AV_DETECT_INIT;
+        static uint8_t counter = 0;
 
-        if (det_last != det) {
-            det_last = det;
-            det_cnt = 0;
-        } else if (det_cnt < AV_DET_CNT1) {
-            det_cnt++;
-        }
+        static uint8_t last_vdet = 0;
+        const uint8_t vdet = (status & 0x68);
+        // LOGD("vdpo_tmg: %d pal: %d vdet: 0x%x state: %d", g_hw_stat.vdpo_tmg, g_hw_stat.av_pal, vdet, state);
 
-        if (det2_last != det2) {
-            det2_last = det2;
-            det2_cnt = 0;
-        } else if (det2_cnt < AV_DET_CNT2) {
-            det2_cnt++;
-        }
+        switch (state) {
+        case AV_DETECT_INIT:
+            // lets start with ntsc
+            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+            g_hw_stat.av_pal = 0;
+            TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
+            AV_Mode_Switch(g_hw_stat.av_pal);
+            state = AV_DETECT_MONITOR;
+            ret = 1;
+            break;
 
-        if (g_hw_stat.av_valid[g_hw_stat.av_chid]) {
-            if (det2 == 0 && det2_cnt == AV_DET_CNT2) {
-                TP2825_Set_Clamp(0);
-                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+        case AV_DETECT_MONITOR:
+            // monitor the current state
+            if (vdet == 0x68) {
+                // all detected we are fine
+                g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
+                counter = 0;
+                break;
             }
-        } else {
-            if (det && det_cnt == AV_DET_CNT1) {
+            if (counter > AV_DETECT_DROP_CNT) {
+                // signal dropped, lets search
+                state = AV_DETECT_INIT_SEARCH;
+                counter = 0;
+                break;
+            }
+            counter++;
+            break;
+
+        case AV_DETECT_INIT_SEARCH:
+            TP2825_Set_Clamp(0);
+            state = AV_DETECT_SEARCH;
+            last_vdet = 0;
+            break;
+
+        case AV_DETECT_SEARCH: {
+            if (counter > AV_DETECT_DET_CNT) {
+                state = AV_DETECT_VERIFY;
+                counter = 0;
+                break;
+            }
+            if (vdet == 0x68) {
+                // some video was detected
+                counter++;
+                break;
+            }
+            if (last_vdet != vdet && ((vdet & 0x28) == 0x28)) {
+                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
                 g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
                 TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
-                AV_Mode_Switch(g_hw_stat.av_pal);
+                counter = 0;
             }
+            last_vdet = vdet;
+            break;
+        }
 
-            if (det2_cnt == AV_DET_CNT2) {
-                if (det2) {
-                    TP2825_Set_Clamp(1);
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = det2;
-                    ret = 1;
-                } else
-                    TP2825_Set_Clamp(0);
+        case AV_DETECT_VERIFY:
+            if (counter > AV_DETECT_VERIFY_CNT) {
+                TP2825_Set_Clamp(1);
+                AV_Mode_Switch(g_hw_stat.av_pal);
+                state = AV_DETECT_MONITOR;
+                counter = 0;
+                break;
             }
+            if (vdet != 0x68) {
+                state = AV_DETECT_INIT_SEARCH;
+                counter = 0;
+                break;
+            }
+            counter++;
+            break;
         }
     }
 
