@@ -28,7 +28,7 @@ typedef enum {
     AV_DETECT_VERIFY
 } av_detect_state_t;
 
-#define AV_DETECT_DROP_CNT   3
+#define AV_DETECT_DROP_CNT   5
 #define AV_DETECT_DET_CNT    10
 #define AV_DETECT_VERIFY_CNT 50
 
@@ -194,14 +194,16 @@ void AV_Mode_Switch_fpga(int is_pal) {
     system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
-void AV_Mode_Switch(int is_pal) {
-    int tmg = is_pal ? HW_VDPO_720P50 : HW_VDPO_720P60;
-
-    if (g_hw_stat.vdpo_tmg != tmg) {
-        OLED_display(0);
-        AV_Mode_Switch_fpga(is_pal);
-        OLED_display(1);
+bool AV_Mode_Switch(int is_pal) {
+    const int tmg = is_pal ? HW_VDPO_720P50 : HW_VDPO_720P60;
+    if (g_hw_stat.vdpo_tmg == tmg) {
+        return false;
     }
+
+    OLED_display(0);
+    AV_Mode_Switch_fpga(is_pal);
+    OLED_display(1);
+    return true;
 }
 
 void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
@@ -345,9 +347,10 @@ int AV_in_detect() {
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
             g_hw_stat.av_pal = 0;
             TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
-            AV_Mode_Switch(g_hw_stat.av_pal);
-            state = AV_DETECT_MONITOR;
-            ret = 1;
+            if (AV_Mode_Switch(g_hw_stat.av_pal)) {
+                ret = 1;
+            }
+            state = AV_DETECT_INIT_SEARCH;
             break;
 
         case AV_DETECT_MONITOR:
@@ -389,15 +392,19 @@ int AV_in_detect() {
                 g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
                 TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
                 counter = 0;
+                last_vdet = 0;
+            } else {
+                last_vdet = vdet;
             }
-            last_vdet = vdet;
             break;
         }
 
         case AV_DETECT_VERIFY:
             if (counter > AV_DETECT_VERIFY_CNT) {
                 TP2825_Set_Clamp(1);
-                AV_Mode_Switch(g_hw_stat.av_pal);
+                if (AV_Mode_Switch(g_hw_stat.av_pal)) {
+                    ret = 1;
+                }
                 state = AV_DETECT_MONITOR;
                 counter = 0;
                 break;
