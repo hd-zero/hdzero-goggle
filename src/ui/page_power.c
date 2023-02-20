@@ -61,7 +61,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_cell_count_mode, cont, 2, "Cell Count Mode", "Auto", "Manual", "", "", ROW_CELL_COUNT_MODE);
     create_slider_item(&slider_group_cell_count, cont, "Cell Count", CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
     create_slider_item(&slider_group_cell_voltage, cont, "Cell Voltage", CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_CELL_VOLTAGE);
-    create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "OSD Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
+    create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
