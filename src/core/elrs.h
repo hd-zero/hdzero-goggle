@@ -61,6 +61,7 @@ typedef struct {
 
 void elrs_init();
 bool elrs_headtracking_enabled();
+void elrs_clear_osd();
 
 void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
 bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *payload);
