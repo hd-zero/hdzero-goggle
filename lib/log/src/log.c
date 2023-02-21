@@ -48,6 +48,7 @@ int log_printf(const char *file, const char *func, int line, const int level, co
         func,
         line,
         buf);
+    fflush(stdout);
 
     if (log_file) {
         fprintf(log_file, "[%s][%s:%s:%d] %s\r\n",
