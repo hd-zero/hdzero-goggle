@@ -42,8 +42,6 @@ static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
 
-extern uint8_t elrs_osd[HD_VMAX][HD_HMAX];
-
 ///////////////////////////////////////////////////////////////////
 //-1=error;
 // 0=idle,1=recording,2=stopped,3=No SD card,4=recorf file path error,

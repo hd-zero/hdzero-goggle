@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/msp_displayport.h"
+
 typedef enum {
     MSP_IDLE,
     MSP_HEADER_START,
@@ -58,6 +60,8 @@ typedef struct {
     uint16_t payload_offset;
     bool read_error;
 } mspPacket_t;
+
+extern uint16_t elrs_osd[HD_VMAX][HD_HMAX];
 
 void elrs_init();
 bool elrs_headtracking_enabled();

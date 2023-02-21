@@ -43,8 +43,8 @@ static int record_state;
 static uint32_t record_time = 0;
 static bool headtracking_enabled = false;
 
-uint8_t elrs_osd[HD_VMAX][HD_HMAX];
-static uint8_t elrs_osd_overlay[HD_VMAX][HD_HMAX];
+uint16_t elrs_osd[HD_VMAX][HD_HMAX];
+static uint16_t elrs_osd_overlay[HD_VMAX][HD_HMAX];
 
 void msp_process_packet();
 static void handleOSD(uint8_t *payload, uint8_t size);
@@ -371,7 +371,11 @@ bool elrs_headtracking_enabled() {
 }
 
 void elrs_clear_osd() {
-    memset(elrs_osd_overlay, 0x20, sizeof(elrs_osd_overlay));
+    for (int i = 0; i < HD_VMAX; i++) {
+        for (int j = 0; j < HD_HMAX; j++) {
+            elrs_osd_overlay[i][j] = 0x20;
+        }
+    }
 }
 
 static void handleOSD(uint8_t payload[], uint8_t size) {
@@ -391,8 +395,12 @@ static void handleOSD(uint8_t payload[], uint8_t size) {
         uint8_t row = payload[1];
         uint8_t col = payload[2];
         uint8_t attr = payload[3];
+        // HDZero only allows 2 pages of characters (i.e. 512 characters)
+        int page = (attr & 1) * 256;
         uint8_t len = size - 4 < HD_HMAX - col ? size - 4 : HD_HMAX - col;
-        memcpy(&elrs_osd_overlay[row][col], &payload[4], len);
+        for (int j = 0; j < len; j++) {
+            elrs_osd_overlay[row][col+j] = payload[j+4] + page;
+        }
     } break;
     case 0x04: // draw screen
         memcpy(elrs_osd, elrs_osd_overlay, sizeof(elrs_osd));
