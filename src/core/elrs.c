@@ -370,7 +370,7 @@ bool elrs_headtracking_enabled() {
     return headtracking_enabled;
 }
 
-static void clear_osd() {
+void elrs_clear_osd() {
     memset(elrs_osd_overlay, 0x20, sizeof(elrs_osd_overlay));
 }
 
@@ -379,12 +379,12 @@ static void handleOSD(uint8_t payload[], uint8_t size) {
     case 0x00: // hearbeat
         break;
     case 0x01: // release port
-        clear_osd();
+        elrs_clear_osd();
         memcpy(elrs_osd, elrs_osd_overlay, sizeof(elrs_osd));
         osd_signal_update();
         break;
     case 0x02: // clear screen
-        clear_osd();
+        elrs_clear_osd();
         break;
     case 0x03: // write string
     {
