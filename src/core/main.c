@@ -227,7 +227,7 @@ static void device_init(void) {
     enable_bmi270();
     IT66021_init();
     IT66121_init();
-    TP2825_Config(0, 0);
+    TP2825_Init(0, 0);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
 }

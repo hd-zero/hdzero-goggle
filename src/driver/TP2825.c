@@ -18,13 +18,18 @@ void TP2825_open() {
     gpio_set(GPIO_TP2825_RSTB, 1);
 }
 
-// ch_sel: 0=AV in; 1=Module bay
-void TP2825_Config(int ch_sel, int is_pal) {
+void TP2825_Init(int ch_sel, int is_pal) {
     TP2825_close();
     usleep(10000);
     TP2825_open();
     usleep(10000);
 
+    TP2825_Config(ch_sel, is_pal);
+}
+
+// ch_sel: 0=AV in; 1=Module bay
+void TP2825_Config(int ch_sel, int is_pal) {
+    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
     I2C_Write(ADDR_TP2825, 0x41, ch_sel);
 
     if (is_pal) {
@@ -76,8 +81,6 @@ void TP2825_Config(int ch_sel, int is_pal) {
         I2C_Write(ADDR_TP2825, 0x32, 0x96);
         I2C_Write(ADDR_TP2825, 0x33, 0xC0);
     }
-
-    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
 
     I2C_Write(ADDR_TP2825, 0x09, 0xa4);
     I2C_Write(ADDR_TP2825, 0x0A, 0x33);

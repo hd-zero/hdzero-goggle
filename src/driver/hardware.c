@@ -214,7 +214,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
 
     g_hw_stat.av_chid = sel;
     g_hw_stat.av_pal = 0; //(g_hw_stat.av_valid[sel] == 2) ? 1 : 0;
-    TP2825_Config(sel, g_hw_stat.av_pal);
+    TP2825_Init(sel, g_hw_stat.av_pal);
     AV_Mode_Switch_fpga(g_hw_stat.av_pal);
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
