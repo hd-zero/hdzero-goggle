@@ -10,6 +10,8 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 
+static int clamp_is_low = -1;
+
 void TP2825_close() {
     gpio_set(GPIO_TP2825_RSTB, 0);
 }
@@ -33,7 +35,7 @@ void TP2825_Config(int ch_sel, int is_pal) {
     I2C_Write(ADDR_TP2825, 0x41, ch_sel);
 
     if (is_pal) {
-        LOGD("init pal");
+        LOGD("TP2825_Config: pal");
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x0D, 0x11);
 
@@ -57,7 +59,7 @@ void TP2825_Config(int ch_sel, int is_pal) {
         I2C_Write(ADDR_TP2825, 0x32, 0x4D);
         I2C_Write(ADDR_TP2825, 0x33, 0xF0);
     } else {
-        LOGD("init ntsc");
+        LOGD("TP2825_Config: ntsc");
         I2C_Write(ADDR_TP2825, 0x02, 0xCF);
         I2C_Write(ADDR_TP2825, 0x0D, 0x10);
 
@@ -94,12 +96,13 @@ void TP2825_Config(int ch_sel, int is_pal) {
 
     I2C_Write(ADDR_TP2825, 0x21, 0x6d); // improves exposure
     I2C_Write(ADDR_TP2825, 0x22, 0x39);
-    I2C_Write(ADDR_TP2825, 0x23, 0x7c); // reset to 0x3D down the line
+    I2C_Write(ADDR_TP2825, 0x23, 0x7c); // reset down the line
     I2C_Write(ADDR_TP2825, 0x24, 0x59); // higher gain helps white flashes
     I2C_Write(ADDR_TP2825, 0x25, 0xfa); // feels like default has no max value, we want _some_ limit
-    I2C_Write(ADDR_TP2825, 0x26, 0x42);
-    I2C_Write(ADDR_TP2825, 0x28, 0x45);
-    I2C_Write(ADDR_TP2825, 0x2A, 0xb1); // diable color kill
+    I2C_Write(ADDR_TP2825, 0x26, 0x02);
+    I2C_Write(ADDR_TP2825, 0x28, 0xc5);
+    I2C_Write(ADDR_TP2825, 0x29, 0x38);
+    I2C_Write(ADDR_TP2825, 0x2A, 0x93); // diable color kill
     I2C_Write(ADDR_TP2825, 0x2C, 0x0a);
 
     I2C_Write(ADDR_TP2825, 0x39, 0x04); // LPF makes image drop slower.
@@ -108,6 +111,8 @@ void TP2825_Config(int ch_sel, int is_pal) {
     I2C_Write(ADDR_TP2825, 0x4C, 0x03);
     I2C_Write(ADDR_TP2825, 0x4D, 0x03);
     I2C_Write(ADDR_TP2825, 0x4E, 0x37);
+
+    clamp_is_low = 0;
 }
 
 // 0 = AV in; 1 = Module bay
@@ -116,6 +121,13 @@ void TP2825_Switch_CH(uint8_t sel) {
     I2C_Write(ADDR_TP2825, 0x06, 0xB3);
 }
 
-void TP2825_Set_Clamp(int set_default) {
-    I2C_Write(ADDR_TP2825, 0x23, set_default ? 0x3D : 0x7c);
+void TP2825_Set_Clamp(int set_low) {
+    if (clamp_is_low == set_low) {
+        return;
+    }
+
+    LOGD("TP2825_Set_Clamp: %d", set_low);
+    I2C_Write(ADDR_TP2825, 0x23, set_low ? 0x3D : 0x7c);
+    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
+    clamp_is_low = set_low;
 }

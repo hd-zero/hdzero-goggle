@@ -364,9 +364,11 @@ int AV_in_detect() {
             if (counter > AV_DETECT_DROP_CNT) {
                 // signal dropped, lets search
                 state = AV_DETECT_INIT_SEARCH;
+                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
                 counter = 0;
                 break;
             }
+            TP2825_Set_Clamp(0);
             counter++;
             break;
 
@@ -384,6 +386,10 @@ int AV_in_detect() {
             }
             if (vdet == 0x68) {
                 // some video was detected
+                if (counter == AV_DETECT_DET_CNT) {
+                    // first check after clamp has no vsync, ignore
+                    TP2825_Set_Clamp(1);
+                }
                 counter++;
                 break;
             }
@@ -394,6 +400,7 @@ int AV_in_detect() {
                 counter = 0;
                 last_vdet = 0;
             } else {
+                TP2825_Set_Clamp(0);
                 last_vdet = vdet;
             }
             break;
@@ -401,7 +408,6 @@ int AV_in_detect() {
 
         case AV_DETECT_VERIFY:
             if (counter > AV_DETECT_VERIFY_CNT) {
-                TP2825_Set_Clamp(1);
                 if (AV_Mode_Switch(g_hw_stat.av_pal)) {
                     ret = 1;
                 }
