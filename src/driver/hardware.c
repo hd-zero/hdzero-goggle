@@ -23,14 +23,14 @@
 typedef enum {
     AV_DETECT_INIT,
     AV_DETECT_MONITOR,
-    AV_DETECT_INIT_SEARCH,
     AV_DETECT_SEARCH,
+    AV_DETECT_FREERUN,
     AV_DETECT_VERIFY
 } av_detect_state_t;
 
 #define AV_DETECT_DROP_CNT   5
 #define AV_DETECT_DET_CNT    10
-#define AV_DETECT_VERIFY_CNT 50
+#define AV_DETECT_VERIFY_CNT 35
 
 /////////////////////////////////////////////////////////////////////////
 // global
@@ -335,79 +335,117 @@ int AV_in_detect() {
 
     } else if (g_hw_stat.source_mode == HW_SRC_MODE_AV) { // detect in AV_in/Module_bay mode
         static av_detect_state_t state = AV_DETECT_INIT;
+
         static uint8_t counter = 0;
 
-        static uint8_t last_vdet = 0;
-        const uint8_t vdet = (status & 0x68);
-        // LOGD("vdpo_tmg: %d pal: %d vdet: 0x%x state: %d", g_hw_stat.vdpo_tmg, g_hw_stat.av_pal, vdet, state);
+        const uint8_t vdet = (status & 0xe8);
 
+        // I2C_Write(ADDR_TP2825, 0x2F, 0x2);
+        // const uint16_t agc = I2C_Read(ADDR_TP2825, 0x04) + I2C_Read(ADDR_TP2825, 0x04);
+        // LOGD("vdpo_tmg: %d pal: %d vdet: 0x%x agc: %d state: %d", g_hw_stat.vdpo_tmg, g_hw_stat.av_pal, vdet, agc, state);
+
+    av_detect_do_more:
         switch (state) {
         case AV_DETECT_INIT:
             // lets start with ntsc
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
             g_hw_stat.av_pal = 0;
-            TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
+            TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal, TP2825_CLAMP_MIN);
             if (AV_Mode_Switch(g_hw_stat.av_pal)) {
                 ret = 1;
             }
-            state = AV_DETECT_INIT_SEARCH;
+            state = AV_DETECT_SEARCH;
             break;
 
         case AV_DETECT_MONITOR:
+            TP2825_Set_Clamp(TP2825_CLAMP_MIN);
+
             // monitor the current state
+            if (counter >= AV_DETECT_DROP_CNT) {
+                // signal dropped, lets search
+                state = AV_DETECT_SEARCH;
+                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+                counter = 0;
+                goto av_detect_do_more;
+            }
+            if ((vdet & 0x80) == 0x80) {
+                state = AV_DETECT_FREERUN;
+                counter = 0;
+                goto av_detect_do_more;
+            }
             if (vdet == 0x68) {
                 // all detected we are fine
                 g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
                 counter = 0;
                 break;
             }
-            if (counter > AV_DETECT_DROP_CNT) {
-                // signal dropped, lets search
-                state = AV_DETECT_INIT_SEARCH;
-                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
-                counter = 0;
-                break;
-            }
-            TP2825_Set_Clamp(0);
             counter++;
             break;
 
-        case AV_DETECT_INIT_SEARCH:
-            TP2825_Set_Clamp(0);
-            state = AV_DETECT_SEARCH;
-            last_vdet = 0;
-            break;
-
         case AV_DETECT_SEARCH: {
-            if (counter > AV_DETECT_DET_CNT) {
-                state = AV_DETECT_VERIFY;
+            static uint8_t switch_counter = 0;
+
+            if (counter >= AV_DETECT_DET_CNT) {
+                const int tmg = g_hw_stat.av_pal ? HW_VDPO_720P50 : HW_VDPO_720P60;
+                if (g_hw_stat.vdpo_tmg == tmg) {
+                    state = AV_DETECT_MONITOR;
+                } else {
+                    state = AV_DETECT_VERIFY;
+                }
+                switch_counter = 0;
                 counter = 0;
                 break;
             }
+            if (switch_counter >= AV_DETECT_DROP_CNT) {
+                g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
+                TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal, TP2825_CLAMP_MIN);
+                switch_counter = 0;
+                break;
+            }
+
+            if ((vdet & 0x80) == 0x80) {
+                state = AV_DETECT_FREERUN;
+                switch_counter = 0;
+                counter = 0;
+                goto av_detect_do_more;
+            }
+
             if (vdet == 0x68) {
-                // some video was detected
-                if (counter == AV_DETECT_DET_CNT) {
-                    // first check after clamp has no vsync, ignore
-                    TP2825_Set_Clamp(1);
-                }
+                TP2825_Set_Clamp(TP2825_CLAMP_MIN);
                 counter++;
                 break;
             }
-            if (last_vdet != vdet && ((vdet & 0x28) == 0x28)) {
-                g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
-                g_hw_stat.av_pal = g_hw_stat.av_pal ? 0 : 1;
-                TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal);
-                counter = 0;
-                last_vdet = 0;
+
+            TP2825_Set_Clamp(TP2825_CLAMP_MID);
+            if ((vdet & 0x28) == 0x28) {
+                // no vsync, but hsync, wrong sytem?
+                switch_counter++;
             } else {
-                TP2825_Set_Clamp(0);
-                last_vdet = vdet;
+                switch_counter = 0;
+            }
+            break;
+        }
+
+        case AV_DETECT_FREERUN: {
+            TP2825_Set_Clamp(TP2825_CLAMP_MAX);
+            if (counter >= AV_DETECT_VERIFY_CNT) {
+                counter = 0;
+                break;
+            }
+            if (vdet & 0x20) {
+                state = AV_DETECT_SEARCH;
+                counter = 0;
+                break;
+            } else {
+                counter++;
             }
             break;
         }
 
         case AV_DETECT_VERIFY:
-            if (counter > AV_DETECT_VERIFY_CNT) {
+            TP2825_Set_Clamp(TP2825_CLAMP_MIN);
+
+            if (counter >= AV_DETECT_VERIFY_CNT) {
                 if (AV_Mode_Switch(g_hw_stat.av_pal)) {
                     ret = 1;
                 }
@@ -416,9 +454,9 @@ int AV_in_detect() {
                 break;
             }
             if (vdet != 0x68) {
-                state = AV_DETECT_INIT_SEARCH;
+                state = AV_DETECT_SEARCH;
                 counter = 0;
-                break;
+                goto av_detect_do_more;
             }
             counter++;
             break;

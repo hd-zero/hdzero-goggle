@@ -10,7 +10,9 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 
-static int clamp_is_low = -1;
+#define RESET_VALUE 0xb3
+
+static uint8_t clamp_value = TP2825_CLAMP_MIN;
 
 void TP2825_close() {
     gpio_set(GPIO_TP2825_RSTB, 0);
@@ -26,12 +28,12 @@ void TP2825_Init(int ch_sel, int is_pal) {
     TP2825_open();
     usleep(10000);
 
-    TP2825_Config(ch_sel, is_pal);
+    TP2825_Config(ch_sel, is_pal, TP2825_CLAMP_MIN);
 }
 
 // ch_sel: 0=AV in; 1=Module bay
-void TP2825_Config(int ch_sel, int is_pal) {
-    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
+void TP2825_Config(int ch_sel, int is_pal, uint8_t clamp) {
+    I2C_Write(ADDR_TP2825, 0x06, RESET_VALUE);
     I2C_Write(ADDR_TP2825, 0x41, ch_sel);
 
     if (is_pal) {
@@ -51,7 +53,6 @@ void TP2825_Config(int ch_sel, int is_pal) {
         I2C_Write(ADDR_TP2825, 0x1C, 0x09);
         I2C_Write(ADDR_TP2825, 0x1D, 0x48);
 
-        // I2C_Write(ADDR_TP2825, 0x20, 0xB0); // rational? default appears to reduce fringing on the image border
         I2C_Write(ADDR_TP2825, 0x2D, 0x60);
 
         I2C_Write(ADDR_TP2825, 0x30, 0x7A);
@@ -75,7 +76,6 @@ void TP2825_Config(int ch_sel, int is_pal) {
         I2C_Write(ADDR_TP2825, 0x1C, 0x09);
         I2C_Write(ADDR_TP2825, 0x1D, 0x38);
 
-        // I2C_Write(ADDR_TP2825, 0x20, 0xA0); // rational? default appears to reduce fringing on the image border
         I2C_Write(ADDR_TP2825, 0x2D, 0x68);
 
         I2C_Write(ADDR_TP2825, 0x30, 0x62);
@@ -85,8 +85,8 @@ void TP2825_Config(int ch_sel, int is_pal) {
     }
 
     I2C_Write(ADDR_TP2825, 0x09, 0xa4);
-    I2C_Write(ADDR_TP2825, 0x0A, 0x33);
-    I2C_Write(ADDR_TP2825, 0x0C, 0x7f);
+    I2C_Write(ADDR_TP2825, 0x0A, 0x2a);
+    I2C_Write(ADDR_TP2825, 0x0C, 0x7a);
 
     // I2C_Write(ADDR_TP2825, 0x10, 0x0);  // brightness
     // I2C_Write(ADDR_TP2825, 0x11, 0x3c); // contrast
@@ -94,40 +94,40 @@ void TP2825_Config(int ch_sel, int is_pal) {
     // I2C_Write(ADDR_TP2825, 0x13, 0x0);  // hue
     // I2C_Write(ADDR_TP2825, 0x14, 0x2);  // sharpness
 
-    I2C_Write(ADDR_TP2825, 0x21, 0x6d); // improves exposure
-    I2C_Write(ADDR_TP2825, 0x22, 0x39);
-    I2C_Write(ADDR_TP2825, 0x23, 0x7c); // reset down the line
-    I2C_Write(ADDR_TP2825, 0x24, 0x59); // higher gain helps white flashes
-    I2C_Write(ADDR_TP2825, 0x25, 0xfa); // feels like default has no max value, we want _some_ limit
-    I2C_Write(ADDR_TP2825, 0x26, 0x02);
-    I2C_Write(ADDR_TP2825, 0x28, 0xc5);
-    I2C_Write(ADDR_TP2825, 0x29, 0x38);
-    I2C_Write(ADDR_TP2825, 0x2A, 0x93); // diable color kill
-    I2C_Write(ADDR_TP2825, 0x2C, 0x0a);
+    clamp_value = clamp;
 
-    I2C_Write(ADDR_TP2825, 0x39, 0x04); // LPF makes image drop slower.
+    I2C_Write(ADDR_TP2825, 0x20, 0xB0);
+    I2C_Write(ADDR_TP2825, 0x22, 0x39);
+    I2C_Write(ADDR_TP2825, 0x23, clamp_value);
+    I2C_Write(ADDR_TP2825, 0x24, 0x57);
+    I2C_Write(ADDR_TP2825, 0x25, 0xfa);
+    I2C_Write(ADDR_TP2825, 0x26, 0x12);
+    I2C_Write(ADDR_TP2825, 0x28, 0x04);
+    I2C_Write(ADDR_TP2825, 0x29, 0x18);
+    I2C_Write(ADDR_TP2825, 0x2A, 0xb3); // diable color kill
+    I2C_Write(ADDR_TP2825, 0x2C, 0x4a);
+
+    I2C_Write(ADDR_TP2825, 0x39, 0x4);
 
     I2C_Write(ADDR_TP2825, 0x35, 0x65);
     I2C_Write(ADDR_TP2825, 0x4C, 0x03);
     I2C_Write(ADDR_TP2825, 0x4D, 0x03);
     I2C_Write(ADDR_TP2825, 0x4E, 0x37);
-
-    clamp_is_low = 0;
 }
 
 // 0 = AV in; 1 = Module bay
 void TP2825_Switch_CH(uint8_t sel) {
     I2C_Write(ADDR_TP2825, 0x41, sel);
-    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
+    I2C_Write(ADDR_TP2825, 0x06, RESET_VALUE);
 }
 
-void TP2825_Set_Clamp(int set_low) {
-    if (clamp_is_low == set_low) {
+void TP2825_Set_Clamp(uint8_t val) {
+    if (clamp_value == val) {
         return;
     }
 
-    LOGD("TP2825_Set_Clamp: %d", set_low);
-    I2C_Write(ADDR_TP2825, 0x23, set_low ? 0x3D : 0x7c);
-    I2C_Write(ADDR_TP2825, 0x06, 0xB3);
-    clamp_is_low = set_low;
+    LOGD("TP2825_Set_Clamp: %d", val);
+    I2C_Write(ADDR_TP2825, 0x23, val);
+    I2C_Write(ADDR_TP2825, 0x06, RESET_VALUE);
+    clamp_value = val;
 }
