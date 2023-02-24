@@ -153,30 +153,7 @@ void statubar_update(void) {
     memset(buf, 0, sizeof(buf));
 
     // display battery voltage
-    switch (g_setting.power.osd_display_mode) {
-
-    default:
-    case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL: {
-        const int bat_mv = battery_get_millivolts(false);
-        sprintf(buf, "%dS %d.%dV",
-                g_battery.type,
-                bat_mv / 1000,
-                bat_mv % 1000 / 100);
-
-        break;
-    }
-
-    case SETTING_POWER_OSD_DISPLAY_MODE_CELL: {
-        const int bat_mv = battery_get_millivolts(true);
-        sprintf(buf, "%dS %d.%dV/C",
-                g_battery.type,
-                bat_mv / 1000,
-                bat_mv % 1000 / 100);
-
-        break;
-    }
-    }
-
+    battery_get_voltage_str(buf);
     lv_label_set_text(label4, buf);
 
     {
