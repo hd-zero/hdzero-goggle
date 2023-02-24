@@ -316,7 +316,7 @@ static void delete_video_file(int seq) {
             }
 
     char cmd[128];
-    sprintf(cmd, "rm %s/%s", MEDIA_FILES_DIR, pnode->filename);
+    sprintf(cmd, "rm %s/%s.*", MEDIA_FILES_DIR, pnode->label);
 
     if (system(cmd) != -1) {
 
