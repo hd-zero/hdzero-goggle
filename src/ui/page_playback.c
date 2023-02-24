@@ -77,12 +77,12 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     }
 
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "*Long press left button to exit");
+    lv_label_set_text(label, "*Long press left button to exit\n**Long press right button to delete");
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-    lv_obj_set_pos(label, 160, 700);
+    lv_obj_set_pos(label, 10, 700);
 
     return page;
 }
@@ -308,6 +308,32 @@ static void mark_video_file(int seq) {
     update_page();
 }
 
+static void delete_video_file(int seq) {
+    media_file_node_t *pnode = get_list(seq);
+            if (!pnode) {
+                perror("delete_video_file failed. (PNODE ERROR)");
+                return;
+            }
+
+    char cmd[128];
+    sprintf(cmd, "rm %s/%s", MEDIA_FILES_DIR, pnode->filename);
+
+    if (system(cmd) != -1) {
+
+        walk_sdcard();
+        media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
+        update_page();
+
+        perror("delete_video_file successful.");
+
+    } else {
+
+        perror("delete_video_file failed.");
+
+    }
+    
+}
+
 static void page_playback_exit() {
     clear_videofile_cnt();
     update_page();
@@ -372,6 +398,10 @@ void pb_key(uint8_t key) {
 
     case RIGHT_KEY_CLICK:
         mark_video_file(media_db.cur_sel);
+        break;
+
+    case RIGHT_KEY_PRESS:
+        delete_video_file(media_db.cur_sel);
         break;
     }
     done = true;
