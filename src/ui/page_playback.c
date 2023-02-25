@@ -310,28 +310,22 @@ static void mark_video_file(int seq) {
 
 static void delete_video_file(int seq) {
     media_file_node_t *pnode = get_list(seq);
-            if (!pnode) {
-                perror("delete_video_file failed. (PNODE ERROR)");
-                return;
-            }
+    if (!pnode) {
+        LOGE("delete_video_file failed. (PNODE ERROR)");
+        return;
+    }
 
     char cmd[128];
     sprintf(cmd, "rm %s/%s.*", MEDIA_FILES_DIR, pnode->label);
 
     if (system(cmd) != -1) {
-
         walk_sdcard();
         media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
         update_page();
-
-        perror("delete_video_file successful.");
-
+        LOGD("delete_video_file successful.");
     } else {
-
-        perror("delete_video_file failed.");
-
+        LOGE("delete_video_file failed.");
     }
-    
 }
 
 static void page_playback_exit() {
