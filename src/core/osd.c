@@ -444,6 +444,7 @@ void osd_hdzero_update(void) {
 
 int osd_clear(void) {
     clear_screen();
+    osd_signal_update();
     return 0;
 }
 
