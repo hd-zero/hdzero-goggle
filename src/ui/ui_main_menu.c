@@ -205,7 +205,7 @@ static void menu_reinit(void) {
     }
 }
 
-bool main_menu_isshow(void) {
+bool main_menu_is_shown(void) {
     return !lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN);
 }
 
