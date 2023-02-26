@@ -197,7 +197,7 @@ static void btn_click(void) // short press enter key
         return;
     }
 
-    if (!main_menu_isshow())
+    if (!main_menu_is_shown())
         return;
 
     if (g_scanning)

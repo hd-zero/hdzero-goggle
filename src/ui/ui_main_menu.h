@@ -49,7 +49,7 @@ extern progress_bar_t progress_bar;
 
 void main_menu_init();
 void main_menu_show(bool is_show);
-bool main_menu_isshow(void);
+bool main_menu_is_shown(void);
 
 void menu_nav(uint8_t key);
 
