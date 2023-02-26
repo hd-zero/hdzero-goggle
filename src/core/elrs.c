@@ -226,7 +226,7 @@ void msp_process_packet() {
                     pthread_mutex_lock(&lvgl_mutex);
                     HDZero_open();
                     osd_dvr_cmd(DVR_STOP);
-                    switch_to_video(true);
+                    app_switch_to_hdzero(true);
                     app_state_push(APP_STATE_VIDEO);
                     pthread_mutex_unlock(&lvgl_mutex);
                 }
@@ -247,7 +247,7 @@ void msp_process_packet() {
                         beep();
                         pthread_mutex_lock(&lvgl_mutex);
                         HDZero_open();
-                        switch_to_video(true);
+                        app_switch_to_hdzero(true);
                         app_state_push(APP_STATE_VIDEO);
                         pthread_mutex_unlock(&lvgl_mutex);
                         break;

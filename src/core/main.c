@@ -79,23 +79,23 @@ void start_running(void) {
             pthread_create(&pid, NULL, thread_autoscan, NULL);
         } else if (g_setting.autoscan.status == SETTING_AUTOSCAN_LAST) {
             app_state_push(APP_STATE_VIDEO);
-            switch_to_video(true);
+            app_switch_to_hdzero(true);
         } else { // auto scan disabled, go to go directly to last saved channel
             app_state_push(APP_STATE_MAINMENU);
         }
     } else {
         app_state_push(APP_STATE_VIDEO);
         if (source == SETTING_SOURCE_EXPANSION) { // module Bay
-            switch_to_analog(1);
+            app_switch_to_analog(1);
             g_source_info.source = SOURCE_EXPANSION;
         } else if (source == SETTING_SOURCE_AV_IN) { // AV in
-            switch_to_analog(0);
+            app_switch_to_analog(0);
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
             sleep(2);
             g_source_info.hdmi_in_status = IT66021_Sig_det();
             if (g_source_info.hdmi_in_status) {
-                switch_to_hdmiin();
+                app_switch_to_hdmi_in();
                 g_source_info.source = SOURCE_HDMI_IN;
             } else {
                 g_source_info.source = SOURCE_HDZERO;

@@ -105,7 +105,7 @@ void tune_channel(uint8_t action) {
             g_setting.scan.channel = channel;
             ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
             osd_dvr_cmd(DVR_STOP);
-            switch_to_video(true);
+            app_switch_to_hdzero(true);
         }
         tune_timer = 0;
         tune_state = 1;
@@ -138,28 +138,6 @@ void tune_channel_timer() {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-static void switch_to_menumode() {
-    if (g_app_state == APP_STATE_IMS) {
-        ims_save();
-        set_slider_value();
-    }
-
-    app_state_push(APP_STATE_MAINMENU);
-    // Stop recording if switching to menu mode from video mode regardless
-    osd_dvr_cmd(DVR_STOP);
-
-    Display_UI();
-    lvgl_switch_to_1080p();
-    exit_tune_channel();
-    osd_show(false);
-    g_bShowIMS = false;
-    main_menu_show(true);
-    HDZero_Close();
-    g_sdcard_det_req = 1;
-    if (g_source_info.source == SOURCE_HDMI_IN) // HDMI
-        IT66121_init();
-}
-
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
@@ -175,21 +153,21 @@ static void btn_press(void) // long press left key
         case SOURCE_HDZERO:
             progress_bar.start = 1;
             HDZero_open();
-            switch_to_video(true);
+            app_switch_to_hdzero(true);
             break;
         case SOURCE_HDMI_IN:
-            switch_to_hdmiin();
+            app_switch_to_hdmi_in();
             break;
         case SOURCE_AV_IN:
-            switch_to_analog(0);
+            app_switch_to_analog(0);
             break;
         case SOURCE_EXPANSION:
-            switch_to_analog(1);
+            app_switch_to_analog(1);
             break;
         }
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
-        switch_to_menumode();
+        app_switch_to_menu();
     else if (g_app_state == APP_STATE_PLAYBACK)
         pb_key(DIAL_KEY_PRESS);
     else { // Sub-menu  -> Main menu
@@ -214,7 +192,7 @@ static void btn_click(void) // short press enter key
     } else if (g_app_state == APP_STATE_IMS) {
         pthread_mutex_lock(&lvgl_mutex);
         if (ims_key(DIAL_KEY_CLICK))
-            switch_to_menumode();
+            app_switch_to_menu();
         pthread_mutex_unlock(&lvgl_mutex);
         return;
     }
