@@ -119,7 +119,7 @@ static void page_imagesettings_enter() {
     case SOURCE_HDZERO:
         progress_bar.start = 1;
         HDZero_open();
-        switch_to_video(true);
+        app_switch_to_hdzero(true);
         g_bShowIMS = true;
         break;
 
@@ -129,12 +129,12 @@ static void page_imagesettings_enter() {
         break;
 
     case SOURCE_AV_IN:
-        switch_to_analog(0);
+        app_switch_to_analog(0);
         g_bShowIMS = true;
         break;
 
     case SOURCE_EXPANSION:
-        switch_to_analog(1);
+        app_switch_to_analog(1);
         g_bShowIMS = true;
         break;
     }
