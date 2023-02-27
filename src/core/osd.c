@@ -178,7 +178,7 @@ static osd_font_t osd_font;
 void osd_llock_show(bool bShow) {
     char buf[128];
 
-    if (!bShow) {
+    if (!bShow || !g_setting.osd.elements.latency_lock.show) {
         lv_obj_add_flag(g_osd_hdzero.latency_lock, LV_OBJ_FLAG_HIDDEN);
         return;
     }
@@ -192,7 +192,7 @@ void osd_llock_show(bool bShow) {
 void osd_rec_show(bool bShow) {
     char buf[128];
 
-    if (!bShow) {
+    if (!bShow || !g_setting.osd.elements.sd_rec.show) {
         lv_obj_add_flag(g_osd_hdzero.sd_rec, LV_OBJ_FLAG_HIDDEN);
         return;
     }
@@ -213,19 +213,19 @@ void osd_rec_show(bool bShow) {
 
 void osd_battery_show() {
     if (g_setting.power.warning_type == 0) { // Beep only
-        lv_obj_add_flag(g_osd_hdzero.battery, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(g_osd_hdzero.battery_low, LV_OBJ_FLAG_HIDDEN);
         return;
     }
 
-    if (battery_is_low())
-        lv_obj_clear_flag(g_osd_hdzero.battery, LV_OBJ_FLAG_HIDDEN);
+    if (battery_is_low() && g_setting.osd.elements.battery_low.show)
+        lv_obj_clear_flag(g_osd_hdzero.battery_low, LV_OBJ_FLAG_HIDDEN);
     else
-        lv_obj_add_flag(g_osd_hdzero.battery, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(g_osd_hdzero.battery_low, LV_OBJ_FLAG_HIDDEN);
 }
 
 void osd_topfan_show(bool bShow) {
     char buf[128];
-    if (!bShow) {
+    if (!bShow || !g_setting.osd.elements.topfan_speed.show) {
         lv_obj_add_flag(g_osd_hdzero.topfan_speed, LV_OBJ_FLAG_HIDDEN);
         return;
     }
@@ -237,8 +237,8 @@ void osd_topfan_show(bool bShow) {
     lv_obj_clear_flag(g_osd_hdzero.topfan_speed, LV_OBJ_FLAG_HIDDEN);
 }
 
-void osd_vrxtemp_show(bool bShow) {
-    if (g_temperature.is_rescuing)
+void osd_vrxtemp_show() {
+    if (g_temperature.is_rescuing && g_setting.osd.elements.vrx_temp.show)
         lv_obj_clear_flag(g_osd_hdzero.vrx_temp, LV_OBJ_FLAG_HIDDEN);
     else
         lv_obj_add_flag(g_osd_hdzero.vrx_temp, LV_OBJ_FLAG_HIDDEN);
@@ -246,7 +246,7 @@ void osd_vrxtemp_show(bool bShow) {
 
 void osd_vlq_show(bool bShow) {
     char buf[128];
-    if (!bShow) {
+    if (!bShow || !g_setting.osd.elements.vlq.show) {
         lv_obj_add_flag(g_osd_hdzero.vlq, LV_OBJ_FLAG_HIDDEN);
         return;
     }
@@ -290,64 +290,60 @@ void osd_channel_show(bool bShow) {
         ch = channel_osd_mode & 0xF;
         color = lv_color_make(0xFF, 0x20, 0x20);
         sprintf(buf, "  To %s?  ", channel2str(ch));
-        lv_obj_set_style_bg_opa(g_osd_hdzero.ch, LV_OPA_100, 0);
+        lv_obj_set_style_bg_opa(g_osd_hdzero.channel, LV_OPA_100, 0);
     } else {
         ch = g_setting.scan.channel;
         color = lv_color_make(0xFF, 0xFF, 0xFF);
         sprintf(buf, "CH:%s", channel2str(ch));
-        lv_obj_set_style_bg_opa(g_osd_hdzero.ch, 0, 0);
+        lv_obj_set_style_bg_opa(g_osd_hdzero.channel, 0, 0);
     }
 
-    lv_label_set_text(g_osd_hdzero.ch, buf);
-    lv_obj_set_style_text_color(g_osd_hdzero.ch, color, 0);
+    lv_label_set_text(g_osd_hdzero.channel, buf);
+    lv_obj_set_style_text_color(g_osd_hdzero.channel, color, 0);
 
     if (channel_osd_mode & 0x80)
-        lv_obj_clear_flag(g_osd_hdzero.ch, LV_OBJ_FLAG_HIDDEN);
-    else if (bShow && channel_osd_mode)
-        lv_obj_clear_flag(g_osd_hdzero.ch, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(g_osd_hdzero.channel, LV_OBJ_FLAG_HIDDEN);
+    else if (bShow && channel_osd_mode && g_setting.osd.elements.channel.show)
+        lv_obj_clear_flag(g_osd_hdzero.channel, LV_OBJ_FLAG_HIDDEN);
     else
-        lv_obj_add_flag(g_osd_hdzero.ch, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(g_osd_hdzero.channel, LV_OBJ_FLAG_HIDDEN);
 }
 
-static void osd_object_set_pos(lv_obj_t *obj, int index) {
-    int x = 0;
-    int left_offset = 0;
-    int right_offset = 0;
-
+static void osd_object_set_pos(lv_obj_t *obj, setting_osd_goggle_element_positions_t *pos) {
     switch (g_setting.osd.embedded_mode) {
     case EMBEDDED_16x9:
-        left_offset = 0;
-        right_offset = 160;
+        lv_obj_set_pos(obj, pos->mode_16_9.x, pos->mode_16_9.y);
         break;
 
     default:
     case EMBEDDED_4x3:
-        left_offset = 160;
-        right_offset = 0;
+        lv_obj_set_pos(obj, pos->mode_4_3.x, pos->mode_4_3.y);
         break;
     }
-
-    if (index < 5) {
-        x = 40 * index + left_offset;
-    } else {
-        x = (1080 + right_offset) - (11 - index) * 40;
-    }
-
-    lv_obj_set_pos(obj, x, 0);
 }
 
-static void osd_object_create(lv_obj_t **obj, const char *img, int index) {
-    if ((index == 2) || (index == 3)) {
-        // GIF format for goggle low battery or goggle high temp
-        *obj = lv_gif_create(scr_osd);
-        lv_gif_set_src(*obj, img);
-    } else {
-        *obj = lv_img_create(scr_osd);
-        lv_img_set_src(*obj, img);
-    }
-
+static void osd_object_create_gif(lv_obj_t **obj, const char *img, setting_osd_goggle_element_positions_t *pos) {
+    *obj = lv_gif_create(scr_osd);
+    lv_gif_set_src(*obj, img);
     lv_obj_set_size(*obj, 36, 36);
-    osd_object_set_pos(*obj, index);
+    osd_object_set_pos(*obj, pos);
+}
+
+static void osd_object_create_img(lv_obj_t **obj, const char *img, setting_osd_goggle_element_positions_t *pos) {
+    *obj = lv_img_create(scr_osd);
+    lv_img_set_src(*obj, img);
+    lv_obj_set_size(*obj, 36, 36);
+    osd_object_set_pos(*obj, pos);
+}
+
+static void osd_object_create_label(lv_obj_t **obj, char *text, setting_osd_goggle_element_positions_t *pos) {
+    *obj = lv_label_create(scr_osd);
+    lv_label_set_text(*obj, text);
+    osd_object_set_pos(*obj, pos);
+    lv_obj_set_style_text_color(g_osd_hdzero.channel, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_font(g_osd_hdzero.channel, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_bg_color(g_osd_hdzero.channel, lv_color_hex(0x010101), LV_PART_MAIN);
+    lv_obj_set_style_radius(g_osd_hdzero.channel, 50, 0);
 }
 
 void osd_show(bool show) {
@@ -385,7 +381,7 @@ void osd_hdzero_update(void) {
     osd_llock_show(g_showRXOSD);
     osd_topfan_show(g_showRXOSD);
 
-    osd_vrxtemp_show(g_showRXOSD);
+    osd_vrxtemp_show();
 
     if (showRXOSD && g_osd_hdzero.vtx_temp) {
         if (vtxTempInfo & 0x80) {
@@ -400,7 +396,7 @@ void osd_hdzero_update(void) {
         lv_img_set_src(g_osd_hdzero.vtx_temp, buf);
     }
 
-    if (showRXOSD)
+    if (showRXOSD && g_setting.osd.elements.vtx_temp.show)
         lv_obj_clear_flag(g_osd_hdzero.vtx_temp, LV_OBJ_FLAG_HIDDEN);
     else
         lv_obj_add_flag(g_osd_hdzero.vtx_temp, LV_OBJ_FLAG_HIDDEN);
@@ -418,27 +414,48 @@ void osd_hdzero_update(void) {
     sprintf(buf, "%sant%d.bmp", RESOURCE_PATH, RSSI2Ant(rx_status[1].rx_rssi[1]));
     lv_img_set_src(g_osd_hdzero.ant3, buf);
 
-    if (showRXOSD) {
+    if (showRXOSD && g_setting.osd.elements.ant0.show)
         lv_obj_clear_flag(g_osd_hdzero.ant0, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(g_osd_hdzero.ant1, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(g_osd_hdzero.ant2, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(g_osd_hdzero.ant3, LV_OBJ_FLAG_HIDDEN);
-    } else {
+    else
         lv_obj_add_flag(g_osd_hdzero.ant0, LV_OBJ_FLAG_HIDDEN);
+
+    if (showRXOSD && g_setting.osd.elements.ant1.show)
+        lv_obj_clear_flag(g_osd_hdzero.ant1, LV_OBJ_FLAG_HIDDEN);
+    else
         lv_obj_add_flag(g_osd_hdzero.ant1, LV_OBJ_FLAG_HIDDEN);
+
+    if (showRXOSD && g_setting.osd.elements.ant2.show)
+        lv_obj_clear_flag(g_osd_hdzero.ant2, LV_OBJ_FLAG_HIDDEN);
+    else
         lv_obj_add_flag(g_osd_hdzero.ant2, LV_OBJ_FLAG_HIDDEN);
+
+    if (showRXOSD && g_setting.osd.elements.ant3.show)
+        lv_obj_clear_flag(g_osd_hdzero.ant3, LV_OBJ_FLAG_HIDDEN);
+    else
         lv_obj_add_flag(g_osd_hdzero.ant3, LV_OBJ_FLAG_HIDDEN);
-    }
 
     if (g_test_en) {
-        sprintf(buf, "T:%d-%d", fan_speeds[2], g_temperature.top / 10);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[0], buf);
+        if (g_setting.osd.elements.goggle_temp_top.show) {
+            sprintf(buf, "T:%d-%d", fan_speeds[2], g_temperature.top / 10);
+            lv_label_set_text(g_osd_hdzero.goggle_temp_top, buf);
+            lv_obj_clear_flag(g_osd_hdzero.goggle_temp_top, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_add_flag(g_osd_hdzero.goggle_temp_top, LV_OBJ_FLAG_HIDDEN);
+        }
 
-        sprintf(buf, "L:%d-%d", fan_speeds[1], g_temperature.left / 10);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[1], buf);
+        if (g_setting.osd.elements.goggle_temp_left.show) {
+            sprintf(buf, "L:%d-%d", fan_speeds[1], g_temperature.left / 10);
+            lv_label_set_text(g_osd_hdzero.goggle_temp_left, buf);
+            lv_obj_clear_flag(g_osd_hdzero.goggle_temp_left, LV_OBJ_FLAG_HIDDEN);
+        } else
+            lv_obj_add_flag(g_osd_hdzero.goggle_temp_left, LV_OBJ_FLAG_HIDDEN);
 
-        sprintf(buf, "R:%d-%d", fan_speeds[0], g_temperature.right / 10);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[2], buf);
+        if (g_setting.osd.elements.goggle_temp_right.show) {
+            sprintf(buf, "R:%d-%d", fan_speeds[0], g_temperature.right / 10);
+            lv_label_set_text(g_osd_hdzero.goggle_temp_right, buf);
+            lv_obj_clear_flag(g_osd_hdzero.goggle_temp_right, LV_OBJ_FLAG_HIDDEN);
+        } else
+            lv_obj_add_flag(g_osd_hdzero.goggle_temp_right, LV_OBJ_FLAG_HIDDEN);
     }
 }
 
@@ -461,75 +478,61 @@ static void embedded_osd_init(void) {
     char buf[128];
 
     sprintf(buf, "%s%s", RESOURCE_PATH, fan1_bmp);
-    osd_object_create(&g_osd_hdzero.topfan_speed, buf, 0);
-
-    sprintf(buf, "%s%s", RESOURCE_PATH, VtxTemp1_bmp);
-    osd_object_create(&g_osd_hdzero.vtx_temp, buf, 1);
-
-    sprintf(buf, "%s%s", RESOURCE_PATH, lowBattery_gif);
-    osd_object_create(&g_osd_hdzero.battery, buf, 2);
-
-    sprintf(buf, "%s%s", RESOURCE_PATH, VrxTemp7_gif);
-    osd_object_create(&g_osd_hdzero.vrx_temp, buf, 3);
+    osd_object_create_img(&g_osd_hdzero.topfan_speed, buf, &g_setting.osd.elements.topfan_speed.position);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, LLOCK_bmp);
-    osd_object_create(&g_osd_hdzero.latency_lock, buf, 4);
+    osd_object_create_img(&g_osd_hdzero.latency_lock, buf, &g_setting.osd.elements.latency_lock.position);
 
-    g_osd_hdzero.ch = lv_label_create(scr_osd);
-    lv_label_set_text(g_osd_hdzero.ch, "CH:-- ");
-    lv_obj_set_pos(g_osd_hdzero.ch, 0, 0);
-    lv_obj_align(g_osd_hdzero.ch, LV_ALIGN_TOP_MID, 0, 0);
-    lv_obj_set_style_text_color(g_osd_hdzero.ch, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_text_font(g_osd_hdzero.ch, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_bg_color(g_osd_hdzero.ch, lv_color_hex(0x010101), LV_PART_MAIN);
-    lv_obj_set_style_radius(g_osd_hdzero.ch, 50, 0);
+    sprintf(buf, "%s%s", RESOURCE_PATH, VtxTemp1_bmp);
+    osd_object_create_img(&g_osd_hdzero.vtx_temp, buf, &g_setting.osd.elements.vtx_temp.position);
+
+    sprintf(buf, "%s%s", RESOURCE_PATH, VrxTemp7_gif);
+    osd_object_create_gif(&g_osd_hdzero.vrx_temp, buf, &g_setting.osd.elements.vrx_temp.position);
+
+    sprintf(buf, "%s%s", RESOURCE_PATH, lowBattery_gif);
+    osd_object_create_gif(&g_osd_hdzero.battery_low, buf, &g_setting.osd.elements.battery_low.position);
+
+    osd_object_create_label(&g_osd_hdzero.channel, "CH:-- ", &g_setting.osd.elements.channel.position);
     channel_osd_mode = 0;
 
     sprintf(buf, "%s%s", RESOURCE_PATH, noSdcard_bmp);
-    osd_object_create(&g_osd_hdzero.sd_rec, buf, 5);
+    osd_object_create_img(&g_osd_hdzero.sd_rec, buf, &g_setting.osd.elements.sd_rec.position);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, VLQ1_bmp);
-    osd_object_create(&g_osd_hdzero.vlq, buf, 6);
+    osd_object_create_img(&g_osd_hdzero.vlq, buf, &g_setting.osd.elements.vlq.position);
 
     sprintf(buf, "%s%s", RESOURCE_PATH, ant1_bmp);
-    osd_object_create(&g_osd_hdzero.ant1, buf, 7);
-    osd_object_create(&g_osd_hdzero.ant0, buf, 8);
-    osd_object_create(&g_osd_hdzero.ant3, buf, 9);
-    osd_object_create(&g_osd_hdzero.ant2, buf, 10);
+    osd_object_create_img(&g_osd_hdzero.ant0, buf, &g_setting.osd.elements.ant0.position);
+    osd_object_create_img(&g_osd_hdzero.ant1, buf, &g_setting.osd.elements.ant1.position);
+    osd_object_create_img(&g_osd_hdzero.ant2, buf, &g_setting.osd.elements.ant2.position);
+    osd_object_create_img(&g_osd_hdzero.ant3, buf, &g_setting.osd.elements.ant3.position);
 
     if (g_test_en) {
-        g_osd_hdzero.osd_tempe[0] = lv_label_create(scr_osd);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[0], "TOP:-.- oC");
-        lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[0], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_pos(g_osd_hdzero.osd_tempe[0], 170, 50);
-        lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[0], &lv_font_montserrat_26, 0);
-
-        g_osd_hdzero.osd_tempe[1] = lv_label_create(scr_osd);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[1], "LEFT:-.- oC");
-        lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[1], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_pos(g_osd_hdzero.osd_tempe[1], 270, 50);
-        lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[1], &lv_font_montserrat_26, 0);
-
-        g_osd_hdzero.osd_tempe[2] = lv_label_create(scr_osd);
-        lv_label_set_text(g_osd_hdzero.osd_tempe[2], "RIGHT:-.- oC");
-        lv_obj_set_style_text_color(g_osd_hdzero.osd_tempe[2], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_pos(g_osd_hdzero.osd_tempe[2], 370, 50);
-        lv_obj_set_style_text_font(g_osd_hdzero.osd_tempe[2], &lv_font_montserrat_26, 0);
+        osd_object_create_label(&g_osd_hdzero.goggle_temp_top, "TOP:-.- oC", &g_setting.osd.elements.goggle_temp_top.position);
+        osd_object_create_label(&g_osd_hdzero.goggle_temp_left, "LEFT:-.- oC", &g_setting.osd.elements.goggle_temp_left.position);
+        osd_object_create_label(&g_osd_hdzero.goggle_temp_right, "RIGHT:-.- oC", &g_setting.osd.elements.goggle_temp_right.position);
     }
 }
 
 void osd_update_mode() {
-    osd_object_set_pos(g_osd_hdzero.topfan_speed, 0);
-    osd_object_set_pos(g_osd_hdzero.vtx_temp, 1);
-    osd_object_set_pos(g_osd_hdzero.battery, 2);
-    osd_object_set_pos(g_osd_hdzero.vrx_temp, 3);
-    osd_object_set_pos(g_osd_hdzero.latency_lock, 4);
-    osd_object_set_pos(g_osd_hdzero.sd_rec, 5);
-    osd_object_set_pos(g_osd_hdzero.vlq, 6);
-    osd_object_set_pos(g_osd_hdzero.ant1, 7);
-    osd_object_set_pos(g_osd_hdzero.ant0, 8);
-    osd_object_set_pos(g_osd_hdzero.ant3, 9);
-    osd_object_set_pos(g_osd_hdzero.ant2, 10);
+    osd_object_set_pos(g_osd_hdzero.topfan_speed, &g_setting.osd.elements.topfan_speed.position);
+    osd_object_set_pos(g_osd_hdzero.latency_lock, &g_setting.osd.elements.latency_lock.position);
+    osd_object_set_pos(g_osd_hdzero.vtx_temp, &g_setting.osd.elements.vtx_temp.position);
+    osd_object_set_pos(g_osd_hdzero.vrx_temp, &g_setting.osd.elements.vrx_temp.position);
+    osd_object_set_pos(g_osd_hdzero.battery_low, &g_setting.osd.elements.battery_low.position);
+    osd_object_set_pos(g_osd_hdzero.channel, &g_setting.osd.elements.channel.position);
+    osd_object_set_pos(g_osd_hdzero.sd_rec, &g_setting.osd.elements.sd_rec.position);
+    osd_object_set_pos(g_osd_hdzero.vlq, &g_setting.osd.elements.vlq.position);
+    osd_object_set_pos(g_osd_hdzero.ant0, &g_setting.osd.elements.ant0.position);
+    osd_object_set_pos(g_osd_hdzero.ant1, &g_setting.osd.elements.ant1.position);
+    osd_object_set_pos(g_osd_hdzero.ant2, &g_setting.osd.elements.ant2.position);
+    osd_object_set_pos(g_osd_hdzero.ant3, &g_setting.osd.elements.ant3.position);
+
+    if (g_test_en) {
+        osd_object_set_pos(g_osd_hdzero.goggle_temp_top, &g_setting.osd.elements.goggle_temp_top.position);
+        osd_object_set_pos(g_osd_hdzero.goggle_temp_left, &g_setting.osd.elements.goggle_temp_left.position);
+        osd_object_set_pos(g_osd_hdzero.goggle_temp_right, &g_setting.osd.elements.goggle_temp_right.position);
+    }
 }
 
 static void fc_osd_init(void) {

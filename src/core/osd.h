@@ -17,19 +17,21 @@
 #define LINE_LENGTH_1 1460                       // bmp have boundry
 
 typedef struct {
-    lv_obj_t *topfan_speed; // 0
-    lv_obj_t *vtx_temp;     // 1
-    lv_obj_t *battery;      // 2
-    lv_obj_t *vrx_temp;     // 3
-    lv_obj_t *latency_lock; // 4
-    lv_obj_t *ch;           // middle
-    lv_obj_t *sd_rec;       // 5
-    lv_obj_t *vlq;          // 6
-    lv_obj_t *ant0;         // 7
-    lv_obj_t *ant1;         // 8
-    lv_obj_t *ant2;         // 9
-    lv_obj_t *ant3;         // 10
-    lv_obj_t *osd_tempe[3]; // top,left,bot
+    lv_obj_t *topfan_speed;
+    lv_obj_t *latency_lock;
+    lv_obj_t *vtx_temp;
+    lv_obj_t *vrx_temp;
+    lv_obj_t *battery_low;
+    lv_obj_t *channel;
+    lv_obj_t *sd_rec;
+    lv_obj_t *vlq;
+    lv_obj_t *ant0;
+    lv_obj_t *ant1;
+    lv_obj_t *ant2;
+    lv_obj_t *ant3;
+    lv_obj_t *goggle_temp_top;
+    lv_obj_t *goggle_temp_left;
+    lv_obj_t *goggle_temp_right;
 } osd_hdzero_t;
 
 typedef struct
