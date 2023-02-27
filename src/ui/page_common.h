@@ -141,7 +141,41 @@ typedef enum {
 } embedded_mode_t;
 
 typedef struct {
+    int x;
+    int y;
+} setting_osd_goggle_element_position_t;
+
+typedef struct {
+    setting_osd_goggle_element_position_t mode_4_3;
+    setting_osd_goggle_element_position_t mode_16_9;
+} setting_osd_goggle_element_positions_t;
+
+typedef struct {
+    bool show;
+    setting_osd_goggle_element_positions_t position;
+} setting_osd_goggle_element_t;
+
+typedef struct {
+    setting_osd_goggle_element_t topfan_speed;
+    setting_osd_goggle_element_t latency_lock;
+    setting_osd_goggle_element_t vtx_temp;
+    setting_osd_goggle_element_t vrx_temp;
+    setting_osd_goggle_element_t battery_low;
+    setting_osd_goggle_element_t channel;
+    setting_osd_goggle_element_t sd_rec;
+    setting_osd_goggle_element_t vlq;
+    setting_osd_goggle_element_t ant0;
+    setting_osd_goggle_element_t ant1;
+    setting_osd_goggle_element_t ant2;
+    setting_osd_goggle_element_t ant3;
+    setting_osd_goggle_element_t goggle_temp_top;
+    setting_osd_goggle_element_t goggle_temp_left;
+    setting_osd_goggle_element_t goggle_temp_right;
+} setting_osd_goggle_elements_t;
+
+typedef struct {
     embedded_mode_t embedded_mode;
+    setting_osd_goggle_elements_t elements;
 } setting_osd_t;
 
 typedef struct {
@@ -214,6 +248,7 @@ enum {
 typedef uint8_t lv_menu_builder_variant_t;
 
 extern setting_t g_setting;
+extern const setting_t g_setting_defaults;
 extern op_level_t g_menu_op;
 extern bool g_sdcard_enable;
 extern bool g_sdcard_det_req;
