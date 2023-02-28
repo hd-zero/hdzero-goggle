@@ -10,6 +10,7 @@
 #include "common.hh"
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
+#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"

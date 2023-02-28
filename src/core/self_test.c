@@ -8,6 +8,7 @@
 #include <log/log.h>
 
 #include "core/common.hh"
+#include "core/settings.h"
 #include "driver/TP2825.h"
 #include "driver/dm5680.h"
 #include "driver/dm6302.h"

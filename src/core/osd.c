@@ -20,6 +20,7 @@
 #include "core/common.hh"
 #include "core/elrs.h"
 #include "core/msp_displayport.h"
+#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
 #include "driver/fbtools.h"

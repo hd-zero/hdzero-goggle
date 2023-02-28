@@ -1,5 +1,6 @@
 #include "battery.h"
 
+#include "core/settings.h"
 #include "driver/mcp3021.h"
 #include "ui/page_common.h"
 

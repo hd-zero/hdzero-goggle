@@ -5,6 +5,7 @@
 
 #include "../core/common.hh"
 #include "../driver/hardware.h"
+#include "core/settings.h"
 #include "oled.h"
 #include "page_common.h"
 #include "page_scannow.h"

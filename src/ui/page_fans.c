@@ -6,6 +6,7 @@
 #include <minIni.h>
 
 #include "core/common.hh"
+#include "core/settings.h"
 #include "driver/fans.h"
 #include "driver/nct75.h"
 #include "ui/page_common.h"

@@ -19,6 +19,7 @@
 #include "ht.h"
 #include "osd.h"
 
+#include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
