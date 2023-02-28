@@ -20,6 +20,7 @@
 #include "osd.h"
 
 #include "core/app_state.h"
+#include "core/dvr.h"
 #include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
@@ -104,7 +105,7 @@ void tune_channel(uint8_t action) {
         if (g_setting.scan.channel != channel) {
             g_setting.scan.channel = channel;
             ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
-            osd_dvr_cmd(DVR_STOP);
+            dvr_cmd(DVR_STOP);
             app_switch_to_hdzero(true);
         }
         tune_timer = 0;
@@ -234,7 +235,7 @@ static void rbtn_click0(bool is_short) {
 
     case APP_STATE_VIDEO:
         if (is_short) {
-            osd_dvr_cmd(DVR_TOGGLE);
+            dvr_cmd(DVR_TOGGLE);
         } else {
             step_topfan();
         }
