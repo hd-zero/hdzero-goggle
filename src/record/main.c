@@ -323,6 +323,7 @@ int record_start(RecordContext_t* recCtx)
     ZeroMemory(&aiParams, sizeof(aiParams));
     ZeroMemory(&aeParams, sizeof(aeParams));
 
+    conf_loadRecordParams(recCtx->confFile, &recCtx->params);
     conf_loadViParams(recCtx->confFile, &viParams);
     conf_loadVencParams(recCtx->confFile, &veParams);
 
@@ -786,9 +787,6 @@ void main_loop(RecordContext_t* recCtx)
 		    isExit = true;
 			break;
 		case MSG_cmdSTART:
-		    if( !record_isGoing(recCtx) ) {
-                conf_loadRecordParams(recCtx->confFile, &recCtx->params);
-		    }
 		    record_run(recCtx, REC_statRun);
 		    tkIdle = tkNow;
 		    break;
