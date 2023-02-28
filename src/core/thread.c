@@ -16,187 +16,173 @@
 #include "msp_displayport.h"
 #include "osd.h"
 
-#include "../driver/dm5680.h"
-#include "../driver/hardware.h"
-#include "../driver/it66021.h"
-#include "../driver/nct75.h"
-#include "../driver/oled.h"
 #include "core/battery.h"
-#include "ui/ui_porting.h"
+#include "driver/dm5680.h"
+#include "driver/hardware.h"
+#include "driver/it66021.h"
+#include "driver/nct75.h"
+#include "driver/oled.h"
 #include "ui/page_fans.h"
 #include "ui/page_version.h"
-
+#include "ui/ui_porting.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
-static void detect_sdcard(void)
-{
-	static bool sdcard_enable_last = false;
-	struct stat mountpoint;
-	struct stat mountpoint_parent;
+static void detect_sdcard(void) {
+    static bool sdcard_enable_last = false;
+    struct stat mountpoint;
+    struct stat mountpoint_parent;
 
-	// fetch mountpoint and mountpoint parent dev_id
-	if (stat("/mnt/extsd", &mountpoint) == 0 &&
-		stat("/mnt", &mountpoint_parent) == 0) {
-		// iff the dev ids _do not_ match there is a filesystem mounted
-		g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
-	} else {
-		g_sdcard_enable = false;
-	}
+    // fetch mountpoint and mountpoint parent dev_id
+    if (stat("/mnt/extsd", &mountpoint) == 0 &&
+        stat("/mnt", &mountpoint_parent) == 0) {
+        // iff the dev ids _do not_ match there is a filesystem mounted
+        g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
+    } else {
+        g_sdcard_enable = false;
+    }
 
-	if((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-		struct statfs info;
-		if(statfs( "/mnt/extsd", &info ) == 0) 
-			g_sdcard_size = (info.f_bsize * info.f_bavail)>>20; //in MB
-		else
-			g_sdcard_size = 0;
-		g_sdcard_det_req = 0;
-	}
-	sdcard_enable_last = g_sdcard_enable;
+    if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
+        struct statfs info;
+        if (statfs("/mnt/extsd", &info) == 0)
+            g_sdcard_size = (info.f_bsize * info.f_bavail) >> 20; // in MB
+        else
+            g_sdcard_size = 0;
+        g_sdcard_det_req = 0;
+    }
+    sdcard_enable_last = g_sdcard_enable;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Signal loss|accquire processing
-#define SIGNAL_LOSS_DURATION_THR  20 //25=4 seconds, 
-#define SIGNAL_ACCQ_DURATION_THR  10 
-static void check_hdzero_signal(int vtmg_change) 
-{
-	static uint8_t cnt = 0;
-	uint8_t is_valid;
+#define SIGNAL_LOSS_DURATION_THR 20 // 25=4 seconds,
+#define SIGNAL_ACCQ_DURATION_THR 10
+static void check_hdzero_signal(int vtmg_change) {
+    static uint8_t cnt = 0;
+    uint8_t is_valid;
 
-	//HDZero digital
-	if(g_source_info.source == SOURCE_HDZERO) {
-		DM5680_req_rssi();
-		DM5680_req_vldflg();
-		tune_channel_timer();
-	}
+    // HDZero digital
+    if (g_source_info.source == SOURCE_HDZERO) {
+        DM5680_req_rssi();
+        DM5680_req_vldflg();
+        tune_channel_timer();
+    }
 
-	if(g_setting.record.mode_manual || !g_sdcard_enable || (g_menu_op != OPLEVEL_VIDEO)) return;
+    if (g_setting.record.mode_manual || !g_sdcard_enable || (g_menu_op != OPLEVEL_VIDEO))
+        return;
 
-	//exit if HDMI in
-	if(g_source_info.source == SOURCE_HDMI_IN) return;
+    // exit if HDMI in
+    if (g_source_info.source == SOURCE_HDMI_IN)
+        return;
 
-	//Analog VTMG change -> Restart recording
-	if(g_source_info.source >= SOURCE_AV_IN) {
-		if(vtmg_change && is_recording) {
-			LOGI("AV VTMG change");
-			osd_dvr_cmd(DVR_STOP);
-			osd_dvr_cmd(DVR_START);
-		}
-	}
+    // Analog VTMG change -> Restart recording
+    if (g_source_info.source >= SOURCE_AV_IN) {
+        if (vtmg_change && is_recording) {
+            LOGI("AV VTMG change");
+            osd_dvr_cmd(DVR_STOP);
+            osd_dvr_cmd(DVR_START);
+        }
+    }
 
-	//HDZero VTMG change -> stop recording first
-	if((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
-		LOGI("HDZero VTMG change\n");
-		osd_dvr_cmd(DVR_STOP);
-		cnt = 0;
-	}
+    // HDZero VTMG change -> stop recording first
+    if ((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
+        LOGI("HDZero VTMG change\n");
+        osd_dvr_cmd(DVR_STOP);
+        cnt = 0;
+    }
 
-	is_valid = (g_source_info.source == SOURCE_AV_IN)? g_source_info.av_in_status: \
-			   (g_source_info.source == SOURCE_EXPANSION)? g_source_info.av_bay_status: \
-			   								(rx_status[0].rx_valid || rx_status[1].rx_valid);
-	
-	if(is_recording) { //in-recording
-		if(!is_valid) {
-			cnt++;
-			if(cnt >= SIGNAL_LOSS_DURATION_THR) {
-				cnt = 0;
-				LOGI("Signal lost");
-				osd_dvr_cmd(DVR_STOP);
-			}
-		}
-		else 
-			cnt = 0;
-	}
-	else { //not in-recording
-		if(is_valid) {
-			cnt++;
-			if(cnt >= SIGNAL_ACCQ_DURATION_THR) {
-				cnt = 0;
-				LOGI("Signal accquired");
-				osd_dvr_cmd(DVR_START);
-			}
-		}
-		else 
-			cnt = 0;
-	}
+    is_valid = (g_source_info.source == SOURCE_AV_IN) ? g_source_info.av_in_status : (g_source_info.source == SOURCE_EXPANSION) ? g_source_info.av_bay_status
+                                                                                                                                : (rx_status[0].rx_valid || rx_status[1].rx_valid);
+
+    if (is_recording) { // in-recording
+        if (!is_valid) {
+            cnt++;
+            if (cnt >= SIGNAL_LOSS_DURATION_THR) {
+                cnt = 0;
+                LOGI("Signal lost");
+                osd_dvr_cmd(DVR_STOP);
+            }
+        } else
+            cnt = 0;
+    } else { // not in-recording
+        if (is_valid) {
+            cnt++;
+            if (cnt >= SIGNAL_ACCQ_DURATION_THR) {
+                cnt = 0;
+                LOGI("Signal accquired");
+                osd_dvr_cmd(DVR_START);
+            }
+        } else
+            cnt = 0;
+    }
 }
 
-static void *thread_peripheral(void *ptr)
-{
-	int record_vtmg_change = 0;
-	int j=0,k=0;
+static void *thread_peripheral(void *ptr) {
+    int record_vtmg_change = 0;
+    int j = 0, k = 0;
 
-	for(;;)
-	{
-		if(j>50)
-		{
-			j=0;
-			
-			fans_auto_ctrl();
-			detect_sdcard();
-			if(k++ == 4) {
-				k = 0;
-				battery_update();
-				g_temperature.top = nct_read_temperature(NCT_TOP);
-				g_temperature.left = nct_read_temperature(NCT_LEFT) + 100; 
-				g_temperature.right= nct_read_temperature(NCT_RIGHT);
-				confirm_recording();
-			}
+    for (;;) {
+        if (j > 50) {
+            j = 0;
+
+            fans_auto_ctrl();
+            detect_sdcard();
+            if (k++ == 4) {
+                k = 0;
+                battery_update();
+                g_temperature.top = nct_read_temperature(NCT_TOP);
+                g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+                g_temperature.right = nct_read_temperature(NCT_RIGHT);
+                confirm_recording();
+            }
             // detect HDZERO
-			record_vtmg_change = HDZERO_detect();
+            record_vtmg_change = HDZERO_detect();
 
             // detect AV_in/Moudle_bay
-			record_vtmg_change |= AV_in_detect();
-			g_source_info.av_in_status = g_hw_stat.av_valid[0];
-			g_source_info.av_bay_status = g_hw_stat.av_valid[1];
-            
-			// detect HDMI in
-			HDMI_in_detect();
-			g_source_info.hdmi_in_status = g_hw_stat.hdmiin_valid;
+            record_vtmg_change |= AV_in_detect();
+            g_source_info.av_in_status = g_hw_stat.av_valid[0];
+            g_source_info.av_bay_status = g_hw_stat.av_valid[1];
 
-			g_latency_locked = (bool)Get_VideoLatancy_status();
-			check_hdzero_signal(record_vtmg_change);
-			record_vtmg_change = 0;
-		}
-		j++;
-		usleep(2000); 
-	}
-	return NULL;
+            // detect HDMI in
+            HDMI_in_detect();
+            g_source_info.hdmi_in_status = g_hw_stat.hdmiin_valid;
+
+            g_latency_locked = (bool)Get_VideoLatancy_status();
+            check_hdzero_signal(record_vtmg_change);
+            record_vtmg_change = 0;
+        }
+        j++;
+        usleep(2000);
+    }
+    return NULL;
 }
-
-
 
 //////////////////////////////////////////////////////////////////////
-//local
+// local
 static threads_obj_t threads_obj;
 
-static void threads_instance(threads_obj_t *obj)
-{
-	obj->instance[0] =  thread_peripheral;
-	obj->instance[1] =  thread_version;
-	obj->instance[2] =  thread_osd;
+static void threads_instance(threads_obj_t *obj) {
+    obj->instance[0] = thread_peripheral;
+    obj->instance[1] = thread_version;
+    obj->instance[2] = thread_osd;
 }
 
-int create_threads()
-{
-	int ret = 0;
+int create_threads() {
+    int ret = 0;
 
-    threads_obj_t *obj = &threads_obj; 
-	threads_instance(obj);
-	for(int i=0; i<THREAD_COUNT; i++)
-	{
-		ret = pthread_create(&obj->pid[i],
-			   	NULL,
-				obj->instance[i],
-				NULL);
+    threads_obj_t *obj = &threads_obj;
+    threads_instance(obj);
+    for (int i = 0; i < THREAD_COUNT; i++) {
+        ret = pthread_create(&obj->pid[i],
+                             NULL,
+                             obj->instance[i],
+                             NULL);
 
-		if(ret != 0)
-			goto thread_create_err;
-		
-	}
-	return 0;
+        if (ret != 0)
+            goto thread_create_err;
+    }
+    return 0;
 
 thread_create_err:
-	return -1;
+    return -1;
 }
