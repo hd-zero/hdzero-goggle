@@ -42,19 +42,19 @@
 static void load_osd_element_ini_settings(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
 
-    sprintf(buf, "element_show_%s", config_name);
+    sprintf(buf, "element_%s_show", config_name);
     element->show = ini_getl("osd", buf, defaults->show, SETTING_INI);
 
-    sprintf(buf, "element_pos_4_3_x_%s", config_name);
+    sprintf(buf, "element_%s_pos_4_3_x", config_name);
     element->position.mode_4_3.x = ini_getl("osd", buf, defaults->position.mode_4_3.x, SETTING_INI);
 
-    sprintf(buf, "element_pos_4_3_y_%s", config_name);
+    sprintf(buf, "element_%s_pos_4_3_y", config_name);
     element->position.mode_4_3.y = ini_getl("osd", buf, defaults->position.mode_4_3.y, SETTING_INI);
 
-    sprintf(buf, "element_pos_16_9_x_%s", config_name);
+    sprintf(buf, "element_%s_pos_16_9_x", config_name);
     element->position.mode_16_9.x = ini_getl("osd", buf, defaults->position.mode_16_9.x, SETTING_INI);
 
-    sprintf(buf, "element_pos_16_9_y_%s", config_name);
+    sprintf(buf, "element_%s_pos_16_9_y", config_name);
     element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
 }
 
