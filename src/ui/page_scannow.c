@@ -18,6 +18,7 @@
 #include "../driver/i2c.h"
 #include "../driver/oled.h"
 #include "../driver/uart.h"
+#include "core/settings.h"
 #include "fbtools.h"
 #include "msp_displayport.h"
 #include "page_common.h"

@@ -7,8 +7,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // global
-setting_t g_setting;
-
 op_level_t g_menu_op = OPLEVEL_MAINMENU;
 bool g_sdcard_enable = false;
 bool g_sdcard_det_req = false;
@@ -17,73 +15,7 @@ bool g_autoscan_exit = true;
 bool g_scanning = false;
 bool g_showRXOSD = true;
 bool g_latency_locked = false;
-bool g_test_en = false;
 source_info_t g_source_info;
-const setting_t g_setting_defaults = {
-    // ### scan ###
-    {
-        // channel
-        1},
-
-    // ### fans ###
-    {
-        // top_speed, auto_mode, left_speed, right_speed
-        4, true, 5, 5},
-
-    // ### autoscan ###
-    {
-        // status, last_source, source
-        SETTING_AUTOSCAN_SCAN, SETTING_SOURCE_LAST, SETTING_SOURCE_HDZERO},
-
-    // ### power ###
-    {
-        // voltage, display_voltage, warning_type, cell_count_mode, cell_count, osd_display_mode
-        35, true, 2, SETTING_POWER_CELL_COUNT_MODE_AUTO, 2, SETTING_POWER_OSD_DISPLAY_MODE_TOTAL},
-
-    // ### record ###
-    {
-        // mode_manual, format_ts, osd, audio, audio_source
-        false, true, true, true, 0},
-
-    // ### image ###
-    {
-        // oled, brightness, saturation, contrast, auto_off
-        7, 0, 0, 0, 2},
-
-    // ### head tracker ###
-    {
-        // enable, max_angle, acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z
-        false, 120, 0, 0, 0, 0, 0, 0},
-
-    // ### ELRS ###
-    {
-        // enable
-        false},
-
-    // ### OSD ###
-    {
-        // embedded_mode
-        EMBEDDED_4x3,
-        //      elements
-        // show       position
-        //       mode_4_3   mode_16_9
-        //        x    y    x   y
-        {{true, {{160, 0}, {0, 0}}},     // topfan_speed
-         {true, {{200, 0}, {40, 0}}},    // latency_lock
-         {true, {{240, 0}, {80, 0}}},    // vtx_temp
-         {true, {{280, 0}, {120, 0}}},   // vrx_temp
-         {true, {{320, 0}, {160, 0}}},   // battery_low
-         {true, {{540, 0}, {540, 0}}},   // channel
-         {true, {{840, 0}, {1000, 0}}},  // sd_rec
-         {true, {{880, 0}, {1040, 0}}},  // vlq
-         {true, {{960, 0}, {1120, 0}}},  // ant0
-         {true, {{920, 0}, {1080, 0}}},  // ant1
-         {true, {{1040, 0}, {1200, 0}}}, // ant2
-         {true, {{1000, 0}, {1160, 0}}}, // ant3
-         {true, {{170, 50}, {170, 50}}}, // goggle_temp_top
-         {true, {{270, 50}, {270, 50}}}, // goggle_temp_left
-         {true, {{370, 50}, {370, 50}}}} // goggle_temp_right
-    }};
 
 /////////////////////////////////////////////////////////////////////////////
 

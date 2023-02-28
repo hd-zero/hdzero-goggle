@@ -10,6 +10,7 @@
 #include "../driver/hardware.h"
 #include "../driver/it66121.h"
 #include "../driver/oled.h"
+#include "core/settings.h"
 #include "page_common.h"
 #include "page_scannow.h"
 #include "ui/ui_main_menu.h"

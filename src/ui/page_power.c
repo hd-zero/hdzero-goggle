@@ -7,6 +7,7 @@
 
 #include "core/battery.h"
 #include "core/common.hh"
+#include "core/settings.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 

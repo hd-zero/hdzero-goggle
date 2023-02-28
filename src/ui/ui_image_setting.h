@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/settings.h"
+
 #define IMS_CANVAS_WIDTH  430
 #define IMS_CANVAS_HEIGHT 200
 #define SLIDER_XSTART     170

@@ -17,6 +17,7 @@
 #include "osd.h"
 
 #include "core/battery.h"
+#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
 #include "driver/it66021.h"

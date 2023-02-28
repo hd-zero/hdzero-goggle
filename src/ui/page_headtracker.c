@@ -2,6 +2,7 @@
 
 #include <minIni.h>
 
+#include "core/settings.h"
 #include "ht.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
@@ -125,23 +126,20 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
     }
 }
 
-static void page_headtracker_timer(struct _lv_timer_t *timer)
-{
+static void page_headtracker_timer(struct _lv_timer_t *timer) {
     int16_t *channels = ht_get_channels();
     lv_bar_set_value(pan, channels[0], LV_ANIM_OFF);
     lv_bar_set_value(tilt, channels[1], LV_ANIM_OFF);
     lv_bar_set_value(roll, channels[2], LV_ANIM_OFF);
 }
 
-static void page_headtracker_enter()
-{
+static void page_headtracker_enter() {
     lv_slider_set_value(slider_group.slider, g_setting.ht.max_angle, LV_ANIM_OFF);
     timer = lv_timer_create(page_headtracker_timer, 50, NULL);
     lv_timer_set_repeat_count(timer, -1);
 }
 
-static void page_headtracker_exit()
-{
+static void page_headtracker_exit() {
     lv_timer_del(timer);
 }
 

@@ -16,6 +16,7 @@
 
 #include "core/common.hh"
 #include "core/elrs.h"
+#include "core/settings.h"
 #include "driver/esp32.h"
 #include "page_version.h"
 #include "ui/ui_style.h"
@@ -89,13 +90,12 @@ static void page_connections_on_roller(uint8_t key) {
     page_connections_reset();
 }
 
-static void elrs_status_timer(struct _lv_timer_t *timer)
-{
+static void elrs_status_timer(struct _lv_timer_t *timer) {
     char label[80];
     uint8_t status[7] = {0};
     uint16_t size = sizeof(status) - 1;
 
-    if(!msp_read_resposne(MSP_GET_BP_STATUS, &size, status)) {
+    if (!msp_read_resposne(MSP_GET_BP_STATUS, &size, status)) {
         msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
         return;
     }
@@ -106,8 +106,7 @@ static void elrs_status_timer(struct _lv_timer_t *timer)
     }
 }
 
-static void page_connections_enter()
-{
+static void page_connections_enter() {
     lv_label_set_text(label_bind_status, "Not bound");
     msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
     lv_timer_t *timer = lv_timer_create(elrs_status_timer, 250, NULL);

@@ -22,6 +22,7 @@
 #include "core/ht.h"
 #include "core/msp_displayport.h"
 #include "core/osd.h"
+#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/gpio.h"
 #include "driver/hardware.h"

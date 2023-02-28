@@ -15,6 +15,7 @@
 #include "osd.h"
 
 #include "bmi270/accel_gyro.h"
+#include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/gpio.h"
 #include "driver/hardware.h"

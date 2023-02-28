@@ -18,6 +18,7 @@
 #include "core/input_device.h"
 #include "core/osd.h"
 #include "core/self_test.h"
+#include "core/settings.h"
 #include "core/thread.h"
 #include "driver/TP2825.h"
 #include "driver/dm5680.h"
@@ -38,122 +39,6 @@
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
 #include "util/file.h"
-
-static void load_osd_element_ini_settings(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
-    char buf[128];
-
-    sprintf(buf, "element_%s_show", config_name);
-    element->show = ini_getl("osd", buf, defaults->show, SETTING_INI);
-
-    sprintf(buf, "element_%s_pos_4_3_x", config_name);
-    element->position.mode_4_3.x = ini_getl("osd", buf, defaults->position.mode_4_3.x, SETTING_INI);
-
-    sprintf(buf, "element_%s_pos_4_3_y", config_name);
-    element->position.mode_4_3.y = ini_getl("osd", buf, defaults->position.mode_4_3.y, SETTING_INI);
-
-    sprintf(buf, "element_%s_pos_16_9_x", config_name);
-    element->position.mode_16_9.x = ini_getl("osd", buf, defaults->position.mode_16_9.x, SETTING_INI);
-
-    sprintf(buf, "element_%s_pos_16_9_y", config_name);
-    element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
-}
-
-static void load_ini_setting(void) {
-    char str[128];
-
-    FILE *fp;
-    fp = fopen("/mnt/UDISK/setting.ini", "r");
-    if (fp) {
-        fclose(fp);
-        sprintf(str, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
-        system(str);
-        usleep(10);
-        system("rm /mnt/UDISK/setting.ini");
-    }
-
-    g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
-
-    // fans
-    ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.fans.auto_mode = strcmp(str, "enable") == 0;
-    g_setting.fans.top_speed = ini_getl("fans", "top_speed", g_setting_defaults.fans.top_speed, SETTING_INI);
-    g_setting.fans.left_speed = ini_getl("fans", "left_speed", g_setting_defaults.fans.left_speed, SETTING_INI);
-    g_setting.fans.right_speed = ini_getl("fans", "right_speed", g_setting_defaults.fans.right_speed, SETTING_INI);
-
-    // autoscan
-    ini_gets("autoscan", "status", "scan", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0) {
-        g_setting.autoscan.status = 0;
-    } else if (strcmp(str, "disable") == 0 || strcmp(str, "last") == 0) {
-        g_setting.autoscan.status = 1;
-    } else {
-        g_setting.autoscan.status = 2;
-    }
-    g_setting.autoscan.source = ini_getl("autoscan", "source", g_setting_defaults.autoscan.source, SETTING_INI);
-    g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", g_setting_defaults.autoscan.last_source, SETTING_INI);
-
-    // osd
-    g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
-    load_osd_element_ini_settings(&g_setting.osd.elements.topfan_speed, "topfan_speed", &g_setting_defaults.osd.elements.topfan_speed);
-    load_osd_element_ini_settings(&g_setting.osd.elements.latency_lock, "latency_lock", &g_setting_defaults.osd.elements.latency_lock);
-    load_osd_element_ini_settings(&g_setting.osd.elements.vtx_temp, "vtx_temp", &g_setting_defaults.osd.elements.vtx_temp);
-    load_osd_element_ini_settings(&g_setting.osd.elements.vrx_temp, "vrx_temp", &g_setting_defaults.osd.elements.vrx_temp);
-    load_osd_element_ini_settings(&g_setting.osd.elements.battery_low, "battery_low", &g_setting_defaults.osd.elements.battery_low);
-    load_osd_element_ini_settings(&g_setting.osd.elements.channel, "channel", &g_setting_defaults.osd.elements.channel);
-    load_osd_element_ini_settings(&g_setting.osd.elements.sd_rec, "sd_rec", &g_setting_defaults.osd.elements.sd_rec);
-    load_osd_element_ini_settings(&g_setting.osd.elements.vlq, "vlq", &g_setting_defaults.osd.elements.vlq);
-    load_osd_element_ini_settings(&g_setting.osd.elements.ant0, "ant0", &g_setting_defaults.osd.elements.ant0);
-    load_osd_element_ini_settings(&g_setting.osd.elements.ant1, "ant1", &g_setting_defaults.osd.elements.ant1);
-    load_osd_element_ini_settings(&g_setting.osd.elements.ant2, "ant2", &g_setting_defaults.osd.elements.ant2);
-    load_osd_element_ini_settings(&g_setting.osd.elements.ant3, "ant3", &g_setting_defaults.osd.elements.ant3);
-    load_osd_element_ini_settings(&g_setting.osd.elements.goggle_temp_top, "goggle_temp_top", &g_setting_defaults.osd.elements.goggle_temp_top);
-    load_osd_element_ini_settings(&g_setting.osd.elements.goggle_temp_left, "goggle_temp_left", &g_setting_defaults.osd.elements.goggle_temp_left);
-    load_osd_element_ini_settings(&g_setting.osd.elements.goggle_temp_right, "goggle_temp_right", &g_setting_defaults.osd.elements.goggle_temp_right);
-
-    // power
-    g_setting.power.voltage = ini_getl("power", "voltage", g_setting_defaults.power.voltage, SETTING_INI);
-    g_setting.power.warning_type = ini_getl("power", "warning_type", g_setting_defaults.power.warning_type, SETTING_INI);
-    g_setting.power.cell_count_mode = ini_getl("power", "cell_count_mode", g_setting_defaults.power.cell_count_mode, SETTING_INI);
-    g_setting.power.cell_count = ini_getl("power", "cell_count", g_setting_defaults.power.cell_count, SETTING_INI);
-    g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
-
-    // record
-    ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
-    g_setting.record.mode_manual = strcmp(str, "enable") == 0;
-    ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.format_ts = strcmp(str, "enable") == 0;
-    ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.osd = strcmp(str, "enable") == 0;
-    ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.audio = strcmp(str, "enable") == 0;
-
-    g_setting.record.audio_source = ini_getl("record", "audio_source", g_setting_defaults.record.audio_source, SETTING_INI);
-
-    // image
-    g_setting.image.oled = ini_getl("image", "oled", g_setting_defaults.image.oled, SETTING_INI);
-    g_setting.image.brightness = ini_getl("image", "brightness", g_setting_defaults.image.brightness, SETTING_INI);
-    g_setting.image.saturation = ini_getl("image", "saturation", g_setting_defaults.image.saturation, SETTING_INI);
-    g_setting.image.contrast = ini_getl("image", "contrast", g_setting_defaults.image.contrast, SETTING_INI);
-    g_setting.image.auto_off = ini_getl("image", "auto_off", g_setting_defaults.image.auto_off, SETTING_INI);
-
-    // head tracker
-    g_setting.ht.enable = ini_getl("ht", "enable", g_setting_defaults.ht.enable, SETTING_INI);
-    g_setting.ht.max_angle = ini_getl("ht", "max_angle", g_setting_defaults.ht.max_angle, SETTING_INI);
-    g_setting.ht.acc_x = ini_getl("ht", "acc_x", g_setting_defaults.ht.acc_x, SETTING_INI);
-    g_setting.ht.acc_y = ini_getl("ht", "acc_y", g_setting_defaults.ht.acc_y, SETTING_INI);
-    g_setting.ht.acc_z = ini_getl("ht", "acc_z", g_setting_defaults.ht.acc_z, SETTING_INI);
-    g_setting.ht.gyr_x = ini_getl("ht", "gyr_x", g_setting_defaults.ht.gyr_x, SETTING_INI);
-    g_setting.ht.gyr_y = ini_getl("ht", "gyr_y", g_setting_defaults.ht.gyr_y, SETTING_INI);
-    g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
-
-    g_setting.elrs.enable = ini_getl("elrs", "enable", g_setting_defaults.elrs.enable, SETTING_INI);
-
-    // Check
-    g_test_en = false;
-    if (file_exists(LOG_FILE) && log_enable_file(LOG_FILE)) {
-        g_test_en = true;
-    }
-}
 
 static void *thread_autoscan(void *ptr) {
     for (;;) {
@@ -248,7 +133,7 @@ int main(int argc, char *argv[]) {
 
     gpio_init();
     lvgl_init();
-    load_ini_setting();
+    settings_load();
     main_menu_init();
     statusbar_init();
     lv_timer_handler();

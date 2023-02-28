@@ -2,6 +2,7 @@
 
 #include <minIni.h>
 
+#include "core/settings.h"
 #include "ui/ui_style.h"
 
 static lv_coord_t col_dsc[] = {160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
