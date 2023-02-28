@@ -350,8 +350,7 @@ static void roller_down(void) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void get_event(int fd)
-{
+static void get_event(int fd) {
     struct input_event event;
     static int roller_value = 0;
     static int event_type_last = 0;
@@ -382,8 +381,8 @@ static void get_event(int fd)
                     // LOGI("btn down");
                 } else {
                     if (btn_press_time < 10) {
-						btn_click();
-						g_key = DIAL_KEY_CLICK;
+                        btn_click();
+                        g_key = DIAL_KEY_CLICK;
                     }
                     // else if(btn_press_time > 200){
                     //	btn_super_press();
