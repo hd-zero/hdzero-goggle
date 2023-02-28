@@ -14,6 +14,7 @@
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/defines.h"
+#include "core/dvr.h"
 #include "core/input_device.h"
 #include "core/msp_displayport.h"
 #include "core/osd.h"
@@ -78,30 +79,30 @@ static void check_hdzero_signal(int vtmg_change) {
 
     // Analog VTMG change -> Restart recording
     if (g_source_info.source >= SOURCE_AV_IN) {
-        if (vtmg_change && is_recording) {
+        if (vtmg_change && dvr_is_recording) {
             LOGI("AV VTMG change");
-            osd_dvr_cmd(DVR_STOP);
-            osd_dvr_cmd(DVR_START);
+            dvr_cmd(DVR_STOP);
+            dvr_cmd(DVR_START);
         }
     }
 
     // HDZero VTMG change -> stop recording first
     if ((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
         LOGI("HDZero VTMG change\n");
-        osd_dvr_cmd(DVR_STOP);
+        dvr_cmd(DVR_STOP);
         cnt = 0;
     }
 
     is_valid = (g_source_info.source == SOURCE_AV_IN) ? g_source_info.av_in_status : (g_source_info.source == SOURCE_EXPANSION) ? g_source_info.av_bay_status
                                                                                                                                 : (rx_status[0].rx_valid || rx_status[1].rx_valid);
 
-    if (is_recording) { // in-recording
+    if (dvr_is_recording) { // in-recording
         if (!is_valid) {
             cnt++;
             if (cnt >= SIGNAL_LOSS_DURATION_THR) {
                 cnt = 0;
                 LOGI("Signal lost");
-                osd_dvr_cmd(DVR_STOP);
+                dvr_cmd(DVR_STOP);
             }
         } else
             cnt = 0;
@@ -111,7 +112,7 @@ static void check_hdzero_signal(int vtmg_change) {
             if (cnt >= SIGNAL_ACCQ_DURATION_THR) {
                 cnt = 0;
                 LOGI("Signal accquired");
-                osd_dvr_cmd(DVR_START);
+                dvr_cmd(DVR_START);
             }
         } else
             cnt = 0;
@@ -134,7 +135,7 @@ static void *thread_peripheral(void *ptr) {
                 g_temperature.top = nct_read_temperature(NCT_TOP);
                 g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
                 g_temperature.right = nct_read_temperature(NCT_RIGHT);
-                confirm_recording();
+                dvr_update_status();
             }
             // detect HDZERO
             record_vtmg_change = HDZERO_detect();

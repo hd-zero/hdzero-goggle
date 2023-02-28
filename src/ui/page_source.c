@@ -7,13 +7,14 @@
 
 #include "core/app_state.h"
 #include "core/common.hh"
+#include "core/dvr.h"
 #include "core/osd.h"
 #include "core/settings.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
 #include "driver/oled.h"
-#include "page_common.h"
-#include "page_scannow.h"
+#include "ui/page_common.h"
+#include "ui/page_scannow.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
@@ -110,8 +111,8 @@ static void page_source_on_click(uint8_t key, int sel) {
         app_switch_to_hdzero(true);
         app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_HDZERO;
-        sel_audio_source(2);
-        enable_line_out(true);
+        dvr_select_audio_source(2);
+        dvr_enable_line_out(true);
         break;
 
     case 1:
@@ -123,16 +124,16 @@ static void page_source_on_click(uint8_t key, int sel) {
         app_switch_to_analog(0);
         app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_AV_IN;
-        sel_audio_source(2);
-        enable_line_out(true);
+        dvr_select_audio_source(2);
+        dvr_enable_line_out(true);
         break;
 
     case 3: // Module in
         app_switch_to_analog(1);
         app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_EXPANSION;
-        sel_audio_source(2);
-        enable_line_out(true);
+        dvr_select_audio_source(2);
+        dvr_enable_line_out(true);
         break;
 
     case 4:

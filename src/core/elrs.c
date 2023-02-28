@@ -20,6 +20,7 @@
 #include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
+#include "core/dvr.h"
 #include "core/ht.h"
 #include "core/msp_displayport.h"
 #include "core/osd.h"
@@ -200,7 +201,7 @@ bool esp32_handler_process_byte(uint8_t c) {
 void esp32_handler_timeout() {
     if (record_time != 0 && record_time <= time(NULL)) {
         record_time = 0;
-        osd_dvr_cmd(record_state);
+        dvr_cmd(record_state);
     }
 }
 
@@ -225,7 +226,7 @@ void msp_process_packet() {
                     beep();
                     pthread_mutex_lock(&lvgl_mutex);
                     HDZero_open();
-                    osd_dvr_cmd(DVR_STOP);
+                    dvr_cmd(DVR_STOP);
                     app_switch_to_hdzero(true);
                     app_state_push(APP_STATE_VIDEO);
                     pthread_mutex_unlock(&lvgl_mutex);
@@ -256,7 +257,7 @@ void msp_process_packet() {
             }
         } break;
         case MSP_GET_REC_STATE: {
-            uint8_t buf = is_recording ? 1 : 0;
+            uint8_t buf = dvr_is_recording ? 1 : 0;
             msp_send_packet(MSP_GET_REC_STATE, MSP_PACKET_RESPONSE, 1, &buf);
         } break;
         case MSP_SET_REC_STATE: {
@@ -264,7 +265,7 @@ void msp_process_packet() {
                 record_state = packet.payload[0] == 0 ? 1 : 2;
                 uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;
                 if (delay == 0)
-                    osd_dvr_cmd(record_state);
+                    dvr_cmd(record_state);
                 else
                     record_time = time(NULL) + delay;
             }
@@ -291,7 +292,7 @@ void msp_process_packet() {
             }
         } break;
         case MSP_SET_BUZZER:
-            beep_dur((packet.payload[0] | packet.payload[1]<<8) * 1000);
+            beep_dur((packet.payload[0] | packet.payload[1] << 8) * 1000);
             break;
         case MSP_SET_OSD_ELEM:
             handle_osd(packet.payload, packet.payload_size);
@@ -401,7 +402,7 @@ static void handle_osd(uint8_t payload[], uint8_t size) {
         int page = (attr & 1) * 256;
         uint8_t len = size - 4 < HD_HMAX - col ? size - 4 : HD_HMAX - col;
         for (int j = 0; j < len; j++) {
-            elrs_osd_overlay[row][col+j] = payload[j+4] + page;
+            elrs_osd_overlay[row][col + j] = payload[j + 4] + page;
         }
     } break;
     case 0x04: // draw screen

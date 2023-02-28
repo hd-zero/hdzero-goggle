@@ -4,6 +4,7 @@
 #include <minIni.h>
 #include <unistd.h>
 
+#include "core/dvr.h"
 #include "core/input_device.h"
 #include "core/msp_displayport.h"
 #include "core/osd.h"
@@ -33,8 +34,9 @@ void app_switch_to_menu() {
     }
 
     app_state_push(APP_STATE_MAINMENU);
+
     // Stop recording if switching to menu mode from video mode regardless
-    osd_dvr_cmd(DVR_STOP);
+    dvr_cmd(DVR_STOP);
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -79,7 +81,7 @@ void app_switch_to_hdmi_in() {
 
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;
-    enable_line_out(false);
+    dvr_enable_line_out(false);
     g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 }
