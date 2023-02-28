@@ -47,7 +47,7 @@ uint16_t elrs_osd[HD_VMAX][HD_HMAX];
 static uint16_t elrs_osd_overlay[HD_VMAX][HD_HMAX];
 
 void msp_process_packet();
-static void handleOSD(uint8_t *payload, uint8_t size);
+static void handle_osd(uint8_t *payload, uint8_t size);
 
 static const uint16_t freq_table[] = {
     5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R1-8
@@ -292,7 +292,7 @@ void msp_process_packet() {
             beep_dur((packet.payload[0] | packet.payload[1]<<8) * 1000);
             break;
         case MSP_SET_OSD_ELEM:
-            handleOSD(packet.payload, packet.payload_size);
+            handle_osd(packet.payload, packet.payload_size);
             break;
         case MSP_SET_HT_ENABLE:
             if (packet.payload_size > 0) {
@@ -378,7 +378,7 @@ void elrs_clear_osd() {
     }
 }
 
-static void handleOSD(uint8_t payload[], uint8_t size) {
+static void handle_osd(uint8_t payload[], uint8_t size) {
     switch (payload[0]) {
     case 0x00: // hearbeat
         break;
