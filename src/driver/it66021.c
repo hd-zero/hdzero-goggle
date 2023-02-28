@@ -1,30 +1,28 @@
 #include "it66021.h"
 
 #include <stdint.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include <log/log.h>
 
+#include "../core/common.hh"
 #include "defines.h"
+#include "dm5680.h"
 #include "i2c.h"
 #include "oled.h"
-#include "dm5680.h"
-#include "../core/common.hh"
 
-#define ADDR_IT66021_RING  0x70
+#define ADDR_IT66021_RING 0x70
 
-void IT66021_Mask_WR(uint8_t is_ring, uint8_t addr, uint8_t mask, uint8_t wdat)
-{
+void IT66021_Mask_WR(uint8_t is_ring, uint8_t addr, uint8_t mask, uint8_t wdat) {
     uint8_t temp;
     temp = I2C_L_Read(is_ring ? ADDR_IT66021_RING : ADDR_IT66021, addr);
-    temp = ( temp & ((~mask) & 0xFF) ) + (mask & wdat);
+    temp = (temp & ((~mask) & 0xFF)) + (mask & wdat);
     I2C_L_Write(is_ring ? ADDR_IT66021_RING : ADDR_IT66021, addr, temp);
 }
 
-void IT66021_OscCalib()
-{
+void IT66021_OscCalib() {
     uint32_t val = 0, OSCCLK;
     uint8_t temp;
 
@@ -37,12 +35,12 @@ void IT66021_OscCalib()
     val <<= 8;
     val |= I2C_L_Read(ADDR_IT66021_RING, 0x13);
     val <<= 8;
-    val |= I2C_L_Read(ADDR_IT66021_RING, 0x12); //R100msTimeCnt
+    val |= I2C_L_Read(ADDR_IT66021_RING, 0x12); // R100msTimeCnt
 
     OSCCLK = val * 10;
 
     // oscdiv
-    val = (val + 500000) / 1000000; //oscdiv
+    val = (val + 500000) / 1000000; // oscdiv
     LOGI("IT66021: OSCCLK = %d,  oscdiv = %d", OSCCLK, val);
 
     val <<= 4;
@@ -54,28 +52,25 @@ void IT66021_OscCalib()
     OSCCLK >>= 2; // now is RCLK
 
     // Set RCLK parameter into RING02/RING03:
-    val = OSCCLK/1000/100;
+    val = OSCCLK / 1000 / 100;
     temp = val & 0xff;
     IT66021_Mask_WR(1, 0x02, 0xff, temp);
 
     temp = (val >> 1) & 0x80;
-    val = 128 * ( (OSCCLK / 1000) % 100 ) / 100;
+    val = 128 * ((OSCCLK / 1000) % 100) / 100;
     temp |= (val & 0x7F);
     IT66021_Mask_WR(1, 0x03, 0xff, temp);
 }
 
-void IT66021_srst()
-{
+void IT66021_srst() {
     I2C_L_Write(ADDR_IT66021, 0x10, 0xFF);
 }
 
-void IT66021_close()
-{
+void IT66021_close() {
     DM5680_ResetHDMI_RX(0);
 }
 
-void IT66021_init()
-{
+void IT66021_init() {
     DM5680_ResetHDMI_RX(0);
     usleep(1000);
     DM5680_ResetHDMI_RX(1);
@@ -208,20 +203,18 @@ void IT66021_init()
     IT66021_Mask_WR(1, 0x0f, 0x10, 0x00);
 }
 
-int IT66021_Sig_det()
-{
+int IT66021_Sig_det() {
     uint8_t st;
 
     IT66021_Mask_WR(0, 0x0f, 0x03, 0x00);
     st = I2C_L_Read(ADDR_IT66021, 0x99);
-    st  = (st >> 3) & 0x01;
+    st = (st >> 3) & 0x01;
 
     return st;
 }
 
 // return: 1 = 1920x1080, 2= 1280x720
-int IT66021_Get_VTMG()
-{
+int IT66021_Get_VTMG() {
     int r9e, r9f, ra5, ra4;
     int width, height;
     int ret = 0;
@@ -232,46 +225,42 @@ int IT66021_Get_VTMG()
     ra5 = I2C_L_Read(ADDR_IT66021, 0xa5);
     ra4 = I2C_L_Read(ADDR_IT66021, 0xa4);
 
-    width = ((r9f & 0x3f) << 8 ) | (r9e & 0xff);
-    height = ((ra4 & 0xf0) << 4 ) | (ra5 & 0xff);
+    width = ((r9f & 0x3f) << 8) | (r9e & 0xff);
+    height = ((ra4 & 0xf0) << 4) | (ra5 & 0xff);
 
-    if(width == 1920 && height == 1080)
+    if (width == 1920 && height == 1080)
         ret = 1;
-    if(width == 1280 && height == 720)
+    if (width == 1280 && height == 720)
         ret = 2;
 
     return ret;
 }
 
 // get color space
-int IT66021_Get_CS()
-{
+int IT66021_Get_CS() {
     int val;
 
     IT66021_Mask_WR(0, 0x0f, 0x03, 0x02);
     val = I2C_L_Read(ADDR_IT66021, 0x15);
     IT66021_Mask_WR(0, 0x0f, 0x03, 0x00);
-    
-    val  = (val >> 5) & 0x03;
+
+    val = (val >> 5) & 0x03;
     return val;
 }
 
-void IT66021_Set_CSMatrix(int cs)
-{
-    if(cs == 0){
+void IT66021_Set_CSMatrix(int cs) {
+    if (cs == 0) {
         IT66021_Mask_WR(0, 0x65, 0x03, 0x02);
-    }
-    else{
+    } else {
         IT66021_Mask_WR(0, 0x65, 0x03, 0x00);
     }
 }
 
-int IT66021_Get_PCLKFREQ()
-{
+int IT66021_Get_PCLKFREQ() {
     int rdat;
-    
+
     rdat = I2C_L_Read(ADDR_IT66021, 0x9A);
-    if(rdat != I2C_L_Read(ADDR_IT66021, 0x9A))
+    if (rdat != I2C_L_Read(ADDR_IT66021, 0x9A))
         rdat = 0;
 
     return rdat;

@@ -1,19 +1,17 @@
-#include <stdint.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "i2c.h"
-#include "dm5680.h"
 #include "it66121.h"
 #include "../core/common.hh"
+#include "dm5680.h"
+#include "i2c.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-void IT66121_close()
-{
+void IT66121_close() {
     DM5680_ResetHDMI_TX(0);
 }
 
-void IT66121_init()
-{
+void IT66121_init() {
     DM5680_ResetHDMI_TX(0);
     usleep(1000);
     DM5680_ResetHDMI_TX(1);

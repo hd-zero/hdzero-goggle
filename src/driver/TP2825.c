@@ -4,21 +4,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "i2c.h"
 #include "core/common.hh"
 #include "driver/gpio.h"
+#include "i2c.h"
 
-void TP2825_close()
-{
-    gpio_set(GPIO_TP2825_RSTB,0);
+void TP2825_close() {
+    gpio_set(GPIO_TP2825_RSTB, 0);
 }
 
-void TP2825_open()
-{
-    gpio_set(GPIO_TP2825_RSTB,1);
+void TP2825_open() {
+    gpio_set(GPIO_TP2825_RSTB, 1);
 }
 
-void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
+void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
 {
     TP2825_close();
     usleep(1000);
@@ -27,7 +25,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
 
     I2C_Write(ADDR_TP2825, 0x41, ch_sel);
 
-    if(is_pal) {
+    if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x06, 0x34);
         I2C_Write(ADDR_TP2825, 0x08, 0xD0);
@@ -35,7 +33,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x0B, 0x80);
         I2C_Write(ADDR_TP2825, 0x0C, 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, 0x11);
-        //I2C_Write(ADDR_TP2825, 0x15, 0x13);
+        // I2C_Write(ADDR_TP2825, 0x15, 0x13);
         I2C_Write(ADDR_TP2825, 0x16, 0x4A);
         I2C_Write(ADDR_TP2825, 0x17, 0xC0);
         I2C_Write(ADDR_TP2825, 0x18, 0x17);
@@ -43,10 +41,10 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x1A, 0x17);
         I2C_Write(ADDR_TP2825, 0x20, 0xB0);
         I2C_Write(ADDR_TP2825, 0x22, 0x39);
-        //I2C_Write(ADDR_TP2825, 0x23, 0x3c);
+        // I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, 0x02);
         I2C_Write(ADDR_TP2825, 0x28, 0x41);
-        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //diable color kill
+        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); // diable color kill
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2D, 0x60);
         I2C_Write(ADDR_TP2825, 0x2E, 0x5E);
@@ -61,8 +59,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x4E, 0x37);
         I2C_Write(ADDR_TP2825, 0x1C, 0x09);
         I2C_Write(ADDR_TP2825, 0x1D, 0x48);
-    }
-    else {
+    } else {
         I2C_Write(ADDR_TP2825, 0x02, 0xCF);
         I2C_Write(ADDR_TP2825, 0x06, 0x34);
         I2C_Write(ADDR_TP2825, 0x08, 0xD0);
@@ -70,7 +67,7 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x0B, 0x80);
         I2C_Write(ADDR_TP2825, 0x0C, 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, 0x10);
-        //I2C_Write(ADDR_TP2825, 0x15, 0x13);
+        // I2C_Write(ADDR_TP2825, 0x15, 0x13);
         I2C_Write(ADDR_TP2825, 0x16, 0x3C);
         I2C_Write(ADDR_TP2825, 0x17, 0xC0);
         I2C_Write(ADDR_TP2825, 0x18, 0x13);
@@ -78,10 +75,10 @@ void TP2825_Config(int ch_sel, int is_pal) //ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x1A, 0x07);
         I2C_Write(ADDR_TP2825, 0x20, 0xA0);
         I2C_Write(ADDR_TP2825, 0x22, 0x39);
-        //I2C_Write(ADDR_TP2825, 0x23, 0x3c);
+        // I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, 0x12);
         I2C_Write(ADDR_TP2825, 0x28, 0x41);
-        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //diable color kill
+        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); // diable color kill
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2D, 0x68);
         I2C_Write(ADDR_TP2825, 0x2E, 0x5E);
@@ -105,7 +102,6 @@ void TP2825_Switch_CH(uint8_t sel) // 0 = AV in; 1 = Module bay
     I2C_Write(ADDR_TP2825, 0x06, 0xB2);
 }
 
-void TP2825_Set_Clamp(int set_default)
-{
+void TP2825_Set_Clamp(int set_default) {
     I2C_Write(ADDR_TP2825, 0x23, set_default ? 0x3c : 0x7c);
 }
