@@ -2,6 +2,7 @@
 
 #include <log/log.h>
 #include <minIni.h>
+#include <unistd.h>
 
 #include "core/input_device.h"
 #include "core/msp_displayport.h"
