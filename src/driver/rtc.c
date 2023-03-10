@@ -87,7 +87,7 @@ void rtc_init() {
  *  Format RTC in a standard format
  */
 static inline void rtc_print(const struct rtc_date *rd) {
-    LOGE("RTC: %04d-%02d-%02dT%02d:%02d:%02d",
+    LOGI("RTC: %04d-%02d-%02dT%02d:%02d:%02d",
          rd->year,
          rd->month,
          rd->day,
