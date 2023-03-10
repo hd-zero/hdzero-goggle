@@ -28,6 +28,7 @@
 #include "driver/it66121.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
+#include "driver/rtc.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -251,6 +252,7 @@ int main(int argc, char *argv[]) {
     uart_init();
     hw_stat_init();
     device_init();
+    rtc_init();
 
     osd_init();
     ims_init();
