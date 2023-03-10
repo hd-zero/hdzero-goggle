@@ -10,7 +10,7 @@ struct rtc_date {
 	int sec;   // 0 - 59
 };
 
-void rtc_init_from_file();
+void rct_init();
 void rtc_timestamp();
 void rtc_set_clock(const struct rtc_date* rd);
 void rtc_get_clock(struct rtc_date* rd);
