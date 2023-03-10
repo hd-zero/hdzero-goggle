@@ -15,73 +15,120 @@ setting_t g_setting;
 bool g_test_en = false;
 
 const setting_t g_setting_defaults = {
-    // ### scan ###
-    {
-        // channel
-        1},
-
-    // ### fans ###
-    {
-        // top_speed, auto_mode, left_speed, right_speed
-        4, true, 5, 5},
-
-    // ### autoscan ###
-    {
-        // status, last_source, source
-        SETTING_AUTOSCAN_SCAN, SETTING_SOURCE_LAST, SETTING_SOURCE_HDZERO},
-
-    // ### power ###
-    {
-        // voltage, display_voltage, warning_type, cell_count_mode, cell_count, osd_display_mode
-        35, true, 2, SETTING_POWER_CELL_COUNT_MODE_AUTO, 2, SETTING_POWER_OSD_DISPLAY_MODE_TOTAL},
-
-    // ### record ###
-    {
-        // mode_manual, format_ts, osd, audio, audio_source
-        false, true, true, true, 0},
-
-    // ### image ###
-    {
-        // oled, brightness, saturation, contrast, auto_off
-        7, 0, 0, 0, 2},
-
-    // ### head tracker ###
-    {
-        // enable, max_angle, acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z
-        false, 120, 0, 0, 0, 0, 0, 0},
-
-    // ### ELRS ###
-    {
-        // enable
-        false},
-
-    // ### OSD ###
-    {
-        // embedded_mode
-        EMBEDDED_4x3,
-        //      elements
-        // show       position
-        //       mode_4_3   mode_16_9
-        //        x    y    x   y
-        {
-            {true, {{160, 0}, {0, 0}}},     // topfan_speed
-            {true, {{200, 0}, {40, 0}}},    // latency_lock
-            {true, {{240, 0}, {80, 0}}},    // vtx_temp
-            {true, {{280, 0}, {120, 0}}},   // vrx_temp
-            {true, {{320, 0}, {160, 0}}},   // battery_low
-            {true, {{540, 0}, {540, 0}}},   // channel
-            {true, {{840, 0}, {1000, 0}}},  // sd_rec
-            {true, {{880, 0}, {1040, 0}}},  // vlq
-            {true, {{960, 0}, {1120, 0}}},  // ant0
-            {true, {{920, 0}, {1080, 0}}},  // ant1
-            {true, {{1040, 0}, {1200, 0}}}, // ant2
-            {true, {{1000, 0}, {1160, 0}}}, // ant3
-            {true, {{170, 50}, {170, 50}}}, // goggle_temp_top
-            {true, {{270, 50}, {270, 50}}}, // goggle_temp_left
-            {true, {{370, 50}, {370, 50}}},
-        } // goggle_temp_right
+    .scan = {
+        .channel = 1,
     },
-};
+    .fans = {
+        .top_speed = 4,
+        .auto_mode = true,
+        .left_speed = 5,
+        .right_speed = 5,
+    },
+    .autoscan = {
+        .status = SETTING_AUTOSCAN_SCAN,
+        .last_source = SETTING_SOURCE_LAST,
+        .source = SETTING_SOURCE_HDZERO,
+    },
+    .power = {
+        .voltage = 35,
+        .display_voltage = true,
+        .warning_type = 2,
+        .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
+        .cell_count = 2,
+        .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
+    },
+    .record = {
+        .mode_manual = false,
+        .format_ts = true,
+        .osd = true,
+        .audio = true,
+        .audio_source = 0,
+    },
+    .image = {
+        .oled = 7,
+        .brightness = 0,
+        .saturation = 0,
+        .contrast = 0,
+        .auto_off = 2,
+    },
+    .ht = {
+        .enable = false,
+        .max_angle = 120,
+        .acc_x = 0,
+        .acc_y = 0,
+        .acc_z = 0,
+        .gyr_x = 0,
+        .gyr_y = 0,
+        .gyr_z = 0,
+    },
+    .elrs = {
+        .enable = false,
+    },
+    .osd = {
+        .embedded_mode = EMBEDDED_4x3,
+        .elements = {
+            .topfan_speed = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 160, .y = 0}, .mode_16_9 = {.x = 0, .y = 0}},
+            },
+            .latency_lock = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 200, .y = 0}, .mode_16_9 = {.x = 40, .y = 0}},
+            },
+            .vtx_temp = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 240, .y = 0}, .mode_16_9 = {.x = 80, .y = 0}},
+            },
+            .vrx_temp = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 280, .y = 0}, .mode_16_9 = {.x = 120, .y = 0}},
+            },
+            .battery_low = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 320, .y = 0}, .mode_16_9 = {.x = 160, .y = 0}},
+            },
+            .channel = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 540, .y = 0}, .mode_16_9 = {.x = 540, .y = 0}},
+            },
+            .sd_rec = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 840, .y = 0}, .mode_16_9 = {.x = 1000, .y = 0}},
+            },
+            .vlq = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 880, .y = 0}, .mode_16_9 = {.x = 1040, .y = 0}},
+            },
+            .ant0 = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 960, .y = 0}, .mode_16_9 = {.x = 1120, .y = 0}},
+            },
+            .ant1 = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 920, .y = 0}, .mode_16_9 = {.x = 1080, .y = 0}},
+            },
+            .ant2 = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 1040, .y = 0}, .mode_16_9 = {.x = 1200, .y = 0}},
+            },
+            .ant3 = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 1000, .y = 0}, .mode_16_9 = {.x = 1160, .y = 0}},
+            },
+            .goggle_temp_top = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 170, .y = 50}, .mode_16_9 = {.x = 170, .y = 50}},
+            },
+            .goggle_temp_left = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 270, .y = 50}, .mode_16_9 = {.x = 270, .y = 50}},
+            },
+            .goggle_temp_right = {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
+            },
+        },
+    }};
 
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
