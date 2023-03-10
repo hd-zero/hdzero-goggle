@@ -87,7 +87,7 @@ void rtc_init() {
  *  Format RTC in a standard format
  */
 static inline void rtc_print(const struct rtc_date *rd) {
-    LOGI("RTC: %04d-%02d-%02dT%02d:%02d:%02d\n",
+    LOGE("RTC: %04d-%02d-%02dT%02d:%02d:%02d",
          rd->year,
          rd->month,
          rd->day,
@@ -114,11 +114,11 @@ void rtc_set_clock(const struct rtc_date *rd) {
         struct rtc_time rt;
         rd2rt(rd, &rt);
         if (ioctl(fd, RTC_SET_TIME, &rt) != 0) {
-            LOGI("ioctl(%d,RTC_SET_TIME,rt) failed with errno(%d)\n", errno);
+            LOGE("ioctl(%d,RTC_SET_TIME,rt) failed with errno(%d)", fd, errno);
         }
         close(fd);
     } else {
-        LOGI("Failed to open(/dev/rtc, O_WRONLY)\n");
+        LOGE("Failed to open(/dev/rtc, O_WRONLY)");
     }
 }
 
@@ -132,10 +132,10 @@ void rtc_get_clock(struct rtc_date *rd) {
         if (ioctl(fd, RTC_RD_TIME, &rt) == 0) {
             rt2rd(&rt, rd);
         } else {
-            LOGI("ioctl(%d,RTC_RD_TIME,rt) failed with errno(%d)\n", errno);
+            LOGE("ioctl(%d,RTC_RD_TIME,rt) failed with errno(%d)", fd, errno);
         }
         close(fd);
     } else {
-        LOGI("Failed to open(/dev/rtc, O_RDONLY)\n");
+        LOGE("Failed to open(/dev/rtc, O_RDONLY)");
     }
 }
