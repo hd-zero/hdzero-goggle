@@ -392,7 +392,7 @@ void osd_hdzero_update(void) {
                 i = 1;
             else if (i > 8)
                 i = 8;
-            sprintf(buf, "%sVtxTemp%d", RESOURCE_PATH, i); //"VtxTemp1.bmp"
+            sprintf(buf, "%sVtxTemp%d.bmp", RESOURCE_PATH, i);
         } else
             sprintf(buf, "%s%s", RESOURCE_PATH, blank_bmp);
         lv_img_set_src(g_osd_hdzero.vtx_temp, buf);
