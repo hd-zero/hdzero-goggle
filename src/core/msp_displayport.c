@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <log/log.h>
 
 #include "osd.h"
 #include "util/time.h"
