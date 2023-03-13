@@ -10,9 +10,12 @@ struct rtc_date {
     int sec;   // 0 - 59
 };
 
-void rct_init();
+void rtc_init();
+int rtc_has_battery();
 void rtc_timestamp();
 void rtc_set_clock(const struct rtc_date *rd);
 void rtc_get_clock(struct rtc_date *rd);
+int rtc_get_clock_iso_str(char *buffer, int size);
+int rtc_get_clock_osd_str(char *buffer, int size);
 
 #endif
