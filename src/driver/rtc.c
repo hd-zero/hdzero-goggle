@@ -15,7 +15,16 @@
 /**
  *  Constants
  */
+#define RTC_ISO_FORMAT "%04d%02d%02dT%02d%02d%02d"
+#define RTC_LOG_FORMAT "%04d-%02d-%02dT%02d:%02d:%02d"
+#define RTC_OSD_FORMAT "%04d/%02d/%02d %02d:%02d:%02d"
+static const char *RTC_DEV = "/dev/rtc";
 static const char *RTC_FILE = "/mnt/extsd/rtc.txt";
+
+/**
+ *  Globals
+ */
+static int g_rtc_has_battery = 0;
 
 /**
  *  Conversion Utils
@@ -44,35 +53,51 @@ void rt2rd(const struct rtc_time *rt, struct rtc_date *rd) {
  *  2023-03-10T01:05:15
  */
 void rtc_init() {
+    struct rtc_date rd_now;
+    rtc_get_clock(&rd_now);
+
+    // Has time has accumulated since the
+    // the installation of the battery?
+    g_rtc_has_battery =
+        !(rd_now.year == 1970 &&
+          rd_now.month == 1 &&
+          rd_now.day == 1 &&
+          rd_now.hour == 0 &&
+          rd_now.min == 0);
+
+    LOGI("rtc_init %s detected a battery",
+         (g_rtc_has_battery ? "has" : "has NOT"));
+
+    // Load file and set RTC if found.
     if (file_exists(RTC_FILE)) {
         FILE *fp = fopen(RTC_FILE, "r");
         if (fp) {
             static char buffer[32];
+
             while (fgets(buffer, sizeof(buffer), fp)) {
-                struct rtc_date rd, rd_now;
-                sscanf(buffer,
-                       "%04d-%02d-%02dT%02d:%02d:%02d",
-                       &rd.year,
-                       &rd.month,
-                       &rd.day,
-                       &rd.hour,
-                       &rd.min,
-                       &rd.sec);
+                struct rtc_date rd_file;
+                sscanf(buffer, RTC_LOG_FORMAT,
+                       &rd_file.year,
+                       &rd_file.month,
+                       &rd_file.day,
+                       &rd_file.hour,
+                       &rd_file.min,
+                       &rd_file.sec);
 
                 // Wishes to reset the clock
-                if (rd.year == 1970) {
-                    rtc_set_clock(&rd);
+                if (rd_file.year == 1970) {
+                    LOGI("rtc_init is resetting year back to 1970");
+                    rtc_set_clock(&rd_file);
                 } else {
-                    rtc_get_clock(&rd);
-
                     // Update if file contains a later date
-                    if (rd_now.year < rd.year ||
-                        rd_now.month < rd.month ||
-                        rd_now.day < rd.day ||
-                        rd_now.hour < rd.hour ||
-                        rd_now.min < rd.min ||
-                        rd_now.sec < rd.sec) {
-                        rtc_set_clock(&rd);
+                    if (rd_now.year < rd_file.year ||
+                        rd_now.month < rd_file.month ||
+                        rd_now.day < rd_file.day ||
+                        rd_now.hour < rd_file.hour ||
+                        rd_now.min < rd_file.min ||
+                        rd_now.sec < rd_file.sec) {
+                        LOGI("rtc_init is updating clock to a later date");
+                        rtc_set_clock(&rd_file);
                     }
                 }
             }
@@ -84,10 +109,17 @@ void rtc_init() {
 }
 
 /**
+ *  Return 1 if detected battery otherwise 0.
+ */
+int rtc_has_battery() {
+    return g_rtc_has_battery;
+}
+
+/**
  *  Format RTC in a standard format
  */
-static inline void rtc_print(const struct rtc_date *rd) {
-    LOGI("RTC: %04d-%02d-%02dT%02d:%02d:%02d",
+void rtc_print(const struct rtc_date *rd) {
+    LOGI(RTC_LOG_FORMAT,
          rd->year,
          rd->month,
          rd->day,
@@ -109,8 +141,8 @@ void rtc_timestamp() {
  *  Set Hardware Clock
  */
 void rtc_set_clock(const struct rtc_date *rd) {
-    int fd = open("/dev/rtc", O_WRONLY);
-    if (fd != -1) {
+    int fd = open(RTC_DEV, O_WRONLY);
+    if (fd >= 0) {
         struct rtc_time rt;
         rd2rt(rd, &rt);
         if (ioctl(fd, RTC_SET_TIME, &rt) != 0) {
@@ -118,7 +150,7 @@ void rtc_set_clock(const struct rtc_date *rd) {
         }
         close(fd);
     } else {
-        LOGE("Failed to open(/dev/rtc, O_WRONLY)");
+        LOGE("rtc_set_clock failed to open(%s, O_RDWR)", RTC_DEV);
     }
 }
 
@@ -126,8 +158,8 @@ void rtc_set_clock(const struct rtc_date *rd) {
  *  Get Hardware Clock
  */
 void rtc_get_clock(struct rtc_date *rd) {
-    int fd = open("/dev/rtc", O_RDONLY);
-    if (fd != -1) {
+    int fd = open(RTC_DEV, O_RDONLY);
+    if (fd >= 0) {
         struct rtc_time rt;
         if (ioctl(fd, RTC_RD_TIME, &rt) == 0) {
             rt2rd(&rt, rd);
@@ -136,6 +168,38 @@ void rtc_get_clock(struct rtc_date *rd) {
         }
         close(fd);
     } else {
-        LOGE("Failed to open(/dev/rtc, O_RDONLY)");
+        LOGE("rtc_get_clock failed to open(%s, O_RDWR)", RTC_DEV);
     }
+}
+
+/**
+ *  Formats buffer with an ISO-8061 Filesystem safe string.
+ *  Returns the number of characters written.
+ */
+int rtc_get_clock_iso_str(char *buffer, int size) {
+    struct rtc_date rd;
+    rtc_get_clock(&rd);
+    return snprintf(buffer, size, RTC_ISO_FORMAT,
+                    rd.year,
+                    rd.month,
+                    rd.day,
+                    rd.hour,
+                    rd.min,
+                    rd.sec);
+}
+
+/**
+ *  Formats buffer with an OSD pretty string.
+ *  Returns the number of characters written.
+ */
+int rtc_get_clock_osd_str(char *buffer, int size) {
+    struct rtc_date rd;
+    rtc_get_clock(&rd);
+    return snprintf(buffer, size, RTC_OSD_FORMAT,
+                    rd.year,
+                    rd.month,
+                    rd.day,
+                    rd.hour,
+                    rd.min,
+                    rd.sec);
 }
