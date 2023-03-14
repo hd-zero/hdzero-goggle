@@ -2,14 +2,15 @@
 #define _RTC_H
 
 struct rtc_date {
-    int year;  // YYYY
-    int month; // 1 - 12
-    int day;   // 1 - 31
-    int hour;  // 0 - 23
-    int min;   // 0 - 59
-    int sec;   // 0 - 59
+    unsigned short year; // YYYY
+    unsigned char month; // 1 - 12
+    unsigned char day;   // 1 - 31
+    unsigned char hour;  // 0 - 23
+    unsigned char min;   // 0 - 59
+    unsigned char sec;   // 0 - 59
 };
 
+void rtc_init_old();
 void rtc_init();
 int rtc_has_battery();
 void rtc_timestamp();

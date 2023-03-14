@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <log/log.h>
@@ -15,11 +16,12 @@
 /**
  *  Constants
  */
-#define RTC_ISO_FORMAT "%04d%02d%02dT%02d%02d%02d"
-#define RTC_LOG_FORMAT "%04d-%02d-%02dT%02d:%02d:%02d"
+#define RTC_LOG_FORMAT "%04d-%02d-%02dT%02d_%02d_%02d"
 #define RTC_OSD_FORMAT "%04d/%02d/%02d %02d:%02d:%02d"
 static const char *RTC_DEV = "/dev/rtc";
 static const char *RTC_FILE = "/mnt/extsd/rtc.txt";
+static const unsigned char RTC_DAYS_PER_MONTH[] = {
+    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 /**
  *  Globals
@@ -45,12 +47,51 @@ void rt2rd(const struct rtc_time *rt, struct rtc_date *rd) {
     rd->min = rt->tm_min;
     rd->sec = rt->tm_sec;
 }
+void rd2tv(const struct rtc_date *rd, struct timeval *tv) {
+
+    struct rtc_time rt;
+    rd2rt(rd, &rt);
+    tv->tv_sec = mktime((struct tm *)&rt);
+    tv->tv_usec = 0;
+}
+void tv2rd(const struct timeval *tv, struct rtc_date *rd) {
+    struct rtc_time *rt = (struct rtc_time *)gmtime(&tv->tv_sec);
+    rt2rd(rt, rd);
+}
+
+/**
+ *  Returns 1 if leap year is detected, otherwise 0.
+ */
+int rtc_is_leap_year(unsigned int year) {
+    return (!(year % 4) && (year % 100)) || !(year % 400);
+}
+
+/*
+ * The number of days per month.
+ */
+int rtc_days_per_month(unsigned int year, unsigned int month) {
+    return (rtc_is_leap_year(year) && month == 1) + RTC_DAYS_PER_MONTH[month];
+}
+
+/*
+ * Does rtc_date contain a valid date and time?
+ */
+int rtc_has_valid_date(struct rtc_date *rd) {
+    return (rd->year - 1900 < 70 ||
+            rd->month - 1 >= 12 ||
+            rd->day > rtc_days_per_month(rd->month, rd->year) ||
+            rd->hour >= 24 ||
+            rd->min >= 60 ||
+            rd->sec >= 60)
+               ? 0
+               : -EINVAL;
+}
 
 /**
  *  Initialize RTC from file if detected,
- *  must be formatted to ISO-8601:
- *  YYYY-MM-DDTHH:MM:SS
- *  2023-03-10T01:05:15
+ *  contents of file must match the following:
+ *  YYYY-MM-DDTHH_MM_SS
+ *  2023-03-10T01_05_15
  */
 void rtc_init() {
     struct rtc_date rd_now;
@@ -84,21 +125,25 @@ void rtc_init() {
                        &rd_file.min,
                        &rd_file.sec);
 
-                // Wishes to reset the clock
-                if (rd_file.year == 1970) {
-                    LOGI("rtc_init is resetting year back to 1970");
-                    rtc_set_clock(&rd_file);
-                } else {
-                    // Update if file contains a later date
-                    if (rd_now.year < rd_file.year ||
-                        rd_now.month < rd_file.month ||
-                        rd_now.day < rd_file.day ||
-                        rd_now.hour < rd_file.hour ||
-                        rd_now.min < rd_file.min ||
-                        rd_now.sec < rd_file.sec) {
-                        LOGI("rtc_init is updating clock to a later date");
+                if (rtc_has_valid_date(&rd_file)) {
+                    // Wishes to reset the clock
+                    if (rd_file.year == 1970) {
+                        LOGI("rtc_init is resetting year back to 1970");
                         rtc_set_clock(&rd_file);
+                    } else {
+                        // Update if file contains a later date
+                        if (rd_now.year < rd_file.year ||
+                            rd_now.month < rd_file.month ||
+                            rd_now.day < rd_file.day ||
+                            rd_now.hour < rd_file.hour ||
+                            rd_now.min < rd_file.min ||
+                            rd_now.sec < rd_file.sec) {
+                            LOGI("rtc_init is updating clock to a later date");
+                            rtc_set_clock(&rd_file);
+                        }
                     }
+                } else {
+                    LOGE("rtc_init detected an invalid date within %s", RTC_FILE);
                 }
             }
             fclose(fp);
@@ -116,7 +161,7 @@ int rtc_has_battery() {
 }
 
 /**
- *  Format RTC in a standard format
+ *  Log RTC date structure in a standard format
  */
 void rtc_print(const struct rtc_date *rd) {
     LOGI(RTC_LOG_FORMAT,
@@ -129,7 +174,7 @@ void rtc_print(const struct rtc_date *rd) {
 }
 
 /**
- *  Log RTC in a standard format
+ *  Log current time to disk.
  */
 void rtc_timestamp() {
     struct rtc_date rd;
@@ -144,9 +189,15 @@ void rtc_set_clock(const struct rtc_date *rd) {
     int fd = open(RTC_DEV, O_WRONLY);
     if (fd >= 0) {
         struct rtc_time rt;
+        struct timeval tv;
         rd2rt(rd, &rt);
+        rd2tv(rd, &tv);
+
+        if (settimeofday(&tv, NULL) != 0) {
+            LOGE("settimeofday(&tv, NULL) failed with errno(%d)", errno);
+        }
         if (ioctl(fd, RTC_SET_TIME, &rt) != 0) {
-            LOGE("ioctl(%d,RTC_SET_TIME,rt) failed with errno(%d)", fd, errno);
+            LOGE("ioctl(%d,RTC_SET_TIME,&rt) failed with errno(%d)", fd, errno);
         }
         close(fd);
     } else {
@@ -173,13 +224,13 @@ void rtc_get_clock(struct rtc_date *rd) {
 }
 
 /**
- *  Formats buffer with an ISO-8061 Filesystem safe string.
+ *  Formats buffer to a Filesystem safe string.
  *  Returns the number of characters written.
  */
-int rtc_get_clock_iso_str(char *buffer, int size) {
+int rtc_get_clock_log_str(char *buffer, int size) {
     struct rtc_date rd;
     rtc_get_clock(&rd);
-    return snprintf(buffer, size, RTC_ISO_FORMAT,
+    return snprintf(buffer, size, RTC_LOG_FORMAT,
                     rd.year,
                     rd.month,
                     rd.day,
@@ -189,7 +240,7 @@ int rtc_get_clock_iso_str(char *buffer, int size) {
 }
 
 /**
- *  Formats buffer with an OSD pretty string.
+ *  Formats buffer to an OSD pretty string.
  *  Returns the number of characters written.
  */
 int rtc_get_clock_osd_str(char *buffer, int size) {
