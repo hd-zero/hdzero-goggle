@@ -1,5 +1,4 @@
-#ifndef _RTC_H
-#define _RTC_H
+#pragma once
 
 /**
  *  RTC Driver Interface.
@@ -68,5 +67,3 @@ int rtc_get_clock_log_str(char *buffer, int size);
  *  Returns the number of characters written.
  */
 int rtc_get_clock_osd_str(char *buffer, int size);
-
-#endif

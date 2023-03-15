@@ -129,12 +129,7 @@ void rtc_init() {
 
     // Has time has accumulated since the
     // the installation of the battery?
-    g_rtc_has_battery =
-        !(rd_now.year == 1970 &&
-          rd_now.month == 1 &&
-          rd_now.day == 1 &&
-          rd_now.hour == 0 &&
-          rd_now.min == 0);
+    g_rtc_has_battery = rd_now.year > 1970;
 
     LOGI("rtc_init %s detected a battery",
          (g_rtc_has_battery ? "has" : "has NOT"));
