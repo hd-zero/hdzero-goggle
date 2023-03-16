@@ -165,10 +165,10 @@ static void settings_load_osd_element(setting_osd_goggle_element_t *element, cha
     element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
 }
 
-bool settings_get_bool(char *section, char *key, bool default) {
+bool settings_get_bool(char *section, char *key, bool default_val) {
     char buf[128];
 
-    ini_gets(section, key, default ? "true" : "false", buf, sizeof(buf), SETTING_INI);
+    ini_gets(section, key, default_val ? "true" : "false", buf, sizeof(buf), SETTING_INI);
     return strcmp(buf, "true") == 0;
 }
 
