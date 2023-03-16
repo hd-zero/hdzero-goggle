@@ -120,8 +120,8 @@ static void page_connections_on_click(uint8_t key, int sel) {
     page_connections_reset();
     if (sel == 0) {
         btn_group_toggle_sel(&elrs_group);
-        g_setting.elrs.enable = btn_group_get_sel(&elrs_group) == 0 ? 1 : 0;
-        ini_putl("elrs", "enable", g_setting.elrs.enable, SETTING_INI);
+        g_setting.elrs.enable = btn_group_get_sel(&elrs_group) == 0;
+        settings_put_bool("elrs", "enable", g_setting.elrs.enable);
         if (g_setting.elrs.enable)
             enable_esp32();
         else

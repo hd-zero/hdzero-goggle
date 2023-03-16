@@ -97,37 +97,23 @@ static void page_record_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
         g_setting.record.mode_manual = btn_group_get_sel(&btn_group0);
-        if (g_setting.record.mode_manual) {
-            ini_puts("record", "mode_manual", "enable", SETTING_INI);
-        } else {
-            ini_puts("record", "mode_manual", "disable", SETTING_INI);
-        }
+        settings_put_bool("record", "mode_manual", g_setting.record.mode_manual);
     } else if (sel == 1) {
         btn_group_toggle_sel(&btn_group1);
         g_setting.record.format_ts = btn_group_get_sel(&btn_group1);
-        if (g_setting.record.format_ts) {
-            ini_puts("record", "format_ts", "enable", SETTING_INI);
+        settings_put_bool("record", "format_ts", g_setting.record.format_ts);
+        if (g_setting.record.format_ts)
             ini_puts("record", "type", "ts", REC_CONF);
-        } else {
-            ini_puts("record", "format_ts", "disable", SETTING_INI);
+        else
             ini_puts("record", "type", "mp4", REC_CONF);
-        }
     } else if (sel == 2) {
         btn_group_toggle_sel(&btn_group2);
         g_setting.record.osd = !btn_group_get_sel(&btn_group2);
-        if (g_setting.record.osd) {
-            ini_puts("record", "osd", "enable", SETTING_INI);
-        } else {
-            ini_puts("record", "osd", "disable", SETTING_INI);
-        }
+        settings_put_bool("record", "osd", g_setting.record.osd);
     } else if (sel == 3) {
         btn_group_toggle_sel(&btn_group3);
         g_setting.record.audio = !btn_group_get_sel(&btn_group3);
-        if (g_setting.record.audio) {
-            ini_puts("record", "audio", "enable", SETTING_INI);
-        } else {
-            ini_puts("record", "audio", "disable", SETTING_INI);
-        }
+        settings_put_bool("record", "audio", g_setting.record.audio);
     } else if (sel == 4) {
         btn_group_toggle_sel(&btn_group4);
         g_setting.record.audio_source = btn_group_get_sel(&btn_group4);

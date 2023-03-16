@@ -26,14 +26,13 @@ const setting_t g_setting_defaults = {
         .right_speed = 5,
     },
     .autoscan = {
-        .status = SETTING_AUTOSCAN_SCAN,
-        .last_source = SETTING_SOURCE_LAST,
-        .source = SETTING_SOURCE_HDZERO,
+        .status = SETTING_AUTOSCAN_STATUS_ON,
+        .last_source = SETTING_AUTOSCAN_SOURCE_LAST,
+        .source = SETTING_AUTOSCAN_SOURCE_HDZERO,
     },
     .power = {
         .voltage = 35,
-        .display_voltage = true,
-        .warning_type = 2,
+        .warning_type = SETTING_POWER_WARNING_TYPE_BOTH,
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
@@ -44,7 +43,7 @@ const setting_t g_setting_defaults = {
         .format_ts = true,
         .osd = true,
         .audio = true,
-        .audio_source = 0,
+        .audio_source = SETTING_RECORD_AUDIO_SOURCE_MIC,
     },
     .image = {
         .oled = 7,
@@ -151,7 +150,7 @@ static void settings_load_osd_element(setting_osd_goggle_element_t *element, cha
     char buf[128];
 
     sprintf(buf, "element_%s_show", config_name);
-    element->show = ini_getl("osd", buf, defaults->show, SETTING_INI);
+    element->show = settings_get_bool("osd", buf, defaults->show);
 
     sprintf(buf, "element_%s_pos_4_3_x", config_name);
     element->position.mode_4_3.x = ini_getl("osd", buf, defaults->position.mode_4_3.x, SETTING_INI);
@@ -166,10 +165,20 @@ static void settings_load_osd_element(setting_osd_goggle_element_t *element, cha
     element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
 }
 
-void settings_load(void) {
-    char str[128];
+bool settings_get_bool(char *section, char *key, bool default) {
+    char buf[128];
 
+    ini_gets(section, key, default ? "true" : "false", buf, sizeof(buf), SETTING_INI);
+    return strcmp(buf, "true") == 0;
+}
+
+int settings_put_bool(char *section, char *key, bool value) {
+    return ini_puts(section, key, value ? "true" : "false", SETTING_INI);
+}
+
+void settings_load(void) {
     if (file_exists("/mnt/UDISK/setting.ini")) {
+        char str[128];
         sprintf(str, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
         system(str);
         usleep(10);
@@ -179,8 +188,7 @@ void settings_load(void) {
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
     // fans
-    ini_gets("fans", "auto", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.fans.auto_mode = strcmp(str, "enable") == 0;
+    g_setting.fans.auto_mode = settings_get_bool("fans", "auto", g_setting_defaults.fans.auto_mode);
     g_setting.fans.top_speed = ini_getl("fans", "top_speed", g_setting_defaults.fans.top_speed, SETTING_INI);
     g_setting.fans.left_speed = ini_getl("fans", "left_speed", g_setting_defaults.fans.left_speed, SETTING_INI);
     g_setting.fans.right_speed = ini_getl("fans", "right_speed", g_setting_defaults.fans.right_speed, SETTING_INI);
@@ -190,14 +198,7 @@ void settings_load(void) {
     g_setting.source.analog_format = strcmp(str, "pal") == 0;
 
     // autoscan
-    ini_gets("autoscan", "status", "scan", str, sizeof(str), SETTING_INI);
-    if (strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0) {
-        g_setting.autoscan.status = 0;
-    } else if (strcmp(str, "disable") == 0 || strcmp(str, "last") == 0) {
-        g_setting.autoscan.status = 1;
-    } else {
-        g_setting.autoscan.status = 2;
-    }
+    g_setting.autoscan.status = ini_getl("autoscan", "status", g_setting_defaults.autoscan.status, SETTING_INI);
     g_setting.autoscan.source = ini_getl("autoscan", "source", g_setting_defaults.autoscan.source, SETTING_INI);
     g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", g_setting_defaults.autoscan.last_source, SETTING_INI);
 
@@ -228,15 +229,10 @@ void settings_load(void) {
     g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
 
     // record
-    ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
-    g_setting.record.mode_manual = strcmp(str, "enable") == 0;
-    ini_gets("record", "format_ts", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.format_ts = strcmp(str, "enable") == 0;
-    ini_gets("record", "osd", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.osd = strcmp(str, "enable") == 0;
-    ini_gets("record", "audio", "enable", str, sizeof(str), SETTING_INI);
-    g_setting.record.audio = strcmp(str, "enable") == 0;
-
+    g_setting.record.mode_manual = settings_get_bool("record", "mode_manual", g_setting_defaults.record.mode_manual);
+    g_setting.record.format_ts = settings_get_bool("record", "format_ts", g_setting_defaults.record.format_ts);
+    g_setting.record.osd = settings_get_bool("record", "osd", g_setting_defaults.record.osd);
+    g_setting.record.audio = settings_get_bool("record", "audio", g_setting_defaults.record.audio);
     g_setting.record.audio_source = ini_getl("record", "audio_source", g_setting_defaults.record.audio_source, SETTING_INI);
 
     // image
@@ -247,7 +243,7 @@ void settings_load(void) {
     g_setting.image.auto_off = ini_getl("image", "auto_off", g_setting_defaults.image.auto_off, SETTING_INI);
 
     // head tracker
-    g_setting.ht.enable = ini_getl("ht", "enable", g_setting_defaults.ht.enable, SETTING_INI);
+    g_setting.ht.enable = settings_get_bool("ht", "enable", g_setting_defaults.ht.enable);
     g_setting.ht.max_angle = ini_getl("ht", "max_angle", g_setting_defaults.ht.max_angle, SETTING_INI);
     g_setting.ht.acc_x = ini_getl("ht", "acc_x", g_setting_defaults.ht.acc_x, SETTING_INI);
     g_setting.ht.acc_y = ini_getl("ht", "acc_y", g_setting_defaults.ht.acc_y, SETTING_INI);
@@ -256,7 +252,8 @@ void settings_load(void) {
     g_setting.ht.gyr_y = ini_getl("ht", "gyr_y", g_setting_defaults.ht.gyr_y, SETTING_INI);
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
 
-    g_setting.elrs.enable = ini_getl("elrs", "enable", g_setting_defaults.elrs.enable, SETTING_INI);
+    // elrs
+    g_setting.elrs.enable = settings_get_bool("elrs", "enable", g_setting_defaults.elrs.enable);
 
     // clock
     g_setting.clock.year = ini_getl("clock", "year", g_setting_defaults.clock.year, SETTING_INI);

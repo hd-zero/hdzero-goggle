@@ -15,23 +15,23 @@ typedef struct {
 } setting_scan_t;
 
 typedef enum {
-    SETTING_AUTOSCAN_SCAN = 0,
-    SETTING_AUTOSCAN_LAST = 1,
-    SETTING_AUTOSCAN_MENU = 2
-} setting_status_t;
+    SETTING_AUTOSCAN_STATUS_ON = 0,
+    SETTING_AUTOSCAN_STATUS_LAST = 1,
+    SETTING_AUTOSCAN_STATUS_OFF = 2
+} setting_autoscan_status_t;
 
 typedef enum {
-    SETTING_SOURCE_LAST = 0,
-    SETTING_SOURCE_HDZERO = 1,
-    SETTING_SOURCE_EXPANSION = 2,
-    SETTING_SOURCE_AV_IN = 3,
-    SETTING_SOURCE_HDMI_IN = 4
-} setting_source_t;
+    SETTING_AUTOSCAN_SOURCE_LAST = 0,
+    SETTING_AUTOSCAN_SOURCE_HDZERO = 1,
+    SETTING_AUTOSCAN_SOURCE_EXPANSION = 2,
+    SETTING_AUTOSCAN_SOURCE_AV_IN = 3,
+    SETTING_AUTOSCAN_SOURCE_HDMI_IN = 4
+} setting_autoscan_source_t;
 
 typedef struct {
-    setting_status_t status;
-    setting_source_t last_source;
-    setting_source_t source;
+    setting_autoscan_status_t status;
+    setting_autoscan_source_t last_source;
+    setting_autoscan_source_t source;
 } setting_autoscan_t;
 
 typedef enum {
@@ -44,22 +44,33 @@ typedef enum {
     SETTING_POWER_OSD_DISPLAY_MODE_CELL = 1
 } setting_power_osd_display_mode_t;
 
+typedef enum {
+    SETTING_POWER_WARNING_TYPE_BEEP = 0,
+    SETTING_POWER_WARNING_TYPE_VISUAL = 1,
+    SETTING_POWER_WARNING_TYPE_BOTH = 2
+} setting_power_warning_type_t;
+
 typedef struct {
     int voltage;
-    bool display_voltage;
-    int warning_type; // 0=beep,1=visual,2=both
+    setting_power_warning_type_t warning_type;
     setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;
     setting_power_osd_display_mode_t osd_display_mode;
     bool power_ana;
 } setting_power_t;
 
+typedef enum {
+    SETTING_RECORD_AUDIO_SOURCE_MIC = 0,
+    SETTING_RECORD_AUDIO_SOURCE_LINE_IN = 1,
+    SETTING_RECORD_AUDIO_SOURCE_AV_IN = 2
+} setting_record_audio_source_t;
+
 typedef struct {
     bool mode_manual;
     bool format_ts;
     bool osd;
     bool audio;
-    int audio_source; // 0=MIC,1=Line in,2=AV in
+    setting_record_audio_source_t audio_source;
 } setting_record_t;
 
 typedef struct {
@@ -71,7 +82,7 @@ typedef struct {
 } setting_image_t;
 
 typedef struct {
-    int enable;
+    bool enable;
     int max_angle;
     int32_t acc_x;
     int32_t acc_y;
@@ -82,7 +93,7 @@ typedef struct {
 } setting_head_tracker_t;
 
 typedef struct {
-    int enable;
+    bool enable;
 } setting_elrs_t;
 
 typedef enum {
@@ -171,3 +182,5 @@ extern bool g_test_en;
 extern const setting_t g_setting_defaults;
 
 void settings_load(void);
+bool settings_get_bool(char* section, char* key, bool default);
+int settings_put_bool(char* section, char* key, bool value);
