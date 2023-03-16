@@ -5,7 +5,10 @@
 extern "C" {
 #endif /* End of #ifdef __cplusplus */
 
+#ifndef EMULATOR_BUILD
 #include <hwdisplay.h>
+#endif
+
 #include <mpi_clock.h>
 #include <mpi_sys.h>
 #include <mpi_vdec.h>

@@ -155,7 +155,9 @@ void ht_detect_motion() {
 static void get_imu_data() {
     static int dec_cnt = 0;
 
+#ifndef EMULATOR_BUILD
     get_bmi270(&ht_data.sensor_data);
+#endif
 
     dec_cnt++;
     if (dec_cnt != AHRS_UPDATE_FREQUENCY)
