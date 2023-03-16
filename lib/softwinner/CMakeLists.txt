@@ -66,14 +66,19 @@ set(PREBUILT_LIBRARIES
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libaw_wavdec.so
 )
 
-add_library(softwinner SHARED IMPORTED GLOBAL)
-set_target_properties(softwinner PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so # dummy
-    INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
-)
-target_link_libraries(softwinner INTERFACE
-    log
+if(NOT EMULATOR_BUILD)
+    add_library(softwinner SHARED IMPORTED GLOBAL)
+    set_target_properties(softwinner PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libz.so # dummy
+        INTERFACE_INCLUDE_DIRECTORIES "${SOFTWINNER_INCLUDE_DIRECTORIES}"
+    )
+    target_link_libraries(softwinner INTERFACE
+        log
 
-    ${PREBUILT_LIBRARIES}
-)
+        ${PREBUILT_LIBRARIES}
+    )
+else()
+    add_library(softwinner INTERFACE)
+    target_include_directories(softwinner INTERFACE ${SOFTWINNER_INCLUDE_DIRECTORIES})
+endif()
 install(FILES ${PREBUILT_LIBRARIES} TYPE LIB)

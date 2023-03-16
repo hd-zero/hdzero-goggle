@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <linux/input.h>
 #include <pthread.h>
 #include <stdio.h>

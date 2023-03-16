@@ -1,7 +1,10 @@
 #ifndef __ADEC2AO_H_
 #define __ADEC2AO_H_
 
+#ifndef EMULATOR_BUILD
 #include <ClockCompPortIndex.h>
+#endif
+
 #include <mm_comm_adec.h>
 #include <mm_comm_aio.h>
 #include <mm_common.h>
