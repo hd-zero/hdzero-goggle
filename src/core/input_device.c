@@ -13,6 +13,10 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#ifdef EMULATOR_BUILD
+#include <SDL2/SDL.h>
+#endif
+
 #include "defines.h"
 #include "input_device.h"
 
@@ -432,6 +436,7 @@ static void add_to_epfd(int epfd, int fd) {
 }
 
 static void *thread_input_device(void *ptr) {
+#ifndef EMULATOR_BUILD
     for (;;) {
         struct epoll_event events[EPOLL_FD_CNT];
 
@@ -455,9 +460,71 @@ static void *thread_input_device(void *ptr) {
         }
     }
     return NULL;
+#else
+    static uint32_t btn_d_start = 0;
+    static uint32_t btn_a_start = 0;
+
+    while (true) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+            case SDL_QUIT:
+                exit(0);
+                break;
+
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym) {
+                case SDLK_d:
+                    btn_d_start = event.key.timestamp;
+                    break;
+
+                case SDLK_a:
+                    btn_a_start = event.key.timestamp;
+                    break;
+                }
+                break;
+
+            case SDL_KEYUP:
+                switch (event.key.keysym.sym) {
+                case SDLK_s:
+                    roller_up();
+                    g_key = DIAL_KEY_UP;
+                    break;
+
+                case SDLK_w:
+                    roller_down();
+                    g_key = DIAL_KEY_DOWN;
+                    break;
+
+                case SDLK_d:
+                    if (event.key.timestamp - btn_d_start > 500) {
+                        btn_press();
+                        g_key = DIAL_KEY_PRESS;
+                    } else {
+                        btn_click();
+                        g_key = DIAL_KEY_CLICK;
+                    }
+                    break;
+
+                case SDLK_a:
+                    if (event.key.timestamp - btn_a_start > 500) {
+                        rbtn_click(false);
+                        g_key = RIGHT_KEY_PRESS;
+                    } else {
+                        rbtn_click(true);
+                        g_key = RIGHT_KEY_CLICK;
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+    }
+#endif
 }
 
 void input_device_init() {
+#ifndef EMULATOR_BUILD
     epfd = epoll_create(EPOLL_FD_CNT);
     assert(epfd > 0);
 
@@ -472,5 +539,6 @@ void input_device_init() {
         }
     }
     app_state_push(APP_STATE_MAINMENU);
+#endif
     pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
 }
