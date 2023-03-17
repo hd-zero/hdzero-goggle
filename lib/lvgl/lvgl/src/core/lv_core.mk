@@ -1,5 +1,4 @@
 CSRCS += lv_disp.c
-CSRCS += lv_event.c
 CSRCS += lv_group.c
 CSRCS += lv_indev.c
 CSRCS += lv_indev_scroll.c
@@ -11,6 +10,7 @@ CSRCS += lv_obj_scroll.c
 CSRCS += lv_obj_style.c
 CSRCS += lv_obj_style_gen.c
 CSRCS += lv_obj_tree.c
+CSRCS += lv_event.c
 CSRCS += lv_refr.c
 CSRCS += lv_theme.c
 
