@@ -283,7 +283,7 @@ void lv_menu_set_sidebar_page(lv_obj_t * obj, lv_obj_t * page)
             lv_obj_t * sidebar_cont = lv_obj_class_create_obj(&lv_menu_sidebar_cont_class, obj);
             lv_obj_class_init_obj(sidebar_cont);
             lv_obj_move_to_index(sidebar_cont, 1);
-            lv_obj_set_size(sidebar_cont, LV_PCT(30), LV_PCT(100));
+            lv_obj_set_size(sidebar_cont, LV_PCT(18), LV_PCT(100));
             lv_obj_set_flex_flow(sidebar_cont, LV_FLEX_FLOW_COLUMN);
             lv_obj_add_flag(sidebar_cont, LV_OBJ_FLAG_EVENT_BUBBLE);
             lv_obj_clear_flag(sidebar_cont, LV_OBJ_FLAG_CLICKABLE);
