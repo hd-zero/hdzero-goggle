@@ -79,15 +79,15 @@ void submenu_enter(void) {
         return;
     }
 
-    if (pp->enter) {
-        // if your page as a enter event handler, call it
-        pp->enter();
-    }
-
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first one
         pp->p_arr.cur = 0;
         set_select_item(&pp->p_arr, pp->p_arr.cur);
+    }
+
+    if (pp->enter) {
+        // if your page as a enter event handler, call it
+        pp->enter();
     }
 }
 
