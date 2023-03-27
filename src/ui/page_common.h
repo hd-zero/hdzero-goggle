@@ -54,6 +54,8 @@
 #define DEF_VIDEOICON   "videoicon.jpg"
 #define FOCUS_CHART_IMG "focus_chart.png"
 
+#define MAX_PANELS 9
+
 typedef enum {
     SOURCE_HDZERO = 0,
     SOURCE_HDMI_IN = 1,
@@ -87,16 +89,7 @@ typedef struct {
 } slider_group_t;
 
 typedef struct {
-    lv_obj_t *panel0;
-    lv_obj_t *panel1;
-    lv_obj_t *panel2;
-    lv_obj_t *panel3;
-    lv_obj_t *panel4;
-    lv_obj_t *panel5;
-    lv_obj_t *panel6;
-    lv_obj_t *panel7;
-    lv_obj_t *panel8;
-
+    lv_obj_t *panel[MAX_PANELS];
     int cur;
     int max;
 } panel_arr_t;
