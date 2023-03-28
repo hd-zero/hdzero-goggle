@@ -157,12 +157,15 @@ void rtc_init() {
                         rtc_set_clock(&rd_file);
                     } else {
                         // Update if file contains a later date
-                        if (rd_now.year < rd_file.year ||
-                            rd_now.month < rd_file.month ||
-                            rd_now.day < rd_file.day ||
-                            rd_now.hour < rd_file.hour ||
-                            rd_now.min < rd_file.min ||
-                            rd_now.sec < rd_file.sec) {
+                        if ((rd_file.year >= rd_now.year &&
+                             rd_file.month >= rd_now.month &&
+                             rd_file.day >= rd_now.day) &&
+                            ((rd_file.hour > rd_now.hour) ||
+                             (rd_file.hour == rd_now.hour &&
+                              rd_file.min > rd_now.min) ||
+                             (rd_file.hour == rd_now.hour &&
+                              rd_file.min == rd_now.min &&
+                              rd_file.sec > rd_now.sec))) {
                             LOGI("rtc_init is updating clock to a later date");
                             rtc_set_clock(&rd_file);
                         }
