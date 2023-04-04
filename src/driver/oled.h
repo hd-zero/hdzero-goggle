@@ -18,6 +18,8 @@ void OLED_Brightness(uint8_t level);
 
 void MFPGA_Set720P90(uint8_t mode);
 void MFPGA_Set720P60(uint8_t mode, uint8_t is_43);
+void MFPGA_Set540P60();
+void MFPGA_Set1080P30();
 void MFPGA_SetRatio(int ratio);
 
 #endif

@@ -73,8 +73,8 @@ void start_running(void) {
 
     if (source == SETTING_SOURCE_HDZERO) { // HDZero
         g_source_info.source = SOURCE_HDZERO;
-        HDZero_open();
-        if (g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) {
+        //go autoscan only if no dial up/down during initialization  
+        if ((g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) && (g_init_done == 0)) { 
             pthread_t pid;
             g_autoscan_exit = false;
             pthread_create(&pid, NULL, thread_autoscan, NULL);
@@ -117,6 +117,7 @@ static void device_init(void) {
     TP2825_Config(0, 0);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
+    DM5680_Power_AnalogModule(g_setting.power.power_ana);
 }
 
 void lvgl_init() {

@@ -31,28 +31,28 @@
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void) {
-    static bool sdcard_enable_last = false;
-    struct stat mountpoint;
-    struct stat mountpoint_parent;
+	static bool sdcard_enable_last = false;
+	struct stat mountpoint;
+	struct stat mountpoint_parent;
 
-    // fetch mountpoint and mountpoint parent dev_id
-    if (stat("/mnt/extsd", &mountpoint) == 0 &&
-        stat("/mnt", &mountpoint_parent) == 0) {
-        // iff the dev ids _do not_ match there is a filesystem mounted
-        g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
-    } else {
-        g_sdcard_enable = false;
-    }
+	// fetch mountpoint and mountpoint parent dev_id
+	if (stat("/mnt/extsd", &mountpoint) == 0 &&
+		stat("/mnt", &mountpoint_parent) == 0) {
+		// iff the dev ids _do not_ match there is a filesystem mounted
+		g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
+	} else {
+		g_sdcard_enable = false;
+	}
 
     if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-        struct statfs info;
+		struct statfs info;
         if (statfs("/mnt/extsd", &info) == 0)
             g_sdcard_size = (info.f_bsize * info.f_bavail) >> 20; // in MB
-        else
-            g_sdcard_size = 0;
-        g_sdcard_det_req = 0;
-    }
-    sdcard_enable_last = g_sdcard_enable;
+		else
+			g_sdcard_size = 0;
+		g_sdcard_det_req = 0;
+	}
+	sdcard_enable_last = g_sdcard_enable;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,15 +60,15 @@ static void detect_sdcard(void) {
 #define SIGNAL_LOSS_DURATION_THR 20 // 25=4 seconds,
 #define SIGNAL_ACCQ_DURATION_THR 10
 static void check_hdzero_signal(int vtmg_change) {
-    static uint8_t cnt = 0;
-    uint8_t is_valid;
+	static uint8_t cnt = 0;
+	uint8_t is_valid;
 
     // HDZero digital
     if (g_source_info.source == SOURCE_HDZERO) {
-        DM5680_req_rssi();
-        DM5680_req_vldflg();
-        tune_channel_timer();
-    }
+		DM5680_req_rssi();
+		DM5680_req_vldflg();
+		tune_channel_timer();
+	}
 
     if (g_setting.record.mode_manual || !g_sdcard_enable || (g_app_state != APP_STATE_VIDEO))
         return;
@@ -80,18 +80,20 @@ static void check_hdzero_signal(int vtmg_change) {
     // Analog VTMG change -> Restart recording
     if (g_source_info.source >= SOURCE_AV_IN) {
         if (vtmg_change && dvr_is_recording) {
-            LOGI("AV VTMG change");
+			LOGI("AV VTMG change");
             dvr_cmd(DVR_STOP);
             dvr_cmd(DVR_START);
-        }
-    }
+		}
+	}
 
-    // HDZero VTMG change -> stop recording first
-    if ((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
-        LOGI("HDZero VTMG change\n");
-        dvr_cmd(DVR_STOP);
-        cnt = 0;
-    }
+	//HDZero VTMG change -> stop recording first
+	if((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
+		LOGI("HDZero VTMG change\n");
+		dvr_cmd(DVR_STOP);
+                dvr_update_record_vi_conf(CAM_MODE);
+		system(REC_STOP_LIVE);
+		cnt = 0;
+	}
 
     is_valid = (g_source_info.source == SOURCE_AV_IN) ? g_source_info.av_in_status : (g_source_info.source == SOURCE_EXPANSION) ? g_source_info.av_bay_status
                                                                                                                                 : (rx_status[0].rx_valid || rx_status[1].rx_valid);

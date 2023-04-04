@@ -138,7 +138,7 @@ static void* vi2venc_frameProc(void *arg)
     return NULL;
 }
 
-ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
+static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData)
 {
     LOGD("MPPCallbackWrapper: %d\n", event);
 
@@ -160,7 +160,7 @@ ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event
     return SUCCESS;
 }
 
-ERRORTYPE vi2venc_initSys0(void)
+static ERRORTYPE vi2venc_initSys0(void)
 {
     ERRORTYPE ret;
 
@@ -207,7 +207,6 @@ Vi2Venc_t* vi2venc_initSys(CB_onFrame onFrame, void* context)
     vv->viChn = MM_INVALID_CHN;
     vv->veChn = MM_INVALID_CHN;
     vv->ispDev = MM_INVALID_DEV;
-    vv->viChnForSnap = MM_INVALID_CHN;
 
 #if(VENC_spsppsPATCH)
     vv->spsppsBuff = malloc(VENC_spsppsLEN);
@@ -579,24 +578,26 @@ static ERRORTYPE vi2venc_createVencChn(Vi2Venc_t* vv, ViParams_t* viParams, Venc
     }
 }
 
-static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv, ViParams_t* viParams)
+static ERRORTYPE vi2venc_createVipp(Vi2Venc_t* vv, ViParams_t* viParams)
 {
     ERRORTYPE ret;
     VI_DEV  mViDev;
     ISP_DEV mIspDev;
-    VI_CHN  mViChn;
     VI_ATTR_S mViAttr;
-    VI_CHN viChnForSnap = MM_INVALID_CHN;
 
     //create vi channel
     mViDev = viParams->devNum;
     mIspDev = 0;
-    mViChn = 0;
+
+    vv->viDev = mViDev;
+    vv->ispDev= mIspDev;
+    memcpy(&vv->viParams, viParams, sizeof(ViParams_t));
 
     ret = AW_MPI_VI_CreateVipp(mViDev);
     if (ret != SUCCESS)
     {
-        LOGE("fatal error! AW_MPI_VI CreateVipp failed");
+        LOGE("fatal error! AW_MPI_VI CreateVipp failed: %x", ret);
+        return ret;
     }
 
     memset(&mViAttr, 0, sizeof(VI_ATTR_S));
@@ -626,25 +627,104 @@ static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv, ViParams_t* viParams)
     }
     AW_MPI_ISP_Run(mIspDev);
 
+    return ret;
+}
+
+static ERRORTYPE vi2venc_createViChn(Vi2Venc_t* vv)
+{
+    ERRORTYPE ret;
+    VI_DEV  mViDev = vv->viDev;
+    VI_CHN  mViChn = 0;
+    BOOL nSuccessFlag = FALSE;
+
+    mViChn = 0;
+    while (mViChn < VIU_MAX_CHN_NUM)
+    {
+        ret = AW_MPI_VI_CreateVirChn(mViDev, mViChn, NULL);
+        if (SUCCESS == ret)
+        {
+            nSuccessFlag = TRUE;
+            LOGD("create vir channel[%d] success!", mViChn);
+            break;
+        }
+        else if (ERR_VI_EXIST == ret)
+        {
+            LOGD("vir channel[%d] is exist, find next!", mViChn);
+            mViChn++;
+        }
+        else
+        {
+            LOGD("create vir channel[%d] ret[0x%x], find next!", mViChn, ret);
+            mViChn++;
+        }
+    }
+
+    if (nSuccessFlag == FALSE)
+    {
+        mViChn = MM_INVALID_CHN;
+        LOGE("fatal error! create vir channel fail!");
+    }
+
+    vv->viChn = mViChn;
+
+    return ret;
+}
+
+static ERRORTYPE vi2venc_createVippChn(Vi2Venc_t* vv, ViParams_t* viParams)
+{
+    ERRORTYPE ret;
+    VI_DEV  mViDev;
+    ISP_DEV mIspDev;
+    VI_CHN  mViChn;
+    VI_ATTR_S mViAttr;
+
+    //create vi channel
+    mViDev = viParams->devNum;
+    mIspDev = 0;
+    mViChn = 0;
+
+    ret = AW_MPI_VI_CreateVipp(mViDev);
+    if (ret != SUCCESS)
+    {
+        LOGE("fatal error! AW_MPI_VI CreateVipp failed");
+    }
+
+    memset(&mViAttr, 0, sizeof(VI_ATTR_S));
+    mViAttr.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    mViAttr.memtype = V4L2_MEMORY_MMAP;
+    //mViAttr.format.pixelformat = map_PIXEL_FORMAT_E_to_V4L2_PIX_FMT();
+    mViAttr.format.pixelformat = V4L2_PIX_FMT_NV21M;
+    mViAttr.format.field = V4L2_FIELD_NONE;
+    //mViAttr.format.colorspace = V4L2_COLORSPACE_JPEG;
+    mViAttr.format.width = viParams->width;
+    mViAttr.format.height = viParams->height;
+    mViAttr.nbufs = 7; //5
+    LOGD("use %d v4l2 buffers!!!", mViAttr.nbufs);
+    mViAttr.nplanes = 2;
+    mViAttr.fps = viParams->fps;
+
+    ret = AW_MPI_VI_SetVippAttr(mViDev, &mViAttr);
+    if (ret != SUCCESS)
+    {
+        LOGE("fatal error! AW_MPI_VI SetVippAttr failed");
+    }
+
+    ret = AW_MPI_VI_EnableVipp(mViDev);
+    if (ret != SUCCESS)
+    {
+        LOGE("fatal error! enableVipp fail!");
+    }
+    AW_MPI_ISP_Run(mIspDev);
+
     ret = AW_MPI_VI_CreateVirChn(mViDev, mViChn, NULL);
     if (ret != SUCCESS)
     {
         LOGE("fatal error! createVirChn[%d] fail!", mViChn);
     }
 
-#if(0)
-    viChnForSnap = mViChn + 1;
-    ret = AW_MPI_VI_CreateVirChn(mViDev, viChnForSnap, NULL);
-    if (ret != SUCCESS)
-    {
-        LOGE("fatal error! createVirChn[%d] fail!", viChnForSnap);
-    }
-#endif
-
     vv->viDev = mViDev;
     vv->viChn = mViChn;
     vv->ispDev= mIspDev;
-    vv->viChnForSnap = viChnForSnap;
     memcpy(&vv->viParams, viParams, sizeof(ViParams_t));
 
     return ret;
@@ -702,7 +782,14 @@ ERRORTYPE vi2venc_prepare(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* veP
 {
     ERRORTYPE ret;
 
-    ret = vi2venc_createViChn(vv, viParams);
+    ret = vi2venc_createVipp(vv, viParams);
+    if (ret != SUCCESS)
+    {
+        LOGE("create vipp fail");
+        //return ret;
+    }
+
+    ret = vi2venc_createViChn(vv);
     if (ret != SUCCESS)
     {
         LOGE("create vi chn fail");
@@ -730,7 +817,7 @@ ERRORTYPE vi2venc_prepare(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* veP
     return ret;
 }
 
-ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
+ERRORTYPE vi2venc_start(Vi2Venc_t* vv, vi2venc_threadProc proc)
 {
     ERRORTYPE ret = SUCCESS;
 
@@ -743,15 +830,6 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
         return FAILURE;
     }
 
-#if(0)
-    ret = AW_MPI_VI_EnableVirChn(vv->viDev, vv->viChnForSnap);
-    if (ret != SUCCESS)
-    {
-        LOGE("VI enable snap error: %d", ret);
-        return FAILURE;
-    }
-#endif
-
     if (vv->veChn >= 0)
     {
         ret = AW_MPI_VENC_StartRecvPic(vv->veChn);
@@ -761,14 +839,17 @@ ERRORTYPE vi2venc_start(Vi2Venc_t* vv)
         }
 
         vv->bExit = false;
-        ret = pthread_create(&vv->threadId, NULL, vi2venc_frameProc, (void *)vv);
+        if( proc == NULL ) {
+            proc = vi2venc_frameProc;
+        }
+        ret = pthread_create(&vv->threadId, NULL, proc, (void *)vv);
         LOGD("venc pthread: dev[%d] chn[%d] veChn[%d]", vv->viDev, vv->viChn, vv->veChn);
     }
 
     return ret;
 }
 
-ERRORTYPE vi2venc_stop(Vi2Venc_t* vv)
+ERRORTYPE vi2venc_stop(Vi2Venc_t* vv, bool all)
 {
     LOGD("stop");
 
@@ -783,37 +864,35 @@ ERRORTYPE vi2venc_stop(Vi2Venc_t* vv)
         AW_MPI_VI_DisableVirChn(vv->viDev, vv->viChn);
     }
 
-    if (vv->viChnForSnap >= 0)
-    {
-        AW_MPI_VI_DisableVirChn(vv->viDev, vv->viChnForSnap);
-        AW_MPI_VI_DestoryVirChn(vv->viDev, vv->viChnForSnap);
-        vv->viChnForSnap = MM_INVALID_CHN;
-    }
-
-    if (vv->veChn >= 0)
+    if( vv->veChn >= 0 )
     {
         LOGD("stop venc");
         AW_MPI_VENC_StopRecvPic(vv->veChn);
     }
 
-    if (vv->viChn >= 0)
+    if( vv->viChn >= 0 )
     {
         AW_MPI_VI_DestoryVirChn(vv->viDev, vv->viChn);
-        AW_MPI_VI_DisableVipp(vv->viDev);
-        AW_MPI_VI_DestoryVipp(vv->viDev);
-        AW_MPI_ISP_Stop(vv->ispDev);
-        vv->viDev = MM_INVALID_DEV;
-        vv->ispDev = MM_INVALID_DEV;
         vv->viChn = MM_INVALID_CHN;
     }
 
-    if (vv->veChn >= 0)
+    if( vv->veChn >= 0 )
     {
         LOGD("destory venc");
         AW_MPI_VENC_ResetChn(vv->veChn);
         AW_MPI_VENC_DestroyChn(vv->veChn);
         vv->veChn = MM_INVALID_CHN;
     }
+
+    if( all && (vv->viDev>=0) )
+    {
+        AW_MPI_VI_DisableVipp(vv->viDev);
+        AW_MPI_VI_DestoryVipp(vv->viDev);
+        AW_MPI_ISP_Stop(vv->ispDev);
+        LOGD("destory vipp");
+    }
+    vv->viDev = MM_INVALID_DEV;
+    vv->ispDev = MM_INVALID_DEV;
 
     return SUCCESS;
 }
@@ -860,34 +939,6 @@ static int vi2venc_stopVirvi(VI_DEV ViDev, VI_CHN ViCh)
         return ret ;
     }
     return 0;
-}
-
-ERRORTYPE vi2venc_requireRawFrame(Vi2Venc_t* vv, VIDEO_FRAME_INFO_S* frameBuffer)
-{
-    VI_CHN viChnForSnap = vv->viChn + 1;
-    ERRORTYPE ret = vi2venc_startVirvi(vv->viDev, viChnForSnap, NULL);
-    if( ret != SUCCESS ) {
-        LOGE("start vi chn[%d] failed: %x", viChnForSnap, ret);
-        return ret;
-    }
-    vv->viChnForSnap = viChnForSnap;
-
-    ret = AW_MPI_VI_GetFrame(vv->viDev, vv->viChnForSnap, frameBuffer, 500);
-    if( ret == ERR_VI_NOT_PERM ) {
-        LOGE("not permitted");
-    }
-
-    return ret;
-}
-
-ERRORTYPE vi2venc_releaseRawFrame(Vi2Venc_t* vv, VIDEO_FRAME_INFO_S* frameBuffer)
-{
-    ERRORTYPE ret = AW_MPI_VI_ReleaseFrame(vv->viDev, vv->viChnForSnap, frameBuffer);
-
-    ret = vi2venc_stopVirvi(vv->viDev, vv->viChnForSnap);
-    vv->viChnForSnap = MM_INVALID_CHN;
-
-    return ret;
 }
 
 //-------------------------------------------------------------

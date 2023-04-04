@@ -51,6 +51,7 @@ typedef struct {
     setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;
     setting_power_osd_display_mode_t osd_display_mode;
+    bool power_ana;
 } setting_power_t;
 
 typedef struct {
@@ -66,7 +67,7 @@ typedef struct {
     uint8_t brightness;
     uint8_t saturation;
     uint8_t contrast;
-    uint8_t auto_off; // 0=3min,1=4min,2=5min,3=never,
+    uint8_t auto_off; // 0=1min,1=3min,2=4min,3=5min,4=never,
 } setting_image_t;
 
 typedef struct {
@@ -117,15 +118,25 @@ typedef struct {
     setting_osd_goggle_element_t ant1;
     setting_osd_goggle_element_t ant2;
     setting_osd_goggle_element_t ant3;
-    setting_osd_goggle_element_t goggle_temp_top;
-    setting_osd_goggle_element_t goggle_temp_left;
-    setting_osd_goggle_element_t goggle_temp_right;
+    setting_osd_goggle_element_t osd_tempe[3];
 } setting_osd_goggle_elements_t;
 
 typedef struct {
     setting_embedded_mode_t embedded_mode;
     setting_osd_goggle_elements_t elements;
 } setting_osd_t;
+
+typedef struct {
+    int enable;
+    char ssid[16];    //not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
+    char passwd[16];  //default: "divimath" 
+    uint8_t ip[4];    //default: 192.168.2.122
+} wifi_t;
+
+
+typedef struct {
+    uint8_t no_dial; //1=disable turning channels under video mode
+}ease_use_t;
 
 typedef struct {
     setting_scan_t scan;
@@ -136,7 +147,9 @@ typedef struct {
     setting_image_t image;
     setting_head_tracker_t ht;
     setting_elrs_t elrs;
+    wifi_t wifi;
     setting_osd_t osd;
+    ease_use_t ease;
 } setting_t;
 
 extern setting_t g_setting;

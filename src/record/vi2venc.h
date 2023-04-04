@@ -189,13 +189,13 @@ typedef enum {
     FRAME_typeO,    //others
 } VencFrameType_e;
 
+typedef void* (*vi2venc_threadProc)(void *arg);
 typedef int (*CB_onFrame)(void* vvCtxPtr, uint8_t* frameData, int frameLen, VencFrameType_e frameType, uint64_t pts, void* context);
 
 typedef struct Vi2Venc
 {
     VI_DEV      viDev;
     VI_CHN      viChn;
-    VI_CHN      viChnForSnap;
     ISP_DEV     ispDev;
     ViParams_t  viParams;
 
@@ -217,10 +217,8 @@ Vi2Venc_t* vi2venc_initSys(CB_onFrame cbOnFrame, void* context);
 void vi2venc_deinitSys(Vi2Venc_t* vv);
 
 ERRORTYPE vi2venc_prepare(Vi2Venc_t* vv, ViParams_t* viParams, VencParams_t* veParams, VencParams_t* jpgParams);
-ERRORTYPE vi2venc_start(Vi2Venc_t* vv);
-ERRORTYPE vi2venc_stop(Vi2Venc_t* vv);
-ERRORTYPE vi2venc_requireRawFrame(Vi2Venc_t* vv, VIDEO_FRAME_INFO_S* frameBuffer);
-ERRORTYPE vi2venc_releaseRawFrame(Vi2Venc_t* vv, VIDEO_FRAME_INFO_S* frameBuffer);
+ERRORTYPE vi2venc_start(Vi2Venc_t* vv, vi2venc_threadProc proc);
+ERRORTYPE vi2venc_stop(Vi2Venc_t* vv, bool all);
 ERRORTYPE vi2venc_getSpsPpsInfo(Vi2Venc_t* vv, VencSpspps_t* spsppsInfo, bool patch);
 ERRORTYPE vi2venc_requestIFrame(Vi2Venc_t* vv);
 char*     vi2venc_getRcModeName(VencRateControlMode_e rcMode);

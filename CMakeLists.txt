@@ -40,6 +40,7 @@ add_subdirectory(lib/log)
 add_subdirectory(lib/esp-loader)
 add_subdirectory(lib/softwinner)
 add_subdirectory(lib/ffmpeg)
+add_subdirectory(lib/live)
 
 # main application
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
@@ -104,6 +105,34 @@ target_link_libraries(record PRIVATE
 	softwinner
 )
 
+# rtspLive application
+file(GLOB SRC_FILES_RTSPLIVE "src/rtspLive/*.cpp" "src/rtspLive/*.hh")
+file(GLOB SRC_FILES_RTSPLIVE_STREAM "src/rtspLive/stream/*.c" "src/rtspLive/stream/*.h")
+file(GLOB SRC_FILES_RTSPLIVE_SERVER "src/rtspLive/server/*.cpp" "src/rtspLive/server/*.hh")
+
+set(RTSPLIVE_BUILD_FLAGS "-DNO_OPENSSL=1")
+
+add_executable(rtspLive
+	${SRC_FILES_RTSPLIVE}
+	${SRC_FILES_RTSPLIVE_STREAM}
+	${SRC_FILES_RTSPLIVE_SERVER}
+)
+target_include_directories(rtspLive PRIVATE 
+	src/rtspLive
+	src/rtspLive/stream
+	src/rtspLive/server
+)
+set_target_properties(rtspLive PROPERTIES
+    COMPILE_FLAGS ${RTSPLIVE_BUILD_FLAGS}
+)
+target_link_libraries(rtspLive PRIVATE
+	${STANDARD_LIBRARIES}
+
+	log
+	live
+	minIni
+)
+
 # image build
 add_custom_command(
 	OUTPUT ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}
@@ -111,10 +140,12 @@ add_custom_command(
 	COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp record ${PROJECT_SOURCE_DIR}/out/
+	COMMAND cp rtspLive ${PROJECT_SOURCE_DIR}/out/
 	COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
 	COMMAND cp record ${RECORD_APP_PATH}
+	COMMAND cp rtspLive ${RECORD_APP_PATH}
 	COMMAND cd ${PROJECT_SOURCE_DIR} && ./mkapp/mkapp_ota.sh
-	DEPENDS ${PROJECT_NAME} record
+	DEPENDS ${PROJECT_NAME} record rtspLive
 )
 add_custom_target(${PROJECT_NAME}-OTA ALL
   DEPENDS ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}

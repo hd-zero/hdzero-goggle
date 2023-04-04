@@ -13,6 +13,8 @@ void conf_saveViParams(char* confFile, ViParams_t* viPara);
 void conf_loadVencParams(char* confFile, VencParams_t* vePara);
 void conf_saveVencParams(char* confFile, VencParams_t* vePara);
 
+void conf_loadVencParamsForLive(char* confFile, VencParams_t* vePara);
+
 void conf_loadAiParams(char* confFile, AiParams_t* aiPara);
 void conf_saveAiParams(char* confFile, AiParams_t* aiPara);
 

@@ -28,7 +28,8 @@ typedef enum {
     VR_540P90 = 3,
     VR_540P60 = 4,
     VR_960x720P60 = 5,
-    VR_540P90_CROP = 6
+    VR_540P90_CROP = 6,
+    VR_1080P30 = 7
 } video_resolution_t;
 
 typedef enum {

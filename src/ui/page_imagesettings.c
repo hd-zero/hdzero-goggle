@@ -95,10 +95,10 @@ void set_slider_value() {
     lv_label_set_text(slider_group3.label, buf);
     lv_slider_set_value(slider_group3.slider, g_setting.image.contrast, LV_ANIM_OFF);
 
-    if (g_setting.image.auto_off == 3)
+    if (g_setting.image.auto_off == 4)
         strcpy(buf, "Never");
     else
-        sprintf(buf, "%d min", g_setting.image.auto_off * 2 + 3);
+        sprintf(buf, "%d min", g_setting.image.auto_off * 2 + 1);
     lv_label_set_text(slider_group4.label, buf);
     lv_slider_set_value(slider_group4.slider, g_setting.image.auto_off, LV_ANIM_OFF);
 
@@ -118,7 +118,7 @@ static void page_imagesettings_enter() {
     switch (g_source_info.source) {
     case SOURCE_HDZERO:
         progress_bar.start = 1;
-        HDZero_open();
+        HDZero_open(g_hw_stat.hdz_bw);
         app_switch_to_hdzero(true);
         g_bShowIMS = true;
         break;
