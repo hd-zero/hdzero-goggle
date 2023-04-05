@@ -28,6 +28,7 @@
 #include "driver/dm5680.h"
 #include "driver/gpio.h"
 #include "driver/hardware.h"
+#include "driver/rtc.h"
 #include "driver/uart.h"
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"
@@ -303,6 +304,18 @@ void msp_process_packet() {
                 if (headtracking_enabled) {
                     ht_set_center_position();
                 }
+            }
+            break;
+        case MSP_SET_RTC:
+            if (packet.payload_size > 0) {
+                struct rtc_date rd;
+                rd.year = packet.payload[0] + 1900;
+                rd.month = packet.payload[1] + 1;
+                rd.day = packet.payload[2];
+                rd.hour = packet.payload[3];
+                rd.min = packet.payload[4];
+                rd.sec = packet.payload[5];
+                rtc_set_clock(&rd);
             }
             break;
         }
