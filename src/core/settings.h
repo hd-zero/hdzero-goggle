@@ -128,6 +128,16 @@ typedef struct {
 } setting_osd_t;
 
 typedef struct {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int min;
+    int sec;
+    int format;
+} setting_clock_t;
+
+typedef struct {
     setting_scan_t scan;
     setting_fan_t fans;
     setting_autoscan_t autoscan;
@@ -137,6 +147,7 @@ typedef struct {
     setting_head_tracker_t ht;
     setting_elrs_t elrs;
     setting_osd_t osd;
+    setting_clock_t clock;
 } setting_t;
 
 extern setting_t g_setting;

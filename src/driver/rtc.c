@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/rtc.h>
+#include <memory.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <time.h>
@@ -18,15 +19,16 @@
 
 #include <log/log.h>
 
-#include "util/file.h"
+#include "core/settings.h"
 
 /**
  *  Constants
  */
-#define RTC_LOG_FORMAT "%04hu-%02u-%02uT%02u_%02u_%02u"
-#define RTC_OSD_FORMAT "%04hu/%02u/%02u %02u:%02u:%02u"
+#define RTC_LOG_FORMAT       "%04u-%02u-%02uT%02u_%02u_%02u"
+#define RTC_OSD_FORMAT       "%04u/%02u/%02u %02u:%02u:%02u"
+#define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
+
 static const char *RTC_DEV = "/dev/rtc";
-static const char *RTC_FILE = "/mnt/extsd/rtc.txt";
 static const unsigned char RTC_DAYS_PER_MONTH[] = {
     31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -34,6 +36,31 @@ static const unsigned char RTC_DAYS_PER_MONTH[] = {
  *  Globals
  */
 static int g_rtc_has_battery = 0;
+
+#ifdef EMULATOR_BUILD
+static struct rtc_date g_rtc_date = {1970, 1, 1, 0, 0, 0};
+#endif
+
+/**
+ * Convert Gregorian date to seconds since 1970-01-01 00:00:00
+ */
+static inline uint64_t rtc_mktime(const struct rtc_date *rd) {
+    unsigned int month = rd->month, year = rd->year;
+
+    if (0 >= (int)(month -= 2)) {
+        month += 12;
+        year -= 1;
+    }
+
+    return ((((year / 4 - year / 100 + year / 400 + 367 * month / 12 + rd->day) +
+              year * 365 - 719499) *
+                 24 +
+             rd->hour) *
+                60 +
+            rd->min) *
+               60 +
+           rd->sec;
+}
 
 /**
  *  Returns 1 if leap year is detected, otherwise 0.
@@ -43,9 +70,9 @@ static inline int rtc_is_leap_year(unsigned int year) {
 }
 
 /*
- * The number of days per month.
+ * Returns number of days per month, month being (base 0).
  */
-static inline int rtc_days_per_month(unsigned int year, unsigned int month) {
+int rtc_days_per_month(unsigned int year, unsigned int month) {
     return (rtc_is_leap_year(year) && month == 1) + RTC_DAYS_PER_MONTH[month];
 }
 
@@ -102,80 +129,81 @@ void rtc_rt2rd(const struct rtc_time *rt, struct rtc_date *rd) {
     rd->min = rt->tm_min;
     rd->sec = rt->tm_sec;
 }
+int rtc_date2str(const struct rtc_date *rd, char *buffer, int size) {
+    return snprintf(buffer, size, RTC_OSD_FORMAT,
+                    rd->year,
+                    rd->month,
+                    rd->day,
+                    rd->hour,
+                    rd->min,
+                    rd->sec);
+}
 
 /**
  *  Conversion Utils used to interact with system data types.
  */
 void rtc_rd2tv(const struct rtc_date *rd, struct timeval *tv) {
-    struct rtc_time rt;
-    rtc_rd2rt(rd, &rt);
-    tv->tv_sec = mktime((struct tm *)&rt);
+    tv->tv_sec = rtc_mktime(rd);
     tv->tv_usec = 0;
 }
 void rtc_tv2rd(const struct timeval *tv, struct rtc_date *rd) {
-    struct rtc_time *rt = (struct rtc_time *)gmtime(&tv->tv_sec);
-    rtc_rt2rd(rt, rd);
+    struct rtc_time rt;
+    unsigned int month, year;
+    unsigned long secs;
+    int days = tv->tv_sec / 86400;
+    secs = tv->tv_sec - (unsigned int)days * 86400;
+    rt.tm_wday = (days + 4) % 7;
+    year = 1970 + days / 365;
+    days -= (year - 1970) * 365 + LEAPS_THRU_END_OF(year - 1) - LEAPS_THRU_END_OF(1970 - 1);
+    if (days < 0) {
+        year -= 1;
+        days += 365 + rtc_is_leap_year(year);
+    }
+    rt.tm_year = year - 1900;
+    rt.tm_yday = days + 1;
+    for (month = 0; month < 11; month++) {
+        int newdays;
+
+        newdays = days - rtc_days_per_month(year, month);
+        if (newdays < 0) {
+            break;
+        }
+        days = newdays;
+    }
+    rt.tm_mon = month;
+    rt.tm_mday = days + 1;
+    rt.tm_hour = secs / 3600;
+    secs -= rt.tm_hour * 3600;
+    rt.tm_min = secs / 60;
+    rt.tm_sec = secs - rt.tm_min * 60;
+    rt.tm_isdst = 0;
+    rtc_rt2rd(&rt, rd);
 }
 
 /**
- *  Initialize RTC and OS Clock from file if detected,
- *  contents of file must match the following:
- *  YYYY-MM-DDTHH_MM_SS
- *  2023-03-10T01_05_15
+ *  Initialize both the hardware ans system clocks.
  */
 void rtc_init() {
-    struct rtc_date rd_now;
-    rtc_get_clock(&rd_now);
+    struct rtc_date rd;
+    rtc_get_clock(&rd);
 
     // Has time has accumulated since the
     // the installation of the battery?
-    g_rtc_has_battery = rd_now.year > 1970;
+    g_rtc_has_battery = rd.year > 1970;
 
     LOGI("rtc_init %s detected a battery",
          (g_rtc_has_battery ? "has" : "has NOT"));
 
-    // Load file and set RTC if found.
-    if (file_exists(RTC_FILE)) {
-        FILE *fp = fopen(RTC_FILE, "r");
-        if (fp) {
-            static char buffer[32];
-
-            while (fgets(buffer, sizeof(buffer), fp)) {
-                struct rtc_date rd_file;
-                sscanf(buffer, RTC_LOG_FORMAT,
-                       &rd_file.year,
-                       &rd_file.month,
-                       &rd_file.day,
-                       &rd_file.hour,
-                       &rd_file.min,
-                       &rd_file.sec);
-
-                if (rtc_has_valid_date(&rd_file) == 0) {
-                    // Wishes to reset the clock
-                    if (rd_file.year == 1970) {
-                        LOGI("rtc_init is resetting year back to 1970");
-                        rtc_set_clock(&rd_file);
-                    } else {
-                        // Update if file contains a later date
-                        if (rd_now.year < rd_file.year ||
-                            rd_now.month < rd_file.month ||
-                            rd_now.day < rd_file.day ||
-                            rd_now.hour < rd_file.hour ||
-                            rd_now.min < rd_file.min ||
-                            rd_now.sec < rd_file.sec) {
-                            LOGI("rtc_init is updating clock to a later date");
-                            rtc_set_clock(&rd_file);
-                        }
-                    }
-                } else {
-                    LOGE("rtc_init detected an invalid date within %s", RTC_FILE);
-                }
-            }
-            fclose(fp);
-        }
+    if (rd.year == 1970) {
+        LOGI("rtc_init updating both clocks via settings");
+        rd.year = g_setting.clock.year;
+        rd.month = g_setting.clock.month;
+        rd.day = g_setting.clock.day;
+        rd.hour = g_setting.clock.hour;
+        rd.min = g_setting.clock.min;
+        rd.sec = g_setting.clock.sec;
+        rtc_set_clock(&rd);
     }
-
-    rtc_timestamp();
 }
 
 /**
@@ -191,6 +219,9 @@ void rtc_timestamp() {
  *  Set Hardware Clock and synchronize OS Clock in UTC.
  */
 void rtc_set_clock(const struct rtc_date *rd) {
+#ifdef EMULATOR_BUILD
+    g_rtc_date = *rd;
+#else
     int fd = open(RTC_DEV, O_WRONLY);
     if (fd >= 0) {
         struct rtc_time rt;
@@ -208,12 +239,16 @@ void rtc_set_clock(const struct rtc_date *rd) {
     } else {
         LOGE("rtc_set_clock failed to open(%s, O_RDWR)", RTC_DEV);
     }
+#endif
 }
 
 /**
  *  Get Hardware Clock
  */
 void rtc_get_clock(struct rtc_date *rd) {
+#ifdef EMULATOR_BUILD
+    *rd = g_rtc_date;
+#else
     int fd = open(RTC_DEV, O_RDONLY);
     if (fd >= 0) {
         struct rtc_time rt;
@@ -226,6 +261,7 @@ void rtc_get_clock(struct rtc_date *rd) {
     } else {
         LOGE("rtc_get_clock failed to open(%s, O_RDWR)", RTC_DEV);
     }
+#endif
 }
 
 /**
