@@ -1,8 +1,8 @@
 #include "msp_displayport.h"
 
+#include <log/log.h>
 #include <stdio.h>
 #include <string.h>
-#include <log/log.h>
 
 #include "osd.h"
 #include "util/time.h"
@@ -221,12 +221,12 @@ void camTypeDetect(uint8_t rData) {
         cur_cam = VR_540P90_CROP;
         break;
 
-    case 0x33:  
+    case 0x33:
         last_cam = cur_cam;
         cur_cam = VR_540P60;
         break;
 
-    case 0x77:  
+    case 0x77:
         last_cam = cur_cam;
         cur_cam = VR_1080P30;
         break;
@@ -249,9 +249,9 @@ void fcTypeDetect(uint8_t *rData) {
             fc_variant[i] = fc_variant_rcv[i];
 
         load_fc_osd_font(CAM_MODE == VR_1080P30);
-        #if (0)
+#if (0)
         LOGI("fc_variant_rcv:%s", fc_variant_rcv);
-        #endif
+#endif
     }
 }
 

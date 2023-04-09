@@ -5,18 +5,16 @@
 
 // Normalizes any number to an arbitrary range
 // by assuming the range wraps around when going below min or above max
-float normalize(float value, float start, float end)
-{
-    float width = end - start;          //
-    float offsetValue = value - start;  // value relative to 0
+float normalize(float value, float start, float end) {
+    float width = end - start;         //
+    float offsetValue = value - start; // value relative to 0
 
     return (offsetValue - (floor(offsetValue / width) * width)) + start;
     // + start to reset back to start of original range
 }
 
 // Rotate a point (pn) in space in Order X -> Y -> Z
-void rotate(float pn[3], const float rot[3])
-{
+void rotate(float pn[3], const float rot[3]) {
     float out[3];
 
     // X-axis Rotation

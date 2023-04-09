@@ -128,15 +128,14 @@ typedef struct {
 
 typedef struct {
     int enable;
-    char ssid[16];    //not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
-    char passwd[16];  //default: "divimath" 
-    uint8_t ip[4];    //default: 192.168.2.122
+    char ssid[16];   // not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
+    char passwd[16]; // default: "divimath"
+    uint8_t ip[4];   // default: 192.168.2.122
 } wifi_t;
 
-
 typedef struct {
-    uint8_t no_dial; //1=disable turning channels under video mode
-}ease_use_t;
+    uint8_t no_dial; // 1=disable turning channels under video mode
+} ease_use_t;
 
 typedef struct {
     setting_scan_t scan;

@@ -15,12 +15,12 @@
 #include <minIni.h>
 
 #include "core/common.hh"
+#include "core/dvr.h"
 #include "core/elrs.h"
 #include "core/settings.h"
 #include "driver/esp32.h"
 #include "page_version.h"
 #include "ui/ui_style.h"
-#include "core/dvr.h"
 
 static lv_coord_t col_dsc[] = {160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -63,11 +63,11 @@ static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_btn_group_item(&wifi_group, cont, 2, "Wifi AP*", "On", "Off", "", "", 3);
     btn_group_set_sel(&wifi_group, !g_setting.wifi.enable);
- 
+
     char str[32];
-    sprintf(str,"SSID:  %s",g_setting.wifi.ssid);
+    sprintf(str, "SSID:  %s", g_setting.wifi.ssid);
     create_label_item(cont, str, 2, 4, 1);
-    sprintf(str,"Passwd:  %s",g_setting.wifi.passwd);
+    sprintf(str, "Passwd:  %s", g_setting.wifi.passwd);
     create_label_item(cont, str, 2, 5, 1);
 
     create_label_item(cont, "< Back", 1, 6, 1);
@@ -152,7 +152,7 @@ static void page_connections_on_click(uint8_t key, int sel) {
             }
             page_connections_enter();
         }
-    } else if(sel == 3) //start WIFI on expansion module v2
+    } else if (sel == 3) // start WIFI on expansion module v2
     {
         btn_group_toggle_sel(&wifi_group);
         g_setting.wifi.enable = btn_group_get_sel(&wifi_group) == 0 ? 1 : 0;
@@ -160,8 +160,7 @@ static void page_connections_on_click(uint8_t key, int sel) {
         if (g_setting.wifi.enable) {
             dvr_update_record_vi_conf(VR_1080P30);
             system(WIFI_AP_ON);
-        }
-        else
+        } else
             system(WIFI_AP_OFF);
     }
 }
@@ -180,26 +179,24 @@ page_pack_t pp_connections = {
     .on_right_button = NULL,
 };
 
-
-void update_hostpad_conf()
-{
-    FILE* fp = fopen("/tmp/hostapd.conf","wt");
-    if(!fp) {
+void update_hostpad_conf() {
+    FILE *fp = fopen("/tmp/hostapd.conf", "wt");
+    if (!fp) {
         system("cp -y /mnt/app/wifi/hostapd.conf /tmp/");
         return;
     }
 
-    fprintf(fp,"interface=wlan0\n");
-    fprintf(fp,"driver=nl80211\n");
-    fprintf(fp,"ssid=%s\n",g_setting.wifi.ssid);
-    fprintf(fp,"channel=6\n");
-    fprintf(fp,"hw_mode=g\n");
-    fprintf(fp,"ignore_broadcast_ssid=0\n");
-    fprintf(fp,"auth_algs=1\n");
-    fprintf(fp,"wpa=3\n");
-    fprintf(fp,"wpa_passphrase=%s\n",g_setting.wifi.passwd);
-    fprintf(fp,"wpa_key_mgmt=WPA-PSK\n");
-    fprintf(fp,"wpa_pairwise=TKIP\n");
-    fprintf(fp,"rsn_pairwise=CCMP\n");
+    fprintf(fp, "interface=wlan0\n");
+    fprintf(fp, "driver=nl80211\n");
+    fprintf(fp, "ssid=%s\n", g_setting.wifi.ssid);
+    fprintf(fp, "channel=6\n");
+    fprintf(fp, "hw_mode=g\n");
+    fprintf(fp, "ignore_broadcast_ssid=0\n");
+    fprintf(fp, "auth_algs=1\n");
+    fprintf(fp, "wpa=3\n");
+    fprintf(fp, "wpa_passphrase=%s\n", g_setting.wifi.passwd);
+    fprintf(fp, "wpa_key_mgmt=WPA-PSK\n");
+    fprintf(fp, "wpa_pairwise=TKIP\n");
+    fprintf(fp, "rsn_pairwise=CCMP\n");
     fclose(fp);
 }

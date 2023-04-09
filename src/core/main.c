@@ -73,8 +73,8 @@ void start_running(void) {
 
     if (source == SETTING_SOURCE_HDZERO) { // HDZero
         g_source_info.source = SOURCE_HDZERO;
-        //go autoscan only if no dial up/down during initialization  
-        if ((g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) && (g_init_done == 0)) { 
+        // go autoscan only if no dial up/down during initialization
+        if ((g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) && (g_init_done == 0)) {
             pthread_t pid;
             g_autoscan_exit = false;
             pthread_create(&pid, NULL, thread_autoscan, NULL);

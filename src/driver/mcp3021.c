@@ -39,35 +39,37 @@ int mcp_read_voltage(void) {
 }
 
 static int is_mcp = -1;
-int aduc_read_voltage(){
-    int vl,vh;
+int aduc_read_voltage() {
+    int vl, vh;
     double vol;
 
     vl = I2C_Read(ADDR_FPGA, 0x12);
     vh = I2C_Read(ADDR_FPGA, 0x13);
-  //  LOGI("ADUC: %x %x", vh,vl);
+    //  LOGI("ADUC: %x %x", vh,vl);
 
-    if(is_mcp == -1) {
-        if((vl == 0) && (vh == 0))
-            is_mcp = 1;     
+    if (is_mcp == -1) {
+        if ((vl == 0) && (vh == 0))
+            is_mcp = 1;
         else
-            is_mcp = 0;     
-        LOGI("Voltage ADC is %s", is_mcp? "mcp" : "aduc");    
+            is_mcp = 0;
+        LOGI("Voltage ADC is %s", is_mcp ? "mcp" : "aduc");
 
-        if(is_mcp) 
+        if (is_mcp)
             return mcp_read_voltage();
     }
-    
+
     vl = (vh << 8) | vl;
     vol = (double)vl * 6.50 + 270;
-    return (int)vol;  //in mV
+    return (int)vol; // in mV
 }
 
 int read_voltage() {
     int vol;
-    if(is_mcp == 1) vol = mcp_read_voltage();
-    else vol = aduc_read_voltage();
-    //LOGI("Voltage = %dmV",vol);
+    if (is_mcp == 1)
+        vol = mcp_read_voltage();
+    else
+        vol = aduc_read_voltage();
+    // LOGI("Voltage = %dmV",vol);
     return vol;
 }
 
