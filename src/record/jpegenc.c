@@ -473,16 +473,56 @@ JPEG_INIT_ERR:
     return 0;
 }
 
+static ERRORTYPE jpegenc_createViChn(VI_DEV ViDev, void *pAttr)
+{
+    ERRORTYPE ret;
+    VI_DEV  mViDev = ViDev;
+    VI_CHN  mViChn = 0;
+    BOOL nSuccessFlag = FALSE;
+
+    mViChn = 0;
+    while (mViChn < VIU_MAX_CHN_NUM)
+    {
+        ret = AW_MPI_VI_CreateVirChn(mViDev, mViChn, pAttr);
+        if (SUCCESS == ret)
+        {
+            nSuccessFlag = TRUE;
+            LOGD("create vir channel[%d] success!", mViChn);
+            break;
+        }
+        else if (ERR_VI_EXIST == ret)
+        {
+            LOGD("vir channel[%d] is exist, find next!", mViChn);
+            mViChn++;
+        }
+        else
+        {
+            LOGD("create vir channel[%d] ret[0x%x], find next!", mViChn, ret);
+            mViChn++;
+        }
+    }
+
+    if (nSuccessFlag == FALSE)
+    {
+        mViChn = MM_INVALID_CHN;
+        LOGE("fatal error! create vir channel fail!");
+    }
+
+    return mViChn;
+}
+
 static int jpegenc_startVirvi(VI_DEV ViDev, VI_CHN ViCh, void *pAttr)
 {
     int ret = -1;
 
+#if(0)
     ret = AW_MPI_VI_CreateVirChn(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
         LOGE("Create VI Chn failed,VIDev = %d,VIChn = %d",ViDev,ViCh);
         return ret ;
     }
+#endif
     ret = AW_MPI_VI_SetVirChnAttr(ViDev, ViCh, pAttr);
     if(ret < 0)
     {
@@ -528,6 +568,12 @@ static void* jpegenc_frameProc(void *arg)
 
     VIDEO_FRAME_INFO_S srcFrame;
     memset(&srcFrame, 0, sizeof(srcFrame));
+
+    virvi_chn = jpegenc_createViChn(vipp_dev, NULL);
+    if(virvi_chn < 0)
+    {
+        goto failed;
+    }
 
     ret = jpegenc_startVirvi(vipp_dev, virvi_chn, NULL);
     if( ret != SUCCESS ) {

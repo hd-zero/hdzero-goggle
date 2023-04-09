@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -49,6 +50,7 @@ LV_IMG_DECLARE(img_ant14);
 typedef struct {
     bool is_valid;
     int gain;
+    int bw;
 } channel_status_t;
 
 typedef struct {
@@ -59,13 +61,13 @@ typedef struct {
 
 channel_t channel_tb[10];
 channel_status_t channel_status_tb[10];
-int valid_channel_tb[11];
-int user_select_index = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+int valid_channel_tb[10];
+int user_select_index = 0;
+
 // local
 static int auto_scaned_cnt = 0;
-
 static lv_obj_t *progressbar;
 static lv_obj_t *label;
 static lv_coord_t col_dsc[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
@@ -188,6 +190,8 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(progressbar, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 1, 1);
 
+    lv_bar_set_range(progressbar,0,14*(INC_17MHZ_MODE+1));                     
+
     label = lv_label_create(cont);
     lv_label_set_text(label, "Scan Ready");
     lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
@@ -235,7 +239,7 @@ static void user_select_signal(void) {
         return;
 
     user_select_index = 0;
-    select_signal(&channel_tb[valid_channel_tb[0]]);
+    select_signal(&channel_tb[valid_channel_tb[0]&0x7F]);
 }
 
 static void user_clear_signal(void) {
@@ -276,48 +280,56 @@ void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid) {
 int8_t scan_now(void) {
     uint8_t ch, gain;
     bool valid;
-    uint8_t valid_index = 0;
+    uint8_t bw;
+    uint8_t valid_index;
 
     lv_label_set_text(label, "Scanning...");
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     lv_timer_handler();
-    // dm5680_init();
-
-    lv_bar_set_value(progressbar, 5, LV_ANIM_OFF);
+    lv_bar_set_value(progressbar, 2, LV_ANIM_OFF);
     lv_timer_handler();
-    // DM6302_init(0);
-    lv_bar_set_value(progressbar, 10, LV_ANIM_OFF);
-    lv_timer_handler();
-
-    HDZero_open();
 
     // clear
-    for (int i = 0; i < 10; i++) {
-        valid_channel_tb[i] = -1;
+    for (ch = 0; ch < FREQ_NUM; ch++) { 
+        valid_channel_tb[ch] = -1;
+        channel_status_tb[ch].is_valid = 0;
     }
-
-    for (ch = 0; ch < FREQ_NUM; ch++) {
-        scan_channel(ch, &gain, &valid);
-
-        if (valid) {
-            valid_channel_tb[valid_index++] = ch;
-        }
-
-        channel_status_tb[ch].is_valid = valid;
-        channel_status_tb[ch].gain = gain;
-
-        lv_bar_set_value(progressbar, 10 + ch * 10, LV_ANIM_OFF);
+    
+    for(bw=0; bw<(INC_17MHZ_MODE+1); bw++) {
+        HDZero_open(bw);
+        lv_bar_set_value(progressbar, bw*14+4, LV_ANIM_OFF);
         lv_timer_handler();
-        set_signal(&channel_tb[ch], valid, gain);
+     
+        for (ch = 0; ch < FREQ_NUM; ch++) {
+            if(!channel_status_tb[ch].is_valid) {
+                scan_channel(ch, &gain, &valid);
+                if(valid) {
+                    channel_status_tb[ch].is_valid = 1;
+                    channel_status_tb[ch].gain = gain;
+                    channel_status_tb[ch].bw = bw;
+                    set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);            
+                }
+            }
+            lv_bar_set_value(progressbar, bw*14+ch+5, LV_ANIM_OFF);
+            lv_timer_handler();
+        }
     }
 
+    valid_index = 0;
+    for(ch=0;ch<FREQ_NUM;ch++) {
+        if(channel_status_tb[ch].is_valid)
+            valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw <<7);    
+        
+        //set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
+        lv_timer_handler();
+    }
+    
     user_select_signal();
-
     lv_label_set_text(label, "Scanning done");
-    if (valid_channel_tb[0] == -1)
+    if (!valid_index)
         return -1;
-
-    return valid_index;
+    else 
+        return valid_index;
 }
 
 int scan_reinit(void) {
@@ -378,7 +390,7 @@ static void page_scannow_on_roller(uint8_t key) {
         if (user_select_index > 0)
             user_select_index--;
     }
-    select_signal(&channel_tb[valid_channel_tb[user_select_index]]);
+    select_signal(&channel_tb[valid_channel_tb[user_select_index]&0x0F]);
 }
 
 static void page_scannow_on_click(uint8_t key, int sel) {

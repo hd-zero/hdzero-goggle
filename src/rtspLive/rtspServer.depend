@@ -1,0 +1,2440 @@
+# depslib dependency file v1.0
+1506139059 source:/home/divimath/work/goggle/apps/rtspServer/h26xParse/bs.cpp
+	"bs.h"
+
+1506139015 /home/divimath/work/goggle/apps/rtspServer/h26xParse/bs.h
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+
+1506136382 source:/home/divimath/work/goggle/apps/rtspServer/h26xParse/h264_sei.cpp
+	"bs.h"
+	"h264_stream.h"
+	"h264_sei.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1509960604 /home/divimath/work/goggle/apps/rtspServer/h26xParse/h264_stream.h
+	<stdint.h>
+	<stdio.h>
+	<assert.h>
+	"bs.h"
+	"h264_sei.h"
+	<vector>
+
+1487166318 /home/divimath/work/goggle/apps/rtspServer/h26xParse/h264_sei.h
+	<stdint.h>
+	<stdint.h>
+	"bs.h"
+
+1509960614 source:/home/divimath/work/goggle/apps/rtspServer/h26xParse/h264_stream.cpp
+	<stdint.h>
+	<stdlib.h>
+	<stdio.h>
+	"bs.h"
+	"h264_stream.h"
+	"h264_sei.h"
+
+1506138571 source:/home/divimath/work/goggle/apps/rtspServer/h26xParse/h265_sei.cpp
+	"h265_sei.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1487166318 /home/divimath/work/goggle/apps/rtspServer/h26xParse/h265_sei.h
+	<stdint.h>
+	<stdint.h>
+	"bs.h"
+	"h265_stream.h"
+
+1510631665 /home/divimath/work/goggle/apps/rtspServer/h26xParse/h265_stream.h
+	<stdint.h>
+	<stdio.h>
+	<assert.h>
+	"bs.h"
+	"h264_stream.h"
+	<vector>
+
+1510639382 source:/home/divimath/work/goggle/apps/rtspServer/h26xParse/h265_stream.cpp
+	<stdint.h>
+	<stdlib.h>
+	<stdio.h>
+	"bs.h"
+	"h265_stream.h"
+	"h265_sei.h"
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/configfile.cpp
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<ctype.h>
+	<assert.h>
+	<errno.h>
+	"configfile.h"
+
+1521518004 /home/divimath/work/goggle/apps/rtspServer/streamServer/configfile.h
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/avshare.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<fcntl.h>
+	<sys/shm.h>
+	<sys/ipc.h>
+	<sys/time.h>
+	"avshare.h"
+	"util.h"
+	"h264_stream.h"
+	"NalParse.h"
+	"h265_stream.h"
+	"configfile.h"
+	"rxconfig.h"
+
+1510733712 /home/divimath/work/goggle/apps/rtspServer/streamServer/avshare.h
+
+1509067847 /home/divimath/work/goggle/apps/rtspServer/streamServer/util.h
+	<stdio.h>
+	<termios.h>
+	<pthread.h>
+	<stdbool.h>
+	<libgen.h>
+	<sys/file.h>
+	<sys/socket.h>
+
+1506594582 /home/divimath/work/goggle/apps/rtspServer/h26xParse/NalParse.h
+	"h264_stream.h"
+
+1521518004 /home/divimath/work/goggle/apps/rtspServer/streamServer/rxconfig.h
+
+1672104752 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/live555MediaServer.cpp
+	<BasicUsageEnvironment.hh>
+	"DynamicRTSPServer.hh"
+	"version.hh"
+	<GroupsockHelper.hh>
+	"rxconfig.h"
+	"configfile.h"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/BasicUsageEnvironment/BasicUsageEnvironment.hh
+	"BasicUsageEnvironment0.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/BasicUsageEnvironment/BasicUsageEnvironment0.hh
+	"BasicUsageEnvironment_version.hh"
+	"UsageEnvironment.hh"
+	"DelayQueue.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/BasicUsageEnvironment/BasicUsageEnvironment_version.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/UsageEnvironment/UsageEnvironment.hh
+	"UsageEnvironment_version.hh"
+	"NetCommon.h"
+	"Boolean.hh"
+	"strDup.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/UsageEnvironment/UsageEnvironment_version.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/NetCommon.h
+	<winsock2.h>
+	<ws2tcpip.h>
+	<windows.h>
+	<errno.h>
+	<string.h>
+	<time.h>
+	<timers.h>
+	<sys/times.h>
+	<sockLib.h>
+	<hostLib.h>
+	<resolvLib.h>
+	<ioLib.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<unistd.h>
+	<string.h>
+	<stdlib.h>
+	<errno.h>
+	<strings.h>
+	<ctype.h>
+	<stdint.h>
+	<sys/select.h>
+	<unix.h>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/UsageEnvironment/Boolean.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/UsageEnvironment/strDup.hh
+	<string.h>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/BasicUsageEnvironment/DelayQueue.hh
+	"NetCommon.h"
+
+1669931976 /home/divimath/work/goggle/apps/rtspServer/streamServer/DynamicRTSPServer.hh
+	"RTSPServer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTSPServer.hh
+	"GenericMediaServer.hh"
+	"DigestAuthentication.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/GenericMediaServer.hh
+	"Media.hh"
+	"ServerMediaSession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/Media.hh
+	"liveMedia_version.hh"
+	"HashTable.hh"
+	"UsageEnvironment.hh"
+	"NetCommon.h"
+	<stdio.h>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/liveMedia_version.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/UsageEnvironment/HashTable.hh
+	"Boolean.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ServerMediaSession.hh
+	"RTCP.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTCP.hh
+	"RTPSink.hh"
+	"RTPSource.hh"
+	"SRTPCryptographicContext.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTPSink.hh
+	"MediaSink.hh"
+	"RTPInterface.hh"
+	"SRTPCryptographicContext.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MediaSink.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/FramedSource.hh
+	"NetCommon.h"
+	"MediaSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MediaSource.hh
+	"Media.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTPInterface.hh
+	"Media.hh"
+	"TLSState.hh"
+	<Groupsock.hh>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/TLSState.hh
+	"NetCommon.h"
+	"Boolean.hh"
+	"UsageEnvironment.hh"
+	<openssl/ssl.h>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/Groupsock.hh
+	"groupsock_version.hh"
+	"NetInterface.hh"
+	"GroupEId.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/groupsock_version.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/NetInterface.hh
+	"NetAddress.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/NetAddress.hh
+	"HashTable.hh"
+	"NetCommon.h"
+	"UsageEnvironment.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/GroupEId.hh
+	"Boolean.hh"
+	"NetAddress.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/SRTPCryptographicContext.hh
+	"MIKEY.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MIKEY.hh
+	"NetCommon.h"
+	"Boolean.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTPSource.hh
+	"FramedSource.hh"
+	"RTPInterface.hh"
+	"SRTPCryptographicContext.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DigestAuthentication.hh
+	<Boolean.hh>
+
+1671938828 /home/divimath/work/goggle/apps/rtspServer/streamServer/version.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/groupsock/GroupsockHelper.hh
+	"NetAddress.hh"
+	<sys/time.h>
+
+1511517620 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/LiveAudioServerMediaSubsession.cpp
+	"LiveAudioServerMediaSubsession.h"
+
+1510047767 /home/divimath/work/goggle/apps/rtspServer/streamServer/LiveAudioServerMediaSubsession.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"OnDemandServerMediaSubsession.hh"
+	"LiveAudioSource.h"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/liveMedia.hh
+	"JPEG2000VideoRTPSource.hh"
+	"JPEG2000VideoRTPSink.hh"
+	"MPEG1or2AudioRTPSink.hh"
+	"MP3ADURTPSink.hh"
+	"MPEG1or2VideoRTPSink.hh"
+	"MPEG4ESVideoRTPSink.hh"
+	"AMRAudioFileSink.hh"
+	"H264VideoFileSink.hh"
+	"H265VideoFileSink.hh"
+	"OggFileSink.hh"
+	"BasicUDPSink.hh"
+	"GSMAudioRTPSink.hh"
+	"H263plusVideoRTPSink.hh"
+	"H264VideoRTPSink.hh"
+	"H265VideoRTPSink.hh"
+	"DVVideoRTPSource.hh"
+	"DVVideoRTPSink.hh"
+	"DVVideoStreamFramer.hh"
+	"H264VideoStreamFramer.hh"
+	"H265VideoStreamFramer.hh"
+	"H264VideoStreamDiscreteFramer.hh"
+	"H265VideoStreamDiscreteFramer.hh"
+	"JPEGVideoRTPSink.hh"
+	"SimpleRTPSink.hh"
+	"uLawAudioFilter.hh"
+	"MPEG2IndexFromTransportStream.hh"
+	"MPEG2TransportStreamTrickModeFilter.hh"
+	"ByteStreamMultiFileSource.hh"
+	"ByteStreamMemoryBufferSource.hh"
+	"BasicUDPSource.hh"
+	"SimpleRTPSource.hh"
+	"MPEG1or2AudioRTPSource.hh"
+	"MPEG4LATMAudioRTPSource.hh"
+	"MPEG4LATMAudioRTPSink.hh"
+	"MPEG4ESVideoRTPSource.hh"
+	"MPEG4GenericRTPSource.hh"
+	"MP3ADURTPSource.hh"
+	"QCELPAudioRTPSource.hh"
+	"AMRAudioRTPSource.hh"
+	"JPEGVideoRTPSource.hh"
+	"JPEGVideoSource.hh"
+	"MPEG1or2VideoRTPSource.hh"
+	"VorbisAudioRTPSource.hh"
+	"TheoraVideoRTPSource.hh"
+	"VP8VideoRTPSource.hh"
+	"VP9VideoRTPSource.hh"
+	"RawVideoRTPSource.hh"
+	"MPEG2TransportStreamFromPESSource.hh"
+	"MPEG2TransportStreamFromESSource.hh"
+	"MPEG2TransportStreamFramer.hh"
+	"ADTSAudioFileSource.hh"
+	"ADTSAudioStreamDiscreteFramer.hh"
+	"H261VideoRTPSource.hh"
+	"H263plusVideoRTPSource.hh"
+	"H264VideoRTPSource.hh"
+	"H265VideoRTPSource.hh"
+	"MP3FileSource.hh"
+	"MP3ADU.hh"
+	"MP3ADUinterleaving.hh"
+	"MP3Transcoder.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+	"MPEG1or2AudioStreamFramer.hh"
+	"H263plusVideoStreamFramer.hh"
+	"AC3AudioStreamFramer.hh"
+	"AC3AudioRTPSource.hh"
+	"AC3AudioRTPSink.hh"
+	"VorbisAudioRTPSink.hh"
+	"TheoraVideoRTPSink.hh"
+	"VP8VideoRTPSink.hh"
+	"VP9VideoRTPSink.hh"
+	"MPEG4GenericRTPSink.hh"
+	"RawVideoRTPSink.hh"
+	"MPEG1or2VideoStreamDiscreteFramer.hh"
+	"MPEG4VideoStreamDiscreteFramer.hh"
+	"DeviceSource.hh"
+	"AudioInputDevice.hh"
+	"WAVAudioFileSource.hh"
+	"StreamReplicator.hh"
+	"RTSPRegisterSender.hh"
+	"RTSPClient.hh"
+	"SIPClient.hh"
+	"QuickTimeFileSink.hh"
+	"QuickTimeGenericRTPSource.hh"
+	"AVIFileSink.hh"
+	"PassiveServerMediaSubsession.hh"
+	"MPEG4VideoFileServerMediaSubsession.hh"
+	"H264VideoFileServerMediaSubsession.hh"
+	"H265VideoFileServerMediaSubsession.hh"
+	"WAVAudioFileServerMediaSubsession.hh"
+	"AMRAudioFileServerMediaSubsession.hh"
+	"AMRAudioFileSource.hh"
+	"AMRAudioRTPSink.hh"
+	"T140TextRTPSink.hh"
+	"MP3AudioFileServerMediaSubsession.hh"
+	"MPEG1or2VideoFileServerMediaSubsession.hh"
+	"MPEG1or2FileServerDemux.hh"
+	"MPEG2TransportFileServerMediaSubsession.hh"
+	"H263plusVideoFileServerMediaSubsession.hh"
+	"ADTSAudioFileServerMediaSubsession.hh"
+	"DVVideoFileServerMediaSubsession.hh"
+	"AC3AudioFileServerMediaSubsession.hh"
+	"MPEG2TransportUDPServerMediaSubsession.hh"
+	"MatroskaFileServerDemux.hh"
+	"OggFileServerDemux.hh"
+	"MPEG2TransportStreamDemux.hh"
+	"ProxyServerMediaSession.hh"
+	"HLSSegmenter.hh"
+	"MPEG2TransportStreamAccumulator.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/JPEG2000VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MultiFramedRTPSource.hh
+	"RTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/JPEG2000VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VideoRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MultiFramedRTPSink.hh
+	"RTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2AudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AudioRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3ADURTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4ESVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioFileSink.hh
+	"FileSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/FileSink.hh
+	"MediaSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoFileSink.hh
+	"H264or5VideoFileSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264or5VideoFileSink.hh
+	"FileSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoFileSink.hh
+	"H264or5VideoFileSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/OggFileSink.hh
+	"FileSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/BasicUDPSink.hh
+	"MediaSink.hh"
+	<Groupsock.hh>
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/GSMAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H263plusVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoRTPSink.hh
+	"H264or5VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264or5VideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/FramedFilter.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoRTPSink.hh
+	"H264or5VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DVVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DVVideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"DVVideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DVVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoStreamFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264or5VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEGVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoStreamFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamDiscreteFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264or5VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamDiscreteFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/JPEGVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/SimpleRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/uLawAudioFilter.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2IndexFromTransportStream.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamTrickModeFilter.hh
+	"FramedFilter.hh"
+	"MPEG2TransportStreamIndexFile.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamIndexFile.hh
+	"Media.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ByteStreamMultiFileSource.hh
+	"ByteStreamFileSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ByteStreamFileSource.hh
+	"FramedFileSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/FramedFileSource.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ByteStreamMemoryBufferSource.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/BasicUDPSource.hh
+	"FramedSource.hh"
+	"Groupsock.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/SimpleRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2AudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4LATMAudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4LATMAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4ESVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4GenericRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3ADURTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/QCELPAudioRTPSource.hh
+	"RTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioRTPSource.hh
+	"RTPSource.hh"
+	"AMRAudioSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioSource.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/JPEGVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/JPEGVideoSource.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VorbisAudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/TheoraVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VP8VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VP9VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RawVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamFromPESSource.hh
+	"MPEG2TransportStreamMultiplexor.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamMultiplexor.hh
+	"FramedSource.hh"
+	"MPEG1or2Demux.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2Demux.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2DemuxedElementaryStream.hh
+	"MPEG1or2Demux.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamFromESSource.hh
+	"MPEG2TransportStreamMultiplexor.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamFramer.hh
+	"FramedFilter.hh"
+	"HashTable.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ADTSAudioFileSource.hh
+	"FramedFileSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ADTSAudioStreamDiscreteFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H261VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H263plusVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3FileSource.hh
+	"FramedFileSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3ADU.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3ADUinterleaving.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3Transcoder.hh
+	"MP3ADU.hh"
+	"MP3ADUTranscoder.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3ADUTranscoder.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2AudioStreamFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H263plusVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AC3AudioStreamFramer.hh
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AC3AudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AC3AudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VorbisAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/TheoraVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VP8VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/VP9VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4GenericRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RawVideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"RawVideoFrameParameters.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RawVideoFrameParameters.hh
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2VideoStreamDiscreteFramer.hh
+	"MPEG1or2VideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4VideoStreamDiscreteFramer.hh
+	"MPEG4VideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DeviceSource.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AudioInputDevice.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/WAVAudioFileSource.hh
+	"AudioInputDevice.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/StreamReplicator.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTSPRegisterSender.hh
+	"RTSPClient.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/RTSPClient.hh
+	"MediaSession.hh"
+	"NetAddress.hh"
+	"DigestAuthentication.hh"
+	"TLSState.hh"
+	"RTSPServer.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MediaSession.hh
+	"RTCP.hh"
+	"FramedFilter.hh"
+	"SRTPCryptographicContext.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/SIPClient.hh
+	"MediaSession.hh"
+	"NetAddress.hh"
+	"DigestAuthentication.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/QuickTimeFileSink.hh
+	"MediaSession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/QuickTimeGenericRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AVIFileSink.hh
+	"MediaSession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/PassiveServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"RTPSink.hh"
+	"RTCP.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG4VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/FileServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"OnDemandServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/OnDemandServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"RTPSink.hh"
+	"BasicUDPSink.hh"
+	"RTCP.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H264VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H265VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/WAVAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioFileSource.hh
+	"AMRAudioSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AMRAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/T140TextRTPSink.hh
+	"TextRTPSink.hh"
+	"FramedFilter.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/TextRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MP3AudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+	"MP3ADUinterleaving.hh"
+	"MP3ADU.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG1or2FileServerDemux.hh
+	"ServerMediaSession.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+	"MPEG2TransportStreamFramer.hh"
+	"ByteStreamFileSource.hh"
+	"MPEG2TransportStreamTrickModeFilter.hh"
+	"MPEG2TransportStreamFromESSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/H263plusVideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ADTSAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/DVVideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/AC3AudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportUDPServerMediaSubsession.hh
+	"OnDemandServerMediaSubsession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MatroskaFileServerDemux.hh
+	"ServerMediaSession.hh"
+	"MatroskaFile.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MatroskaFile.hh
+	"RTPSink.hh"
+	"FileSink.hh"
+	"HashTable.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/OggFileServerDemux.hh
+	"ServerMediaSession.hh"
+	"OggFile.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/OggFile.hh
+	"RTPSink.hh"
+	"HashTable.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamDemux.hh
+	"FramedSource.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/ProxyServerMediaSession.hh
+	"ServerMediaSession.hh"
+	"MediaSession.hh"
+	"RTSPClient.hh"
+	"MediaTranscodingTable.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MediaTranscodingTable.hh
+	"FramedFilter.hh"
+	"MediaSession.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/HLSSegmenter.hh
+	"MediaSink.hh"
+
+1672027896 /home/divimath/work/goggle/apps/live-x86/include/liveMedia/MPEG2TransportStreamAccumulator.hh
+	"FramedFilter.hh"
+
+1510048750 /home/divimath/work/goggle/apps/rtspServer/streamServer/LiveAudioSource.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"FramedSource.hh"
+
+1511517599 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/LiveAudioSource.cpp
+	"LiveAudioSource.h"
+	<stdio.h>
+	<windows.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<string.h>
+	<fcntl.h>
+	<unistd.h>
+	<limits.h>
+	"avshare.h"
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/LiveVideoServerMediaSubsession.cpp
+	"LiveVideoServerMediaSubsession.h"
+	"configfile.h"
+	"rxconfig.h"
+
+1510045739 /home/divimath/work/goggle/apps/rtspServer/streamServer/LiveVideoServerMediaSubsession.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"OnDemandServerMediaSubsession.hh"
+	"LiveVideoSource.h"
+
+1510047059 /home/divimath/work/goggle/apps/rtspServer/streamServer/LiveVideoSource.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"FramedSource.hh"
+
+1511846016 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/LiveVideoSource.cpp
+	"LiveVideoSource.h"
+	<stdio.h>
+	<windows.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<string.h>
+	<fcntl.h>
+	<unistd.h>
+	<limits.h>
+	"avshare.h"
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/rxconfig.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"rxconfig.h"
+	"configfile.h"
+
+1509464676 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/util.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<sys/stat.h>
+	<pwd.h>
+	<unistd.h>
+	<errno.h>
+	"util.h"
+
+1671939444 source:/home/divimath/work/goggle/apps/rtspServer/streamServer/DynamicRTSPServer.cpp
+	"DynamicRTSPServer.hh"
+	<liveMedia.hh>
+	<string.h>
+	"LiveVideoSource.h"
+	"LiveVideoServerMediaSubsession.h"
+	"LiveAudioSource.h"
+	"LiveAudioServerMediaSubsession.h"
+
+1506139059 source:/home/divimath/work/goggle/apps/rtspserver/h26xParse/bs.cpp
+	"bs.h"
+
+1506139015 /home/divimath/work/goggle/apps/rtspserver/h26xParse/bs.h
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+
+1506136382 source:/home/divimath/work/goggle/apps/rtspserver/h26xParse/h264_sei.cpp
+	"bs.h"
+	"h264_stream.h"
+	"h264_sei.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1509960604 /home/divimath/work/goggle/apps/rtspserver/h26xParse/h264_stream.h
+	<stdint.h>
+	<stdio.h>
+	<assert.h>
+	"bs.h"
+	"h264_sei.h"
+	<vector>
+
+1487166318 /home/divimath/work/goggle/apps/rtspserver/h26xParse/h264_sei.h
+	<stdint.h>
+	<stdint.h>
+	"bs.h"
+
+1509960614 source:/home/divimath/work/goggle/apps/rtspserver/h26xParse/h264_stream.cpp
+	<stdint.h>
+	<stdlib.h>
+	<stdio.h>
+	"bs.h"
+	"h264_stream.h"
+	"h264_sei.h"
+
+1506138571 source:/home/divimath/work/goggle/apps/rtspserver/h26xParse/h265_sei.cpp
+	"h265_sei.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1487166318 /home/divimath/work/goggle/apps/rtspserver/h26xParse/h265_sei.h
+	<stdint.h>
+	<stdint.h>
+	"bs.h"
+	"h265_stream.h"
+
+1510631665 /home/divimath/work/goggle/apps/rtspserver/h26xParse/h265_stream.h
+	<stdint.h>
+	<stdio.h>
+	<assert.h>
+	"bs.h"
+	"h264_stream.h"
+	<vector>
+
+1510639382 source:/home/divimath/work/goggle/apps/rtspserver/h26xParse/h265_stream.cpp
+	<stdint.h>
+	<stdlib.h>
+	<stdio.h>
+	"bs.h"
+	"h265_stream.h"
+	"h265_sei.h"
+
+1672110509 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/avshare.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<fcntl.h>
+	<sys/shm.h>
+	<sys/ipc.h>
+	<sys/time.h>
+	"avshare.h"
+	"util.h"
+	"h264_stream.h"
+	"NalParse.h"
+	"h265_stream.h"
+
+1672110274 /home/divimath/work/goggle/apps/rtspserver/streamServer/avshare.h
+
+1672106488 /home/divimath/work/goggle/apps/rtspserver/streamServer/util.h
+	<stdio.h>
+	<termios.h>
+	<pthread.h>
+	<stdbool.h>
+	<libgen.h>
+	<sys/file.h>
+	<sys/socket.h>
+
+1506594582 /home/divimath/work/goggle/apps/rtspserver/h26xParse/NalParse.h
+	"h264_stream.h"
+
+1521518004 /home/divimath/work/goggle/apps/rtspserver/streamServer/configfile.h
+
+1521518004 /home/divimath/work/goggle/apps/rtspserver/streamServer/rxconfig.h
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/configfile.cpp
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<ctype.h>
+	<assert.h>
+	<errno.h>
+	"configfile.h"
+
+1673773332 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/DynamicRTSPServer.cpp
+	"DynamicRTSPServer.hh"
+	<liveMedia.hh>
+	<string.h>
+	"LiveVideoSource.h"
+	"LiveVideoServerMediaSubsession.h"
+	"LiveAudioSource.h"
+	"LiveAudioServerMediaSubsession.h"
+
+1673760716 /home/divimath/work/goggle/apps/rtspserver/streamServer/DynamicRTSPServer.hh
+	"RTSPServer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTSPServer.hh
+	"GenericMediaServer.hh"
+	"DigestAuthentication.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/GenericMediaServer.hh
+	"Media.hh"
+	"ServerMediaSession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/Media.hh
+	"liveMedia_version.hh"
+	"HashTable.hh"
+	"UsageEnvironment.hh"
+	"NetCommon.h"
+	<stdio.h>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/liveMedia_version.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/UsageEnvironment/HashTable.hh
+	"Boolean.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/UsageEnvironment/Boolean.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/UsageEnvironment/UsageEnvironment.hh
+	"UsageEnvironment_version.hh"
+	"NetCommon.h"
+	"Boolean.hh"
+	"strDup.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/UsageEnvironment/UsageEnvironment_version.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/NetCommon.h
+	<winsock2.h>
+	<ws2tcpip.h>
+	<windows.h>
+	<errno.h>
+	<string.h>
+	<time.h>
+	<timers.h>
+	<sys/times.h>
+	<sockLib.h>
+	<hostLib.h>
+	<resolvLib.h>
+	<ioLib.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<unistd.h>
+	<string.h>
+	<stdlib.h>
+	<errno.h>
+	<strings.h>
+	<ctype.h>
+	<stdint.h>
+	<sys/select.h>
+	<unix.h>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/UsageEnvironment/strDup.hh
+	<string.h>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ServerMediaSession.hh
+	"RTCP.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTCP.hh
+	"RTPSink.hh"
+	"RTPSource.hh"
+	"SRTPCryptographicContext.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTPSink.hh
+	"MediaSink.hh"
+	"RTPInterface.hh"
+	"SRTPCryptographicContext.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MediaSink.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/FramedSource.hh
+	"NetCommon.h"
+	"MediaSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MediaSource.hh
+	"Media.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTPInterface.hh
+	"Media.hh"
+	"TLSState.hh"
+	<Groupsock.hh>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/TLSState.hh
+	"NetCommon.h"
+	"Boolean.hh"
+	"UsageEnvironment.hh"
+	<openssl/ssl.h>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/Groupsock.hh
+	"groupsock_version.hh"
+	"NetInterface.hh"
+	"GroupEId.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/groupsock_version.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/NetInterface.hh
+	"NetAddress.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/NetAddress.hh
+	"HashTable.hh"
+	"NetCommon.h"
+	"UsageEnvironment.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/GroupEId.hh
+	"Boolean.hh"
+	"NetAddress.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/SRTPCryptographicContext.hh
+	"MIKEY.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MIKEY.hh
+	"NetCommon.h"
+	"Boolean.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTPSource.hh
+	"FramedSource.hh"
+	"RTPInterface.hh"
+	"SRTPCryptographicContext.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DigestAuthentication.hh
+	<Boolean.hh>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/liveMedia.hh
+	"JPEG2000VideoRTPSource.hh"
+	"JPEG2000VideoRTPSink.hh"
+	"MPEG1or2AudioRTPSink.hh"
+	"MP3ADURTPSink.hh"
+	"MPEG1or2VideoRTPSink.hh"
+	"MPEG4ESVideoRTPSink.hh"
+	"AMRAudioFileSink.hh"
+	"H264VideoFileSink.hh"
+	"H265VideoFileSink.hh"
+	"OggFileSink.hh"
+	"BasicUDPSink.hh"
+	"GSMAudioRTPSink.hh"
+	"H263plusVideoRTPSink.hh"
+	"H264VideoRTPSink.hh"
+	"H265VideoRTPSink.hh"
+	"DVVideoRTPSource.hh"
+	"DVVideoRTPSink.hh"
+	"DVVideoStreamFramer.hh"
+	"H264VideoStreamFramer.hh"
+	"H265VideoStreamFramer.hh"
+	"H264VideoStreamDiscreteFramer.hh"
+	"H265VideoStreamDiscreteFramer.hh"
+	"JPEGVideoRTPSink.hh"
+	"SimpleRTPSink.hh"
+	"uLawAudioFilter.hh"
+	"MPEG2IndexFromTransportStream.hh"
+	"MPEG2TransportStreamTrickModeFilter.hh"
+	"ByteStreamMultiFileSource.hh"
+	"ByteStreamMemoryBufferSource.hh"
+	"BasicUDPSource.hh"
+	"SimpleRTPSource.hh"
+	"MPEG1or2AudioRTPSource.hh"
+	"MPEG4LATMAudioRTPSource.hh"
+	"MPEG4LATMAudioRTPSink.hh"
+	"MPEG4ESVideoRTPSource.hh"
+	"MPEG4GenericRTPSource.hh"
+	"MP3ADURTPSource.hh"
+	"QCELPAudioRTPSource.hh"
+	"AMRAudioRTPSource.hh"
+	"JPEGVideoRTPSource.hh"
+	"JPEGVideoSource.hh"
+	"MPEG1or2VideoRTPSource.hh"
+	"VorbisAudioRTPSource.hh"
+	"TheoraVideoRTPSource.hh"
+	"VP8VideoRTPSource.hh"
+	"VP9VideoRTPSource.hh"
+	"RawVideoRTPSource.hh"
+	"MPEG2TransportStreamFromPESSource.hh"
+	"MPEG2TransportStreamFromESSource.hh"
+	"MPEG2TransportStreamFramer.hh"
+	"ADTSAudioFileSource.hh"
+	"ADTSAudioStreamDiscreteFramer.hh"
+	"H261VideoRTPSource.hh"
+	"H263plusVideoRTPSource.hh"
+	"H264VideoRTPSource.hh"
+	"H265VideoRTPSource.hh"
+	"MP3FileSource.hh"
+	"MP3ADU.hh"
+	"MP3ADUinterleaving.hh"
+	"MP3Transcoder.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+	"MPEG1or2AudioStreamFramer.hh"
+	"H263plusVideoStreamFramer.hh"
+	"AC3AudioStreamFramer.hh"
+	"AC3AudioRTPSource.hh"
+	"AC3AudioRTPSink.hh"
+	"VorbisAudioRTPSink.hh"
+	"TheoraVideoRTPSink.hh"
+	"VP8VideoRTPSink.hh"
+	"VP9VideoRTPSink.hh"
+	"MPEG4GenericRTPSink.hh"
+	"RawVideoRTPSink.hh"
+	"MPEG1or2VideoStreamDiscreteFramer.hh"
+	"MPEG4VideoStreamDiscreteFramer.hh"
+	"DeviceSource.hh"
+	"AudioInputDevice.hh"
+	"WAVAudioFileSource.hh"
+	"StreamReplicator.hh"
+	"RTSPRegisterSender.hh"
+	"RTSPClient.hh"
+	"SIPClient.hh"
+	"QuickTimeFileSink.hh"
+	"QuickTimeGenericRTPSource.hh"
+	"AVIFileSink.hh"
+	"PassiveServerMediaSubsession.hh"
+	"MPEG4VideoFileServerMediaSubsession.hh"
+	"H264VideoFileServerMediaSubsession.hh"
+	"H265VideoFileServerMediaSubsession.hh"
+	"WAVAudioFileServerMediaSubsession.hh"
+	"AMRAudioFileServerMediaSubsession.hh"
+	"AMRAudioFileSource.hh"
+	"AMRAudioRTPSink.hh"
+	"T140TextRTPSink.hh"
+	"MP3AudioFileServerMediaSubsession.hh"
+	"MPEG1or2VideoFileServerMediaSubsession.hh"
+	"MPEG1or2FileServerDemux.hh"
+	"MPEG2TransportFileServerMediaSubsession.hh"
+	"H263plusVideoFileServerMediaSubsession.hh"
+	"ADTSAudioFileServerMediaSubsession.hh"
+	"DVVideoFileServerMediaSubsession.hh"
+	"AC3AudioFileServerMediaSubsession.hh"
+	"MPEG2TransportUDPServerMediaSubsession.hh"
+	"MatroskaFileServerDemux.hh"
+	"OggFileServerDemux.hh"
+	"MPEG2TransportStreamDemux.hh"
+	"ProxyServerMediaSession.hh"
+	"HLSSegmenter.hh"
+	"MPEG2TransportStreamAccumulator.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/JPEG2000VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MultiFramedRTPSource.hh
+	"RTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/JPEG2000VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VideoRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MultiFramedRTPSink.hh
+	"RTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2AudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AudioRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3ADURTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4ESVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioFileSink.hh
+	"FileSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/FileSink.hh
+	"MediaSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoFileSink.hh
+	"H264or5VideoFileSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264or5VideoFileSink.hh
+	"FileSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoFileSink.hh
+	"H264or5VideoFileSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/OggFileSink.hh
+	"FileSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/BasicUDPSink.hh
+	"MediaSink.hh"
+	<Groupsock.hh>
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/GSMAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H263plusVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoRTPSink.hh
+	"H264or5VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264or5VideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/FramedFilter.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoRTPSink.hh
+	"H264or5VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DVVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DVVideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"DVVideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DVVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoStreamFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264or5VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEGVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoStreamFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamDiscreteFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264or5VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoStreamDiscreteFramer.hh
+	"H264or5VideoStreamDiscreteFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/JPEGVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/SimpleRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/uLawAudioFilter.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2IndexFromTransportStream.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamTrickModeFilter.hh
+	"FramedFilter.hh"
+	"MPEG2TransportStreamIndexFile.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamIndexFile.hh
+	"Media.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ByteStreamMultiFileSource.hh
+	"ByteStreamFileSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ByteStreamFileSource.hh
+	"FramedFileSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/FramedFileSource.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ByteStreamMemoryBufferSource.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/BasicUDPSource.hh
+	"FramedSource.hh"
+	"Groupsock.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/SimpleRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2AudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4LATMAudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4LATMAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4ESVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4GenericRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3ADURTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/QCELPAudioRTPSource.hh
+	"RTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioRTPSource.hh
+	"RTPSource.hh"
+	"AMRAudioSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioSource.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/JPEGVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/JPEGVideoSource.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VorbisAudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/TheoraVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VP8VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VP9VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RawVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamFromPESSource.hh
+	"MPEG2TransportStreamMultiplexor.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamMultiplexor.hh
+	"FramedSource.hh"
+	"MPEG1or2Demux.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2Demux.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2DemuxedElementaryStream.hh
+	"MPEG1or2Demux.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamFromESSource.hh
+	"MPEG2TransportStreamMultiplexor.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamFramer.hh
+	"FramedFilter.hh"
+	"HashTable.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ADTSAudioFileSource.hh
+	"FramedFileSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ADTSAudioStreamDiscreteFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H261VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H263plusVideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3FileSource.hh
+	"FramedFileSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3ADU.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3ADUinterleaving.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3Transcoder.hh
+	"MP3ADU.hh"
+	"MP3ADUTranscoder.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3ADUTranscoder.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2AudioStreamFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H263plusVideoStreamFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AC3AudioStreamFramer.hh
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AC3AudioRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AC3AudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VorbisAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/TheoraVideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VP8VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/VP9VideoRTPSink.hh
+	"VideoRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4GenericRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RawVideoRTPSink.hh
+	"VideoRTPSink.hh"
+	"RawVideoFrameParameters.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RawVideoFrameParameters.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2VideoStreamDiscreteFramer.hh
+	"MPEG1or2VideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4VideoStreamDiscreteFramer.hh
+	"MPEG4VideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4VideoStreamFramer.hh
+	"MPEGVideoStreamFramer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DeviceSource.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AudioInputDevice.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/WAVAudioFileSource.hh
+	"AudioInputDevice.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/StreamReplicator.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTSPRegisterSender.hh
+	"RTSPClient.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/RTSPClient.hh
+	"MediaSession.hh"
+	"NetAddress.hh"
+	"DigestAuthentication.hh"
+	"TLSState.hh"
+	"RTSPServer.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MediaSession.hh
+	"RTCP.hh"
+	"FramedFilter.hh"
+	"SRTPCryptographicContext.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/SIPClient.hh
+	"MediaSession.hh"
+	"NetAddress.hh"
+	"DigestAuthentication.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/QuickTimeFileSink.hh
+	"MediaSession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/QuickTimeGenericRTPSource.hh
+	"MultiFramedRTPSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AVIFileSink.hh
+	"MediaSession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/PassiveServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"RTPSink.hh"
+	"RTCP.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG4VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/FileServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"OnDemandServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/OnDemandServerMediaSubsession.hh
+	"ServerMediaSession.hh"
+	"RTPSink.hh"
+	"BasicUDPSink.hh"
+	"RTCP.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H264VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H265VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/WAVAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioFileSource.hh
+	"AMRAudioSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AMRAudioRTPSink.hh
+	"AudioRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/T140TextRTPSink.hh
+	"TextRTPSink.hh"
+	"FramedFilter.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/TextRTPSink.hh
+	"MultiFramedRTPSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MP3AudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+	"MP3ADUinterleaving.hh"
+	"MP3ADU.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2VideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG1or2FileServerDemux.hh
+	"ServerMediaSession.hh"
+	"MPEG1or2DemuxedElementaryStream.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+	"MPEG2TransportStreamFramer.hh"
+	"ByteStreamFileSource.hh"
+	"MPEG2TransportStreamTrickModeFilter.hh"
+	"MPEG2TransportStreamFromESSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/H263plusVideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ADTSAudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/DVVideoFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/AC3AudioFileServerMediaSubsession.hh
+	"FileServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportUDPServerMediaSubsession.hh
+	"OnDemandServerMediaSubsession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MatroskaFileServerDemux.hh
+	"ServerMediaSession.hh"
+	"MatroskaFile.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MatroskaFile.hh
+	"RTPSink.hh"
+	"FileSink.hh"
+	"HashTable.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/OggFileServerDemux.hh
+	"ServerMediaSession.hh"
+	"OggFile.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/OggFile.hh
+	"RTPSink.hh"
+	"HashTable.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamDemux.hh
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/ProxyServerMediaSession.hh
+	"ServerMediaSession.hh"
+	"MediaSession.hh"
+	"RTSPClient.hh"
+	"MediaTranscodingTable.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MediaTranscodingTable.hh
+	"FramedFilter.hh"
+	"MediaSession.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/HLSSegmenter.hh
+	"MediaSink.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/liveMedia/MPEG2TransportStreamAccumulator.hh
+	"FramedFilter.hh"
+
+1673773778 /home/divimath/work/goggle/apps/rtspserver/streamServer/LiveVideoSource.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"FramedSource.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/BasicUsageEnvironment/BasicUsageEnvironment.hh
+	"BasicUsageEnvironment0.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/BasicUsageEnvironment/BasicUsageEnvironment0.hh
+	"BasicUsageEnvironment_version.hh"
+	"UsageEnvironment.hh"
+	"DelayQueue.hh"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/BasicUsageEnvironment/BasicUsageEnvironment_version.hh
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/BasicUsageEnvironment/DelayQueue.hh
+	"NetCommon.h"
+
+1672405835 /home/divimath/work/goggle/apps/live-v536/include/groupsock/GroupsockHelper.hh
+	"NetAddress.hh"
+	<sys/time.h>
+
+1672410046 /home/divimath/work/goggle/apps/rtspserver/streamServer/LiveVideoServerMediaSubsession.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"OnDemandServerMediaSubsession.hh"
+	"LiveVideoSource.h"
+
+1672122847 /home/divimath/work/goggle/apps/rtspserver/streamServer/LiveAudioSource.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"FramedSource.hh"
+
+1510047767 /home/divimath/work/goggle/apps/rtspserver/streamServer/LiveAudioServerMediaSubsession.h
+	"liveMedia.hh"
+	"BasicUsageEnvironment.hh"
+	"GroupsockHelper.hh"
+	"OnDemandServerMediaSubsession.hh"
+	"LiveAudioSource.h"
+
+1672109997 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/live555MediaServer.cpp
+	<BasicUsageEnvironment.hh>
+	"DynamicRTSPServer.hh"
+	"version.hh"
+	<GroupsockHelper.hh>
+
+1671938828 /home/divimath/work/goggle/apps/rtspserver/streamServer/version.hh
+
+1511517620 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/LiveAudioServerMediaSubsession.cpp
+	"LiveAudioServerMediaSubsession.h"
+
+1673757560 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/LiveAudioSource.cpp
+	"LiveAudioSource.h"
+	<stdio.h>
+	<windows.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<string.h>
+	<fcntl.h>
+	<unistd.h>
+	<limits.h>
+	"record.h"
+
+1673757543 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/LiveVideoServerMediaSubsession.cpp
+	"LiveVideoServerMediaSubsession.h"
+
+1673774061 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/LiveVideoSource.cpp
+	"LiveVideoSource.h"
+	<stdio.h>
+	<windows.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<string.h>
+	<fcntl.h>
+	<unistd.h>
+	<limits.h>
+	"record.h"
+
+1521518004 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/rxconfig.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"rxconfig.h"
+	"configfile.h"
+
+1672106568 source:/home/divimath/work/goggle/apps/rtspserver/streamServer/util.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<sys/stat.h>
+	<pwd.h>
+	<unistd.h>
+	<fcntl.h>
+	<errno.h>
+	"util.h"
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ssl.h
+	<openssl/e_os2.h>
+	<openssl/opensslconf.h>
+	<openssl/comp.h>
+	<openssl/bio.h>
+	<openssl/x509.h>
+	<openssl/crypto.h>
+	<openssl/lhash.h>
+	<openssl/buffer.h>
+	<openssl/pem.h>
+	<openssl/hmac.h>
+	<openssl/async.h>
+	<openssl/safestack.h>
+	<openssl/symhacks.h>
+	<openssl/ct.h>
+	<openssl/ssl2.h>
+	<openssl/ssl3.h>
+	<openssl/tls1.h>
+	<openssl/dtls1.h>
+	<openssl/srtp.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/e_os2.h
+	<openssl/opensslconf.h>
+	<inttypes.h>
+	<stdint.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/opensslconf.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/comp.h
+	<openssl/opensslconf.h>
+	<openssl/crypto.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/crypto.h
+	<stdlib.h>
+	<time.h>
+	<openssl/e_os2.h>
+	<stdio.h>
+	<openssl/stack.h>
+	<openssl/safestack.h>
+	<openssl/opensslv.h>
+	<openssl/ossl_typ.h>
+	<openssl/opensslconf.h>
+	<openssl/ebcdic.h>
+	<openssl/symhacks.h>
+	<openssl/opensslv.h>
+	<pthread.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/stack.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/safestack.h
+	<openssl/stack.h>
+	<openssl/e_os2.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/opensslv.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ossl_typ.h
+	<limits.h>
+	<openssl/e_os2.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ebcdic.h
+	<stdlib.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/symhacks.h
+	<openssl/e_os2.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/bio.h
+	<openssl/e_os2.h>
+	<stdio.h>
+	<stdarg.h>
+	<openssl/crypto.h>
+	<openssl/e_os2.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/x509.h
+	<openssl/e_os2.h>
+	<openssl/ossl_typ.h>
+	<openssl/symhacks.h>
+	<openssl/buffer.h>
+	<openssl/evp.h>
+	<openssl/bio.h>
+	<openssl/stack.h>
+	<openssl/asn1.h>
+	<openssl/safestack.h>
+	<openssl/ec.h>
+	<openssl/rsa.h>
+	<openssl/dsa.h>
+	<openssl/dh.h>
+	<openssl/sha.h>
+	<openssl/x509_vfy.h>
+	<openssl/pkcs7.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/buffer.h
+	<openssl/ossl_typ.h>
+	<openssl/crypto.h>
+	<stddef.h>
+	<sys/types.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/evp.h
+	<openssl/opensslconf.h>
+	<openssl/ossl_typ.h>
+	<openssl/symhacks.h>
+	<openssl/bio.h>
+	<openssl/objects.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/objects.h
+	<openssl/obj_mac.h>
+	<openssl/bio.h>
+	<openssl/asn1.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/obj_mac.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/asn1.h
+	<time.h>
+	<openssl/e_os2.h>
+	<openssl/opensslconf.h>
+	<openssl/bio.h>
+	<openssl/stack.h>
+	<openssl/safestack.h>
+	<openssl/symhacks.h>
+	<openssl/ossl_typ.h>
+	<openssl/bn.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/bn.h
+	<openssl/e_os2.h>
+	<stdio.h>
+	<openssl/opensslconf.h>
+	<openssl/ossl_typ.h>
+	<openssl/crypto.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ec.h
+	<openssl/opensslconf.h>
+	<openssl/asn1.h>
+	<openssl/symhacks.h>
+	<openssl/bn.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/rsa.h
+	<openssl/opensslconf.h>
+	<openssl/asn1.h>
+	<openssl/bio.h>
+	<openssl/crypto.h>
+	<openssl/ossl_typ.h>
+	<openssl/bn.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/dsa.h
+	<openssl/opensslconf.h>
+	<openssl/e_os2.h>
+	<openssl/bio.h>
+	<openssl/crypto.h>
+	<openssl/ossl_typ.h>
+	<openssl/opensslconf.h>
+	<openssl/bn.h>
+	<openssl/dh.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/dh.h
+	<openssl/opensslconf.h>
+	<openssl/e_os2.h>
+	<openssl/bio.h>
+	<openssl/asn1.h>
+	<openssl/ossl_typ.h>
+	<openssl/bn.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/sha.h
+	<openssl/e_os2.h>
+	<stddef.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/x509_vfy.h
+	<openssl/x509.h>
+	<openssl/opensslconf.h>
+	<openssl/lhash.h>
+	<openssl/bio.h>
+	<openssl/crypto.h>
+	<openssl/symhacks.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/lhash.h
+	<openssl/e_os2.h>
+	<openssl/bio.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/pkcs7.h
+	<openssl/asn1.h>
+	<openssl/bio.h>
+	<openssl/e_os2.h>
+	<openssl/symhacks.h>
+	<openssl/ossl_typ.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/pem.h
+	<openssl/e_os2.h>
+	<openssl/bio.h>
+	<openssl/stack.h>
+	<openssl/evp.h>
+	<openssl/x509.h>
+	<openssl/pem2.h>
+	<openssl/symhacks.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/pem2.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/hmac.h
+	<openssl/opensslconf.h>
+	<openssl/evp.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/async.h
+	<stdlib.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ct.h
+	<openssl/opensslconf.h>
+	<openssl/ossl_typ.h>
+	<openssl/safestack.h>
+	<openssl/x509.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ssl2.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/ssl3.h
+	<openssl/comp.h>
+	<openssl/buffer.h>
+	<openssl/evp.h>
+	<openssl/ssl.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/tls1.h
+	<openssl/buffer.h>
+	<openssl/x509.h>
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/dtls1.h
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/openssl/srtp.h
+	<openssl/ssl.h>
+
+1672392012 source:/home/divimath/work/goggle/apps/rtspserver/stream/ai2aenc.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	"ai2aenc.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_log.h
+	<log/log.h>
+	<stdio.h>
+	<string.h>
+	<log/std_log.h>
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/log.h
+	<stdio.h>
+	<unistd.h>
+	"log_print.h"
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/log_print.h
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/std_log.h
+	<stdio.h>
+	<time.h>
+	<sys/types.h>
+	<unistd.h>
+	<stdarg.h>
+	<sys/uio.h>
+
+1672121852 /home/divimath/work/goggle/apps/rtspserver/stream/ai2aenc.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_aenc.h>
+	<pthread.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_type.h
+	<stdint.h>
+	<stddef.h>
+	<cdx_list_type.h>
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/utils/cdx_list_type.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_common.h
+	"plat_defines.h"
+	"plat_math.h"
+	"plat_type.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_defines.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_math.h
+	<stdint.h>
+	"plat_type.h"
+	<linux/time.h>
+	<sys/time.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_sys.h
+	"plat_type.h"
+	"mm_common.h"
+	"mm_comm_sys.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_sys.h
+	"plat_type.h"
+	"plat_errno.h"
+	<sys/select.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_errno.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_aio.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_ai.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	<mm_comm_aio.h>
+	"mm_comm_aenc.h"
+
+1668520475 source:/home/divimath/work/goggle/apps/rtspserver/stream/ai2ao.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<cdx_list.h>
+	"ai2ao.h"
+
+1653640179 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/utils/cdx_list.h
+	<stddef.h>
+	<cdx_list_type.h>
+
+1668519159 /home/divimath/work/goggle/apps/rtspserver/stream/ai2ao.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_ao.h>
+	<mpi_clock.h>
+	<ClockCompPortIndex.h>
+	<pthread.h>
+	"ai2aenc.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_ao.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_clock.h
+	"mm_common.h"
+	"mm_comm_clock.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_clock.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"mm_common.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/ClockCompPortIndex.h
+
+1666487677 source:/home/divimath/work/goggle/apps/rtspserver/stream/confparser.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"confparser.h"
+	"minIni.h"
+
+1666229133 /home/divimath/work/goggle/apps/rtspserver/stream/confparser.h
+	"record.h"
+
+1673761039 /home/divimath/work/goggle/apps/rtspserver/stream/record.h
+	"vi2venc.h"
+	"ai2aenc.h"
+
+1672126621 /home/divimath/work/goggle/apps/rtspserver/stream/vi2venc.h
+	<plat_type.h>
+	<tsemaphore.h>
+	"mm_comm_vi.h"
+	"mpi_vi.h"
+	"mpi_isp.h"
+	"mpi_venc.h"
+	"mpi_sys.h"
+	"mm_common.h"
+	"mm_comm_venc.h"
+	"mm_comm_rc.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/utils/tsemaphore.h
+	<pthread.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_vi.h
+	"mm_common.h"
+	<mm_comm_video.h>
+	"plat_errno.h"
+	"sunxi_camera_v2.h"
+	<aw_type.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_video.h
+	<stdint.h>
+	<plat_type.h>
+	<plat_defines.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/sunxi_camera_v2.h
+	<linux/types.h>
+	<linux/videodev2.h>
+	<stdbool.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/videodev2.h
+	<sys/time.h>
+	<linux/ioctl.h>
+	<linux/types.h>
+	<linux/v4l2-common.h>
+	<linux/v4l2-controls.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/v4l2-common.h
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/v4l2-controls.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/aw_type.h
+	<stdint.h>
+	<stddef.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_vi.h
+	"mm_comm_vi.h"
+	"mm_comm_region.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_region.h
+	"mm_common.h"
+	"mm_comm_video.h"
+	"plat_errno.h"
+	"plat_defines.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_isp.h
+	"isp_type.h"
+	"mm_comm_vi.h"
+	"isp_comm.h"
+	"isp_tuning_priv.h"
+	"isp_tuning.h"
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_type.h
+
+1625715360 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_comm.h
+	"isp_type.h"
+	"../isp_version.h"
+
+1625715551 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/isp_version.h
+	"include/isp_debug.h"
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_debug.h
+	<stdio.h>
+	<errno.h>
+
+1625715495 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/isp_tuning/isp_tuning_priv.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1625715398 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_tuning.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_venc.h"
+	"vencoder.h"
+	"ComponentCommon.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_rc.h"
+	<linux/videodev2.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_rc.h
+	"plat_defines.h"
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/vencoder.h
+	"sc_interface.h"
+	"veInterface.h"
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/sc_interface.h
+	<stddef.h>
+	<stdint.h>
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/veInterface.h
+	<stddef.h>
+	<stdint.h>
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/ComponentCommon.h
+	"plat_defines.h"
+	"plat_errno.h"
+	"plat_math.h"
+	"plat_type.h"
+	"mm_comm_video.h"
+	"mm_comm_aio.h"
+	"mm_common.h"
+	"mm_component.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/mm_component.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/minIni.h
+	"minGlue.h"
+	<tchar.h>
+	"wxMinIni.h"
+	<string>
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/minGlue.h
+	<stdio.h>
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/wxMinIni.h
+	<wx/wx.h>
+	"minIni.h"
+
+1672893219 source:/home/divimath/work/goggle/apps/rtspserver/stream/gogglemsg.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<unistd.h>
+	<errno.h>
+	<sys/types.h>
+	<sys/ipc.h>
+	<sys/msg.h>
+	"gogglemsg.h"
+
+1672892516 /home/divimath/work/goggle/apps/rtspserver/stream/gogglemsg.h
+	<stdint.h>
+	"appmsg.h"
+
+1672376756 /home/divimath/work/goggle/apps/rtspserver/stream/appmsg.h
+
+1672110712 source:/home/divimath/work/goggle/apps/rtspserver/stream/spspps_patch.c
+	<stdint.h>
+	<stdio.h>
+	"spspps_patch.h"
+
+1666259886 /home/divimath/work/goggle/apps/rtspserver/stream/spspps_patch.h
+
+1672390817 source:/home/divimath/work/goggle/apps/rtspserver/stream/vi2venc.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1672116637 source:/home/divimath/work/goggle/apps/rtspserver/main.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	<sys/stat.h>
+	"gogglemsg.h"
+	"record.h"
+	"confparser.h"
+	"version.h"
+
+1673761401 /home/divimath/work/goggle/apps/rtspserver/stream/version.h
+
+1623268935 source:/home/divimath/work/goggle/apps/minIni/dev/minIni.c
+	"minIni.h"
+	<assert.h>
+	<ctype.h>
+	<string.h>
+	<stdlib.h>
+
+1673768716 source:/home/divimath/work/goggle/apps/rtspserver/main.cpp
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	<sys/stat.h>
+	"gogglemsg.h"
+	"record.h"
+	"confparser.h"
+	"version.h"
+	<BasicUsageEnvironment.hh>
+	"DynamicRTSPServer.hh"
+	"version.hh"
+	<GroupsockHelper.hh>
+

@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <minIni.h>
 
@@ -75,14 +76,16 @@ char *state2string(uint8_t status) {
 
 void source_status_timer() {
     char buf[64];
+    int ch;
 
     if (!in_sourcepage)
         return;
 
-    if (g_setting.scan.channel > 8)
-        sprintf(buf, "HDZero: F%d", (g_setting.scan.channel - 8) * 2);
+    ch = g_setting.scan.channel & 0xF; 
+    if (ch > 8)
+        sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
     else
-        sprintf(buf, "HDZero: R%d", g_setting.scan.channel);
+        sprintf(buf, "HDZero: R%d", ch);
     lv_label_set_text(label[0], buf);
 
     sprintf(buf, "HDMI In: %s", state2string(g_source_info.hdmi_in_status));
@@ -107,7 +110,6 @@ static void page_source_on_click(uint8_t key, int sel) {
     switch (sel) {
     case 0:
         progress_bar.start = 1;
-        HDZero_open();
         app_switch_to_hdzero(true);
         app_state_push(APP_STATE_VIDEO);
         g_source_info.source = SOURCE_HDZERO;

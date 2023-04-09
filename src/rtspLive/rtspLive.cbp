@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="rtspLive" />
+		<Option pch_mode="2" />
+		<Option compiler="v536" />
+		<MakeCommands>
+			<Build command="" />
+			<CompileFile command="" />
+			<Clean command="" />
+			<DistClean command="" />
+			<AskRebuildNeeded command="" />
+			<SilentBuild command=" &gt; $(CMD_NULL)" />
+		</MakeCommands>
+		<Build>
+			<Target title="Debug">
+				<Option output="../../build/rtspLive" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../build/" />
+				<Option object_output="../../build/obj/rtspLive/Debug/" />
+				<Option type="1" />
+				<Option compiler="v536" />
+				<MakeCommands>
+					<Build command="" />
+					<CompileFile command="" />
+					<Clean command="" />
+					<DistClean command="" />
+					<AskRebuildNeeded command="" />
+					<SilentBuild command=" &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="../../build/rtspLive" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../build/" />
+				<Option object_output="../../build/obj/rtspLive/Release/" />
+				<Option type="1" />
+				<Option compiler="v536" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add directory="pthread" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-DNO_OPENSSL=1" />
+			<Add option="-DAWCHIP=AW_V316" />
+			<Add directory="server" />
+			<Add directory="stream" />
+			<Add directory="../../lib/live/include/BasicUsageEnvironment" />
+			<Add directory="../../lib/live/include/UsageEnvironment" />
+			<Add directory="../../lib/live/include/groupsock" />
+			<Add directory="../../lib/live/include/liveMedia" />
+			<Add directory="../../lib/minIni/src" />
+		</Compiler>
+		<Linker>
+			<Add library="liveMedia" />
+			<Add library="BasicUsageEnvironment" />
+			<Add library="UsageEnvironment" />
+			<Add library="groupsock" />
+			<Add library="dl" />
+			<Add library="rt" />
+			<Add library="m" />
+			<Add library="stdc++" />
+			<Add library="pthread" />
+			<Add directory="../../lib/live/lib" />
+		</Linker>
+		<Unit filename="../../lib/minIni/src/minIni.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../lib/minIni/src/minIni.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="server/DynamicRTSPServer.cpp" />
+		<Unit filename="server/DynamicRTSPServer.hh" />
+		<Unit filename="server/H264FramedLiveSource.cpp" />
+		<Unit filename="server/H264FramedLiveSource.hh" />
+		<Unit filename="server/H264LiveVideoServerMediaSubssion.cpp" />
+		<Unit filename="server/H264LiveVideoServerMediaSubssion.hh" />
+		<Unit filename="server/H265LiveVideoServerMediaSubssion.cpp" />
+		<Unit filename="server/H265LiveVideoServerMediaSubssion.hh" />
+		<Unit filename="server/version.hh" />
+		<Unit filename="stream/appmsg.h" />
+		<Unit filename="stream/avshare.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="stream/avshare.h" />
+		<Unit filename="stream/confparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="stream/confparser.h" />
+		<Unit filename="stream/gogglemsg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="stream/gogglemsg.h" />
+		<Unit filename="stream/live_context.h" />
+		<Unit filename="stream/version.h" />
+		<Unit filename="streamServer/DynamicRTSPServer.hh" />
+		<Unit filename="streamServer/H264FramedLiveSource.hh" />
+		<Unit filename="streamServer/H264LiveVideoServerMediaSubssion.hh" />
+		<Unit filename="streamServer/H265LiveVideoServerMediaSubssion.hh" />
+		<Extensions>
+			<debugger>
+				<remote_debugging target="Debug">
+					<options conn_type="0" ip_address="192.168.254.106" ip_port="5685" />
+				</remote_debugging>
+			</debugger>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -16,6 +16,8 @@
 #include "confparser.h"
 #include "version.h"
 #include "log.h"
+#include "avshare.h"
+#include "vi2venc_live.h"
 
 void show_version(int argc, char* argv[])
 {
@@ -213,26 +215,6 @@ int record_takePicture(RecordContext_t* recCtx, char* sFile)
 
     LOGD("start");
 
-#if(0)
-    VIDEO_FRAME_INFO_S frameBuffer;
-    memset(&frameBuffer, 0, sizeof(frameBuffer));
-
-    ret = vi2venc_requireRawFrame(recCtx->vv, &frameBuffer);
-    if( ret == SUCCESS ) {
-        JpegEncConfig_t jencCfg;
-        jencCfg.width = VI_WIDTH;
-        jencCfg.height= VI_HEIGHT;
-        jencCfg.quality= 60;
-        jencCfg.thumbnailWidth = VE_thumbWIDTH;
-        jencCfg.thumbnailHeight= VE_thumbHEIGHT;
-        jencCfg.thunbnailQuality = VE_thumbQUALITY;
-
-        ret = jpegenc_encodeFrame(&frameBuffer, &jencCfg, NULL, NULL);
-        vi2venc_releaseRawFrame(recCtx->vv, &frameBuffer);
-    }
-    LOGD("done: %x", ret);
-    return ret;
-#else
     JpegEncConfig_t jencCfg;
     JpegEncIO_t     jencIO;
 
@@ -254,7 +236,6 @@ int record_takePicture(RecordContext_t* recCtx, char* sFile)
     jencCfg.thunbnailQuality = VE_thumbQUALITY;
 
     ret = jpegenc_takePicture(&jencIO, &jencCfg, 500);
-#endif
 
     LOGD("done: %x", ret);
     return ret;
@@ -277,6 +258,16 @@ inline static int record_stopStatus(RecordContext_t* recCtx)
     return REC_statusIdle;
 }
 
+inline static bool record_isGoing(Vi2Venc_t* vv)
+{
+    return (vv->threadId > 0);
+}
+
+inline static bool record_isArecording(RecordContext_t* recCtx)
+{
+    return record_isGoing(recCtx->vv) && recCtx->params.enableAudio;
+}
+
 void record_stop(RecordContext_t* recCtx)
 {
     if( recCtx->params.enableAudio ) {
@@ -284,7 +275,7 @@ void record_stop(RecordContext_t* recCtx)
         ai2aenc_stop(recCtx->aa, !aoplay);
     }
 
-    vi2venc_stop(recCtx->vv);
+    vi2venc_stop(recCtx->vv, !record_isGoing(recCtx->vvLive));
 
     pthread_mutex_lock(&recCtx->mutex);
     if( recCtx->ff != NULL ) {
@@ -323,7 +314,6 @@ int record_start(RecordContext_t* recCtx)
     ZeroMemory(&aiParams, sizeof(aiParams));
     ZeroMemory(&aeParams, sizeof(aeParams));
 
-    conf_loadRecordParams(recCtx->confFile, &recCtx->params);
     conf_loadViParams(recCtx->confFile, &viParams);
     conf_loadVencParams(recCtx->confFile, &veParams);
 
@@ -366,6 +356,7 @@ int record_start(RecordContext_t* recCtx)
     if( ff == NULL ) {
         LOGE("open failed");
         ret = -1;
+        record_saveStatus(recCtx, REC_statusFileError);
         goto failed;
     }
     recCtx->ff = ff;
@@ -418,7 +409,7 @@ int record_start(RecordContext_t* recCtx)
         goto failed;
     }
 
-    ret = vi2venc_start(recCtx->vv);
+    ret = vi2venc_start(recCtx->vv, NULL);
     if( ret != SUCCESS) {
         goto failed;
     }
@@ -561,16 +552,6 @@ failed:
     return true;
 }
 
-inline static bool record_isGoing(RecordContext_t* recCtx)
-{
-    return (recCtx->stateGo == REC_statRun) && (recCtx->stateGo == recCtx->stateGoing);
-}
-
-inline static bool record_isArecording(RecordContext_t* recCtx)
-{
-    return record_isGoing(recCtx) && recCtx->params.enableAudio;
-}
-
 int vv_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e frameType, uint64_t pts, void* context)
 {
     int ret = 0;
@@ -619,6 +600,44 @@ int vv_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e fr
     recCtx->fpsStatus.nbFrames++;
 
     pthread_mutex_unlock(&recCtx->mutex);
+
+    return 0;
+}
+
+int vvLive_onFrame(void* vvPtr, uint8_t* frameData, int frameLen, VencFrameType_e frameType, uint64_t pts, void* context)
+{
+    RecordContext_t* recCtx = (RecordContext_t*)context;
+    uint64_t   pts2 = 0;//nbFrames * 90000;
+
+    if( recCtx->nbFramesLive == 0 ) {
+        LOGD("first frame (type=%d, len=%d, pts=%llu)", frameType, frameLen, pts);
+
+        if( frameType != FRAME_typeI ) {
+            vi2venc_requestIFrame(recCtx->vvLive);
+            return 0;
+        }
+        recCtx->ptsBaseLive = pts;
+
+        int ret = vi2venc_getSpsPpsInfo(recCtx->vvLive, &recCtx->spspps, true);
+        if( ret == SUCCESS ) {
+            //LOGD("dump spspps on first frame");
+            //dump_bytes(recCtx->spspps.pBuffer, recCtx->spspps.nLength);
+            //avshare_addvid(recCtx->spspps.pBuffer, recCtx->spspps.nLength, FRAME_SPS, pts2);
+        }
+        else {
+            return 0;
+        }
+    }
+
+    pts2 = (pts - recCtx->ptsBaseLive) / 1000;    //unit us to ms
+    //LOGD("%llu, %llu", pts2, recCtx->ptsBaseLive);
+
+    if( frameType == FRAME_typeI ) {
+        avshare_addvid(recCtx->spspps.pBuffer, recCtx->spspps.nLength, FRAME_SPS, pts2);
+    }
+
+    avshare_addvid(frameData, frameLen, frameType, pts2);
+    recCtx->nbFramesLive++;
 
     return 0;
 }
@@ -673,7 +692,7 @@ int record_checkDisk(RecordContext_t* recCtx)
     if( disk_sdstat(recCtx->params.minDiskSize, sds) ) {
         if( !sds->inserted || !sds->mounted ) {
             /* disk unmounted */
-            LOGE("no sdcard");
+            LOGE("no sdcard, %d %d", sds->inserted, sds->mounted);
             record_saveStatus(recCtx, REC_statusDiskUmounted);
         }
         else if ( sds->mounted ) {
@@ -736,6 +755,68 @@ void record_run(RecordContext_t* recCtx, RecordState_e stateGo)
     }
 }
 
+int live_start(RecordContext_t* recCtx)
+{
+    int ret;
+
+    ViParams_t   viParams;
+    VencParams_t veParams;
+
+    ZeroMemory(&viParams, sizeof(viParams));
+    ZeroMemory(&veParams, sizeof(veParams));
+
+    conf_loadViParams(recCtx->confFile, &viParams);
+    conf_loadVencParamsForLive(recCtx->confFile, &veParams);
+
+    if( veParams.maxKeyItl==0 ) {
+        veParams.maxKeyItl = veParams.fps;
+    }
+    veParams.picFormat = MM_PIXEL_FORMAT_YVU_SEMIPLANAR_420;
+
+    ret = vi2venc_prepare(recCtx->vvLive, &viParams, &veParams, NULL);
+    if( ret != 0) {
+        goto failed;
+    }
+
+    ret = vi2venc_start(recCtx->vvLive, NULL);
+    if( ret != SUCCESS) {
+        goto failed;
+    }
+
+    recCtx->nbFramesLive = 0;
+    recCtx->ptsBaseLive = 0;
+
+    record_dumpViParams(&viParams);
+    record_dumpVeParams(&veParams);
+
+    return SUCCESS;
+
+failed:
+    LOGE("start failed: %d", ret);
+    vi2venc_stop(recCtx->vvLive, !record_isGoing(recCtx->vv));
+    return ret;
+}
+
+static inline void live_stop(RecordContext_t* recCtx)
+{
+    if( vi2live_started(recCtx->vvLive) ) {
+        vi2venc_stop(recCtx->vvLive, !record_isGoing(recCtx->vv));
+        avshare_reset();
+    }
+}
+
+static inline void live_run(RecordContext_t* recCtx)
+{
+    if( avshare_connected(MEDIA_VIDEO) ) {
+        if( recCtx->enableLive && !vi2live_started(recCtx->vvLive) ) {
+            live_start(recCtx);
+        }
+    }
+    else {
+        live_stop(recCtx);
+    }
+}
+
 void record_checkConf(RecordContext_t* recCtx, char* confSet)
 {
 	if( disk_checkFile(confSet) )  {
@@ -787,6 +868,9 @@ void main_loop(RecordContext_t* recCtx)
 		    isExit = true;
 			break;
 		case MSG_cmdSTART:
+		    if( !record_isGoing(recCtx->vv) ) {
+                conf_loadRecordParams(recCtx->confFile, &recCtx->params);
+		    }
 		    record_run(recCtx, REC_statRun);
 		    tkIdle = tkNow;
 		    break;
@@ -812,7 +896,26 @@ void main_loop(RecordContext_t* recCtx)
 		case AIO_cmdSTOP:
             ai2ao_stop(recCtx->ao, !record_isArecording(recCtx));
 		    break;
+		case LIVE_cmdSTART:
+		    recCtx->enableLive = true;
+		    //for debug only
+            if( !vi2live_started(recCtx->vvLive) ) {
+                live_start(recCtx);
+            }
+            break;
+		case LIVE_cmdSTOP:
+		    //recCtx->enableLive = false;
+
+		    //must stop record & live stream both while video input switched,
+		    //then restart them (vi & venc) if needed, to make sure the encoded video correct.
+		    //stop live stream encoding here
+		    //will restart automatically if any clients connected
+		    record_run(recCtx, REC_statStop);
+		    live_stop(recCtx);
+		    break;
 		default:
+		    //start live stream encoding if any clients connected
+            live_run(recCtx);
             usleep(100*1000);
 			break;
 		}
@@ -861,6 +964,7 @@ int main(int argc, char *argv[])
 	recCtx.stateGoing = REC_statIdle;
 	recCtx.status = REC_statSave;
 	recCtx.statusSaved = REC_statSave;
+	recCtx.enableLive = true;
 	pthread_mutex_init(&recCtx.mutex, NULL);
 	record_saveStatus(&recCtx, REC_statusIdle);
 	conf_loadRecordParams(recCtx.confFile, &recCtx.params);
@@ -873,12 +977,18 @@ int main(int argc, char *argv[])
         goto failed;
     }
 
+    recCtx.vvLive = vi2live_initSys(vvLive_onFrame, &recCtx);
+    if( recCtx.vvLive == NULL ) {
+        goto failed;
+    }
+
     recCtx.aa = ai2aenc_initSys(aa_onFrame, &recCtx);
     if( recCtx.aa == NULL ) {
         goto failed;
     }
 
     recCtx.ao = ai2ao_initSys();
+    avshare_init();
 
     main_loop(&recCtx);
 
@@ -888,9 +998,11 @@ failed:
     record_stop(&recCtx);
     ai2ao_deinitSys(recCtx.ao);
     ai2aenc_deinitSys(recCtx.aa);
+    vi2live_deinitSys(recCtx.vvLive);
     vi2venc_deinitSys(recCtx.vv);
     pthread_mutex_destroy(&recCtx.mutex);
     disk_sdstat_delete();
+    avshare_uninit();
 
     LOGD("exit done");
     log_close();

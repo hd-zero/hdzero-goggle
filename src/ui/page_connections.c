@@ -20,6 +20,7 @@
 #include "driver/esp32.h"
 #include "page_version.h"
 #include "ui/ui_style.h"
+#include "core/dvr.h"
 
 static lv_coord_t col_dsc[] = {160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -27,6 +28,7 @@ static lv_obj_t *btn_wifi;
 static lv_obj_t *btn_bind;
 static lv_obj_t *label_bind_status;
 static btn_group_t elrs_group;
+static btn_group_t wifi_group;
 
 static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -59,25 +61,26 @@ static lv_obj_t *page_connections_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_bind = create_label_item(cont, "Start Backpack Binding", 1, 2, 1);
     label_bind_status = create_label_item(cont, "Not bound", 3, 2, 1);
 
-    btn_group_t btn_group;
-    create_btn_group_item(&btn_group, cont, 2, "Wifi AP*", "On", "Off", "", "", 3);
-    create_label_item(cont, "Wifi Settings", 1, 4, 1);
-    create_label_item(cont, "Configure", 2, 4, 1);
-    create_label_item(cont, "SSID: HDZero", 2, 5, 1);
-    // create_label_item(cont,  "Pass: hdzero123", 2, 6, 1);
-    create_label_item(cont, "Broadcast ID: Yes", 2, 6, 1);
+    create_btn_group_item(&wifi_group, cont, 2, "Wifi AP*", "On", "Off", "", "", 3);
+    btn_group_set_sel(&wifi_group, !g_setting.wifi.enable);
+ 
+    char str[32];
+    sprintf(str,"SSID:  %s",g_setting.wifi.ssid);
+    create_label_item(cont, str, 2, 4, 1);
+    sprintf(str,"Passwd:  %s",g_setting.wifi.passwd);
+    create_label_item(cont, str, 2, 5, 1);
 
-    create_label_item(cont, "< Back", 1, 7, 1);
+    create_label_item(cont, "< Back", 1, 6, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, "*Expansion module is required.");
+    lv_label_set_text(label2, "1.Connect to the WIFI network named as the above SSID\n2.Use VLC to open Network Stream:\n     Network URL: rtsp://192.168.2.122:8554/hdzero\n3.See manual to customize SSID and passwd.\n    *Expansion module V2 is required for WIFI AP feature.");
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label2, 12, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-                         LV_GRID_ALIGN_START, 8, 2);
+                         LV_GRID_ALIGN_START, 7, 2);
     return page;
 }
 
@@ -149,13 +152,24 @@ static void page_connections_on_click(uint8_t key, int sel) {
             }
             page_connections_enter();
         }
+    } else if(sel == 3) //start WIFI on expansion module v2
+    {
+        btn_group_toggle_sel(&wifi_group);
+        g_setting.wifi.enable = btn_group_get_sel(&wifi_group) == 0 ? 1 : 0;
+        ini_putl("wifi", "enable", g_setting.wifi.enable, SETTING_INI);
+        if (g_setting.wifi.enable) {
+            dvr_update_record_vi_conf(VR_1080P30);
+            system(WIFI_AP_ON);
+        }
+        else
+            system(WIFI_AP_OFF);
     }
 }
 
 page_pack_t pp_connections = {
     .p_arr = {
         .cur = 0,
-        .max = 8,
+        .max = 7,
     },
 
     .create = page_connections_create,
@@ -165,3 +179,27 @@ page_pack_t pp_connections = {
     .on_click = page_connections_on_click,
     .on_right_button = NULL,
 };
+
+
+void update_hostpad_conf()
+{
+    FILE* fp = fopen("/tmp/hostapd.conf","wt");
+    if(!fp) {
+        system("cp -y /mnt/app/wifi/hostapd.conf /tmp/");
+        return;
+    }
+
+    fprintf(fp,"interface=wlan0\n");
+    fprintf(fp,"driver=nl80211\n");
+    fprintf(fp,"ssid=%s\n",g_setting.wifi.ssid);
+    fprintf(fp,"channel=6\n");
+    fprintf(fp,"hw_mode=g\n");
+    fprintf(fp,"ignore_broadcast_ssid=0\n");
+    fprintf(fp,"auth_algs=1\n");
+    fprintf(fp,"wpa=3\n");
+    fprintf(fp,"wpa_passphrase=%s\n",g_setting.wifi.passwd);
+    fprintf(fp,"wpa_key_mgmt=WPA-PSK\n");
+    fprintf(fp,"wpa_pairwise=TKIP\n");
+    fprintf(fp,"rsn_pairwise=CCMP\n");
+    fclose(fp);
+}

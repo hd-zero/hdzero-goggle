@@ -32,12 +32,19 @@ typedef enum {
 } GoggleMsgCommand_e;
 
 typedef enum {
-	REC_cmdSAVE = MSG_cmdBUTT,
+	LIVE_cmdSTART = MSG_cmdBUTT,
+	LIVE_cmdSTOP,
+
+	LIVE_cmdBUTT,
+} LiveMsgCommand_e;
+
+typedef enum {
+	REC_cmdSAVE = LIVE_cmdBUTT,
 
 	AIO_cmdSTART,
 	AIO_cmdSTOP,
 
-	REC_cmdBUTT,
+	AIO_cmdBUTT,
 } RecordMsgCommand_e;
 
 /** @} */

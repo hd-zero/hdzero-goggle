@@ -63,6 +63,8 @@ void exit_tune_channel() {
 
 void tune_channel(uint8_t action) {
     static uint8_t channel = 0;
+    
+    if(g_setting.ease.no_dial) return;
 
     LOGI("tune_channel:%d", action);
 
@@ -153,7 +155,6 @@ static void btn_press(void) // long press left key
         switch (g_source_info.source) {
         case SOURCE_HDZERO:
             progress_bar.start = 1;
-            HDZero_open();
             app_switch_to_hdzero(true);
             break;
         case SOURCE_HDMI_IN:
@@ -253,6 +254,7 @@ static void short_right_click_timeout(lv_timer_t *timer) {
 }
 
 void rbtn_click(bool is_short) {
+    if (g_init_done != 1) return;
     if (is_short) {
         if (!right_click_timer) {
             right_click_timer = lv_timer_create(short_right_click_timeout, 200, NULL);
@@ -274,8 +276,9 @@ void rbtn_click(bool is_short) {
 static void roller_up(void) {
     LOGI("roller up (%d)", g_app_state);
 
-    if (g_scanning)
-        return;
+    if (g_scanning) return;
+
+    if(g_init_done == 0) g_init_done = -1;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -304,8 +307,9 @@ static void roller_up(void) {
 static void roller_down(void) {
     LOGI("roller down (%d)", g_app_state);
 
-    if (g_scanning)
-        return;
+    if (g_scanning) return;
+        
+    if(g_init_done == 0) g_init_done = -1;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -362,8 +366,8 @@ static void get_event(int fd) {
                     // LOGI("btn down");
                 } else {
                     if (btn_press_time < 10) {
-                        btn_click();
-                        g_key = DIAL_KEY_CLICK;
+						btn_click();
+						g_key = DIAL_KEY_CLICK;
                     }
                     // else if(btn_press_time > 200){
                     //	btn_super_press();
@@ -422,19 +426,26 @@ static void add_to_epfd(int epfd, int fd) {
 
 static void *thread_input_device(void *ptr) {
     for (;;) {
-        struct epoll_event events[EPOLL_FD_CNT];
+		struct epoll_event events[EPOLL_FD_CNT];
 
-        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, -1);
-        if (ret < 0) {
-            perror("epoll_wait");
-            continue;
-        }
+		int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, -1);
+		if (ret < 0) {
+			perror("epoll_wait");
+			continue;
+		}
 
-        for (int i = 0; i < ret; i++) {
-            if (events[i].events & EPOLLIN) {
-                get_event(events[i].data.fd);
-            }
-        }
+		for (int i = 0; i < ret; i++) {
+			if (events[i].events & EPOLLIN) {
+				get_event(events[i].data.fd);
+			}
+		}
+
+        //enable dial up/down accessible before initialization is done
+        if(g_init_done != 1) {
+			pthread_mutex_lock(&lvgl_mutex);
+			lv_timer_handler();
+			pthread_mutex_unlock(&lvgl_mutex);
+		}
     }
     return NULL;
 }
@@ -445,14 +456,14 @@ void input_device_init() {
 
     char buf[64];
     for (int i = 0; i < EPOLL_FD_CNT; i++) {
-        snprintf(buf, 64, "/dev/input/event%d", i);
+		snprintf(buf, 64, "/dev/input/event%d", i);
 
-        int fd = open(buf, O_RDONLY);
-        if (fd >= 0) {
-            add_to_epfd(epfd, fd);
-            LOGI("opened %s", buf);
-        }
+		int fd = open(buf, O_RDONLY);
+		if (fd >= 0) {
+			add_to_epfd(epfd, fd);
+			LOGI("opened %s", buf);
+		}
     }
-
+    app_state_push(APP_STATE_MAINMENU);
     pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
 }

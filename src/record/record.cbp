@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="record" />
+		<Option pch_mode="2" />
+		<Option compiler="v536" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../build/record" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../build/" />
+				<Option object_output="../../build/obj/record/Debug" />
+				<Option type="1" />
+				<Option compiler="v536" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../build/record" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../build/" />
+				<Option object_output="../../build/obj/record/Release" />
+				<Option type="1" />
+				<Option compiler="v536" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-DAWCHIP=AW_V316" />
+			<Add directory="../../lib/log/include" />
+			<Add directory="../../lib/ffmpeg/include" />
+			<Add directory="../../lib/minIni/src" />
+			<Add directory="../../lib/softwinner/include/system/public/include" />
+			<Add directory="../../lib/softwinner/include/system/public/include/vo" />
+			<Add directory="../../lib/softwinner/include/system/public/include/utils" />
+			<Add directory="../../lib/softwinner/include/middleware/sample/configfileparser" />
+			<Add directory="../../lib/softwinner/include/middleware/media/LIBRARY/libcedarx/libcore/common/iniparser" />
+			<Add directory="../../lib/softwinner/include/middleware/include" />
+			<Add directory="../../lib/softwinner/include/middleware/include/utils" />
+			<Add directory="../../lib/softwinner/include/middleware/include/media" />
+			<Add directory="../../lib/softwinner/include/middleware/media/include/utils" />
+			<Add directory="../../lib/softwinner/include/middleware/media/include/component" />
+			<Add directory="../../lib/softwinner/include/middleware/media/LIBRARY/libcedarc/include" />
+			<Add directory="../../lib/softwinner/include/middleware/media/LIBRARY/libisp/include" />
+			<Add directory="../../lib/softwinner/include/middleware/media/LIBRARY/libisp/isp_tuning" />
+			<Add directory="../../lib/linux/include" />
+			<Add directory="../../lib/linux/include/video" />
+			<Add directory="../../lib/linux/include/media" />
+		</Compiler>
+		<Linker>
+			<Add library="dl" />
+			<Add library="rt" />
+			<Add library="m" />
+			<Add library="stdc++" />
+			<Add library="pthread" />
+			<Add library="z" />
+			<Add library="log" />
+			<Add library="glog" />
+			<Add library="ion" />
+			<Add library="mpp_vi" />
+			<Add library="mpp_isp" />
+			<Add library="mpp_ise" />
+			<Add library="mpp_vo" />
+			<Add library="mpp_component" />
+			<Add library="media_mpp" />
+			<Add library="vencoder" />
+			<Add library="venc_codec" />
+			<Add library="venc_base" />
+			<Add library="ISP" />
+			<Add library="isp_ini" />
+			<Add library="VE" />
+			<Add library="MemAdapter" />
+			<Add library="media_utils" />
+			<Add library="cedarxrender" />
+			<Add library="cedarxstream" />
+			<Add library="cedarx_tencoder" />
+			<Add library="cdx_common" />
+			<Add library="cdx_base" />
+			<Add library="cdx_parser" />
+			<Add library="cdx_stream" />
+			<Add library="hwdisplay" />
+			<Add library="asound" />
+			<Add library="cutils" />
+			<Add library="cedarx_aencoder" />
+			<Add library="awmjpegplus" />
+			<Add library="adecoder" />
+			<Add library="vdecoder" />
+			<Add library="videoengine" />
+			<Add library="cdc_base" />
+			<Add library="_ise_mo" />
+			<Add library="avutil" />
+			<Add library="avcodec" />
+			<Add library="avformat" />
+			<Add directory="../../lib/softwinner/lib" />
+			<Add directory="../../lib/ffmpeg/lib" />
+		</Linker>
+		<Unit filename="../../lib/log/include/log/log.h" />
+		<Unit filename="../../lib/log/src/log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../lib/minIni/src/minIni.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../lib/minIni/src/minGlue-FatFs.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-Linux.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-ccs.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-efsl.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-ffs.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-mdd.h" />
+		<Unit filename="../../lib/minIni/src/minGlue-stdio.h" />
+		<Unit filename="../../lib/minIni/src/minGlue.h" />
+		<Unit filename="../../lib/minIni/src/minIni.h" />
+		<Unit filename="../../lib/minIni/src/test.ini" />
+		<Unit filename="../../lib/minIni/src/testplain.ini" />
+		<Unit filename="../../lib/minIni/src/wxMinIni.h" />
+		<Unit filename="Makefile" />
+		<Unit filename="ai2aenc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ai2aenc.h" />
+		<Unit filename="ai2ao.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ai2ao.h" />
+		<Unit filename="appmsg.h" />
+		<Unit filename="avshare.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="avshare.h" />
+		<Unit filename="confparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="confparser.h" />
+		<Unit filename="disk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="disk.h" />
+		<Unit filename="ffmpeg.h" />
+		<Unit filename="ffpack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ffpack.h" />
+		<Unit filename="gogglemsg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gogglemsg.h" />
+		<Unit filename="jpegenc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpegenc.h" />
+		<Unit filename="log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="log.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="record.conf" />
+		<Unit filename="record.h" />
+		<Unit filename="spspps_patch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="spspps_patch.h" />
+		<Unit filename="version.h" />
+		<Unit filename="vi2venc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="vi2venc.h" />
+		<Unit filename="vi2venc_live.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="vi2venc_live.h" />
+		<Extensions>
+			<debugger>
+				<remote_debugging target="Debug">
+					<options conn_type="0" ip_address="192.168.8.10" ip_port="5680" />
+				</remote_debugging>
+			</debugger>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -58,7 +58,7 @@ static void detect_motion(bool is_moving) {
 
     switch (state) {
     case OLED_MD_DETECTING:
-        if (g_setting.image.auto_off == 3) {
+        if (g_setting.image.auto_off == 4) {
             // auto_off disabled, bail
             break;
         }
@@ -73,7 +73,7 @@ static void detect_motion(bool is_moving) {
 #ifdef FAST_SIM
         if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off + 1))) {
 #else
-        if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 3))) {
+        if (cnt > (MOTION_DUR_1MINUTE * (g_setting.image.auto_off * 2 + 1))) {
 #endif
             LOGI("OLED pre-OFF for protection.");
             OLED_Brightness(0);
@@ -126,9 +126,9 @@ static void detect_motion(bool is_moving) {
 
         if (cnt == 2) {
             if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
-                HDZero_open();
-                uint8_t ch = g_setting.scan.channel - 1;
-                DM6302_SetChannel(ch);
+                    uint8_t ch = g_setting.scan.channel-1;
+                    HDZero_open((ch>>7)&1);
+                    DM6302_SetChannel(ch&0xF);
             }
             LOGI("OLED ON from protection.");
             OLED_Brightness(g_setting.image.oled);

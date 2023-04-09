@@ -78,7 +78,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     }
 
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "*Long press left button to exit\n**Long press right button to delete");
+    lv_label_set_text(label, "*Long press the Enter button to exit\n**Long press the Func button to delete");
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);

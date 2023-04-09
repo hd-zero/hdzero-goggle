@@ -34,7 +34,8 @@
 #define VE_thumbHEIGHT      180
 #define VE_thumbQUALITY     60
 #define VE_BPS              8388608 //4194304
-#define VE_KBPS             (8*1024) //4096
+#define VE_KBPS             (16*1024) //4096
+#define VE_KBPS_LIVE        (4*1024) //4096
 #define VE_ENCODER          PT_H265
 #define VE_RC               VENC_rcCBR
 #define VE_GOP              0
@@ -81,7 +82,7 @@
 #define REC_packJPG         "jpg"
 #define REC_packBMP         "bmp"
 #define REC_packPGN         "png"
-#define REC_packTYPE        REC_packMP4
+#define REC_packTYPE        REC_packTS
 #define REC_packSnapTYPE    REC_packJPG
 #define REC_packIndexLEN    3
 #define REC_packTYPES       {REC_packMP4,REC_packTS}
@@ -116,6 +117,7 @@ typedef enum
     REC_statusDiskPathFailed, //record path check failed
     REC_statusDiskFull,       //disk full
     REC_statusFramesTimeout,  //get frames timeout
+    REC_statusFileError,      //open record file failed
 
     REC_statusBut,
 } RecordStatus_e;
@@ -146,6 +148,7 @@ typedef struct
 typedef struct
 {
     Vi2Venc_t* vv;
+    Vi2Venc_t* vvLive;
     Ai2Aenc_t* aa;
     Ai2Ao_t*   ao;
     FFPack_t*  ff;
@@ -169,6 +172,11 @@ typedef struct
     RecordParams_t params;
     RecordFps_t    fpsStatus;
     char confFile[MAX_pathLEN];
+
+    bool     enableLive;
+    uint32_t nbFramesLive;
+    uint64_t ptsBaseLive;
+    VencSpspps_t spspps;
 } RecordContext_t;
 
 #endif  /* __RECORD_H_ */
