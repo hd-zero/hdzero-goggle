@@ -701,8 +701,11 @@ void *thread_osd(void *ptr) {
         // display osd
         for (int i = 0; i < HD_VMAX; i++) {
             for (int j = 0; j < HD_HMAX; j++) {
-                if (osd_buf[i][j] != osd_buf_shadow[i][j]) {
-                    osd_buf_shadow[i][j] = osd_buf[i][j];
+                uint16_t ch = osd_buf[i][j];
+                if (ch == 0x20)
+                    ch = elrs_osd[i][j];
+                if (ch != osd_buf_shadow[i][j]) {
+                    osd_buf_shadow[i][j] = ch;
                     draw_osd_on_screen(i, j);
                 }
             }
