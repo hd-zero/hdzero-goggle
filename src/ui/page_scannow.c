@@ -190,7 +190,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(progressbar, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 1, 1);
 
-    lv_bar_set_range(progressbar,0,14*(INC_17MHZ_MODE+1));                     
+    lv_bar_set_range(progressbar, 0, 14 * (INC_17MHZ_MODE + 1));
 
     label = lv_label_create(cont);
     lv_label_set_text(label, "Scan Ready");
@@ -239,7 +239,7 @@ static void user_select_signal(void) {
         return;
 
     user_select_index = 0;
-    select_signal(&channel_tb[valid_channel_tb[0]&0x7F]);
+    select_signal(&channel_tb[valid_channel_tb[0] & 0x7F]);
 }
 
 static void user_clear_signal(void) {
@@ -290,45 +290,45 @@ int8_t scan_now(void) {
     lv_timer_handler();
 
     // clear
-    for (ch = 0; ch < FREQ_NUM; ch++) { 
+    for (ch = 0; ch < FREQ_NUM; ch++) {
         valid_channel_tb[ch] = -1;
         channel_status_tb[ch].is_valid = 0;
     }
-    
-    for(bw=0; bw<(INC_17MHZ_MODE+1); bw++) {
+
+    for (bw = 0; bw < (INC_17MHZ_MODE + 1); bw++) {
         HDZero_open(bw);
-        lv_bar_set_value(progressbar, bw*14+4, LV_ANIM_OFF);
+        lv_bar_set_value(progressbar, bw * 14 + 4, LV_ANIM_OFF);
         lv_timer_handler();
-     
+
         for (ch = 0; ch < FREQ_NUM; ch++) {
-            if(!channel_status_tb[ch].is_valid) {
+            if (!channel_status_tb[ch].is_valid) {
                 scan_channel(ch, &gain, &valid);
-                if(valid) {
+                if (valid) {
                     channel_status_tb[ch].is_valid = 1;
                     channel_status_tb[ch].gain = gain;
                     channel_status_tb[ch].bw = bw;
-                    set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);            
+                    set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
                 }
             }
-            lv_bar_set_value(progressbar, bw*14+ch+5, LV_ANIM_OFF);
+            lv_bar_set_value(progressbar, bw * 14 + ch + 5, LV_ANIM_OFF);
             lv_timer_handler();
         }
     }
 
     valid_index = 0;
-    for(ch=0;ch<FREQ_NUM;ch++) {
-        if(channel_status_tb[ch].is_valid)
-            valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw <<7);    
-        
-        //set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
+    for (ch = 0; ch < FREQ_NUM; ch++) {
+        if (channel_status_tb[ch].is_valid)
+            valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw << 7);
+
+        // set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
         lv_timer_handler();
     }
-    
+
     user_select_signal();
     lv_label_set_text(label, "Scanning done");
     if (!valid_index)
         return -1;
-    else 
+    else
         return valid_index;
 }
 
@@ -390,7 +390,7 @@ static void page_scannow_on_roller(uint8_t key) {
         if (user_select_index > 0)
             user_select_index--;
     }
-    select_signal(&channel_tb[valid_channel_tb[user_select_index]&0x0F]);
+    select_signal(&channel_tb[valid_channel_tb[user_select_index] & 0x0F]);
 }
 
 static void page_scannow_on_click(uint8_t key, int sel) {

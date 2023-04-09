@@ -9,10 +9,10 @@
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/settings.h"
-#include "page_common.h"
-#include "ui/ui_style.h"
 #include "driver/dm5680.h"
 #include "driver/mcp3021.h"
+#include "page_common.h"
+#include "ui/ui_style.h"
 
 static slider_group_t slider_group_cell_voltage;
 static btn_group_t btn_group_cell_count_mode;
@@ -34,9 +34,9 @@ static void page_power_update_cell_count() {
 
     sprintf(str, "%dS", g_battery.type);
     lv_label_set_text(label_cell_count, str);
-    if(ismcp())
+    if (ismcp())
         lv_label_set_text(label_pwr_ana, "* AnalogRX module power control does not apply to this Goggle");
-    else     
+    else
         lv_label_set_text(label_pwr_ana, "* AnalogRX module power control applies to this Goggle");
 }
 
@@ -223,7 +223,7 @@ static void page_power_on_click(uint8_t key, int sel) {
         break;
 
     case ROW_POWER_ANA:
-        if(!ismcp()) {
+        if (!ismcp()) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);

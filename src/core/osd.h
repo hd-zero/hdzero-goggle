@@ -7,22 +7,22 @@
 
 #include "defines.h"
 
-#define OSD_VNUM      32
-#define OSD_HNUM      16
+#define OSD_VNUM       32
+#define OSD_HNUM       16
 #define OSD_WIDTH_HD   24
 #define OSD_HEIGHT_HD  36
 #define OSD_WIDTH_FHD  36
 #define OSD_HEIGHT_FHD 54
-#define OSD_BOUNDRY_0 0
-#define OSD_BOUNDRY_1 6
+#define OSD_BOUNDRY_0  0
+#define OSD_BOUNDRY_1  6
 
 typedef struct {
     lv_obj_t *topfan_speed[2]; // 0
     lv_obj_t *vtx_temp[2];     // 1
-    lv_obj_t *battery_low[2];      // 2
+    lv_obj_t *battery_low[2];  // 2
     lv_obj_t *vrx_temp[2];     // 3
     lv_obj_t *latency_lock[2]; // 4
-    lv_obj_t *channel[2];           // middle
+    lv_obj_t *channel[2];      // middle
     lv_obj_t *sd_rec[2];       // 5
     lv_obj_t *vlq[2];          // 6
     lv_obj_t *ant0[2];         // 7

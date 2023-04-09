@@ -65,28 +65,26 @@ void dvr_select_audio_source(uint8_t source) {
     system(buf);
 }
 
-
-void dvr_update_record_vi_conf(video_resolution_t fmt){
+void dvr_update_record_vi_conf(video_resolution_t fmt) {
     pthread_mutex_lock(&dvr_mutex);
-    if(fmt == VR_1080P30) {
-        ini_putl("vi", "width",  1920, REC_CONF);
+    if (fmt == VR_1080P30) {
+        ini_putl("vi", "width", 1920, REC_CONF);
         ini_putl("vi", "height", 1080, REC_CONF);
-        ini_putl("vi", "fps",     50,  REC_CONF);
+        ini_putl("vi", "fps", 50, REC_CONF);
     } else {
-        ini_putl("vi", "width",  1280, REC_CONF);
+        ini_putl("vi", "width", 1280, REC_CONF);
         ini_putl("vi", "height", 720, REC_CONF);
-        if((fmt == VR_540P90) || (fmt == VR_540P90_CROP))
-            ini_putl("vi", "fps", 90,  REC_CONF);
-        else if(fmt == VR_720P50)
-            ini_putl("vi", "fps", 50,  REC_CONF);
-        else    
-            ini_putl("vi", "fps", 60,  REC_CONF);
+        if ((fmt == VR_540P90) || (fmt == VR_540P90_CROP))
+            ini_putl("vi", "fps", 90, REC_CONF);
+        else if (fmt == VR_720P50)
+            ini_putl("vi", "fps", 50, REC_CONF);
+        else
+            ini_putl("vi", "fps", 60, REC_CONF);
     }
     pthread_mutex_unlock(&dvr_mutex);
 
     LOGI("update_record_vi_conf: fmt=%d", fmt);
 }
-
 
 static void dvr_update_record_conf() {
     if (g_setting.record.format_ts)
@@ -95,21 +93,19 @@ static void dvr_update_record_conf() {
         ini_puts("record", "type", "mp4", REC_CONF);
 
     if (g_source_info.source == SOURCE_HDZERO) {
-        if (CAM_MODE == VR_1080P30) { 
-            ini_putl("venc", "width",  1920, REC_CONF);
+        if (CAM_MODE == VR_1080P30) {
+            ini_putl("venc", "width", 1920, REC_CONF);
             ini_putl("venc", "height", 1080, REC_CONF);
-        }
-        else {
-            ini_putl("venc", "width",  1280, REC_CONF);
+        } else {
+            ini_putl("venc", "width", 1280, REC_CONF);
             ini_putl("venc", "height", 720, REC_CONF);
         }
 
-        if (CAM_MODE == VR_1080P30) { //1080p30
+        if (CAM_MODE == VR_1080P30) { // 1080p30
             ini_putl("venc", "fps", 50, REC_CONF);
             ini_putl("venc", "kbps", 34000, REC_CONF);
             ini_putl("venc", "h265", 0, REC_CONF);
-        }
-        else if (CAM_MODE == VR_540P90 || CAM_MODE == VR_540P90_CROP) { //90fps
+        } else if (CAM_MODE == VR_540P90 || CAM_MODE == VR_540P90_CROP) { // 90fps
             ini_putl("venc", "fps", 90, REC_CONF);
             ini_putl("venc", "kbps", 34000, REC_CONF);
             ini_putl("venc", "h265", 0, REC_CONF);
@@ -118,8 +114,8 @@ static void dvr_update_record_conf() {
             ini_putl("venc", "kbps", 24000, REC_CONF);
             ini_putl("venc", "h265", 1, REC_CONF);
         }
-    } else if(g_source_info.source != SOURCE_HDMI_IN) { // AV  (HDMI no record)
-        ini_putl("venc", "width",  1280, REC_CONF);
+    } else if (g_source_info.source != SOURCE_HDMI_IN) { // AV  (HDMI no record)
+        ini_putl("venc", "width", 1280, REC_CONF);
         ini_putl("venc", "height", 720, REC_CONF);
 
         ini_putl("venc", "kbps", 24000, REC_CONF);

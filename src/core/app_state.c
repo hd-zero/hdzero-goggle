@@ -2,8 +2,8 @@
 
 #include <log/log.h>
 #include <minIni.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "core/dvr.h"
 #include "core/input_device.h"
@@ -36,7 +36,7 @@ void app_switch_to_menu() {
 
     app_state_push(APP_STATE_MAINMENU);
 
-      // Stop recording if switching to menu mode from video mode regardless
+    // Stop recording if switching to menu mode from video mode regardless
     dvr_cmd(DVR_STOP);
     dvr_update_record_vi_conf(VR_1080P30);
 
@@ -50,7 +50,7 @@ void app_switch_to_menu() {
     g_sdcard_det_req = 1;
     if (g_source_info.source == SOURCE_HDMI_IN) // HDMI
         IT66121_init();
-    
+
     system(REC_STOP_LIVE);
 }
 
@@ -68,7 +68,7 @@ void app_switch_to_analog(bool is_bay) {
     g_setting.autoscan.last_source = is_bay ? SETTING_SOURCE_EXPANSION : SETTING_SOURCE_AV_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
-    //usleep(300*1000);
+    // usleep(300*1000);
     sleep(1);
     system(REC_STOP_LIVE);
 }
@@ -87,14 +87,14 @@ void app_switch_to_hdmi_in() {
     osd_clear();
     lv_timer_handler();
 
-    dvr_update_record_vi_conf((g_hw_stat.hdmiin_vtmg == 1)?VR_1080P30:VR_720P60);
+    dvr_update_record_vi_conf((g_hw_stat.hdmiin_vtmg == 1) ? VR_1080P30 : VR_720P60);
 
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;
     dvr_enable_line_out(false);
     g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
-    
+
     system(REC_STOP_LIVE);
 }
 
@@ -107,13 +107,13 @@ void app_switch_to_hdzero(bool is_default) {
 
     if (is_default) {
         ch = g_setting.scan.channel - 1;
-    } else  {
+    } else {
         ch = valid_channel_tb[user_select_index];
         g_setting.scan.channel = ch + 1;
         ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
     }
 
-    HDZero_open((ch>>7)&1);
+    HDZero_open((ch >> 7) & 1);
     ch &= 0xF;
 
     LOGI("switch to ch:%x, CAM_MODE=%d 4:3=%d", g_setting.scan.channel, CAM_MODE, cam_4_3);
@@ -126,7 +126,7 @@ void app_switch_to_hdzero(bool is_default) {
     case VR_720P50:
     case VR_720P60:
     case VR_960x720P60:
-    case VR_540P60: 
+    case VR_540P60:
         Display_720P60_50(CAM_MODE, cam_4_3);
         break;
 
@@ -145,7 +145,7 @@ void app_switch_to_hdzero(bool is_default) {
 
     channel_osd_mode = CHANNEL_SHOWTIME;
 
-    if(CAM_MODE == VR_1080P30)
+    if (CAM_MODE == VR_1080P30)
         lvgl_switch_to_1080p();
     else
         lvgl_switch_to_720p();
@@ -154,7 +154,7 @@ void app_switch_to_hdzero(bool is_default) {
     osd_show(true);
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
-        
+
     g_setting.autoscan.last_source = SETTING_SOURCE_HDZERO;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 

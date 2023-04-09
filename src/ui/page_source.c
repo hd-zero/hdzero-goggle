@@ -1,8 +1,8 @@
 #include "page_source.h"
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <minIni.h>
 
@@ -81,7 +81,7 @@ void source_status_timer() {
     if (!in_sourcepage)
         return;
 
-    ch = g_setting.scan.channel & 0xF; 
+    ch = g_setting.scan.channel & 0xF;
     if (ch > 8)
         sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
     else

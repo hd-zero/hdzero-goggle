@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "msp_displayport.h"
 
 typedef enum {
