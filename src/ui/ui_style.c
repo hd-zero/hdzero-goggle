@@ -17,6 +17,7 @@ lv_style_t style_silder_pressed_color;
 lv_style_t style_scan;
 lv_style_t style_select;
 lv_style_t style_osd;
+lv_style_t style_dropdown;
 lv_style_t style_pb, style_pb_dark;
 
 int style_init(void) {
@@ -145,6 +146,13 @@ int style_init(void) {
     lv_style_set_bg_color(&style_osd, lv_color_hex(0x7f7f7f));
     lv_style_set_border_width(&style_osd, 0);
     lv_style_set_radius(&style_osd, 0);
+
+    lv_style_reset(&style_dropdown);
+    lv_style_init(&style_dropdown);
+    lv_style_set_bg_color(&style_dropdown, lv_color_hex(0x646464));
+    lv_style_set_text_color(&style_dropdown, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_border_width(&style_dropdown, 2);
+    lv_style_set_border_color(&style_dropdown, lv_palette_main(LV_PALETTE_RED));
 
     return 0;
 }

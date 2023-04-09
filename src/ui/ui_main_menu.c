@@ -11,6 +11,7 @@
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
 #include "ui/page_autoscan.h"
+#include "ui/page_clock.h"
 #include "ui/page_common.h"
 #include "ui/page_connections.h"
 #include "ui/page_fans.h"
@@ -47,6 +48,7 @@ static page_pack_t *page_packs[PAGE_MAX] = {
     [PAGE_SOURCE] = &pp_source,
     [PAGE_VERSION] = &pp_version,
     [PAGE_FOCUS_CHART] = &pp_focus_chart,
+    [PAGE_CLOCK] = &pp_clock,
 };
 
 static page_pack_t *find_pp(lv_obj_t *page) {
@@ -79,15 +81,15 @@ void submenu_enter(void) {
         return;
     }
 
-    if (pp->enter) {
-        // if your page as a enter event handler, call it
-        pp->enter();
-    }
-
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first one
         pp->p_arr.cur = 0;
         set_select_item(&pp->p_arr, pp->p_arr.cur);
+    }
+
+    if (pp->enter) {
+        // if your page as a enter event handler, call it
+        pp->enter();
     }
 }
 
@@ -267,6 +269,7 @@ void main_menu_init(void) {
     main_menu_create_entry(menu, section, "Playback", &pp_playback);
     main_menu_create_entry(menu, section, "Firmware", &pp_version);
     main_menu_create_entry(menu, section, "Focus Chart", &pp_focus_chart);
+    main_menu_create_entry(menu, section, "Clock", &pp_clock);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);

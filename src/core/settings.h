@@ -127,6 +127,16 @@ typedef struct {
 } setting_osd_t;
 
 typedef struct {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int min;
+    int sec;
+    int format;
+} setting_clock_t;
+
+typedef struct {
     int enable;
     char ssid[16];   // not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
     char passwd[16]; // default: "divimath"
@@ -148,6 +158,7 @@ typedef struct {
     setting_elrs_t elrs;
     wifi_t wifi;
     setting_osd_t osd;
+    setting_clock_t clock;
     ease_use_t ease;
 } setting_t;
 

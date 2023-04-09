@@ -136,6 +136,15 @@ const setting_t g_setting_defaults = {
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
             },
         },
+    },
+    .clock = {
+        .year = 2023,
+        .month = 3,
+        .day = 28,
+        .hour = 12,
+        .min = 30,
+        .sec = 30,
+        .format = 0,
     }};
 
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
@@ -244,6 +253,15 @@ void settings_load(void) {
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
 
     g_setting.elrs.enable = ini_getl("elrs", "enable", g_setting_defaults.elrs.enable, SETTING_INI);
+
+    // clock
+    g_setting.clock.year = ini_getl("clock", "year", g_setting_defaults.clock.year, SETTING_INI);
+    g_setting.clock.month = ini_getl("clock", "month", g_setting_defaults.clock.month, SETTING_INI);
+    g_setting.clock.day = ini_getl("clock", "day", g_setting_defaults.clock.day, SETTING_INI);
+    g_setting.clock.hour = ini_getl("clock", "hour", g_setting_defaults.clock.hour, SETTING_INI);
+    g_setting.clock.min = ini_getl("clock", "min", g_setting_defaults.clock.min, SETTING_INI);
+    g_setting.clock.sec = ini_getl("clock", "sec", g_setting_defaults.clock.sec, SETTING_INI);
+    g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
 
     // disable wifi on boot
     g_setting.wifi.enable = 0;

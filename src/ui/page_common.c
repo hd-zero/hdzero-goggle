@@ -52,105 +52,24 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
 }
 
 void create_select_item(panel_arr_t *arr, lv_obj_t *parent) {
-    arr->panel0 = lv_obj_create(parent);
-    arr->panel1 = lv_obj_create(parent);
-    arr->panel2 = lv_obj_create(parent);
-    arr->panel3 = lv_obj_create(parent);
-    arr->panel4 = lv_obj_create(parent);
-    arr->panel5 = lv_obj_create(parent);
-    arr->panel6 = lv_obj_create(parent);
-    arr->panel7 = lv_obj_create(parent);
-    arr->panel8 = lv_obj_create(parent);
-
-    lv_obj_clear_flag(arr->panel0, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel1, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel2, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel3, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel4, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel5, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel6, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel7, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(arr->panel8, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(arr->panel0, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel1, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel2, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel3, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel4, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel5, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel6, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel7, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel8, LV_OBJ_FLAG_HIDDEN);
-
-    lv_obj_add_style(arr->panel0, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel1, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel2, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel3, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel4, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel5, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel6, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel7, &style_select, LV_PART_MAIN);
-    lv_obj_add_style(arr->panel8, &style_select, LV_PART_MAIN);
-
-    lv_obj_set_grid_cell(arr->panel0, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 0, 1);
-    lv_obj_set_grid_cell(arr->panel1, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 1, 1);
-    lv_obj_set_grid_cell(arr->panel2, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 2, 1);
-    lv_obj_set_grid_cell(arr->panel3, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 3, 1);
-    lv_obj_set_grid_cell(arr->panel4, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 4, 1);
-    lv_obj_set_grid_cell(arr->panel5, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 5, 1);
-    lv_obj_set_grid_cell(arr->panel6, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 6, 1);
-    lv_obj_set_grid_cell(arr->panel7, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 7, 1);
-    lv_obj_set_grid_cell(arr->panel8, LV_GRID_ALIGN_STRETCH, 0, 6,
-                         LV_GRID_ALIGN_STRETCH, 8, 1);
+    int i;
+    for (i = 0; i < MAX_PANELS; ++i) {
+        arr->panel[i] = lv_obj_create(parent);
+        lv_obj_clear_flag(arr->panel[i], LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_add_flag(arr->panel[i], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_style(arr->panel[i], &style_select, LV_PART_MAIN);
+        lv_obj_set_grid_cell(arr->panel[i], LV_GRID_ALIGN_STRETCH, 0, 6,
+                             LV_GRID_ALIGN_STRETCH, i, 1);
+    }
 }
 void set_select_item(const panel_arr_t *arr, int row) {
-    lv_obj_add_flag(arr->panel0, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel1, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel2, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel3, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel4, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel5, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel6, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel7, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(arr->panel8, LV_OBJ_FLAG_HIDDEN);
+    int i;
+    for (i = 0; i < MAX_PANELS; ++i) {
+        lv_obj_add_flag(arr->panel[i], LV_OBJ_FLAG_HIDDEN);
+    }
 
-    switch (row) {
-    case 0:
-        lv_obj_clear_flag(arr->panel0, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 1:
-        lv_obj_clear_flag(arr->panel1, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 2:
-        lv_obj_clear_flag(arr->panel2, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 3:
-        lv_obj_clear_flag(arr->panel3, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 4:
-        lv_obj_clear_flag(arr->panel4, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 5:
-        lv_obj_clear_flag(arr->panel5, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 6:
-        lv_obj_clear_flag(arr->panel6, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 7:
-        lv_obj_clear_flag(arr->panel7, LV_OBJ_FLAG_HIDDEN);
-        break;
-    case 8:
-        lv_obj_clear_flag(arr->panel8, LV_OBJ_FLAG_HIDDEN);
-        break;
-    default:
-        break;
+    if (row >= 0 && row < MAX_PANELS) {
+        lv_obj_clear_flag(arr->panel[row], LV_OBJ_FLAG_HIDDEN);
     }
 }
 
@@ -243,6 +162,19 @@ void create_btn_item(lv_obj_t *parent, const char *name, int col, int row) {
     lv_obj_set_size(btn, 160, 60);
     lv_obj_set_grid_cell(btn, LV_GRID_ALIGN_START, col, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
+}
+
+lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, int row) {
+
+    lv_obj_t *obj = lv_dropdown_create(parent);
+    lv_dropdown_set_options(obj, options);
+    lv_obj_set_style_text_font(obj, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_shadow_width(obj, 0, 0);
+    lv_obj_set_style_pad_top(obj, 4, 0);
+    lv_obj_set_size(obj, 160, 40);
+    lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_START, col, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    return obj;
 }
 
 static lv_coord_t col_dsc[] = {40, 150, LV_GRID_TEMPLATE_LAST};
