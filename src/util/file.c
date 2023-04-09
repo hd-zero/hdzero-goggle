@@ -3,8 +3,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 bool file_compare(char *f1, char *f2) {
     FILE *fp1;
@@ -56,7 +56,7 @@ bool file_printf(const char *filename, const char *fmt, ...) {
     return true;
 }
 
-long file_get_size(const char* filename) {
+long file_get_size(const char *filename) {
     struct stat st;
     if (stat(filename, &st) != 0) {
         return 0;

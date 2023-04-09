@@ -14,7 +14,7 @@
 // globals
 pthread_mutex_t lvgl_mutex;
 atomic_int g_key = 0;
-atomic_int g_init_done = 0; //0= init not done, 1= done, -1= dial/up/down pressed 
+atomic_int g_init_done = 0; // 0= init not done, 1= done, -1= dial/up/down pressed
 ///////////////////////////////////////////////////////////////////////////////
 
 uint8_t slow_key(left_dial_t key, uint8_t *state, uint8_t *cnt) {
