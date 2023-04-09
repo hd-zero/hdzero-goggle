@@ -105,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	softwinner
 )
 if(EMULATOR_BUILD)
-	target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2)
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 endif()
 
 if(NOT EMULATOR_BUILD)
