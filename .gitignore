@@ -6,6 +6,7 @@ toolchain
 /mkapp/ota_app
 /mkapp/app/app/HDZGOGGLE
 /mkapp/app/app/record/record
+/mkapp/app/app/record/rtspLive
 /mkapp/app/version
 /out
 media.tar.gz
