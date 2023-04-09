@@ -7,7 +7,7 @@
 sys_battery_t g_battery;
 
 static int battery_detect_type() {
-    int v = mcp_read_voltage();
+    int v = read_voltage();
     return (v * 10 / 1000 / 42 + 1);
 }
 
@@ -24,7 +24,7 @@ void battery_init() {
 }
 
 void battery_update() {
-    g_battery.voltage = mcp_read_voltage();
+    g_battery.voltage = read_voltage();
 }
 
 bool battery_is_low() {

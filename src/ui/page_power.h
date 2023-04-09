@@ -10,7 +10,8 @@
 #define ROW_CELL_VOLTAGE 3
 #define ROW_OSD_DISPLAY_MODE 4
 #define ROW_WARN_TYPE 5
-#define ROW_BACK 6
+#define ROW_POWER_ANA 6
+#define ROW_BACK 7
 
 #include <stdbool.h>
 

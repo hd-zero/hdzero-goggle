@@ -71,7 +71,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[4].type = 1;
     strcpy(ims_page.items[4].title, "OLED Auto off:");
     ims_page.items[4].range[0] = 0;
-    ims_page.items[4].range[1] = 3;
+    ims_page.items[4].range[1] = 4;
     ims_page.items[4].value = val[4];
     ims_page.items[4].state = 0;
 
@@ -121,8 +121,8 @@ static void show_ims_slider(uint8_t index) {
 
     switch (index) {
     case 4: { // auto off
-        char *str_ao[4] = {"3 min", "5 min", "7 min", "Never"};
-        strcpy(buf, str_ao[p_slider->value & 3]);
+        char *str_ao[5] = {"1 min", "3 min", "5 min", "7 min", "Never"};
+        strcpy(buf, str_ao[p_slider->value]);
         break;
     }
 

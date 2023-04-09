@@ -1,0 +1,1904 @@
+# depslib dependency file v1.0
+1623268935 source:/home/divimath/work/goggle/apps/minIni/dev/minIni.c
+	"minIni.h"
+	<assert.h>
+	<ctype.h>
+	<string.h>
+	<stdlib.h>
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/minIni.h
+	"minGlue.h"
+	<tchar.h>
+	"wxMinIni.h"
+	<string>
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/minGlue.h
+	<stdio.h>
+
+1623268935 /home/divimath/work/goggle/apps/minIni/dev/wxMinIni.h
+	<wx/wx.h>
+	"minIni.h"
+
+1668519024 source:/home/divimath/work/goggle/apps/record/ai2aenc.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	"ai2aenc.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_log.h
+	<log/log.h>
+	<stdio.h>
+	<string.h>
+	<log/std_log.h>
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/log.h
+	<stdio.h>
+	<unistd.h>
+	"log_print.h"
+
+1648171352 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/log_print.h
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/log/std_log.h
+	<stdio.h>
+	<time.h>
+	<sys/types.h>
+	<unistd.h>
+	<stdarg.h>
+	<sys/uio.h>
+
+1668518984 /home/divimath/work/goggle/apps/record/ai2aenc.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_aenc.h>
+	<pthread.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_type.h
+	<stdint.h>
+	<stddef.h>
+	<cdx_list_type.h>
+
+1648130745 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/utils/cdx_list_type.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_common.h
+	"plat_defines.h"
+	"plat_math.h"
+	"plat_type.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_defines.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_math.h
+	<stdint.h>
+	"plat_type.h"
+	<linux/time.h>
+	<sys/time.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_sys.h
+	"plat_type.h"
+	"mm_common.h"
+	"mm_comm_sys.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_sys.h
+	"plat_type.h"
+	"plat_errno.h"
+	<sys/select.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/plat_errno.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_aio.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_ai.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	<mm_comm_aio.h>
+	"mm_comm_aenc.h"
+
+1668520475 source:/home/divimath/work/goggle/apps/record/ai2ao.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<cdx_list.h>
+	"ai2ao.h"
+
+1653640179 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/system/public/include/utils/cdx_list.h
+	<stddef.h>
+	<cdx_list_type.h>
+
+1668519159 /home/divimath/work/goggle/apps/record/ai2ao.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_ao.h>
+	<mpi_clock.h>
+	<ClockCompPortIndex.h>
+	<pthread.h>
+	"ai2aenc.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_ao.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_clock.h
+	"mm_common.h"
+	"mm_comm_clock.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_clock.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"mm_common.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/ClockCompPortIndex.h
+
+1673958404 source:/home/divimath/work/goggle/apps/record/confparser.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"confparser.h"
+	"minIni.h"
+
+1673944745 /home/divimath/work/goggle/apps/record/confparser.h
+	"record.h"
+
+1675413993 /home/divimath/work/goggle/apps/record/record.h
+	"vi2venc.h"
+	"ai2aenc.h"
+	"ai2ao.h"
+	"ffpack.h"
+	"disk.h"
+
+1674023152 /home/divimath/work/goggle/apps/record/vi2venc.h
+	<plat_type.h>
+	<tsemaphore.h>
+	"mm_comm_vi.h"
+	"mpi_vi.h"
+	"mpi_isp.h"
+	"mpi_venc.h"
+	"mpi_sys.h"
+	"mm_common.h"
+	"mm_comm_venc.h"
+	"mm_comm_rc.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/utils/tsemaphore.h
+	<pthread.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_vi.h
+	"mm_common.h"
+	<mm_comm_video.h>
+	"plat_errno.h"
+	"sunxi_camera_v2.h"
+	<aw_type.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_video.h
+	<stdint.h>
+	<plat_type.h>
+	<plat_defines.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/sunxi_camera_v2.h
+	<linux/types.h>
+	<linux/videodev2.h>
+	<stdbool.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/videodev2.h
+	<sys/time.h>
+	<linux/ioctl.h>
+	<linux/types.h>
+	<linux/v4l2-common.h>
+	<linux/v4l2-controls.h>
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/v4l2-common.h
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/V4l2Camera/linux/v4l2-controls.h
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/utils/aw_type.h
+	<stdint.h>
+	<stddef.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_vi.h
+	"mm_comm_vi.h"
+	"mm_comm_region.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_region.h
+	"mm_common.h"
+	"mm_comm_video.h"
+	"plat_errno.h"
+	"plat_defines.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_isp.h
+	"isp_type.h"
+	"mm_comm_vi.h"
+	"isp_comm.h"
+	"isp_tuning_priv.h"
+	"isp_tuning.h"
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_type.h
+
+1625715360 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_comm.h
+	"isp_type.h"
+	"../isp_version.h"
+
+1625715551 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/isp_version.h
+	"include/isp_debug.h"
+
+1590216534 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_debug.h
+	<stdio.h>
+	<errno.h>
+
+1625715495 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/isp_tuning/isp_tuning_priv.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1625715398 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libisp/include/isp_tuning.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mpi_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_venc.h"
+	"vencoder.h"
+	"ComponentCommon.h"
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_rc.h"
+	<linux/videodev2.h>
+
+1648171344 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/include/media/mm_comm_rc.h
+	"plat_defines.h"
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/vencoder.h
+	"sc_interface.h"
+	"veInterface.h"
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/sc_interface.h
+	<stddef.h>
+	<stdint.h>
+
+1648171347 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/LIBRARY/libcedarc/include/veInterface.h
+	<stddef.h>
+	<stdint.h>
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/ComponentCommon.h
+	"plat_defines.h"
+	"plat_errno.h"
+	"plat_math.h"
+	"plat_type.h"
+	"mm_comm_video.h"
+	"mm_comm_aio.h"
+	"mm_common.h"
+	"mm_component.h"
+
+1648171349 /home/divimath/workspace/out/v536-cdr/staging_dir/target/usr/include/eyesee-mpp/middleware/media/include/component/mm_component.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+
+1666274399 /home/divimath/work/goggle/apps/record/ffpack.h
+	<stdbool.h>
+	"ffmpeg.h"
+
+1658125123 /home/divimath/work/goggle/apps/record/ffmpeg.h
+	"libavformat/avformat.h"
+	<unistd.h>
+	<sys/time.h>
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavformat/avformat.h
+	<time.h>
+	<stdio.h>
+	"libavcodec/codec.h"
+	"libavcodec/codec_par.h"
+	"libavcodec/defs.h"
+	"libavcodec/packet.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"avio.h"
+	"libavformat/version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/codec.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/hwcontext.h"
+	"libavutil/log.h"
+	"libavutil/pixfmt.h"
+	"libavutil/rational.h"
+	"libavutil/samplefmt.h"
+	"libavcodec/codec_id.h"
+	"libavcodec/version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/avutil.h
+	"common.h"
+	"error.h"
+	"rational.h"
+	"version.h"
+	"macros.h"
+	"mathematics.h"
+	"log.h"
+	"pixfmt.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/common.h
+	<errno.h>
+	<inttypes.h>
+	<limits.h>
+	<math.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"attributes.h"
+	"macros.h"
+	"version.h"
+	"config.h"
+	"intmath.h"
+	"mem.h"
+	"internal.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/attributes.h
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/macros.h
+	"libavutil/avconfig.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/avconfig.h
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/version.h
+	"macros.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/mem.h
+	<limits.h>
+	<stdint.h>
+	"attributes.h"
+	"avutil.h"
+	"version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/error.h
+	<errno.h>
+	<stddef.h>
+	"macros.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/rational.h
+	<stdint.h>
+	<limits.h>
+	"attributes.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/mathematics.h
+	<stdint.h>
+	<math.h>
+	"attributes.h"
+	"rational.h"
+	"intfloat.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/intfloat.h
+	<stdint.h>
+	"attributes.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/log.h
+	<stdarg.h>
+	"avutil.h"
+	"attributes.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/pixfmt.h
+	"libavutil/avconfig.h"
+	"version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/hwcontext.h
+	"buffer.h"
+	"frame.h"
+	"log.h"
+	"pixfmt.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/buffer.h
+	<stddef.h>
+	<stdint.h>
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/frame.h
+	<stddef.h>
+	<stdint.h>
+	"avutil.h"
+	"buffer.h"
+	"dict.h"
+	"rational.h"
+	"samplefmt.h"
+	"pixfmt.h"
+	"version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/dict.h
+	<stdint.h>
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavutil/samplefmt.h
+	<stdint.h>
+	"avutil.h"
+	"attributes.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/codec_id.h
+	"libavutil/avutil.h"
+	"libavutil/samplefmt.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/version.h
+	"libavutil/version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/codec_par.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/rational.h"
+	"libavutil/pixfmt.h"
+	"codec_id.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/defs.h
+	<stdint.h>
+	<stdlib.h>
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavcodec/packet.h
+	<stddef.h>
+	<stdint.h>
+	"libavutil/attributes.h"
+	"libavutil/buffer.h"
+	"libavutil/dict.h"
+	"libavutil/rational.h"
+	"libavcodec/version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavformat/avio.h
+	<stdint.h>
+	"libavutil/common.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"libavformat/version.h"
+
+1658823473 /home/divimath/work/goggle/apps/ffmpeg-5.0.1-v536/include/libavformat/version.h
+	"libavutil/version.h"
+
+1674026570 source:/home/divimath/work/goggle/apps/record/disk.c
+	<stdint.h>
+	<sys/vfs.h>
+	<sys/stat.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<dirent.h>
+	<fcntl.h>
+	<pthread.h>
+	"disk.h"
+	"log.h"
+
+1673441562 /home/divimath/work/goggle/apps/record/disk.h
+	<stdbool.h>
+
+1672965926 source:/home/divimath/work/goggle/apps/record/ffpack.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pthread.h>
+	"ffpack.h"
+
+1672882853 source:/home/divimath/work/goggle/apps/record/gogglemsg.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<unistd.h>
+	<errno.h>
+	<sys/types.h>
+	<sys/ipc.h>
+	<sys/msg.h>
+	"gogglemsg.h"
+
+1672880122 /home/divimath/work/goggle/apps/record/gogglemsg.h
+	<stdint.h>
+	"appmsg.h"
+
+1674010895 /home/divimath/work/goggle/apps/record/appmsg.h
+
+1673958589 source:/home/divimath/work/goggle/apps/record/jpegenc.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<time.h>
+	<pthread.h>
+	<mpi_vi.h>
+	"jpegenc.h"
+
+1663552894 /home/divimath/work/goggle/apps/record/jpegenc.h
+	<mpi_venc.h>
+
+1675414004 source:/home/divimath/work/goggle/apps/record/main.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	"gogglemsg.h"
+	"record.h"
+	"jpegenc.h"
+	"ffpack.h"
+	"disk.h"
+	"confparser.h"
+	"version.h"
+	"log.h"
+	"avshare.h"
+	"vi2venc_live.h"
+
+1664436800 /home/divimath/work/goggle/apps/record/version.h
+
+1667541670 source:/home/divimath/work/goggle/apps/record/spspps_patch.c
+	<stdint.h>
+	<stdio.h>
+	"spspps_patch.h"
+
+1666259886 /home/divimath/work/goggle/apps/record/spspps_patch.h
+
+1674964985 source:/home/divimath/work/goggle/apps/record/vi2venc.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1673441302 source:/home/divimath/work/goggle/apps/record/log.c
+	<stdint.h>
+	<stdbool.h>
+	<sys/stat.h>
+	<pthread.h>
+	"log.h"
+
+1673353548 /home/divimath/work/goggle/apps/record/log.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<time.h>
+	<stdarg.h>
+	<unistd.h>
+
+1674128027 source:/home/divimath/work/goggle/apps/record/avshare.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/ipc.h>
+	<sys/shm.h>
+	"avshare.h"
+
+1674107215 /home/divimath/work/goggle/apps/record/avshare.h
+	<stdint.h>
+	<stdbool.h>
+
+1673959546 source:/home/divimath/work/goggle/apps/record/vi2venc_live.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1673959319 /home/divimath/work/goggle/apps/record/vi2venc_live.h
+	"vi2venc.h"
+
+1623268935 source:/home/divimath/hdzero/record-apps-20230225/minIni/dev/minIni.c
+	"minIni.h"
+	<assert.h>
+	<ctype.h>
+	<string.h>
+	<stdlib.h>
+
+1623268935 /home/divimath/hdzero/record-apps-20230225/minIni/dev/minIni.h
+	"minGlue.h"
+	<tchar.h>
+	"wxMinIni.h"
+	<string>
+
+1623268935 /home/divimath/hdzero/record-apps-20230225/minIni/dev/minGlue.h
+	<stdio.h>
+
+1623268935 /home/divimath/hdzero/record-apps-20230225/minIni/dev/wxMinIni.h
+	<wx/wx.h>
+	"minIni.h"
+
+1668519024 source:/home/divimath/hdzero/record-apps-20230225/record/ai2aenc.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	"ai2aenc.h"
+
+1668518984 /home/divimath/hdzero/record-apps-20230225/record/ai2aenc.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_aenc.h>
+	<pthread.h>
+
+1668520475 source:/home/divimath/hdzero/record-apps-20230225/record/ai2ao.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<cdx_list.h>
+	"ai2ao.h"
+
+1668519159 /home/divimath/hdzero/record-apps-20230225/record/ai2ao.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_ao.h>
+	<mpi_clock.h>
+	<ClockCompPortIndex.h>
+	<pthread.h>
+	"ai2aenc.h"
+
+1673958404 source:/home/divimath/hdzero/record-apps-20230225/record/confparser.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"confparser.h"
+	"minIni.h"
+
+1673944745 /home/divimath/hdzero/record-apps-20230225/record/confparser.h
+	"record.h"
+
+1677569805 /home/divimath/hdzero/record-apps-20230225/record/record.h
+	"vi2venc.h"
+	"ai2aenc.h"
+	"ai2ao.h"
+	"ffpack.h"
+	"disk.h"
+
+1674023152 /home/divimath/hdzero/record-apps-20230225/record/vi2venc.h
+	<plat_type.h>
+	<tsemaphore.h>
+	"mm_comm_vi.h"
+	"mpi_vi.h"
+	"mpi_isp.h"
+	"mpi_venc.h"
+	"mpi_sys.h"
+	"mm_common.h"
+	"mm_comm_venc.h"
+	"mm_comm_rc.h"
+
+1666274399 /home/divimath/hdzero/record-apps-20230225/record/ffpack.h
+	<stdbool.h>
+	"ffmpeg.h"
+
+1658125123 /home/divimath/hdzero/record-apps-20230225/record/ffmpeg.h
+	"libavformat/avformat.h"
+	<unistd.h>
+	<sys/time.h>
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavformat/avformat.h
+	<time.h>
+	<stdio.h>
+	"libavcodec/codec.h"
+	"libavcodec/codec_par.h"
+	"libavcodec/defs.h"
+	"libavcodec/packet.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"avio.h"
+	"libavformat/version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/codec.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/hwcontext.h"
+	"libavutil/log.h"
+	"libavutil/pixfmt.h"
+	"libavutil/rational.h"
+	"libavutil/samplefmt.h"
+	"libavcodec/codec_id.h"
+	"libavcodec/version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/avutil.h
+	"common.h"
+	"error.h"
+	"rational.h"
+	"version.h"
+	"macros.h"
+	"mathematics.h"
+	"log.h"
+	"pixfmt.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/common.h
+	<errno.h>
+	<inttypes.h>
+	<limits.h>
+	<math.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"attributes.h"
+	"macros.h"
+	"version.h"
+	"config.h"
+	"intmath.h"
+	"mem.h"
+	"internal.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/attributes.h
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/macros.h
+	"libavutil/avconfig.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/avconfig.h
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/version.h
+	"macros.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/mem.h
+	<limits.h>
+	<stdint.h>
+	"attributes.h"
+	"avutil.h"
+	"version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/error.h
+	<errno.h>
+	<stddef.h>
+	"macros.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/rational.h
+	<stdint.h>
+	<limits.h>
+	"attributes.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/mathematics.h
+	<stdint.h>
+	<math.h>
+	"attributes.h"
+	"rational.h"
+	"intfloat.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/intfloat.h
+	<stdint.h>
+	"attributes.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/log.h
+	<stdarg.h>
+	"avutil.h"
+	"attributes.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/pixfmt.h
+	"libavutil/avconfig.h"
+	"version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/hwcontext.h
+	"buffer.h"
+	"frame.h"
+	"log.h"
+	"pixfmt.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/buffer.h
+	<stddef.h>
+	<stdint.h>
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/frame.h
+	<stddef.h>
+	<stdint.h>
+	"avutil.h"
+	"buffer.h"
+	"dict.h"
+	"rational.h"
+	"samplefmt.h"
+	"pixfmt.h"
+	"version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/dict.h
+	<stdint.h>
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavutil/samplefmt.h
+	<stdint.h>
+	"avutil.h"
+	"attributes.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/codec_id.h
+	"libavutil/avutil.h"
+	"libavutil/samplefmt.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/version.h
+	"libavutil/version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/codec_par.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/rational.h"
+	"libavutil/pixfmt.h"
+	"codec_id.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/defs.h
+	<stdint.h>
+	<stdlib.h>
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavcodec/packet.h
+	<stddef.h>
+	<stdint.h>
+	"libavutil/attributes.h"
+	"libavutil/buffer.h"
+	"libavutil/dict.h"
+	"libavutil/rational.h"
+	"libavcodec/version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavformat/avio.h
+	<stdint.h>
+	"libavutil/common.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"libavformat/version.h"
+
+1658823473 /home/divimath/hdzero/record-apps-20230225/ffmpeg-5.0.1-v536/include/libavformat/version.h
+	"libavutil/version.h"
+
+1673441562 /home/divimath/hdzero/record-apps-20230225/record/disk.h
+	<stdbool.h>
+
+1674026570 source:/home/divimath/hdzero/record-apps-20230225/record/disk.c
+	<stdint.h>
+	<sys/vfs.h>
+	<sys/stat.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<dirent.h>
+	<fcntl.h>
+	<pthread.h>
+	"disk.h"
+	"log.h"
+
+1673353548 /home/divimath/hdzero/record-apps-20230225/record/log.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<time.h>
+	<stdarg.h>
+	<unistd.h>
+
+1677567043 source:/home/divimath/hdzero/record-apps-20230225/record/ffpack.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pthread.h>
+	"ffpack.h"
+
+1672882853 source:/home/divimath/hdzero/record-apps-20230225/record/gogglemsg.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<unistd.h>
+	<errno.h>
+	<sys/types.h>
+	<sys/ipc.h>
+	<sys/msg.h>
+	"gogglemsg.h"
+
+1672880122 /home/divimath/hdzero/record-apps-20230225/record/gogglemsg.h
+	<stdint.h>
+	"appmsg.h"
+
+1677553287 /home/divimath/hdzero/record-apps-20230225/record/appmsg.h
+
+1673958589 source:/home/divimath/hdzero/record-apps-20230225/record/jpegenc.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<time.h>
+	<pthread.h>
+	<mpi_vi.h>
+	"jpegenc.h"
+
+1663552894 /home/divimath/hdzero/record-apps-20230225/record/jpegenc.h
+	<mpi_venc.h>
+
+1673441302 source:/home/divimath/hdzero/record-apps-20230225/record/log.c
+	<stdint.h>
+	<stdbool.h>
+	<sys/stat.h>
+	<pthread.h>
+	"log.h"
+
+1677570408 source:/home/divimath/hdzero/record-apps-20230225/record/main.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	"gogglemsg.h"
+	"record.h"
+	"jpegenc.h"
+	"ffpack.h"
+	"disk.h"
+	"confparser.h"
+	"version.h"
+	"log.h"
+	"avshare.h"
+	"vi2venc_live.h"
+
+1664436800 /home/divimath/hdzero/record-apps-20230225/record/version.h
+
+1674107215 /home/divimath/hdzero/record-apps-20230225/record/avshare.h
+	<stdint.h>
+	<stdbool.h>
+
+1673959319 /home/divimath/hdzero/record-apps-20230225/record/vi2venc_live.h
+	"vi2venc.h"
+
+1667541670 source:/home/divimath/hdzero/record-apps-20230225/record/spspps_patch.c
+	<stdint.h>
+	<stdio.h>
+	"spspps_patch.h"
+
+1666259886 /home/divimath/hdzero/record-apps-20230225/record/spspps_patch.h
+
+1674964985 source:/home/divimath/hdzero/record-apps-20230225/record/vi2venc.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1673959546 source:/home/divimath/hdzero/record-apps-20230225/record/vi2venc_live.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1677554030 source:/home/divimath/hdzero/record-apps-20230225/record/avshare.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/ipc.h>
+	<sys/shm.h>
+	"avshare.h"
+
+1668519024 source:/home/divimath/goggle/code/src/recordl/ai2aenc.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	"ai2aenc.h"
+
+1668518984 /home/divimath/goggle/code/src/recordl/ai2aenc.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_aenc.h>
+	<pthread.h>
+
+1668520475 source:/home/divimath/goggle/code/src/recordl/ai2ao.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<cdx_list.h>
+	"ai2ao.h"
+
+1668519159 /home/divimath/goggle/code/src/recordl/ai2ao.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_ao.h>
+	<mpi_clock.h>
+	<ClockCompPortIndex.h>
+	<pthread.h>
+	"ai2aenc.h"
+
+1677554030 source:/home/divimath/goggle/code/src/recordl/avshare.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/ipc.h>
+	<sys/shm.h>
+	"avshare.h"
+
+1674107215 /home/divimath/goggle/code/src/recordl/avshare.h
+	<stdint.h>
+	<stdbool.h>
+
+1673958404 source:/home/divimath/goggle/code/src/recordl/confparser.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"confparser.h"
+	"minIni.h"
+
+1673944745 /home/divimath/goggle/code/src/recordl/confparser.h
+	"record.h"
+
+1677569805 /home/divimath/goggle/code/src/recordl/record.h
+	"vi2venc.h"
+	"ai2aenc.h"
+	"ai2ao.h"
+	"ffpack.h"
+	"disk.h"
+
+1674023152 /home/divimath/goggle/code/src/recordl/vi2venc.h
+	<plat_type.h>
+	<tsemaphore.h>
+	"mm_comm_vi.h"
+	"mpi_vi.h"
+	"mpi_isp.h"
+	"mpi_venc.h"
+	"mpi_sys.h"
+	"mm_common.h"
+	"mm_comm_venc.h"
+	"mm_comm_rc.h"
+
+1666274399 /home/divimath/goggle/code/src/recordl/ffpack.h
+	<stdbool.h>
+	"ffmpeg.h"
+
+1658125123 /home/divimath/goggle/code/src/recordl/ffmpeg.h
+	"libavformat/avformat.h"
+	<unistd.h>
+	<sys/time.h>
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavformat/avformat.h
+	<time.h>
+	<stdio.h>
+	"libavcodec/codec.h"
+	"libavcodec/codec_par.h"
+	"libavcodec/defs.h"
+	"libavcodec/packet.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"avio.h"
+	"libavformat/version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/codec.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/hwcontext.h"
+	"libavutil/log.h"
+	"libavutil/pixfmt.h"
+	"libavutil/rational.h"
+	"libavutil/samplefmt.h"
+	"libavcodec/codec_id.h"
+	"libavcodec/version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/avutil.h
+	"common.h"
+	"error.h"
+	"rational.h"
+	"version.h"
+	"macros.h"
+	"mathematics.h"
+	"log.h"
+	"pixfmt.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/common.h
+	<errno.h>
+	<inttypes.h>
+	<limits.h>
+	<math.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"attributes.h"
+	"macros.h"
+	"version.h"
+	"config.h"
+	"intmath.h"
+	"mem.h"
+	"internal.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/attributes.h
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/macros.h
+	"libavutil/avconfig.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/avconfig.h
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/version.h
+	"macros.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/mem.h
+	<limits.h>
+	<stdint.h>
+	"attributes.h"
+	"avutil.h"
+	"version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/error.h
+	<errno.h>
+	<stddef.h>
+	"macros.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/rational.h
+	<stdint.h>
+	<limits.h>
+	"attributes.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/mathematics.h
+	<stdint.h>
+	<math.h>
+	"attributes.h"
+	"rational.h"
+	"intfloat.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/intfloat.h
+	<stdint.h>
+	"attributes.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/log.h
+	<stdarg.h>
+	"avutil.h"
+	"attributes.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/pixfmt.h
+	"libavutil/avconfig.h"
+	"version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/hwcontext.h
+	"buffer.h"
+	"frame.h"
+	"log.h"
+	"pixfmt.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/buffer.h
+	<stddef.h>
+	<stdint.h>
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/frame.h
+	<stddef.h>
+	<stdint.h>
+	"avutil.h"
+	"buffer.h"
+	"dict.h"
+	"rational.h"
+	"samplefmt.h"
+	"pixfmt.h"
+	"version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/dict.h
+	<stdint.h>
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavutil/samplefmt.h
+	<stdint.h>
+	"avutil.h"
+	"attributes.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/codec_id.h
+	"libavutil/avutil.h"
+	"libavutil/samplefmt.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/version.h
+	"libavutil/version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/codec_par.h
+	<stdint.h>
+	"libavutil/avutil.h"
+	"libavutil/rational.h"
+	"libavutil/pixfmt.h"
+	"codec_id.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/defs.h
+	<stdint.h>
+	<stdlib.h>
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavcodec/packet.h
+	<stddef.h>
+	<stdint.h>
+	"libavutil/attributes.h"
+	"libavutil/buffer.h"
+	"libavutil/dict.h"
+	"libavutil/rational.h"
+	"libavcodec/version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavformat/avio.h
+	<stdint.h>
+	"libavutil/common.h"
+	"libavutil/dict.h"
+	"libavutil/log.h"
+	"libavformat/version.h"
+
+1677085154 /home/divimath/goggle/code/lib/ffmpeg/include/libavformat/version.h
+	"libavutil/version.h"
+
+1673441562 /home/divimath/goggle/code/src/recordl/disk.h
+	<stdbool.h>
+
+1677085154 /home/divimath/goggle/code/lib/minIni/src/minIni.h
+	"minGlue.h"
+	<tchar.h>
+	"wxMinIni.h"
+	<string>
+
+1677085154 /home/divimath/goggle/code/lib/minIni/src/minGlue.h
+	<stdio.h>
+
+1677085154 /home/divimath/goggle/code/lib/minIni/src/wxMinIni.h
+	<wx/wx.h>
+	"minIni.h"
+
+1674026570 source:/home/divimath/goggle/code/src/recordl/disk.c
+	<stdint.h>
+	<sys/vfs.h>
+	<sys/stat.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<dirent.h>
+	<fcntl.h>
+	<pthread.h>
+	"disk.h"
+	"log.h"
+
+1673353548 /home/divimath/goggle/code/src/recordl/log.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<time.h>
+	<stdarg.h>
+	<unistd.h>
+
+1677567043 source:/home/divimath/goggle/code/src/recordl/ffpack.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pthread.h>
+	"ffpack.h"
+
+1672882853 source:/home/divimath/goggle/code/src/recordl/gogglemsg.c
+	<plat_log.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<unistd.h>
+	<errno.h>
+	<sys/types.h>
+	<sys/ipc.h>
+	<sys/msg.h>
+	"gogglemsg.h"
+
+1672880122 /home/divimath/goggle/code/src/recordl/gogglemsg.h
+	<stdint.h>
+	"appmsg.h"
+
+1677553287 /home/divimath/goggle/code/src/recordl/appmsg.h
+
+1673958589 source:/home/divimath/goggle/code/src/recordl/jpegenc.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<time.h>
+	<pthread.h>
+	<mpi_vi.h>
+	"jpegenc.h"
+
+1663552894 /home/divimath/goggle/code/src/recordl/jpegenc.h
+	<mpi_venc.h>
+
+1673441302 source:/home/divimath/goggle/code/src/recordl/log.c
+	<stdint.h>
+	<stdbool.h>
+	<sys/stat.h>
+	<pthread.h>
+	"log.h"
+
+1677570408 source:/home/divimath/goggle/code/src/recordl/main.c
+	<plat_log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	"gogglemsg.h"
+	"record.h"
+	"jpegenc.h"
+	"ffpack.h"
+	"disk.h"
+	"confparser.h"
+	"version.h"
+	"log.h"
+	"avshare.h"
+	"vi2venc_live.h"
+
+1664436800 /home/divimath/goggle/code/src/recordl/version.h
+
+1673959319 /home/divimath/goggle/code/src/recordl/vi2venc_live.h
+	"vi2venc.h"
+
+1667541670 source:/home/divimath/goggle/code/src/recordl/spspps_patch.c
+	<stdint.h>
+	<stdio.h>
+	"spspps_patch.h"
+
+1666259886 /home/divimath/goggle/code/src/recordl/spspps_patch.h
+
+1674964985 source:/home/divimath/goggle/code/src/recordl/vi2venc.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1673959546 source:/home/divimath/goggle/code/src/recordl/vi2venc_live.c
+	<plat_log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1677085154 source:/home/divimath/goggle/code/lib/minIni/src/minIni.c
+	"minIni.h"
+	<assert.h>
+	<ctype.h>
+	<string.h>
+	<stdlib.h>
+
+1677574003 source:/home/divimath/goggle/code/src/record/ai2aenc.c
+	<log/log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	"ai2aenc.h"
+
+1668518984 /home/divimath/goggle/code/src/record/ai2aenc.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_aenc.h>
+	<pthread.h>
+
+1677085154 source:/home/divimath/goggle/code/src/record/ai2ao.c
+	<log/log.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<cdx_list.h>
+	"ai2ao.h"
+
+1668519159 /home/divimath/goggle/code/src/record/ai2ao.h
+	<stdbool.h>
+	<plat_type.h>
+	<mm_common.h>
+	<mpi_sys.h>
+	<mm_comm_aenc.h>
+	<mm_comm_aio.h>
+	<mpi_ai.h>
+	<mpi_ao.h>
+	<mpi_clock.h>
+	<ClockCompPortIndex.h>
+	<pthread.h>
+	"ai2aenc.h"
+
+1677554030 source:/home/divimath/goggle/code/src/record/avshare.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/ipc.h>
+	<sys/shm.h>
+	"avshare.h"
+
+1674107215 /home/divimath/goggle/code/src/record/avshare.h
+	<stdint.h>
+	<stdbool.h>
+
+1677574116 source:/home/divimath/goggle/code/src/record/confparser.c
+	<log/log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"confparser.h"
+	"minIni.h"
+
+1673944745 /home/divimath/goggle/code/src/record/confparser.h
+	"record.h"
+
+1677569805 /home/divimath/goggle/code/src/record/record.h
+	"vi2venc.h"
+	"ai2aenc.h"
+	"ai2ao.h"
+	"ffpack.h"
+	"disk.h"
+
+1674023152 /home/divimath/goggle/code/src/record/vi2venc.h
+	<plat_type.h>
+	<tsemaphore.h>
+	"mm_comm_vi.h"
+	"mpi_vi.h"
+	"mpi_isp.h"
+	"mpi_venc.h"
+	"mpi_sys.h"
+	"mm_common.h"
+	"mm_comm_venc.h"
+	"mm_comm_rc.h"
+
+1666274399 /home/divimath/goggle/code/src/record/ffpack.h
+	<stdbool.h>
+	"ffmpeg.h"
+
+1658125123 /home/divimath/goggle/code/src/record/ffmpeg.h
+	"libavformat/avformat.h"
+	<unistd.h>
+	<sys/time.h>
+
+1677574214 /home/divimath/goggle/code/src/record/disk.h
+	<stdbool.h>
+	<stdint.h>
+
+1677085154 source:/home/divimath/goggle/code/src/record/disk.c
+	"disk.h"
+	<stdint.h>
+	<sys/vfs.h>
+	<sys/stat.h>
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<dirent.h>
+	<fcntl.h>
+	<pthread.h>
+	<log/log.h>
+	"log.h"
+
+1677574510 /home/divimath/goggle/code/src/record/log.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<time.h>
+	<stdarg.h>
+	<unistd.h>
+
+1677574295 source:/home/divimath/goggle/code/src/record/ffpack.c
+	<log/log.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pthread.h>
+	"ffpack.h"
+
+1677085154 source:/home/divimath/goggle/code/src/record/gogglemsg.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<unistd.h>
+	<errno.h>
+	<sys/types.h>
+	<sys/ipc.h>
+	<sys/msg.h>
+	"gogglemsg.h"
+	<log/log.h>
+
+1672880122 /home/divimath/goggle/code/src/record/gogglemsg.h
+	<stdint.h>
+	"appmsg.h"
+
+1677553287 /home/divimath/goggle/code/src/record/appmsg.h
+
+1677574495 source:/home/divimath/goggle/code/src/record/jpegenc.c
+	<log/log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<stdio.h>
+	<unistd.h>
+	<time.h>
+	<pthread.h>
+	<mpi_vi.h>
+	"jpegenc.h"
+
+1663552894 /home/divimath/goggle/code/src/record/jpegenc.h
+	<mpi_venc.h>
+
+1673441302 source:/home/divimath/goggle/code/src/record/log.c
+	<stdint.h>
+	<stdbool.h>
+	<sys/stat.h>
+	<pthread.h>
+	"log.h"
+
+1677574771 source:/home/divimath/goggle/code/src/record/main.c
+	<log/log.h>
+	<stdlib.h>
+	<stdbool.h>
+	<fcntl.h>
+	<errno.h>
+	<string.h>
+	<signal.h>
+	"gogglemsg.h"
+	"record.h"
+	"jpegenc.h"
+	"ffpack.h"
+	"disk.h"
+	"confparser.h"
+	"version.h"
+	"log.h"
+	"avshare.h"
+	"vi2venc_live.h"
+
+1664436800 /home/divimath/goggle/code/src/record/version.h
+
+1673959319 /home/divimath/goggle/code/src/record/vi2venc_live.h
+	"vi2venc.h"
+
+1667541670 source:/home/divimath/goggle/code/src/record/spspps_patch.c
+	<stdint.h>
+	<stdio.h>
+	"spspps_patch.h"
+
+1666259886 /home/divimath/goggle/code/src/record/spspps_patch.h
+
+1677575114 source:/home/divimath/goggle/code/src/record/vi2venc.c
+	<log/log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1677575220 source:/home/divimath/goggle/code/src/record/vi2venc_live.c
+	<log/log.h>
+	<endian.h>
+	<errno.h>
+	<fcntl.h>
+	<getopt.h>
+	<pthread.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"vi2venc.h"
+	"spspps_patch.h"
+
+1677085154 source:/home/divimath/goggle/code/lib/log/src/log.c
+	"log/log.h"
+	<pthread.h>
+	<stdarg.h>
+	<stdatomic.h>
+	<stdbool.h>
+	<stdio.h>
+	<string.h>
+
+1677085154 /home/divimath/goggle/code/lib/log/include/log/log.h
+	<stdbool.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/utils/plat_type.h
+	<stdint.h>
+	<stddef.h>
+	<cdx_list_type.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/system/public/include/utils/cdx_list_type.h
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_common.h
+	"plat_defines.h"
+	"plat_math.h"
+	"plat_type.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/utils/plat_defines.h
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/utils/plat_math.h
+	<stdint.h>
+	"plat_type.h"
+	<linux/time.h>
+	<sys/time.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_sys.h
+	"plat_type.h"
+	"mm_common.h"
+	"mm_comm_sys.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_sys.h
+	"plat_type.h"
+	"plat_errno.h"
+	<sys/select.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/utils/plat_errno.h
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_aio.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_ai.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_aenc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	<mm_comm_aio.h>
+	"mm_comm_aenc.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/system/public/include/utils/cdx_list.h
+	<stddef.h>
+	<cdx_list_type.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_ao.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_aio.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_clock.h
+	"mm_common.h"
+	"mm_comm_clock.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_clock.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"mm_common.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/include/component/ClockCompPortIndex.h
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/include/utils/tsemaphore.h
+	<pthread.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_vi.h
+	"mm_common.h"
+	<mm_comm_video.h>
+	"plat_errno.h"
+	"sunxi_camera_v2.h"
+	<aw_type.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_video.h
+	<stdint.h>
+	<plat_type.h>
+	<plat_defines.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/utils/aw_type.h
+	<stdint.h>
+	<stddef.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_vi.h
+	"mm_comm_vi.h"
+	"mm_comm_region.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_region.h
+	"mm_common.h"
+	"mm_comm_video.h"
+	"plat_errno.h"
+	"plat_defines.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_isp.h
+	"isp_type.h"
+	"mm_comm_vi.h"
+	"isp_comm.h"
+	"isp_tuning_priv.h"
+	"isp_tuning.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/include/isp_type.h
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/include/isp_comm.h
+	"isp_type.h"
+	"../isp_version.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/isp_version.h
+	"include/isp_debug.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/include/isp_debug.h
+	<stdio.h>
+	<errno.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/isp_tuning/isp_tuning_priv.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libisp/include/isp_tuning.h
+	"../include/isp_type.h"
+	"../include/isp_comm.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mpi_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"plat_defines.h"
+	"plat_math.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_venc.h"
+	"vencoder.h"
+	"ComponentCommon.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_venc.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+	"mm_comm_rc.h"
+	<linux/videodev2.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/include/media/mm_comm_rc.h
+	"plat_defines.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libcedarc/include/vencoder.h
+	"sc_interface.h"
+	"veInterface.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libcedarc/include/sc_interface.h
+	<stddef.h>
+	<stdint.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/LIBRARY/libcedarc/include/veInterface.h
+	<stddef.h>
+	<stdint.h>
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/include/component/ComponentCommon.h
+	"plat_defines.h"
+	"plat_errno.h"
+	"plat_math.h"
+	"plat_type.h"
+	"mm_comm_video.h"
+	"mm_comm_aio.h"
+	"mm_common.h"
+	"mm_component.h"
+
+1677085154 /home/divimath/goggle/code/lib/softwinner/include/middleware/media/include/component/mm_component.h
+	"plat_type.h"
+	"plat_errno.h"
+	"mm_common.h"
+	"mm_comm_video.h"
+
+1677085154 /home/divimath/goggle/code/lib/linux/include/media/sunxi_camera_v2.h
+	<linux/types.h>
+	<linux/videodev2.h>
+	<stdbool.h>
+

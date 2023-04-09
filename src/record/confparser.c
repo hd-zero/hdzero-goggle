@@ -17,6 +17,9 @@
 #define SEC_AI          "ai"
 #define SEC_H264        "h264"
 #define SEC_H265        "h265"
+#define SEC_H264_LIVE   "h264_live"
+#define SEC_H265_LIVE   "h265_live"
+#define SEC_VENC_LIVE   "venc_live"
 
 #define KEY_DISK        "disk"
 #define KEY_DURATION    "duration"
@@ -150,6 +153,131 @@ void conf_loadVencParams(char* confFile, VencParams_t* para)
     }
     else {
         char* sSection = SEC_H264;
+
+        lValue = ini_getl(sSection, KEY_PROFILE, VE_PROFILE, confFile);
+        para->veAttr.mAttrH264.mProfile = check_set(lValue, VENC_profileBASELINE, VENC_profileSVC);
+
+        lValue = ini_getl(sSection, KEY_LEVEL, VE_LEVEL, confFile);
+        para->veAttr.mAttrH264.mLevel = check_set(lValue, H264_LEVEL_1, H264_LEVEL_51);
+
+        if( para->rcMode == VENC_rcCBR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH264Cbr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH264Cbr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            para->rcAttr.mAttrH264Cbr.mBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcVBR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH264Vbr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH264Vbr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_ratioChangeQP, 0, confFile);
+            para->rcAttr.mAttrH264Vbr.mRatioChangeQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_QUALITY, 0, confFile);
+            para->rcAttr.mAttrH264Vbr.mQuality = check_set(lValue, 0, 13);
+            para->rcAttr.mAttrH264Vbr.mMaxBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcABR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH264Abr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH264Abr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_ratioChangeQP, 0, confFile);
+            para->rcAttr.mAttrH264Abr.mRatioChangeQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_QUALITY, 0, confFile);
+            para->rcAttr.mAttrH264Abr.mQuality = check_set(lValue, 0, 13);
+            lValue = ini_getl(sSection, KEY_minIQP, 0, confFile);
+            para->rcAttr.mAttrH264Abr.mMinIQp = check_set(lValue, 0, VE_qpMAX);
+            para->rcAttr.mAttrH264Abr.mMaxBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcFIXQP ) {
+            lValue = ini_getl(sSection, KEY_IQP, VE_iQP, confFile);
+            para->rcAttr.mAttrH264Abr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_PQP, VE_pQP, confFile);
+            para->rcAttr.mAttrH264Abr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+        }
+    }
+}
+
+void conf_loadVencParamsForLive(char* confFile, VencParams_t* para)
+{
+    long lValue = 0;
+    bool b_h265 = false;
+    char* sSection = SEC_VENC_LIVE;
+
+    lValue = ini_getl(sSection, KEY_WIDTH, VE_WIDTH, confFile);
+    para->width = check_set(lValue, 640, 3840);
+
+    lValue = ini_getl(sSection, KEY_HEIGHT, VE_HEIGHT, confFile);
+    para->height= check_set(lValue, 480, 2160);
+
+    lValue = ini_getl(sSection, KEY_FPS, VE_FPS, confFile);
+    para->fps= check_set(lValue, 24, 90);
+
+    lValue = ini_getl(sSection, KEY_KBPS, VE_KBPS_LIVE, confFile);
+    lValue = check_set(lValue, 32, 100*1024);
+    para->bps= lValue * 1024;   //kbps to bps
+
+    lValue = ini_getbool(sSection, KEY_H265, (VE_ENCODER==PT_H265), confFile);
+    para->codecType = lValue ? PT_H265 : PT_H264;
+    b_h265 = (para->codecType == PT_H265);
+
+    lValue = ini_getl(sSection, KEY_RC, VE_RC, confFile);
+    para->rcMode = check_set(lValue, VENC_rcCBR, VENC_rcABR);
+
+    lValue = ini_getl(sSection, KEY_GOP, VE_GOP, confFile);
+    para->maxKeyItl = check_set(lValue, 0, 300);
+
+    if( b_h265 ) {
+        sSection = SEC_H265_LIVE;
+
+        lValue = ini_getl(sSection, KEY_PROFILE, VE_PROFILE, confFile);
+        para->veAttr.mAttrH265.mProfile = check_set(lValue, VENC_profileBASELINE, VENC_profileMP);
+
+        lValue = ini_getl(sSection, KEY_LEVEL, VE_LEVEL, confFile);
+        para->veAttr.mAttrH265.mLevel = check_set(lValue, H265_LEVEL_1, H265_LEVEL_62);
+
+        if( para->rcMode == VENC_rcCBR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH265Cbr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH265Cbr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            para->rcAttr.mAttrH265Cbr.mBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcVBR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH265Vbr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH265Vbr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_ratioChangeQP, 0, confFile);
+            para->rcAttr.mAttrH265Vbr.mRatioChangeQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_QUALITY, 0, confFile);
+            para->rcAttr.mAttrH265Vbr.mQuality = check_set(lValue, 0, 13);
+            para->rcAttr.mAttrH265Vbr.mMaxBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcABR ) {
+            lValue = ini_getl(sSection, KEY_minQP, VE_minQP, confFile);
+            para->rcAttr.mAttrH265Abr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_maxQP, VE_maxQP, confFile);
+            para->rcAttr.mAttrH265Abr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_ratioChangeQP, 0, confFile);
+            para->rcAttr.mAttrH265Abr.mRatioChangeQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_QUALITY, 0, confFile);
+            para->rcAttr.mAttrH265Abr.mQuality = check_set(lValue, 0, 13);
+            lValue = ini_getl(sSection, KEY_minIQP, 0, confFile);
+            para->rcAttr.mAttrH265Abr.mMinIQp = check_set(lValue, 0, VE_qpMAX);
+            para->rcAttr.mAttrH265Abr.mMaxBitRate = para->bps;
+        }
+        else if( para->rcMode == VENC_rcFIXQP ) {
+            lValue = ini_getl(sSection, KEY_IQP, VE_iQP, confFile);
+            para->rcAttr.mAttrH265Abr.mMinQp = check_set(lValue, 0, VE_qpMAX);
+            lValue = ini_getl(sSection, KEY_PQP, VE_pQP, confFile);
+            para->rcAttr.mAttrH265Abr.mMaxQp = check_set(lValue, 0, VE_qpMAX);
+        }
+    }
+    else {
+        sSection = SEC_H264_LIVE;
 
         lValue = ini_getl(sSection, KEY_PROFILE, VE_PROFILE, confFile);
         para->veAttr.mAttrH264.mProfile = check_set(lValue, VENC_profileBASELINE, VENC_profileSVC);

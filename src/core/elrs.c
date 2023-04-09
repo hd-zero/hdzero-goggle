@@ -209,23 +209,24 @@ void msp_process_packet() {
     if (packet.type == MSP_PACKET_COMMAND) {
         switch (packet.function) {
         case MSP_GET_BAND_CHAN: {
-            uint8_t chan;
-            if (g_setting.scan.channel <= 8) {
-                chan = g_setting.scan.channel - 1 + 4 * 8; // Map R1..8
+            uint8_t chan,ch;
+            ch = g_setting.scan.channel & 0xF;
+            if (ch <= 8) {
+                chan = ch - 1 + 4 * 8; // Map R1..8
             } else {
-                chan = (g_setting.scan.channel - 9) * 2 + 3 * 8 + 1; // Map F2/4
+                chan = (ch - 9) * 2 + 3 * 8 + 1; // Map F2/4
             }
             msp_send_packet(MSP_GET_BAND_CHAN, MSP_PACKET_RESPONSE, 1, &chan);
         } break;
         case MSP_SET_BAND_CHAN: {
-            uint8_t chan = packet.payload[0];
+            uint8_t ch,chan = packet.payload[0];
             if (g_source_info.source == SOURCE_HDZERO) { // HDZero mode
                 chan = chan < 48 ? channel_map[chan] : 0;
-                if (chan != 0 && (chan != g_setting.scan.channel || g_app_state != APP_STATE_VIDEO)) {
+                ch = g_setting.scan.channel & 0xF;
+                if (chan != 0 && (chan != ch || g_app_state != APP_STATE_VIDEO)) {
                     g_setting.scan.channel = chan;
                     beep();
                     pthread_mutex_lock(&lvgl_mutex);
-                    HDZero_open();
                     dvr_cmd(DVR_STOP);
                     app_switch_to_hdzero(true);
                     app_state_push(APP_STATE_VIDEO);
@@ -234,20 +235,21 @@ void msp_process_packet() {
             }
         } break;
         case MSP_GET_FREQ: {
-            uint16_t freq = freq_table[g_setting.scan.channel - 1];
+            uint8_t ch = g_setting.scan.channel & 0xF;
+	    uint16_t freq = freq_table[ch - 1];
             uint8_t buf[2] = {freq & 0xFF, freq >> 8};
             msp_send_packet(MSP_GET_FREQ, MSP_PACKET_RESPONSE, sizeof(buf), buf);
         } break;
         case MSP_SET_FREQ: {
             uint16_t freq = packet.payload[0] | (uint16_t)packet.payload[1] << 8;
+            uint8_t ch = g_setting.scan.channel & 0xF;
             if (g_source_info.source == SOURCE_HDZERO) { // HDZero mode
                 for (int i = 0; i < 10; i++) {
                     int chan = i + 1;
-                    if (freq == freq_table[i] && (g_setting.scan.channel != chan || g_app_state != APP_STATE_VIDEO) && chan > 0 && chan < 11) {
+                    if (freq == freq_table[i] && (ch != chan || g_app_state != APP_STATE_VIDEO) && chan > 0 && chan < 11) {
                         g_setting.scan.channel = chan;
                         beep();
                         pthread_mutex_lock(&lvgl_mutex);
-                        HDZero_open();
                         app_switch_to_hdzero(true);
                         app_state_push(APP_STATE_VIDEO);
                         pthread_mutex_unlock(&lvgl_mutex);

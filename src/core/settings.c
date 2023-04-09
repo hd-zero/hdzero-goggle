@@ -9,6 +9,7 @@
 
 #include "core/self_test.h"
 #include "ui/page_common.h"
+#include "ui/page_connections.h"
 #include "util/file.h"
 
 setting_t g_setting;
@@ -36,6 +37,7 @@ const setting_t g_setting_defaults = {
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
+        .power_ana = false,
     },
     .record = {
         .mode_manual = false,
@@ -63,6 +65,12 @@ const setting_t g_setting_defaults = {
     },
     .elrs = {
         .enable = false,
+    },
+    .wifi = {
+        .enable = false,
+    },
+    .ease = {
+        .no_dial = 0,
     },
     .osd = {
         .embedded_mode = EMBEDDED_4x3,
@@ -115,15 +123,15 @@ const setting_t g_setting_defaults = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1000, .y = 0}, .mode_16_9 = {.x = 1160, .y = 0}},
             },
-            .goggle_temp_top = {
+            .osd_tempe[0] = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 170, .y = 50}, .mode_16_9 = {.x = 170, .y = 50}},
             },
-            .goggle_temp_left = {
+            .osd_tempe[1] = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 270, .y = 50}, .mode_16_9 = {.x = 270, .y = 50}},
             },
-            .goggle_temp_right = {
+            .osd_tempe[2] = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
             },
@@ -194,9 +202,9 @@ void settings_load(void) {
     settings_load_osd_element(&g_setting.osd.elements.ant1, "ant1", &g_setting_defaults.osd.elements.ant1);
     settings_load_osd_element(&g_setting.osd.elements.ant2, "ant2", &g_setting_defaults.osd.elements.ant2);
     settings_load_osd_element(&g_setting.osd.elements.ant3, "ant3", &g_setting_defaults.osd.elements.ant3);
-    settings_load_osd_element(&g_setting.osd.elements.goggle_temp_top, "goggle_temp_top", &g_setting_defaults.osd.elements.goggle_temp_top);
-    settings_load_osd_element(&g_setting.osd.elements.goggle_temp_left, "goggle_temp_left", &g_setting_defaults.osd.elements.goggle_temp_left);
-    settings_load_osd_element(&g_setting.osd.elements.goggle_temp_right, "goggle_temp_right", &g_setting_defaults.osd.elements.goggle_temp_right);
+    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[0], "goggle_temp_top",   &g_setting_defaults.osd.elements.osd_tempe[0]);
+    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[1], "goggle_temp_left",  &g_setting_defaults.osd.elements.osd_tempe[1]);
+    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[2], "goggle_temp_right", &g_setting_defaults.osd.elements.osd_tempe[2]);
 
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", g_setting_defaults.power.voltage, SETTING_INI);
@@ -204,6 +212,7 @@ void settings_load(void) {
     g_setting.power.cell_count_mode = ini_getl("power", "cell_count_mode", g_setting_defaults.power.cell_count_mode, SETTING_INI);
     g_setting.power.cell_count = ini_getl("power", "cell_count", g_setting_defaults.power.cell_count, SETTING_INI);
     g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
+    g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
 
     // record
     ini_gets("record", "mode_manual", "disable", str, sizeof(str), SETTING_INI);
@@ -235,6 +244,26 @@ void settings_load(void) {
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
 
     g_setting.elrs.enable = ini_getl("elrs", "enable", g_setting_defaults.elrs.enable, SETTING_INI);
+
+
+    //disable wifi on boot
+    g_setting.wifi.enable = 0;
+    ini_putl("wifi", "enable", g_setting.wifi.enable, SETTING_INI);
+    if(file_exists(WIFI_SSID_FILE)) {
+        ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, WIFI_SSID_FILE);
+        ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, WIFI_SSID_FILE);
+        ini_puts("wifi", "ssid",   g_setting.wifi.ssid, SETTING_INI);
+        ini_puts("wifi", "passwd", g_setting.wifi.passwd, SETTING_INI); //passwd length is 8+
+    }
+    else {
+        ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, SETTING_INI);
+        ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, SETTING_INI);
+    }
+    update_hostpad_conf();
+
+
+    //no dial under video mode 
+    g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
 
     // Check
     g_test_en = false;

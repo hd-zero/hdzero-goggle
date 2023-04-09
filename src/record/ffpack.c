@@ -94,6 +94,16 @@ FFPack_t* ffpack_openFile(char* sName, void* context)
         if(nRet < 0)
         {
             ff_printerr( "pb failed: ", nRet);
+
+            // pb open will failed if sdcard is read-only, treat it as fatal error
+            // sdcard will be mounted as read-only sometimes by the following operations:
+            // 1. shutdown the power while recording.
+            // 2. power on the goggle.
+            // once this happened, unmount sdcard will failed: Resource is busy.
+            // unplug then plug sdcard, to restore it writable.
+            avformat_free_context(ff->ofmtContext);
+            free(ff);
+            return NULL;
         }
     }
 

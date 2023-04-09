@@ -220,6 +220,16 @@ void camTypeDetect(uint8_t rData) {
         last_cam = cur_cam;
         cur_cam = VR_540P90_CROP;
         break;
+
+    case 0x33:  
+        last_cam = cur_cam;
+        cur_cam = VR_540P60;
+        break;
+
+    case 0x77:  
+        last_cam = cur_cam;
+        cur_cam = VR_1080P30;
+        break;
     }
     if (cur_cam == last_cam)
         CAM_MODE = cur_cam;
@@ -238,11 +248,11 @@ void fcTypeDetect(uint8_t *rData) {
         for (i = 0; i < 4; i++)
             fc_variant[i] = fc_variant_rcv[i];
 
-        load_fc_osd_font();
+        load_fc_osd_font(CAM_MODE == VR_1080P30);
+        #if (0)
+        LOGI("fc_variant_rcv:%s", fc_variant_rcv);
+        #endif
     }
-#if (0)
-    LOGI("fc_variant_rcv:%s", fc_variant_rcv);
-#endif
 }
 
 void lqDetect(uint8_t rData) {

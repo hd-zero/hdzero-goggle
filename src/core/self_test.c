@@ -30,7 +30,7 @@ void self_test() {
 
     LOGI("==== Self Test ======================");
     // 1. Read FPGA
-    i = I2C_Read(ADDR_FPGA, 0xFF);
+     i = I2C_Read(ADDR_FPGA,  0xFF);
     LOGI("%sFPGA ver = %d ", msg[i != 0], i);
 
     // 2. Check UART connection between V536 and DM5680 on left (UART2) and Right (UART1)
@@ -78,7 +78,7 @@ void self_test() {
     DM5680_ResetRF(0);
 
     // 8. HAN Status
-    i = Get_HAN_status() & 1;
+    i =  Get_HAN_status() & 1;
     LOGI("%sHAN Status. ", msg[i]);
 
     LOGI("==== Log  ======================");

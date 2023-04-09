@@ -11,7 +11,14 @@
 #define TEST_INI           "/mnt/extsd/test.ini"
 #define REC_START          "/mnt/app/app/record/gogglecmd -rec start"
 #define REC_STOP           "/mnt/app/app/record/gogglecmd -rec stop"
+#define REC_STOP_LIVE      "/mnt/app/app/record/gogglecmd -rec stopl"
 #define REC_CONF           "/mnt/app/app/record/confs/record.conf"
+#define WIFI_AP_ON         "/mnt/app/script/wlan_start_ap.sh"
+#define WIFI_AP_OFF        "/mnt/app/script/wlan_stop_ap.sh"
+#define WIFI_STA_ON        "/mnt/app/script/wlan_start_sta.sh"
+#define WIFI_STA_OFF       "/mnt/app/script/wlan_stop_sta.sh"
+#define WIFI_SSID_FILE     "/mnt/extsd/ssid.txt"
+
 #define FC_OSD_LOCAL_PATH  "/mnt/app/resource/OSD/FC/"
 #define FC_OSD_SDCARD_PATH "/mnt/extsd/resource/OSD/FC/"
 

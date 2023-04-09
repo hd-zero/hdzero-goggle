@@ -7,4 +7,6 @@
 
 extern page_pack_t pp_connections;
 
+void update_hostpad_conf();
+
 #endif
