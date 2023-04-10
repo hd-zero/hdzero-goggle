@@ -16,14 +16,17 @@
 
 pthread_mutex_t i2c_mutex;
 
-int g_iic_fds[IIC_PORTS];
-static int g_iic_report_once[IIC_PORTS] = {0};
-static char *iic_ports[IIC_PORTS] = {
+#define IIC_PORTS 4
+
+static char *IIC_DEVS[IIC_PORTS] = {
     "/dev/i2c-0",
     "/dev/i2c-1",
     "/dev/i2c-2",
     "/dev/i2c-3",
 };
+
+int g_iic_fds[IIC_PORTS];
+static int g_iic_report_once[IIC_PORTS] = {0};
 
 int iic_is_port_ready(int port) {
     if (port < 0 || port >= IIC_PORTS) {
@@ -32,7 +35,7 @@ int iic_is_port_ready(int port) {
     } else if (g_iic_fds[port] < 0) {
         if (!g_iic_report_once[port]) {
             g_iic_report_once[port] = 1;
-            LOGE("Device %d:%s is not available [0=N/A,1=Right,2=Main,3=Left]", port, iic_ports[port]);
+            LOGE("Device %d:%s is not available [0=N/A,1=Right,2=Main,3=Left]", port, IIC_DEVS[port]);
         }
         return 0;
     }
@@ -45,7 +48,7 @@ void iic_init() {
 
     // Offset starts with 1 as it is not referenced thus far.
     for (i = 1; i < IIC_PORTS; ++i) {
-        g_iic_fds[i] = open(iic_ports[i], O_RDONLY);
+        g_iic_fds[i] = open(IIC_DEVS[i], O_RDONLY);
         iic_is_port_ready(i);
     }
 }
