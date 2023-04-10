@@ -134,6 +134,7 @@ void lvgl_init() {
 int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
 
+    iic_init();
     gpio_init();
     lvgl_init();
     settings_load();
@@ -142,7 +143,6 @@ int main(int argc, char *argv[]) {
     lv_timer_handler();
     input_device_init();
 
-    iic_init();
     OLED_Startup();
     Display_UI_init();
     OLED_Pattern(0, 0, 0);

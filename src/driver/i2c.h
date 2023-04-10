@@ -1,11 +1,14 @@
 #ifndef __I2C_H_
 #define __I2C_H_
 
-#define IIC_PORTS 4
-
 #include <stdint.h>
 
+#define IIC_PORTS 4
+
+extern int g_iic_fds[IIC_PORTS];
+
 void iic_init();
+
 uint8_t i2c_read(int port, uint8_t slave_address, uint8_t addr);
 int i2c_write(int port, uint8_t slave_address, uint8_t addr, uint8_t val);
 
