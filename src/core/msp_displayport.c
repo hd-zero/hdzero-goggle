@@ -46,7 +46,7 @@ static osd_resolution_t resolution_last = HD_5018;
 uint8_t lq_err_cnt = 0;
 uint8_t lq_rcv_cnt = 0;
 
-uint16_t osd_buf[HD_VMAX][HD_HMAX];
+uint16_t fc_osd[HD_VMAX][HD_HMAX];
 uint8_t osd_init_done = 0;
 
 uint16_t last_rcv_seconds0 = 0;
@@ -445,12 +445,12 @@ void parser_osd(uint8_t row, uint8_t *rx_buf) {
 void clear_screen() {
     for (int i = 0; i < HD_VMAX; i++) {
         for (int j = 0; j < HD_HMAX; j++) {
-            osd_buf[i][j] = 0x20;
+            fc_osd[i][j] = 0x20;
         }
     }
 }
 
 void update_osd(uint16_t *line_buf, uint8_t row) {
-    memcpy(osd_buf[row], line_buf, HD_HMAX * sizeof(uint16_t));
+    memcpy(fc_osd[row], line_buf, HD_HMAX * sizeof(uint16_t));
     osd_signal_update();
 }

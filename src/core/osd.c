@@ -709,7 +709,7 @@ void *thread_osd(void *ptr) {
         // display osd
         for (int i = 0; i < HD_VMAX; i++) {
             for (int j = 0; j < HD_HMAX; j++) {
-                uint16_t ch = osd_buf[i][j];
+                uint16_t ch = fc_osd[i][j];
                 if (ch == 0x20)
                     ch = elrs_osd[i][j];
                 if (ch != osd_buf_shadow[i][j]) {
