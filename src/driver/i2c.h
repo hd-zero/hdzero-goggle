@@ -1,14 +1,8 @@
-#ifndef __I2C_H_
-#define __I2C_H_
+#pragma once
 
 #include <stdint.h>
 
-#define IIC_PORTS 4
-
-extern int g_iic_fds[IIC_PORTS];
-
 void iic_init();
-
 uint8_t i2c_read(int port, uint8_t slave_address, uint8_t addr);
 int i2c_write(int port, uint8_t slave_address, uint8_t addr, uint8_t val);
 
@@ -55,5 +49,3 @@ int8_t i2c_write_n(int port, uint8_t slave_address, uint8_t addr, uint8_t *val, 
 
 #define I2C_L_Write(s, a, d) i2c_write(3, s, a, d)
 #define I2C_L_Read(s, a)     i2c_read(3, s, a)
-
-#endif // __I2C_H_
