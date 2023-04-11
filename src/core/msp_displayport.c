@@ -185,8 +185,8 @@ void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf) {
         parser_osd(index, rx_buf);
 }
 
+video_resolution_t cur_cam = VR_720P60;
 void camTypeDetect(uint8_t rData) {
-    static video_resolution_t cur_cam = VR_720P60;
     static video_resolution_t last_cam = VR_720P50;
 
     switch (rData) {
@@ -233,9 +233,10 @@ void camTypeDetect(uint8_t rData) {
     }
     if (cur_cam == last_cam)
         CAM_MODE = cur_cam;
-    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30)
-        load_fc_osd_font(CAM_MODE == VR_1080P30);
-    // LOGI("Cam:%d",CAM_MODE);
+    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
+        // LOGI("Cam_mode changed:%d", cur_cam);
+        load_fc_osd_font(cur_cam == VR_1080P30);
+    }
 }
 
 void fcTypeDetect(uint8_t *rData) {
@@ -249,10 +250,8 @@ void fcTypeDetect(uint8_t *rData) {
         for (i = 0; i < 4; i++)
             fc_variant[i] = fc_variant_rcv[i];
 
-        load_fc_osd_font(CAM_MODE == VR_1080P30);
-#if (0)
-        LOGI("fc_variant_rcv:%s", fc_variant_rcv);
-#endif
+        // LOGI("fc_variant changed:%s", fc_variant_rcv);
+        load_fc_osd_font(cur_cam == VR_1080P30);
     }
 }
 
