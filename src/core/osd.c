@@ -676,6 +676,17 @@ void load_fc_osd_font(uint8_t fhd) {
     }
 }
 
+void osd_shadow_clear(void) {
+    for (int i = 0; i < HD_VMAX; i++) {
+        for (int j = 0; j < HD_HMAX; j++) {
+            if (osd_buf_shadow[i][j] != 0x20) {
+                osd_buf_shadow[i][j] = 0x20;
+                draw_osd_on_screen(i, j);
+            }
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Threads for updating FC OSD
 
@@ -691,17 +702,14 @@ void *thread_osd(void *ptr) {
 
         // clear shadow buffer when mode changes
         if (fhd_d != is_fhd) {
-            for (int i = 0; i < HD_VMAX; i++) {
-                for (int j = 0; j < HD_HMAX; j++)
-                    osd_buf_shadow[i][j] = 0x20;
-            }
+            osd_shadow_clear();
             fhd_d = is_fhd;
         }
 
         // display osd
         for (int i = 0; i < HD_VMAX; i++) {
             for (int j = 0; j < HD_HMAX; j++) {
-                uint16_t ch = osd_buf[i][j];
+                uint16_t ch = fc_osd[i][j];
                 if (ch == 0x20)
                     ch = elrs_osd[i][j];
                 if (ch != osd_buf_shadow[i][j]) {

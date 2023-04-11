@@ -46,7 +46,7 @@ static osd_resolution_t resolution_last = HD_5018;
 uint8_t lq_err_cnt = 0;
 uint8_t lq_rcv_cnt = 0;
 
-uint16_t osd_buf[HD_VMAX][HD_HMAX];
+uint16_t fc_osd[HD_VMAX][HD_HMAX];
 uint8_t osd_init_done = 0;
 
 uint16_t last_rcv_seconds0 = 0;
@@ -185,8 +185,8 @@ void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf) {
         parser_osd(index, rx_buf);
 }
 
+video_resolution_t cur_cam = VR_720P60;
 void camTypeDetect(uint8_t rData) {
-    static video_resolution_t cur_cam = VR_720P60;
     static video_resolution_t last_cam = VR_720P50;
 
     switch (rData) {
@@ -233,8 +233,10 @@ void camTypeDetect(uint8_t rData) {
     }
     if (cur_cam == last_cam)
         CAM_MODE = cur_cam;
-
-    // LOGI("Cam:%d",CAM_MODE);
+    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
+        // LOGI("Cam_mode changed:%d", cur_cam);
+        load_fc_osd_font(cur_cam == VR_1080P30);
+    }
 }
 
 void fcTypeDetect(uint8_t *rData) {
@@ -248,10 +250,8 @@ void fcTypeDetect(uint8_t *rData) {
         for (i = 0; i < 4; i++)
             fc_variant[i] = fc_variant_rcv[i];
 
-        load_fc_osd_font(CAM_MODE == VR_1080P30);
-#if (0)
-        LOGI("fc_variant_rcv:%s", fc_variant_rcv);
-#endif
+        // LOGI("fc_variant changed:%s", fc_variant_rcv);
+        load_fc_osd_font(cur_cam == VR_1080P30);
     }
 }
 
@@ -444,12 +444,12 @@ void parser_osd(uint8_t row, uint8_t *rx_buf) {
 void clear_screen() {
     for (int i = 0; i < HD_VMAX; i++) {
         for (int j = 0; j < HD_HMAX; j++) {
-            osd_buf[i][j] = 0x20;
+            fc_osd[i][j] = 0x20;
         }
     }
 }
 
 void update_osd(uint16_t *line_buf, uint8_t row) {
-    memcpy(osd_buf[row], line_buf, HD_HMAX * sizeof(uint16_t));
+    memcpy(fc_osd[row], line_buf, HD_HMAX * sizeof(uint16_t));
     osd_signal_update();
 }
