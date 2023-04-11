@@ -4,6 +4,7 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,29 +26,28 @@ static char *IIC_DEVS[IIC_PORTS] = {
     "/dev/i2c-3",
 };
 
-int g_iic_fds[IIC_PORTS];
-static int g_iic_report_once[IIC_PORTS] = {0};
+static int g_iic_fds[IIC_PORTS];
+static bool g_iic_report_once[IIC_PORTS] = {false};
 
-int iic_is_port_ready(int port) {
+bool iic_is_port_ready(int port) {
     if (port < 0 || port >= IIC_PORTS) {
         LOGE("Port %d contains an invalid range [0=N/A,1=Right,2=Main,3=Left]", port);
-        return 0;
+        return false;
     } else if (g_iic_fds[port] < 0) {
         if (!g_iic_report_once[port]) {
-            g_iic_report_once[port] = 1;
+            g_iic_report_once[port] = true;
             LOGE("Device %d:%s is not available [0=N/A,1=Right,2=Main,3=Left]", port, IIC_DEVS[port]);
         }
-        return 0;
+        return false;
     }
-    return 1;
+    return true;
 }
 
 void iic_init() {
     pthread_mutex_init(&i2c_mutex, NULL);
-    int i;
 
     // Offset starts with 1 as it is not referenced thus far.
-    for (i = 1; i < IIC_PORTS; ++i) {
+    for (int i = 1; i < IIC_PORTS; ++i) {
         g_iic_fds[i] = open(IIC_DEVS[i], O_RDONLY);
         iic_is_port_ready(i);
     }
@@ -134,7 +134,6 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address, u
     struct i2c_rdwr_ioctl_data work_queue;
     struct i2c_msg msgs;
     int ret;
-    uint16_t i;
 
     work_queue.nmsgs = 1;
     work_queue.msgs = &msgs;
@@ -149,7 +148,7 @@ static int iic_write_n(int i2c_fd, uint8_t slave_address, uint8_t reg_address, u
     (work_queue.msgs[0]).addr = slave_address;
     (work_queue.msgs[0]).buf[0] = reg_address;
 
-    for (i = 1; i <= len; i++)
+    for (uint16_t i = 1; i <= len; i++)
         (work_queue.msgs[0]).buf[i] = reg_val[i - 1];
 
     ret = ioctl(i2c_fd, I2C_RDWR, (unsigned long)&work_queue);
