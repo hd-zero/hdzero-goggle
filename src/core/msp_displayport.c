@@ -233,7 +233,7 @@ void camTypeDetect(uint8_t rData) {
     }
     if (cur_cam == last_cam)
         CAM_MODE = cur_cam;
-    else if (cur_cam == VR_1080P30 || cur_cam == VR_1080P30)
+    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30)
         load_fc_osd_font(CAM_MODE == VR_1080P30);
     // LOGI("Cam:%d",CAM_MODE);
 }
