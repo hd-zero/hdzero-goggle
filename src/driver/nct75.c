@@ -19,12 +19,14 @@ sys_temperature_t g_temperature;
 int nct_read_temperature(nct_type_t type) {
     char buf[128];
     FILE *fp;
-    int i;
+    int i, dev_id;
 
-    if (ismcp() == -1)
+    if (hwRevision() == HW_REV_UNKNOWN) {
         return -1;
+    }
+    dev_id = ((int)type) + hwRevision() == HW_REV_1 ? 1 : 0;
 
-    sprintf(buf, "/sys/bus/iio/devices/iio:device%d/in_voltage0_raw", ((int)type) + ismcp());
+    sprintf(buf, "/sys/bus/iio/devices/iio:device%d/in_voltage0_raw", dev_id);
     fp = fopen(buf, "r");
     if (!fp) {
         static bool bFirst = true;
