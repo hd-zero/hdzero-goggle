@@ -53,7 +53,7 @@ static void page_power_update_cell_count() {
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     // Update number of rows based on Batch 2 vs Batch 1 options
-    pp_power.p_arr.max = hwRevision() == HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
+    pp_power.p_arr.max = hwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -89,9 +89,11 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
 
     // Batch 2 goggles only
-    if (hwRevision() == HW_REV_2) {
+    if (hwRevision() >= HW_REV_2) {
         create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Off", "", "", ROW_POWER_ANA);
     }
+
+    // Back entry
     create_label_item(cont, "< Back", 1, pp_power.p_arr.max - 1, 1);
 
     // set menu entry min/max values and labels
@@ -171,6 +173,7 @@ void power_voltage_inc(void) {
     LOGI("vol:%d", g_setting.power.voltage);
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
+
 void power_voltage_dec(void) {
     int32_t value = 0;
 
@@ -233,7 +236,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (hwRevision() == HW_REV_2) {
+        if (hwRevision() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
@@ -249,7 +252,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 page_pack_t pp_power = {
     .p_arr = {
         .cur = 0,
-        .max = ROW_BACK + 1},
+        .max = ROW_COUNT},
     .create = page_power_create,
     .enter = NULL,
     .exit = NULL,
