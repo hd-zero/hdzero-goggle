@@ -15,7 +15,11 @@
 #include "core/common.hh"
 #include "i2c.h"
 
-int mcp_read_voltage(void) {
+void mcp3021_init() {
+    read_voltage();
+}
+
+int mcp_read_voltage() {
     char buf[128];
     FILE *fp;
     int i;
@@ -38,7 +42,6 @@ int mcp_read_voltage(void) {
     return i;
 }
 
-static int is_mcp = -1;
 int aduc_read_voltage() {
     int vl, vh;
     double vol;
@@ -47,15 +50,18 @@ int aduc_read_voltage() {
     vh = I2C_Read(ADDR_FPGA, 0x13);
     //  LOGI("ADUC: %x %x", vh,vl);
 
-    if (is_mcp == -1) {
-        if ((vl == 0) && (vh == 0))
-            is_mcp = 1;
-        else
-            is_mcp = 0;
-        LOGI("Voltage ADC is %s", is_mcp ? "mcp" : "aduc");
+    if (getHwRevision() == HW_REV_UNKNOWN) {
+        if ((vl == 0) && (vh == 0)) {
+            setHwRevision(HW_REV_1);
+        } else {
+            setHwRevision(HW_REV_2);
+        }
 
-        if (is_mcp)
+        LOGI("Voltage ADC is %s", getHwRevision() == HW_REV_1 ? "mcp" : "aduc");
+
+        if (getHwRevision() == HW_REV_1) {
             return mcp_read_voltage();
+        }
     }
 
     vl = (vh << 8) | vl;
@@ -65,14 +71,10 @@ int aduc_read_voltage() {
 
 int read_voltage() {
     int vol;
-    if (is_mcp == 1)
+    if (getHwRevision() == HW_REV_1)
         vol = mcp_read_voltage();
     else
         vol = aduc_read_voltage();
     // LOGI("Voltage = %dmV",vol);
     return vol;
-}
-
-int ismcp() {
-    return is_mcp;
 }

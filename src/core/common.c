@@ -15,7 +15,18 @@
 pthread_mutex_t lvgl_mutex;
 atomic_int g_key = 0;
 atomic_int g_init_done = 0; // 0= init not done, 1= done, -1= dial/up/down pressed
+static hw_revision_t g_hw_revsion = HW_REV_UNKNOWN;
 ///////////////////////////////////////////////////////////////////////////////
+
+void setHwRevision(hw_revision_t revision) {
+    if (revision > g_hw_revsion) {
+        g_hw_revsion = revision;
+    }
+}
+
+hw_revision_t getHwRevision() {
+    return g_hw_revsion;
+}
 
 uint8_t slow_key(left_dial_t key, uint8_t *state, uint8_t *cnt) {
     if ((key == LEFT_DAIL_CLICK) || (key == LEFT_DAIL_LONGPRESS)) {
