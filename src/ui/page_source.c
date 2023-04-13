@@ -27,6 +27,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_T
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
+static btn_group_t btn_group0;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -57,16 +58,19 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     label[1] = create_label_item(cont, "HDMI In", 1, 1, 3);
     label[2] = create_label_item(cont, "AV In", 1, 2, 3);
     label[3] = create_label_item(cont, "Expansion Module", 1, 3, 3);
-    if (g_test_en) {
-        pp_source.p_arr.max = 6;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 4, 3);
-        create_label_item(cont, "< Back", 1, 5, 3);
-    } else {
-        pp_source.p_arr.max = 5;
-        label[4] = NULL;
-        create_label_item(cont, "< Back", 1, 4, 3);
-    }
 
+    create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
+    btn_group_set_sel(&btn_group0, g_setting.source.analog_format ? 1 : 0);
+
+    if (g_test_en) {
+        pp_source.p_arr.max = 7;
+        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 5, 3);
+        create_label_item(cont, "< Back", 1, 6, 3);
+    } else {
+        pp_source.p_arr.max = 6;
+        label[4] = NULL;
+        create_label_item(cont, "< Back", 1, 5, 3);
+    }
     return page;
 }
 
@@ -138,7 +142,17 @@ static void page_source_on_click(uint8_t key, int sel) {
         dvr_enable_line_out(true);
         break;
 
-    case 4:
+    case 4: // Analog video format
+        btn_group_toggle_sel(&btn_group0);
+        g_setting.source.analog_format = btn_group_get_sel(&btn_group0);
+        if (g_setting.source.analog_format) {
+            ini_puts("source", "analog_format", "pal", SETTING_INI);
+        } else {
+            ini_puts("source", "analog_format", "ntsc", SETTING_INI);
+        }
+        break;
+
+    case 5:
         if (g_test_en && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;

@@ -158,7 +158,7 @@ static void page_connections_on_click(uint8_t key, int sel) {
         g_setting.wifi.enable = btn_group_get_sel(&wifi_group) == 0 ? 1 : 0;
         ini_putl("wifi", "enable", g_setting.wifi.enable, SETTING_INI);
         if (g_setting.wifi.enable) {
-            dvr_update_record_vi_conf(VR_1080P30);
+            dvr_update_vi_conf(VR_1080P30);
             system(WIFI_AP_ON);
         } else
             system(WIFI_AP_OFF);

@@ -185,6 +185,10 @@ void settings_load(void) {
     g_setting.fans.left_speed = ini_getl("fans", "left_speed", g_setting_defaults.fans.left_speed, SETTING_INI);
     g_setting.fans.right_speed = ini_getl("fans", "right_speed", g_setting_defaults.fans.right_speed, SETTING_INI);
 
+    // source.analog format
+    ini_gets("source", "analog_format", "pal", str, sizeof(str), SETTING_INI);
+    g_setting.source.analog_format = strcmp(str, "pal") == 0;
+
     // autoscan
     ini_gets("autoscan", "status", "scan", str, sizeof(str), SETTING_INI);
     if (strcmp(str, "enable") == 0 || strcmp(str, "scan") == 0) {

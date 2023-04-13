@@ -70,7 +70,8 @@ static void check_hdzero_signal(int vtmg_change) {
         tune_channel_timer();
     }
 
-    if (g_setting.record.mode_manual || !g_sdcard_enable || (g_app_state != APP_STATE_VIDEO))
+    // exit if no SD card or not in video mode
+    if (g_setting.record.mode_manual || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
         return;
 
     // exit if HDMI in
@@ -86,17 +87,20 @@ static void check_hdzero_signal(int vtmg_change) {
         }
     }
 
-    // HDZero VTMG change -> stop recording first
+    // Auto DVT HDZero VTMG change -> stop recording first
     if ((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
-        LOGI("HDZero VTMG change\n");
+        LOGI("HDZero VTMG change (A)\n");
         dvr_cmd(DVR_STOP);
-        dvr_update_record_vi_conf(CAM_MODE);
         system(REC_STOP_LIVE);
         cnt = 0;
     }
 
-    is_valid = (g_source_info.source == SOURCE_AV_IN) ? g_source_info.av_in_status : (g_source_info.source == SOURCE_EXPANSION) ? g_source_info.av_bay_status
-                                                                                                                                : (rx_status[0].rx_valid || rx_status[1].rx_valid);
+    if (g_source_info.source == SOURCE_AV_IN)
+        is_valid = g_source_info.av_in_status;
+    else if (g_source_info.source == SOURCE_EXPANSION)
+        is_valid = g_source_info.av_bay_status;
+    else
+        is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
 
     if (dvr_is_recording) { // in-recording
         if (!is_valid) {

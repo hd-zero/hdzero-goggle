@@ -146,12 +146,16 @@ typedef struct {
 typedef struct {
     uint8_t no_dial; // 1=disable turning channels under video mode
 } ease_use_t;
+typedef struct {
+    uint8_t analog_format; // 0=NTSC, 1= PAL
+} setting_sources_t;
 
 typedef struct {
     setting_scan_t scan;
     setting_fan_t fans;
     setting_autoscan_t autoscan;
     setting_power_t power;
+    setting_sources_t source;
     setting_record_t record;
     setting_image_t image;
     setting_head_tracker_t ht;
