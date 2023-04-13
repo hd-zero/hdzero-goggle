@@ -134,39 +134,49 @@ void lvgl_init() {
 int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
 
+    // 1. Recall configuration
+    settings_load();
+
+    // 2. Initialize communications.
+    rtc_init();
     iic_init();
     gpio_init();
-    lvgl_init();
-    settings_load();
-    main_menu_init();
-    statusbar_init();
-    lv_timer_handler();
-    input_device_init();
-
-    OLED_Startup();
-    Display_UI_init();
-    OLED_Pattern(0, 0, 0);
-
     uart_init();
+
+    // 3. Initialize core devices.
+    mcp3021_init();
+    input_device_init();
     hw_stat_init();
     device_init();
-    rtc_init();
-
-    osd_init();
-    ims_init();
-
     esp32_init();
     elrs_init();
     ht_init();
 
-    start_running(); // start to run from saved settings
+    // 4. Initilize UI
+    lvgl_init();
+    main_menu_init();
+    statusbar_init();
+    lv_timer_handler();
+
+    // 5. Prepare Display
+    OLED_Startup();
+    Display_UI_init();
+    OLED_Pattern(0, 0, 0);
+    osd_init();
+    ims_init();
+
+    // 6. Enable functionality
+    if (g_setting.ht.enable) {
+        ht_enable();
+    } else {
+        ht_disable();
+    }
+
+    // 7. Start threads
+    start_running();
     create_threads();
 
-    if (g_setting.ht.enable)
-        ht_enable();
-    else
-        ht_disable();
-
+    // 8. Execute main loop
     g_init_done = 1;
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);

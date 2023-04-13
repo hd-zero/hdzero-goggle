@@ -11,6 +11,15 @@
 
 #include "defines.h"
 
+typedef enum {
+    HW_REV_UNKNOWN = 0,
+    HW_REV_1,
+    HW_REV_2
+} hw_revision_t;
+
+void setHwRevision(hw_revision_t revision);
+hw_revision_t getHwRevision();
+
 #define DIAL_KEY_UP     1
 #define DIAL_KEY_DOWN   2
 #define DIAL_KEY_CLICK  3

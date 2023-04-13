@@ -1,6 +1,4 @@
-#ifndef _MCP_3021_H
-#define _MCP_3021_H
+#pragma once
 
-int read_voltage(void);
-int ismcp();
-#endif
+void mcp3021_init();
+int read_voltage();

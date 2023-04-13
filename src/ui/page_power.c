@@ -14,6 +14,22 @@
 #include "page_common.h"
 #include "ui/ui_style.h"
 
+#define CELL_VOLTAGE_MIN 28
+#define CELL_VOLTAGE_MAX 42
+
+enum {
+    ROW_BATT_C_LABEL = 0,
+    ROW_CELL_COUNT_MODE,
+    ROW_CELL_COUNT,
+    ROW_CELL_VOLTAGE,
+    ROW_OSD_DISPLAY_MODE,
+    ROW_WARN_TYPE,
+    ROW_POWER_ANA,
+    ROW_BACK,
+
+    ROW_COUNT
+};
+
 static slider_group_t slider_group_cell_voltage;
 static btn_group_t btn_group_cell_count_mode;
 static slider_group_t slider_group_cell_count;
@@ -24,7 +40,6 @@ static btn_group_t btn_group_power_ana;
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 lv_obj_t *label_cell_count;
-lv_obj_t *label_pwr_ana;
 
 static void page_power_update_cell_count() {
     char str[10];
@@ -34,13 +49,12 @@ static void page_power_update_cell_count() {
 
     sprintf(str, "%dS", g_battery.type);
     lv_label_set_text(label_cell_count, str);
-    if (ismcp())
-        lv_label_set_text(label_pwr_ana, "* AnalogRX module power control does not apply to this Goggle");
-    else
-        lv_label_set_text(label_pwr_ana, "* AnalogRX module power control applies to this Goggle");
 }
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
+    // Update number of rows based on Batch 2 vs Batch 1 options
+    pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -73,17 +87,14 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group_cell_voltage, cont, "Cell Voltage", CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_CELL_VOLTAGE);
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
-    create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Off", "", "", ROW_POWER_ANA);
-    create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
-    label_pwr_ana = lv_label_create(cont);
-    lv_label_set_text(label_pwr_ana, "* AnalogRX module power control applies to this Goggle");
-    lv_obj_set_style_text_font(label_pwr_ana, &lv_font_montserrat_16, 0);
-    lv_obj_set_style_text_align(label_pwr_ana, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label_pwr_ana, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label_pwr_ana, 12, 0);
-    lv_label_set_long_mode(label_pwr_ana, LV_LABEL_LONG_WRAP);
-    lv_obj_set_grid_cell(label_pwr_ana, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 8, 3);
+    // Batch 2 goggles only
+    if (getHwRevision() >= HW_REV_2) {
+        create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Off", "", "", ROW_POWER_ANA);
+    }
+
+    // Back entry
+    create_label_item(cont, "< Back", 1, pp_power.p_arr.max - 1, 1);
 
     // set menu entry min/max values and labels
     char str[5];
@@ -162,6 +173,7 @@ void power_voltage_inc(void) {
     LOGI("vol:%d", g_setting.power.voltage);
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
+
 void power_voltage_dec(void) {
     int32_t value = 0;
 
@@ -223,7 +235,8 @@ static void page_power_on_click(uint8_t key, int sel) {
         break;
 
     case ROW_POWER_ANA:
-        if (!ismcp()) {
+        // Batch 2 goggles only
+        if (getHwRevision() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
@@ -239,9 +252,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 page_pack_t pp_power = {
     .p_arr = {
         .cur = 0,
-        .max = 8,
-    },
-
+        .max = ROW_COUNT},
     .create = page_power_create,
     .enter = NULL,
     .exit = NULL,
