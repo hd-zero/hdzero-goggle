@@ -294,8 +294,16 @@ bool fhd_change() {
     return false;
 }
 
+#define FC_OSD_CHECK_PERIOD 200 // 25ms
 void osd_hdzero_update(void) {
     char buf[128], i;
+
+    if (g_osd_update_cnt < FC_OSD_CHECK_PERIOD)
+        g_osd_update_cnt++;
+    else if (g_osd_update_cnt == FC_OSD_CHECK_PERIOD) {
+        osd_clear();
+        g_osd_update_cnt++;
+    }
 
     if (fhd_change())
         return;

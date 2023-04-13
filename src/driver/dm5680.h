@@ -1,10 +1,10 @@
 #ifndef _DM5680_H
 #define _DM5680_H
 
-#include <pthread.h>
-#include <stdint.h>
-
 #include "dm6302.h"
+#include <pthread.h>
+#include <stdatomic.h>
+#include <stdint.h>
 
 typedef struct {
     uint8_t rx_ver;      // CMD1
@@ -20,6 +20,7 @@ typedef struct {
 } rx_status_t;
 
 extern rx_status_t rx_status[2];
+extern atomic_int g_osd_update_cnt;
 
 void UART1_TX(uint8_t d);
 void UART2_TX(uint8_t d);

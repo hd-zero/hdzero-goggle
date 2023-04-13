@@ -38,7 +38,7 @@ void app_switch_to_menu() {
 
     // Stop recording if switching to menu mode from video mode regardless
     dvr_cmd(DVR_STOP);
-    dvr_update_record_vi_conf(VR_1080P30);
+    dvr_update_vi_conf(VR_1080P30);
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -57,7 +57,7 @@ void app_switch_to_menu() {
 void app_switch_to_analog(bool is_bay) {
     Source_AV(is_bay);
 
-    dvr_update_record_vi_conf(VR_720P50);
+    dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
     osd_show(true);
     lvgl_switch_to_720p();
@@ -87,7 +87,7 @@ void app_switch_to_hdmi_in() {
     osd_clear();
     lv_timer_handler();
 
-    dvr_update_record_vi_conf((g_hw_stat.hdmiin_vtmg == 1) ? VR_1080P30 : VR_720P60);
+    dvr_update_vi_conf((g_hw_stat.hdmiin_vtmg == 1) ? VR_1080P30 : VR_720P60);
 
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;
@@ -158,6 +158,6 @@ void app_switch_to_hdzero(bool is_default) {
     g_setting.autoscan.last_source = SETTING_SOURCE_HDZERO;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
-    dvr_update_record_vi_conf(CAM_MODE);
+    dvr_update_vi_conf(CAM_MODE);
     system(REC_STOP_LIVE);
 }

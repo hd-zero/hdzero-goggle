@@ -31,6 +31,7 @@
 /////////////////////////////////////////////////////////////////////
 // global
 rx_status_t rx_status[2]; // global, 0=UART1 from Right DM5680, 1=UART2 from Left DM5680,
+atomic_int g_osd_update_cnt = 0;
 
 // local
 uint8_t uart_buffer[2][256];
@@ -106,9 +107,11 @@ void uart_parse(uint8_t sel, uint8_t *state, uint8_t *len, uint8_t *payload, uin
             DM5680_get_vtxinfo(sel, ptr);
             break;
 
-        case 0x15:    // osd_data....... crc
-            if (!sel) // Update OSD from UART1 only sel: 1=from left, 0= from right
+        case 0x15:      // osd_data....... crc
+            if (!sel) { // Update OSD from UART1 only sel: 1=from left, 0= from right
                 DM5680_OSD_parse(&ptr[2], ptr[0] - 1);
+                g_osd_update_cnt = 0;
+            }
             break;
 
         case 0x20: // right_btn

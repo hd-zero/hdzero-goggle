@@ -87,9 +87,11 @@ void start_running(void) {
     } else {
         app_state_push(APP_STATE_VIDEO);
         if (source == SETTING_SOURCE_EXPANSION) { // module Bay
+            g_hw_stat.av_pal[1] = g_setting.source.analog_format;
             app_switch_to_analog(1);
             g_source_info.source = SOURCE_EXPANSION;
         } else if (source == SETTING_SOURCE_AV_IN) { // AV in
+            g_hw_stat.av_pal[0] = g_setting.source.analog_format;
             app_switch_to_analog(0);
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
