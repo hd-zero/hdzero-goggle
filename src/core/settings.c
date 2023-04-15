@@ -38,6 +38,9 @@ const setting_t g_setting_defaults = {
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
     },
+    .source = {
+        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL
+    },
     .record = {
         .mode_manual = false,
         .format_ts = true,
@@ -185,6 +188,7 @@ void settings_load(void) {
         system("rm /mnt/UDISK/setting.ini");
     }
 
+    // scan
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
     // fans
@@ -193,9 +197,8 @@ void settings_load(void) {
     g_setting.fans.left_speed = ini_getl("fans", "left_speed", g_setting_defaults.fans.left_speed, SETTING_INI);
     g_setting.fans.right_speed = ini_getl("fans", "right_speed", g_setting_defaults.fans.right_speed, SETTING_INI);
 
-    // source.analog format
-    ini_gets("source", "analog_format", "pal", str, sizeof(str), SETTING_INI);
-    g_setting.source.analog_format = strcmp(str, "pal") == 0;
+    // source
+    g_setting.source.analog_format = ini_getl("source", "analog_format", g_setting_defaults.source.analog_format, SETTING_INI);
 
     // autoscan
     g_setting.autoscan.status = ini_getl("autoscan", "status", g_setting_defaults.autoscan.status, SETTING_INI);
@@ -265,8 +268,8 @@ void settings_load(void) {
     g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
 
     // disable wifi on boot
-    g_setting.wifi.enable = 0;
-    ini_putl("wifi", "enable", g_setting.wifi.enable, SETTING_INI);
+    g_setting.wifi.enable = false;
+    settings_put_bool("wifi", "enable", g_setting.wifi.enable);
     if (file_exists(WIFI_SSID_FILE)) {
         ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, WIFI_SSID_FILE);
         ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, WIFI_SSID_FILE);

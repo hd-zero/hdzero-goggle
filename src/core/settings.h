@@ -148,7 +148,7 @@ typedef struct {
 } setting_clock_t;
 
 typedef struct {
-    int enable;
+    bool enable;
     char ssid[16];   // not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
     char passwd[16]; // default: "divimath"
     uint8_t ip[4];   // default: 192.168.2.122
@@ -157,8 +157,14 @@ typedef struct {
 typedef struct {
     uint8_t no_dial; // 1=disable turning channels under video mode
 } ease_use_t;
+
+typedef enum {
+    SETTING_SOURCES_ANALOG_FORMAT_NTSC = 0,
+    SETTING_SOURCES_ANALOG_FORMAT_PAL = 1
+} setting_sources_analog_format_t;
+
 typedef struct {
-    uint8_t analog_format; // 0=NTSC, 1= PAL
+    setting_sources_analog_format_t analog_format; // 0=NTSC, 1= PAL
 } setting_sources_t;
 
 typedef struct {
