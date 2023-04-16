@@ -22,6 +22,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 set(OS_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app)
 set(RECORD_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app/record)
+set(DROPBEAR_APP_PATH ${OS_APP_PATH}/dropbear)
 
 # common build settings
 set(STANDARD_LIBRARIES
@@ -46,6 +47,7 @@ if(EMULATOR_BUILD)
 endif()
 
 # dependencies
+add_subdirectory(ext/dropbear)
 add_subdirectory(lib/lvgl)
 add_subdirectory(lib/minIni)
 add_subdirectory(lib/log)
@@ -164,14 +166,18 @@ if(NOT EMULATOR_BUILD)
 		OUTPUT ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}
 		COMMAND size -A ${PROJECT_NAME}
 		COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/out/
+		COMMAND mkdir -p ${DROPBEAR_APP_PATH}
 		COMMAND cp ${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/out/
 		COMMAND cp record ${PROJECT_SOURCE_DIR}/out/
+		COMMAND cp rtspLive ${PROJECT_SOURCE_DIR}/out/
+		COMMAND cp ${dropbear_BINARY_DIR}/out/dropbearmulti ${PROJECT_SOURCE_DIR}/out/
 		COMMAND cp rtspLive ${PROJECT_SOURCE_DIR}/out/
 		COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
 		COMMAND cp record ${RECORD_APP_PATH}
 		COMMAND cp rtspLive ${RECORD_APP_PATH}
+		COMMAND cp ${dropbear_BINARY_DIR}/out/dropbearmulti ${DROPBEAR_APP_PATH}/ 
 		COMMAND cd ${PROJECT_SOURCE_DIR} && ./mkapp/mkapp_ota.sh
-		DEPENDS ${PROJECT_NAME} record rtspLive
+		DEPENDS ${PROJECT_NAME} record rtspLive dropbearmulti
 	)
 	add_custom_target(${PROJECT_NAME}-OTA ALL
 		DEPENDS ${PROJECT_SOURCE_DIR}/out/${PROJECT_NAME}
