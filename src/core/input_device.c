@@ -222,7 +222,7 @@ static void btn_click(void) // short press enter key
         LOGI("level = 1");
         app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_click();
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         submenu_click();
@@ -283,6 +283,8 @@ static void roller_up(void) {
         menu_nav(DIAL_KEY_UP);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_UP);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_UP);
@@ -318,6 +320,8 @@ static void roller_down(void) {
         menu_nav(DIAL_KEY_DOWN);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_DOWN);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_DOWN);

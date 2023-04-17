@@ -161,6 +161,13 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
                          LV_GRID_ALIGN_CENTER, row, 1);
 }
 
+void update_slider_item_with_value(slider_group_t *slider_group, int value) {
+    char str[20];
+    sprintf(str, "%d", value);
+    lv_slider_set_value(slider_group->slider, value, LV_ANIM_OFF);
+    lv_label_set_text(slider_group->label, str);
+}
+
 void create_btn_item(lv_obj_t *parent, const char *name, int col, int row) {
 
     lv_obj_t *btn = lv_btn_create(parent);

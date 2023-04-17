@@ -128,6 +128,8 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row);
 
+void update_slider_item_with_value(slider_group_t *slider_group, int value);
+
 void create_btn_item(lv_obj_t *parent, const char *name, int col, int row);
 
 lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, int row);
