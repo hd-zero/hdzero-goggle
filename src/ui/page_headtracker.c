@@ -101,8 +101,8 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 static void page_headtracker_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group);
-        g_setting.ht.enable = btn_group_get_sel(&btn_group) == 0 ? 1 : 0;
-        ini_putl("ht", "enable", g_setting.ht.enable, SETTING_INI);
+        g_setting.ht.enable = btn_group_get_sel(&btn_group) == 0;
+        settings_put_bool("ht", "enable", g_setting.ht.enable);
         if (g_setting.ht.enable)
             ht_enable();
         else

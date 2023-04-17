@@ -96,7 +96,7 @@ void osd_rec_show(bool bShow) {
 }
 
 void osd_battery_show() {
-    if (g_setting.power.warning_type == 0) { // Beep only
+    if (g_setting.power.warning_type == SETTING_POWER_WARNING_TYPE_BEEP) { // Beep only
         lv_obj_add_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
         return;
     }

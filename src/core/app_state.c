@@ -65,7 +65,7 @@ void app_switch_to_analog(bool is_bay) {
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
 
-    g_setting.autoscan.last_source = is_bay ? SETTING_SOURCE_EXPANSION : SETTING_SOURCE_AV_IN;
+    g_setting.autoscan.last_source = is_bay ? SETTING_AUTOSCAN_SOURCE_EXPANSION : SETTING_AUTOSCAN_SOURCE_AV_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     // usleep(300*1000);
@@ -92,7 +92,7 @@ void app_switch_to_hdmi_in() {
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;
     dvr_enable_line_out(false);
-    g_setting.autoscan.last_source = SETTING_SOURCE_HDMI_IN;
+    g_setting.autoscan.last_source = SETTING_AUTOSCAN_SOURCE_HDMI_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     system(REC_STOP_LIVE);
@@ -154,8 +154,8 @@ void app_switch_to_hdzero(bool is_default) {
     osd_show(true);
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
-
-    g_setting.autoscan.last_source = SETTING_SOURCE_HDZERO;
+    
+    g_setting.autoscan.last_source = SETTING_AUTOSCAN_SOURCE_HDZERO;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     dvr_update_vi_conf(CAM_MODE);
