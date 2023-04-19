@@ -76,7 +76,7 @@ usleep 2000
 aww 0x050967c0 0x110e6100
 
 #dropbear process
-/mnt/app/script/dropbear_start.sh
+/mnt/app/script/dropbear_start.sh &
 
 #record process
 source /mnt/app//app/record/record-env.sh
