@@ -11,8 +11,13 @@ typedef enum {
     // but the selected submenu item selection (e.g. pp_osd.p_arr.cur)
     // is not automatically changed.
     APP_STATE_SUBMENU_ITEM_FOCUSED = 3,
+
     APP_STATE_VIDEO = 10,
+
+    // the preview for image settings
     APP_STATE_IMS = 11,
+    // the preview for osd element positioning settings
+    APP_STATE_OSD_ELEMENT_PREV = 12,
 
     APP_STATE_USER_INPUT_DISABLED = 20,
 

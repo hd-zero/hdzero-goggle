@@ -42,6 +42,7 @@
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
+#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
 
@@ -207,6 +208,12 @@ static void btn_click(void) // short press enter key
             app_switch_to_menu();
         pthread_mutex_unlock(&lvgl_mutex);
         return;
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        pthread_mutex_lock(&lvgl_mutex);
+        if (ui_osd_element_pos_handle_input(DIAL_KEY_CLICK))
+            app_switch_to_menu();
+        pthread_mutex_unlock(&lvgl_mutex);
+        return;
     }
 
     if (!main_menu_is_shown())
@@ -290,6 +297,8 @@ static void roller_up(void) {
             tune_channel(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_UP);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_dec();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
@@ -327,6 +336,8 @@ static void roller_down(void) {
             tune_channel(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_inc();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
