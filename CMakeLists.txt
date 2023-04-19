@@ -136,7 +136,7 @@ if(NOT EMULATOR_BUILD)
 	file(GLOB SRC_FILES_RTSPLIVE_STREAM "src/rtspLive/stream/*.c" "src/rtspLive/stream/*.h")
 	file(GLOB SRC_FILES_RTSPLIVE_SERVER "src/rtspLive/server/*.cpp" "src/rtspLive/server/*.hh")
 
-	set(RTSPLIVE_BUILD_FLAGS "-DNO_OPENSSL=1")
+	set(RTSPLIVE_BUILD_FLAGS "-DNO_OPENSSL=1 -fno-pie -no-pie")
 
 	add_executable(rtspLive
 		${SRC_FILES_RTSPLIVE}
@@ -150,6 +150,7 @@ if(NOT EMULATOR_BUILD)
 	)
 	set_target_properties(rtspLive PROPERTIES
 		COMPILE_FLAGS ${RTSPLIVE_BUILD_FLAGS}
+		LINK_FLAGS ${RTSPLIVE_BUILD_FLAGS}
 	)
 	target_link_libraries(rtspLive PRIVATE
 		${STANDARD_LIBRARIES}
