@@ -147,18 +147,11 @@ void fans_speed_dec(void) {
 
 static void page_fans_mode_on_click(uint8_t key, int sel) {
     lv_obj_t *slider = slider_group[0].slider;
-    int value = 0;
 
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group_fans);
-
-        value = btn_group_get_sel(&btn_group_fans) == 0 ? 1 : 0;
-        if (value)
-            ini_puts("fans", "auto", "enable", SETTING_INI);
-        else
-            ini_puts("fans", "auto", "disable", SETTING_INI);
-
-        g_setting.fans.auto_mode = value;
+        g_setting.fans.auto_mode = btn_group_get_sel(&btn_group_fans) == 0;
+        settings_put_bool("fans", "auto", g_setting.fans.auto_mode);
         return;
     } else if (sel == 1) {
         slider = slider_group[0].slider;

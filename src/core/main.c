@@ -68,19 +68,19 @@ a_exit:
 
 void start_running(void) {
     int source;
-    if (g_setting.autoscan.source == SETTING_SOURCE_LAST)
+    if (g_setting.autoscan.source == SETTING_AUTOSCAN_SOURCE_LAST)
         source = g_setting.autoscan.last_source;
     else
         source = g_setting.autoscan.source;
 
-    if (source == SETTING_SOURCE_HDZERO) { // HDZero
+    if (source == SETTING_AUTOSCAN_SOURCE_HDZERO) { // HDZero
         g_source_info.source = SOURCE_HDZERO;
         // go autoscan only if no dial up/down during initialization
-        if ((g_setting.autoscan.status == SETTING_AUTOSCAN_SCAN) && (g_init_done == 0)) {
+        if ((g_setting.autoscan.status == SETTING_AUTOSCAN_STATUS_ON) && (g_init_done == 0)) {
             pthread_t pid;
             g_autoscan_exit = false;
             pthread_create(&pid, NULL, thread_autoscan, NULL);
-        } else if (g_setting.autoscan.status == SETTING_AUTOSCAN_LAST) {
+        } else if (g_setting.autoscan.status == SETTING_AUTOSCAN_STATUS_LAST) {
             app_state_push(APP_STATE_VIDEO);
             app_switch_to_hdzero(true);
         } else { // auto scan disabled, go to go directly to last saved channel
@@ -88,11 +88,11 @@ void start_running(void) {
         }
     } else {
         app_state_push(APP_STATE_VIDEO);
-        if (source == SETTING_SOURCE_EXPANSION) { // module Bay
+        if (source == SETTING_AUTOSCAN_SOURCE_EXPANSION) { // module Bay
             g_hw_stat.av_pal[1] = g_setting.source.analog_format;
             app_switch_to_analog(1);
             g_source_info.source = SOURCE_EXPANSION;
-        } else if (source == SETTING_SOURCE_AV_IN) { // AV in
+        } else if (source == SETTING_AUTOSCAN_SOURCE_AV_IN) { // AV in
             g_hw_stat.av_pal[0] = g_setting.source.analog_format;
             app_switch_to_analog(0);
             g_source_info.source = SOURCE_AV_IN;

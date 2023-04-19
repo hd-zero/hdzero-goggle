@@ -70,10 +70,10 @@ typedef enum {
     SOURCE_HDMI_IN = 1,
     SOURCE_AV_IN = 2,
     SOURCE_EXPANSION = 3
-} source_t;
+} source_info_source_t;
 
 typedef struct _source_info {
-    source_t source;
+    source_info_source_t source;
     uint8_t hdmi_in_status; // 0=not detected, 1= detected
     uint8_t av_in_status;   // 0=not detected, 1= detected
     uint8_t av_bay_status;  // 0=not detected, 1= detected

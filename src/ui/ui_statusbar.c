@@ -190,35 +190,35 @@ void statubar_update(void) {
             lv_img_set_src(img_battery, &img_bat);
 
         switch (g_setting.power.warning_type) {
-        case 0: // beep only:
+        case SETTING_POWER_WARNING_TYPE_BEEP:
             if (low) {
                 if (beep_gap++ == BEEP_INTERVAL) {
                     beep();
                     beep_gap = 0;
                 }
                 lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
-                break;
-
-            case 1: // visual
-                if (low)
-                    lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
-                else
-                    lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
-                break;
-
-            case 2:
-                if (low) {
-                    if (beep_gap++ == BEEP_INTERVAL) {
-                        beep();
-                        beep_gap = 0;
-                    }
-                    lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
-                } else
-                    lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
-                break;
-            default:
-                break;
             }
+            break;
+
+        case SETTING_POWER_WARNING_TYPE_VISUAL:
+            if (low)
+                lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
+            else
+                lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
+            break;
+
+        case SETTING_POWER_WARNING_TYPE_BOTH:
+            if (low) {
+                if (beep_gap++ == BEEP_INTERVAL) {
+                    beep();
+                    beep_gap = 0;
+                }
+                lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
+            } else
+                lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
+            break;
+        default:
+            break;
         }
     }
 
