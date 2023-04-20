@@ -150,9 +150,6 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
 
     slider_group->slider = lv_slider_create(parent);
 
-    //lv_obj_set_style_pad_bottom(slider_group->slider, 50, 0);
-    
-
     lv_obj_remove_style_all(slider_group->slider);
     lv_obj_add_style(slider_group->slider, &style_silder_main, LV_PART_MAIN);
     lv_obj_add_style(slider_group->slider, &style_silder_indicator, LV_PART_INDICATOR);
@@ -161,7 +158,6 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_style_pad_ver(slider_group->slider, 10, LV_PART_KNOB);
     lv_obj_set_style_pad_hor(slider_group->slider, 2, LV_PART_KNOB);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_KNOB | LV_STATE_PRESSED);
-    
 
     lv_obj_set_size(slider_group->slider, 0, 2);
     lv_slider_set_range(slider_group->slider, 0, range);
@@ -402,8 +398,6 @@ void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int
 
     btn_group_set_sel(btn_group, 0);
 }
-
-
 
 void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1, const char *name2, const char *name3, int row) {
     if (count > 3)

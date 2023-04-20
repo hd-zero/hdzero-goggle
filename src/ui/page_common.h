@@ -144,7 +144,7 @@ lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row
 
 lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 
-void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1, 
+void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
                                    const char *name2, const char *name3, int row, int height, int arrow_scale_percent, const lv_font_t *font);
 
 void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,

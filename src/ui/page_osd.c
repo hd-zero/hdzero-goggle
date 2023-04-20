@@ -11,8 +11,8 @@
 #include "core/settings.h"
 #include "driver/hardware.h"
 #include "page_common.h"
-#include "ui/ui_style.h"
 #include "ui/ui_osd_element_pos.h"
+#include "ui/ui_style.h"
 #include "util/math.h"
 
 enum {
@@ -78,7 +78,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
 // when changing settings in the element position preview,
 // this is used to reflect the changes on this settings page,
 // in case the changed setting is visible here
-void page_osd_update_ui_elements(){
+void page_osd_update_ui_elements() {
     btn_group_set_sel(&btn_group_osd_mode, g_setting.osd.embedded_mode);
 }
 

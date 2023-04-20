@@ -42,8 +42,8 @@
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
-#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_main_menu.h"
+#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 
 ///////////////////////////////////////////////////////////////////////////////
