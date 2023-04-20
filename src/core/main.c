@@ -42,6 +42,8 @@
 #include "ui/ui_statusbar.h"
 #include "util/file.h"
 
+extern int gif_cnt = 0;
+
 static void *thread_autoscan(void *ptr) {
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
@@ -178,6 +180,9 @@ int main(int argc, char *argv[]) {
     start_running();
     create_threads();
 
+    // synthetic counter for gif refresh
+    gif_cnt = 0;
+
     // 8. Execute main loop
     g_init_done = 1;
     for (;;) {
@@ -190,6 +195,7 @@ int main(int argc, char *argv[]) {
         source_status_timer();
         pthread_mutex_unlock(&lvgl_mutex);
         usleep(5000);
+        gif_cnt++;
     }
     return 0;
 }
