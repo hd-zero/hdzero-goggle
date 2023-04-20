@@ -180,10 +180,9 @@ int main(int argc, char *argv[]) {
     start_running();
     create_threads();
 
+    // synthetic counter for gif refresh
+    gif_cnt = 0;
 
-	//synthetic counter for gif refresh
-	gif_cnt=0;
-	
     // 8. Execute main loop
     g_init_done = 1;
     for (;;) {

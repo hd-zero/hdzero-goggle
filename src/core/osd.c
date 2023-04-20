@@ -44,9 +44,8 @@ extern pthread_mutex_t lvgl_mutex;
 
 int gif_cnt;
 
-
-//Use SDCARD for Embedded Glyph if the glyph exists otherwise use goggle FS
-void osd_resource_path(char* buf, const char *fmt, uint8_t HD, ...) {
+// Use SDCARD for Embedded Glyph if the glyph exists otherwise use goggle FS
+void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...) {
     char filename[128];
     char buf2[128];
 
@@ -55,22 +54,22 @@ void osd_resource_path(char* buf, const char *fmt, uint8_t HD, ...) {
     vsprintf(filename, fmt, args);
     va_end(args);
     strcpy(buf2, buf);
-    strcpy(buf, RESOURCE_PATH_SDCARD);  
-    
-    if (HD){
+    strcpy(buf, RESOURCE_PATH_SDCARD);
+
+    if (HD) {
         strcat(buf, "FHD/");
     }
     strcat(buf, filename);
-    
+
     if (access(buf, F_OK) != 0) {
         strcpy(buf, buf2);
         strcpy(buf, RESOURCE_PATH);
-        if (HD){
+        if (HD) {
             strcat(buf, "FHD/");
-        }   
+        }
         strcat(buf, filename);
     }
-    
+
     memmove(buf + 2, buf, strlen(buf) + 2);
     buf[0] = 'A';
     buf[1] = ':';
@@ -95,14 +94,12 @@ void osd_llock_show(bool bShow) {
         return;
     }
 
-    if (g_latency_locked){
-        osd_resource_path(buf,"%s",is_fhd, LLOCK_bmp);
+    if (g_latency_locked) {
+        osd_resource_path(buf, "%s", is_fhd, LLOCK_bmp);
         lv_img_set_src(g_osd_hdzero.latency_lock[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.latency_lock[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    }
-    else
+    } else
         lv_obj_add_flag(g_osd_hdzero.latency_lock[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    
 }
 
 void osd_rec_show(bool bShow) {
@@ -112,14 +109,14 @@ void osd_rec_show(bool bShow) {
         lv_obj_add_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
         return;
     }
-    
+
     if (!g_sdcard_enable) {
-        osd_resource_path(buf,"%s",is_fhd, noSdcard_bmp);
+        osd_resource_path(buf, "%s", is_fhd, noSdcard_bmp);
         lv_img_set_src(g_osd_hdzero.sd_rec[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
     } else {
         if (dvr_is_recording) {
-            osd_resource_path(buf,"%s",is_fhd, recording_bmp);          
+            osd_resource_path(buf, "%s", is_fhd, recording_bmp);
             lv_img_set_src(g_osd_hdzero.sd_rec[is_fhd], buf);
             lv_obj_clear_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
         } else
@@ -135,10 +132,10 @@ void osd_battery_show() {
     }
 
     if (battery_is_low() && g_setting.osd.elements.battery_low.show) {
-        osd_resource_path(buf,"%s",is_fhd,lowBattery_gif);
+        osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
         lv_gif_set_src(g_osd_hdzero.battery_low[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    }else
+    } else
         lv_obj_add_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -151,18 +148,18 @@ void osd_topfan_show(bool bShow) {
 
     if (g_setting.fans.top_speed > 5)
         return;
-    osd_resource_path(buf,"fan%d.bmp",is_fhd,fan_speeds[2]+1);
+    osd_resource_path(buf, "fan%d.bmp", is_fhd, fan_speeds[2] + 1);
     lv_img_set_src(g_osd_hdzero.topfan_speed[is_fhd], buf);
     lv_obj_clear_flag(g_osd_hdzero.topfan_speed[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
 void osd_vrxtemp_show() {
     char buf[128];
-    if (g_temperature.is_rescuing && g_setting.osd.elements.vrx_temp.show){
-        osd_resource_path(buf,"%s",is_fhd,VrxTemp7_gif);
-        lv_gif_set_src(g_osd_hdzero.vrx_temp[is_fhd], buf); 
+    if (g_temperature.is_rescuing && g_setting.osd.elements.vrx_temp.show) {
+        osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
+        lv_gif_set_src(g_osd_hdzero.vrx_temp[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.vrx_temp[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    }else
+    } else
         lv_obj_add_flag(g_osd_hdzero.vrx_temp[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -176,9 +173,9 @@ void osd_vlq_show(bool bShow) {
     if (link_quality > 8)
         return;
     if (rx_status[0].rx_valid || rx_status[1].rx_valid) {
-    osd_resource_path(buf,"VLQ%d.bmp",is_fhd,link_quality + 1);
+        osd_resource_path(buf, "VLQ%d.bmp", is_fhd, link_quality + 1);
     } else {
-    osd_resource_path(buf,"%s",is_fhd,"VLQ1.bmp");
+        osd_resource_path(buf, "%s", is_fhd, "VLQ1.bmp");
     }
 
     lv_img_set_src(g_osd_hdzero.vlq[is_fhd], buf);
@@ -337,19 +334,16 @@ void osd_hdzero_update(void) {
         return;
 
     bool showRXOSD = g_showRXOSD && (g_source_info.source == SOURCE_HDZERO);
-        
+
     osd_rec_show(g_showRXOSD);
     osd_llock_show(g_showRXOSD);
     osd_topfan_show(g_showRXOSD);
 
-    if (gif_cnt % 10 == 0){ //delay needed to allow gif to flash 
-        osd_resource_path(buf,"%s",is_fhd,VrxTemp7_gif);
+    if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
+        osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
         lv_gif_set_src(g_osd_hdzero.vrx_temp[is_fhd], buf);
         osd_vrxtemp_show();
     }
-    //osd_vrxtemp_show();
-
-
 
     if (showRXOSD && g_osd_hdzero.vtx_temp[is_fhd]) {
         if (vtxTempInfo & 0x80) {
@@ -358,9 +352,9 @@ void osd_hdzero_update(void) {
                 i = 1;
             else if (i > 8)
                 i = 8;
-            osd_resource_path(buf,"VtxTemp%d.bmp",is_fhd,i);            
+            osd_resource_path(buf, "VtxTemp%d.bmp", is_fhd, i);
         } else {
-            osd_resource_path(buf,"%s",is_fhd,blank_bmp);
+            osd_resource_path(buf, "%s", is_fhd, blank_bmp);
         }
         lv_img_set_src(g_osd_hdzero.vtx_temp[is_fhd], buf);
     }
@@ -372,24 +366,23 @@ void osd_hdzero_update(void) {
 
     osd_channel_show(showRXOSD);
     osd_vlq_show(showRXOSD);
-    
-    
-    if (gif_cnt % 10 == 0){ //delay needed to allow gif to flash 
-        osd_resource_path(buf,"%s",is_fhd,lowBattery_gif);
+
+    if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
+        osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
         lv_gif_set_src(g_osd_hdzero.battery_low[is_fhd], buf);
         osd_battery_show();
     }
-    
-    osd_resource_path(buf,"ant%d.bmp",is_fhd,RSSI2Ant(rx_status[0].rx_rssi[0]));
+
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[0]));
     lv_img_set_src(g_osd_hdzero.ant0[is_fhd], buf);
-    
-    osd_resource_path(buf,"ant%d.bmp",is_fhd,RSSI2Ant(rx_status[0].rx_rssi[1]));
+
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[1]));
     lv_img_set_src(g_osd_hdzero.ant1[is_fhd], buf);
-    
-    osd_resource_path(buf,"ant%d.bmp",is_fhd,RSSI2Ant(rx_status[1].rx_rssi[0]));
+
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[0]));
     lv_img_set_src(g_osd_hdzero.ant2[is_fhd], buf);
-    
-    osd_resource_path(buf,"ant%d.bmp",is_fhd,RSSI2Ant(rx_status[1].rx_rssi[1]));
+
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[1]));
     lv_img_set_src(g_osd_hdzero.ant3[is_fhd], buf);
 
     if (showRXOSD && g_setting.osd.elements.ant0.show)
@@ -449,32 +442,32 @@ static void embedded_osd_init(uint8_t fhd) {
 
     fhd &= 1;
     so = scr_osd[fhd];
-    
-    osd_resource_path(buf,"%s",is_fhd,fan1_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, fan1_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.topfan_speed[fhd], buf, &g_setting.osd.elements.topfan_speed.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd,VtxTemp1_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, VtxTemp1_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.vtx_temp[fhd], buf, &g_setting.osd.elements.vtx_temp.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd,lowBattery_gif);
+
+    osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
     osd_object_create_gif(fhd, &g_osd_hdzero.battery_low[fhd], buf, &g_setting.osd.elements.battery_low.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd, VrxTemp7_gif);
+
+    osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
     osd_object_create_gif(fhd, &g_osd_hdzero.vrx_temp[fhd], buf, &g_setting.osd.elements.vrx_temp.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd, LLOCK_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, LLOCK_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.latency_lock[fhd], buf, &g_setting.osd.elements.latency_lock.position, so);
 
     osd_object_create_label(fhd, &g_osd_hdzero.channel[fhd], "CH:-- ", &g_setting.osd.elements.channel.position, so);
     channel_osd_mode = 0;
-    
-    osd_resource_path(buf,"%s",is_fhd, noSdcard_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, noSdcard_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.sd_rec[fhd], buf, &g_setting.osd.elements.sd_rec.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd, VLQ1_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, VLQ1_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.vlq[fhd], buf, &g_setting.osd.elements.vlq.position, so);
-    
-    osd_resource_path(buf,"%s",is_fhd, ant1_bmp);
+
+    osd_resource_path(buf, "%s", is_fhd, ant1_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.ant0[fhd], buf, &g_setting.osd.elements.ant0.position, so);
     osd_object_create_img(fhd, &g_osd_hdzero.ant1[fhd], buf, &g_setting.osd.elements.ant1.position, so);
     osd_object_create_img(fhd, &g_osd_hdzero.ant2[fhd], buf, &g_setting.osd.elements.ant2.position, so);

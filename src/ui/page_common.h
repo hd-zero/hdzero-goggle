@@ -22,11 +22,11 @@
 #define FC_OSD_LOCAL_PATH  "/mnt/app/resource/OSD/FC/"
 #define FC_OSD_SDCARD_PATH "/mnt/extsd/resource/OSD/FC/"
 
-#define RESOURCE_PATH           "/mnt/app/resource/OSD/GOGGLE/"
-#define RESOURCE_PATH_SDCARD    "/mnt/extsd/resource/OSD/GOGGLE/"
+#define RESOURCE_PATH        "/mnt/app/resource/OSD/GOGGLE/"
+#define RESOURCE_PATH_SDCARD "/mnt/extsd/resource/OSD/GOGGLE/"
 
-#define recording_bmp   "recording.bmp"
-#define noSdcard_bmp    "noSdcard.bmp"
+#define recording_bmp "recording.bmp"
+#define noSdcard_bmp  "noSdcard.bmp"
 
 #define lowBattery_gif  "lowBattery.gif"
 #define fan1_bmp        "fan1.bmp"
