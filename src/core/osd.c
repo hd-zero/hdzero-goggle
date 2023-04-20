@@ -41,8 +41,7 @@ static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
-
-int gif_cnt;
+extern int gif_cnt;
 
 // Use SDCARD for Embedded Glyph if the glyph exists otherwise use goggle FS
 void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...) {

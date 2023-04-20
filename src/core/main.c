@@ -42,7 +42,7 @@
 #include "ui/ui_statusbar.h"
 #include "util/file.h"
 
-extern int gif_cnt = 0;
+int gif_cnt = 0;
 
 static void *thread_autoscan(void *ptr) {
     for (;;) {
