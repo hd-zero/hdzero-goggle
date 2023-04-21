@@ -23,6 +23,12 @@
 #define OSD_ELEMENT_MIN_Y_POS 0
 #define OSD_ELEMENT_MAX_Y_POS 720
 
+// used for slider scroll acceleration
+#define SLIDER_SCROLL_MIN_INTERVAL  10  // min time interval between scrolls (ms)
+#define SLIDER_SCROLL_MAX_INTERVAL  100 // max time interval between scrolls (ms)
+#define SLIDER_SCROLL_MIN_STEP_SIZE 1
+#define SLIDER_SCROLL_MAX_STEP_SIZE 10
+
 enum {
     ROW_OSD_MODE = 0,
     ROW_OSD_ELEMENT,
@@ -46,25 +52,6 @@ typedef enum {
     CONFIRMATION_CONFIRMED,
     CONFIRMATION_TIMEOUT
 } ui_confirmation_t;
-
-typedef enum {
-    SLIDER_SCROLL_DIR_NONE = 0,
-    SLIDER_SCROLL_DIR_X_INC,
-    SLIDER_SCROLL_DIR_Y_INC,
-    SLIDER_SCROLL_DIR_X_DEC,
-    SLIDER_SCROLL_DIR_Y_DEC
-} slider_scroll_dir_t;
-
-typedef enum {
-    SLIDER_SCROLL_SPEED_SLOW = 1,
-    SLIDER_SCROLL_SPEED_MED = 5,
-    SLIDER_SCROLL_SPEED_FAST = 20
-} slider_scroll_speed_t;
-
-typedef enum {
-    SLIDER_SCROLL_SPEED_STEP_MED = 10 * SLIDER_SCROLL_SPEED_SLOW,
-    SLIDER_SCROLL_SPEED_STEP_FAST = SLIDER_SCROLL_SPEED_STEP_MED + 10 * SLIDER_SCROLL_SPEED_MED,
-} slider_scroll_speed_step_t;
 
 // a list of all osd elements
 // must contain the same elements, in the same order, as osd_element_list[]
@@ -125,10 +112,7 @@ static int save_changes_confirm = CONFIRMATION_UNCONFIRMED;
 static int cancel_changes_confirm = CONFIRMATION_UNCONFIRMED;
 
 // used for slider scroll acceleration
-static lv_timer_t *slider_scroll_accel_timer = NULL;
-static int slider_cur_scroll_amount = 0;
-static int slider_cur_scroll_dir = SLIDER_SCROLL_DIR_NONE;
-static int slider_cur_scroll_speed = SLIDER_SCROLL_SPEED_SLOW;
+static uint32_t slider_scroll_last_tick = 0;
 
 // keeps track of the unchanged element settings in case user clicks cancel
 static setting_osd_t ui_osd_el_pos_unchanged_settings;
@@ -180,8 +164,7 @@ static void cancel_osd_elements_reset_label_text();
 static void reset_all_osd_elements_timer_cb(struct _lv_timer_t *timer);
 
 // handle slider acceleration when positioning elements
-static void slider_scroll_speed_timer_cb(lv_timer_t *timer);
-static void slider_scroll_accel_apply(slider_scroll_dir_t direction);
+static int slider_scroll_speed_get_step();
 
 // user input handling
 static void osd_element_pos_x_dec();
@@ -291,94 +274,75 @@ static void reset_all_osd_elements_timer_cb(struct _lv_timer_t *timer) {
     reset_all_elements_confirm = CONFIRMATION_UNCONFIRMED;
 }
 
-static void slider_scroll_speed_timer_cb(lv_timer_t *timer) {
-    lv_timer_pause(slider_scroll_accel_timer);
-    slider_cur_scroll_dir = SLIDER_SCROLL_DIR_NONE;
-    slider_cur_scroll_speed = SLIDER_SCROLL_SPEED_SLOW;
-    slider_cur_scroll_amount = 0;
-}
+static int slider_scroll_speed_get_step() {
+    uint32_t interval = lv_tick_elaps(slider_scroll_last_tick);
+    slider_scroll_last_tick = lv_tick_get();
 
-static void slider_scroll_accel_apply(slider_scroll_dir_t direction) {
-    if (slider_cur_scroll_dir != direction) {
-        slider_cur_scroll_dir = direction;
-        slider_cur_scroll_speed = SLIDER_SCROLL_SPEED_SLOW;
-        slider_cur_scroll_amount = 0;
-
-        lv_timer_reset(slider_scroll_accel_timer);
-        lv_timer_resume(slider_scroll_accel_timer);
-    } else {
-        lv_timer_reset(slider_scroll_accel_timer);
-        if (slider_cur_scroll_amount >= SLIDER_SCROLL_SPEED_STEP_FAST) {
-            slider_cur_scroll_speed = SLIDER_SCROLL_SPEED_FAST;
-        } else if (slider_cur_scroll_amount >= SLIDER_SCROLL_SPEED_STEP_MED) {
-            slider_cur_scroll_speed = SLIDER_SCROLL_SPEED_MED;
-        }
+    if (interval <= SLIDER_SCROLL_MIN_INTERVAL) {
+        return SLIDER_SCROLL_MAX_STEP_SIZE;
+    } else if (interval >= SLIDER_SCROLL_MAX_INTERVAL) {
+        return SLIDER_SCROLL_MIN_STEP_SIZE;
     }
 
-    slider_cur_scroll_amount += slider_cur_scroll_speed;
+    float factor = (float)(interval - SLIDER_SCROLL_MIN_INTERVAL) / (SLIDER_SCROLL_MAX_INTERVAL - SLIDER_SCROLL_MIN_INTERVAL);
+    int step = (int)((1.0 - factor) * (SLIDER_SCROLL_MAX_STEP_SIZE - SLIDER_SCROLL_MIN_STEP_SIZE));
+
+    return step > 0 ? step : 1;
 }
 
 static void osd_element_pos_x_dec() {
     setting_osd_goggle_element_t *element = get_selected_osd_element_setting_entry();
 
-    slider_scroll_accel_apply(SLIDER_SCROLL_DIR_X_DEC);
-
     if (g_setting.osd.embedded_mode == EMBEDDED_4x3) {
         safe_update_value(OSD_ELEMENT_MIN_X_POS, OSD_ELEMENT_MAX_X_POS,
                           &element->position.mode_4_3.x,
-                          (-slider_cur_scroll_speed));
+                          -(slider_scroll_speed_get_step()));
     } else {
         safe_update_value(OSD_ELEMENT_MIN_X_POS, OSD_ELEMENT_MAX_X_POS,
                           &element->position.mode_16_9.x,
-                          (-slider_cur_scroll_speed));
+                          -(slider_scroll_speed_get_step()));
     }
 }
 
 static void osd_element_pos_y_dec() {
     setting_osd_goggle_element_t *element = get_selected_osd_element_setting_entry();
 
-    slider_scroll_accel_apply(SLIDER_SCROLL_DIR_Y_DEC);
-
     if (g_setting.osd.embedded_mode == EMBEDDED_4x3) {
         safe_update_value(OSD_ELEMENT_MIN_Y_POS, OSD_ELEMENT_MAX_Y_POS,
                           &element->position.mode_4_3.y,
-                          (-slider_cur_scroll_speed));
+                          -(slider_scroll_speed_get_step()));
     } else {
         safe_update_value(OSD_ELEMENT_MIN_Y_POS, OSD_ELEMENT_MAX_Y_POS,
                           &element->position.mode_16_9.y,
-                          (-slider_cur_scroll_speed));
+                          -(slider_scroll_speed_get_step()));
     }
 }
 
 static void osd_element_pos_x_inc() {
     setting_osd_goggle_element_t *element = get_selected_osd_element_setting_entry();
 
-    slider_scroll_accel_apply(SLIDER_SCROLL_DIR_X_INC);
-
     if (g_setting.osd.embedded_mode == EMBEDDED_4x3) {
         safe_update_value(OSD_ELEMENT_MIN_X_POS, OSD_ELEMENT_MAX_X_POS,
                           &element->position.mode_4_3.x,
-                          slider_cur_scroll_speed);
+                          (slider_scroll_speed_get_step()));
     } else {
         safe_update_value(OSD_ELEMENT_MIN_X_POS, OSD_ELEMENT_MAX_X_POS,
                           &element->position.mode_16_9.x,
-                          slider_cur_scroll_speed);
+                          (slider_scroll_speed_get_step()));
     }
 }
 
 static void osd_element_pos_y_inc() {
     setting_osd_goggle_element_t *element = get_selected_osd_element_setting_entry();
 
-    slider_scroll_accel_apply(SLIDER_SCROLL_DIR_Y_INC);
-
     if (g_setting.osd.embedded_mode == EMBEDDED_4x3) {
         safe_update_value(OSD_ELEMENT_MIN_Y_POS, OSD_ELEMENT_MAX_Y_POS,
                           &element->position.mode_4_3.y,
-                          slider_cur_scroll_speed);
+                          (slider_scroll_speed_get_step()));
     } else {
         safe_update_value(OSD_ELEMENT_MIN_Y_POS, OSD_ELEMENT_MAX_Y_POS,
                           &element->position.mode_16_9.y,
-                          slider_cur_scroll_speed);
+                          (slider_scroll_speed_get_step()));
     }
 }
 
@@ -612,15 +576,15 @@ void ui_osd_element_pos_init(void) {
     update_ui();
 
     // create timers
-    slider_scroll_accel_timer = lv_timer_create(slider_scroll_speed_timer_cb, 1000, NULL);
-    lv_timer_pause(slider_scroll_accel_timer);
     reset_all_osd_elements_timer = lv_timer_create(reset_all_osd_elements_timer_cb, 3000, NULL);
     lv_timer_pause(reset_all_osd_elements_timer);
 
+    // init slider scroll acceleration vars
+    slider_scroll_last_tick = lv_tick_get();
+
+    // set initial ui state
     ui_cur_row = ROW_OSD_MODE;
     ui_state = UI_STATE_SCROLL;
-
-    // set the initial selection
     ui_set_selection(ui_cur_row);
 }
 
