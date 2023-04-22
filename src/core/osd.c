@@ -35,7 +35,7 @@
 //////////////////////////////////////////////////////////////////
 // local
 static sem_t osd_semaphore;
-static uint8_t is_fhd; // 1=1080p osd,0=720p
+static osd_resource_t is_fhd;
 
 static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 
@@ -44,18 +44,18 @@ extern pthread_mutex_t lvgl_mutex;
 extern int gif_cnt;
 
 // Use SDCARD for Embedded Glyph if the glyph exists otherwise use goggle FS
-void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...) {
+void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...) {
     char filename[128];
     char buf2[128];
 
     va_list args;
-    va_start(args, HD);
+    va_start(args, osd_resource_type);
     vsprintf(filename, fmt, args);
     va_end(args);
     strcpy(buf2, buf);
     strcpy(buf, RESOURCE_PATH_SDCARD);
 
-    if (HD) {
+    if (osd_resource_type == OSD_RESOURCE_1080) {
         strcat(buf, "FHD/");
     }
     strcat(buf, filename);
@@ -63,7 +63,7 @@ void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...) {
     if (access(buf, F_OK) != 0) {
         strcpy(buf, buf2);
         strcpy(buf, RESOURCE_PATH);
-        if (HD) {
+        if (osd_resource_type == OSD_RESOURCE_1080) {
             strcat(buf, "FHD/");
         }
         strcat(buf, filename);

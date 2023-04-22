@@ -16,6 +16,11 @@
 #define OSD_BOUNDRY_0  0
 #define OSD_BOUNDRY_1  6
 
+typedef enum {
+    OSD_RESOURCE_720 = 0,
+    OSD_RESOURCE_1080
+} osd_resource_t;
+
 typedef struct {
     lv_obj_t *topfan_speed[2]; // 0
     lv_obj_t *vtx_temp[2];     // 1
@@ -79,6 +84,6 @@ void osd_update_mode();
 char *channel2str(uint8_t channel);
 void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
-void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...);
+void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 
 #endif

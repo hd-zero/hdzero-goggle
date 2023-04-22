@@ -13,6 +13,7 @@
 
 #include "common.hh"
 #include "core/app_state.h"
+#include "core/osd.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
@@ -104,7 +105,7 @@ static void show_pb_item(uint8_t pos, char *label) {
     if (file_exists(fname))
         sprintf(fname, "A:%s/%s.jpg", TMP_DIR, label);
     else
-        sprintf(fname, "%s%s", RESOURCE_PATH, DEF_VIDEOICON);
+        osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
     lv_img_set_src(pb_ui[pos]._img, fname);
 
     if (pb_ui[pos].state == ITEM_STATE_HIGHLIGHT) {
