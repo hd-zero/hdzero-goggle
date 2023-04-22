@@ -49,7 +49,7 @@ void osd_resource_path(char *buf, const char *fmt, uint8_t HD, ...) {
     char buf2[128];
 
     va_list args;
-    va_start(args, fmt);
+    va_start(args, HD);
     vsprintf(filename, fmt, args);
     va_end(args);
     strcpy(buf2, buf);
