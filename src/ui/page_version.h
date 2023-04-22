@@ -6,6 +6,7 @@
 #include "ui/ui_main_menu.h"
 
 #define CURRENT_VER_MAX (64)
+#define COMMIT_VER_MAX  (8)
 
 typedef struct {
     uint8_t rx;
@@ -13,8 +14,8 @@ typedef struct {
     uint8_t app_major;
     uint8_t app_minor;
     uint8_t app_patch;
-    char commit[CURRENT_VER_MAX];
-    char current[CURRENT_VER_MAX * 2];
+    char commit[COMMIT_VER_MAX];
+    char current[CURRENT_VER_MAX];
 } sys_version_t;
 
 extern page_pack_t pp_version;
