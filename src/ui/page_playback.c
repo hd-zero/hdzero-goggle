@@ -179,7 +179,7 @@ static int walk_sdcard() {
             continue;
         }
 
-        char fname[128];
+        char fname[512];
         sprintf(fname, "%s/%s", MEDIA_FILES_DIR, in_file->d_name);
 
         long size = file_get_size(fname);
@@ -298,7 +298,7 @@ static void mark_video_file(int seq) {
 
     const int index = find_hot_index();
 
-    char cmd[128];
+    char cmd[256];
     sprintf(cmd, "mv  %s/%s %s/hot_hdz_%03d.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, index, pnode->ext);
     system(cmd);
     sprintf(cmd, "mv %s/%s.jpg %s/hot_hdz_%03d.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, index);

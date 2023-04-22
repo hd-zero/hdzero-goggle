@@ -14,7 +14,7 @@ typedef struct {
     uint8_t app_minor;
     uint8_t app_patch;
     char commit[CURRENT_VER_MAX];
-    char current[CURRENT_VER_MAX];
+    char current[CURRENT_VER_MAX * 2];
 } sys_version_t;
 
 extern page_pack_t pp_version;
