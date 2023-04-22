@@ -6,7 +6,7 @@
 #include "ui/ui_main_menu.h"
 
 #define CURRENT_VER_MAX (64)
-#define COMMIT_VER_MAX  (8)
+#define COMMIT_VER_MAX  (10)
 
 typedef struct {
     uint8_t rx;
