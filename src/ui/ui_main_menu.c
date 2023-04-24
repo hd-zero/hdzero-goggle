@@ -245,7 +245,7 @@ void main_menu_init(void) {
     lv_obj_clear_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(menu, lv_color_make(32, 32, 32), 0);
-    lv_obj_set_style_border_width(menu, 3, 0);
+    lv_obj_set_style_border_width(menu, 2, 0);
     lv_obj_set_style_border_color(menu, lv_color_make(255, 0, 0), 0);
     lv_obj_set_style_border_side(menu, LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT, 0);
     lv_obj_set_size(menu, lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96);
