@@ -178,7 +178,10 @@ static void btn_press(void) // long press left key
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
         app_switch_to_menu();
-    else if (g_app_state == APP_STATE_PLAYBACK)
+    else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_cancel_and_hide();
+        app_switch_to_menu();
+    } else if (g_app_state == APP_STATE_PLAYBACK)
         pb_key(DIAL_KEY_PRESS);
     else { // Sub-menu  -> Main menu
         submenu_exit();

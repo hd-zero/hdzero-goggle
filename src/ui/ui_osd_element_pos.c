@@ -80,10 +80,6 @@ typedef struct {
     char *name_settings;
 } osd_element_t;
 
-// ###########################################################################
-// ########################## local variables start ##########################
-// ###########################################################################
-
 // sets if the ui is shown during the next ui update (ui_osd_element_pos_update())
 static bool show_osd_element_pos_ui = false;
 
@@ -139,14 +135,6 @@ static osd_element_t osd_element_list[] = {
 // string used for the dropdown menu
 static char osd_elements_str[512];
 
-// ###########################################################################
-// ########################### local variables end ###########################
-// ###########################################################################
-
-// ##########################################################################
-// #################### local functions prototypes start ####################
-// ##########################################################################
-
 // utility functions
 static setting_osd_goggle_element_t *get_osd_element_setting_entry(int element_idx);
 static void fill_osd_elements_str();
@@ -174,10 +162,6 @@ static void osd_element_pos_y_inc();
 static void ui_handle_roll_up();
 static void ui_handle_roll_down();
 static int ui_handle_click();
-
-// ##########################################################################
-// ##################### local functions prototypes end #####################
-// ##########################################################################
 
 static setting_osd_goggle_element_t *get_osd_element_setting_entry(int element_idx) {
     return &g_setting.osd.element[element_idx];
@@ -486,10 +470,8 @@ static int ui_handle_click() {
 
     case ROW_CANCEL:
         if (cancel_changes_confirm) {
-            g_setting.osd = ui_osd_el_pos_unchanged_settings;
-            osd_update_mode();
-            show_osd_element_pos_ui = false;
             cancel_osd_elements_reset_label_text();
+            ui_osd_element_pos_cancel_and_hide();
             return 1;
         }
 
@@ -596,6 +578,10 @@ void ui_osd_element_pos_on_enter() {
     lv_dropdown_set_selected(dropdown_osd_element, 0);
 
     update_ui();
+    save_osd_elements_reset_label_text();
+    cancel_osd_elements_reset_label_text();
+    reset_all_osd_elements_reset_label_text();
+
     show_osd_element_pos_ui = true;
 }
 
@@ -604,6 +590,12 @@ void ui_osd_element_pos_update() {
         lv_obj_clear_flag(ui_root_container, LV_OBJ_FLAG_HIDDEN);
     else
         lv_obj_add_flag(ui_root_container, LV_OBJ_FLAG_HIDDEN);
+}
+
+void ui_osd_element_pos_cancel_and_hide() {
+    show_osd_element_pos_ui = false;
+    g_setting.osd = ui_osd_el_pos_unchanged_settings;
+    osd_update_mode();
 }
 
 int ui_osd_element_pos_handle_input(int key) {
