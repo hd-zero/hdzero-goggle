@@ -76,64 +76,79 @@ const setting_t g_setting_defaults = {
     },
     .osd = {
         .embedded_mode = EMBEDDED_4x3,
-        .elements = {
-            .topfan_speed = {
+        .element = {
+            // OSD_GOGGLE_TOPFAN_SPEED
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 160, .y = 0}, .mode_16_9 = {.x = 0, .y = 0}},
             },
-            .latency_lock = {
+            // OSD_GOGGLE_LATENCY_LOCK
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 200, .y = 0}, .mode_16_9 = {.x = 40, .y = 0}},
             },
-            .vtx_temp = {
+            // OSD_GOGGLE_VTX_TEMP
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 240, .y = 0}, .mode_16_9 = {.x = 80, .y = 0}},
             },
-            .vrx_temp = {
+            // OSD_GOGGLE_VRX_TEMP
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 280, .y = 0}, .mode_16_9 = {.x = 120, .y = 0}},
             },
-            .battery_low = {
+            // OSD_GOGGLE_BATTERY_LOW
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 320, .y = 0}, .mode_16_9 = {.x = 160, .y = 0}},
             },
-            .channel = {
+            // OSD_GOGGLE_CHANNEL
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 540, .y = 0}, .mode_16_9 = {.x = 540, .y = 0}},
             },
-            .sd_rec = {
+            // OSD_GOGGLE_SD_REC
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 840, .y = 0}, .mode_16_9 = {.x = 1000, .y = 0}},
             },
-            .vlq = {
+            // OSD_GOGGLE_VLQ
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 880, .y = 0}, .mode_16_9 = {.x = 1040, .y = 0}},
             },
-            .ant0 = {
+            // OSD_GOGGLE_ANT0
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 960, .y = 0}, .mode_16_9 = {.x = 1120, .y = 0}},
             },
-            .ant1 = {
+            // OSD_GOGGLE_ANT1
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 920, .y = 0}, .mode_16_9 = {.x = 1080, .y = 0}},
             },
-            .ant2 = {
+            // OSD_GOGGLE_ANT2
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1040, .y = 0}, .mode_16_9 = {.x = 1200, .y = 0}},
             },
-            .ant3 = {
+            // OSD_GOGGLE_ANT3
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1000, .y = 0}, .mode_16_9 = {.x = 1160, .y = 0}},
             },
-            .osd_tempe[0] = {
+            // OSD_GOGGLE_TEMPE0
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 170, .y = 50}, .mode_16_9 = {.x = 170, .y = 50}},
             },
-            .osd_tempe[1] = {
+            // OSD_GOGGLE_TEMPE1
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 270, .y = 50}, .mode_16_9 = {.x = 270, .y = 50}},
             },
-            .osd_tempe[2] = {
+            // OSD_GOGGLE_TEMPE2
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
             },
@@ -207,21 +222,21 @@ void settings_load(void) {
 
     // osd
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
-    settings_load_osd_element(&g_setting.osd.elements.topfan_speed, "topfan_speed", &g_setting_defaults.osd.elements.topfan_speed);
-    settings_load_osd_element(&g_setting.osd.elements.latency_lock, "latency_lock", &g_setting_defaults.osd.elements.latency_lock);
-    settings_load_osd_element(&g_setting.osd.elements.vtx_temp, "vtx_temp", &g_setting_defaults.osd.elements.vtx_temp);
-    settings_load_osd_element(&g_setting.osd.elements.vrx_temp, "vrx_temp", &g_setting_defaults.osd.elements.vrx_temp);
-    settings_load_osd_element(&g_setting.osd.elements.battery_low, "battery_low", &g_setting_defaults.osd.elements.battery_low);
-    settings_load_osd_element(&g_setting.osd.elements.channel, "channel", &g_setting_defaults.osd.elements.channel);
-    settings_load_osd_element(&g_setting.osd.elements.sd_rec, "sd_rec", &g_setting_defaults.osd.elements.sd_rec);
-    settings_load_osd_element(&g_setting.osd.elements.vlq, "vlq", &g_setting_defaults.osd.elements.vlq);
-    settings_load_osd_element(&g_setting.osd.elements.ant0, "ant0", &g_setting_defaults.osd.elements.ant0);
-    settings_load_osd_element(&g_setting.osd.elements.ant1, "ant1", &g_setting_defaults.osd.elements.ant1);
-    settings_load_osd_element(&g_setting.osd.elements.ant2, "ant2", &g_setting_defaults.osd.elements.ant2);
-    settings_load_osd_element(&g_setting.osd.elements.ant3, "ant3", &g_setting_defaults.osd.elements.ant3);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[0], "goggle_temp_top", &g_setting_defaults.osd.elements.osd_tempe[0]);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[1], "goggle_temp_left", &g_setting_defaults.osd.elements.osd_tempe[1]);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[2], "goggle_temp_right", &g_setting_defaults.osd.elements.osd_tempe[2]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TOPFAN_SPEED], "topfan_speed", &g_setting_defaults.osd.element[OSD_GOGGLE_TOPFAN_SPEED]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK], "latency_lock", &g_setting_defaults.osd.element[OSD_GOGGLE_LATENCY_LOCK]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VTX_TEMP], "vtx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VTX_TEMP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VRX_TEMP], "vrx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VRX_TEMP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW], "battery_low", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_LOW]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CHANNEL], "channel", &g_setting_defaults.osd.element[OSD_GOGGLE_CHANNEL]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_SD_REC], "sd_rec", &g_setting_defaults.osd.element[OSD_GOGGLE_SD_REC]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VLQ], "vlq", &g_setting_defaults.osd.element[OSD_GOGGLE_VLQ]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT0], "ant0", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT0]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT1], "ant1", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT1]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT2], "ant2", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT2]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT3], "ant3", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT3]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE0], "goggle_temp_top", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE0]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE1], "goggle_temp_left", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE1]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE2], "goggle_temp_right", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE2]);
 
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", g_setting_defaults.power.voltage, SETTING_INI);
