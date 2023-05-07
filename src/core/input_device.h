@@ -6,6 +6,6 @@
 void input_device_init();
 void tune_channel_timer();
 void exit_tune_channel();
-void rbtn_click(bool is_short);
+void rbtn_click(uint8_t click_tyoe);
 
 #endif
