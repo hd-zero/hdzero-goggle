@@ -235,10 +235,12 @@ void rbtn_click(uint8_t click_type) {
         return;
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
+		pthread_mutex_lock(&lvgl_mutex);
         if (click_type == 0)
             submenu_right_button(true);
         else if (click_type == 1)
             submenu_right_button(false);
+		pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_VIDEO:
         if (click_type == 0) {
