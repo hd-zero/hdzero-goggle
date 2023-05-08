@@ -137,17 +137,17 @@ const setting_t g_setting_defaults = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1000, .y = 0}, .mode_16_9 = {.x = 1160, .y = 0}},
             },
-            // OSD_GOGGLE_TEMPE0
+            // OSD_GOGGLE_TEMP_TOP
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 170, .y = 50}, .mode_16_9 = {.x = 170, .y = 50}},
             },
-            // OSD_GOGGLE_TEMPE1
+            // OSD_GOGGLE_TEMP_LEFT
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 270, .y = 50}, .mode_16_9 = {.x = 270, .y = 50}},
             },
-            // OSD_GOGGLE_TEMPE2
+            // OSD_GOGGLE_TEMP_RIGHT
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
@@ -234,9 +234,9 @@ void settings_load(void) {
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT1], "ant1", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT1]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT2], "ant2", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT2]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT3], "ant3", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT3]);
-    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE0], "goggle_temp_top", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE0]);
-    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE1], "goggle_temp_left", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE1]);
-    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMPE2], "goggle_temp_right", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMPE2]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_TOP], "goggle_temp_top", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_TOP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT], "goggle_temp_left", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_LEFT]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT], "goggle_temp_right", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_RIGHT]);
 
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", g_setting_defaults.power.voltage, SETTING_INI);
