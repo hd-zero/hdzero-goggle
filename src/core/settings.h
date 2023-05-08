@@ -116,25 +116,28 @@ typedef struct {
     setting_osd_goggle_element_positions_t position;
 } setting_osd_goggle_element_t;
 
-typedef struct {
-    setting_osd_goggle_element_t topfan_speed;
-    setting_osd_goggle_element_t latency_lock;
-    setting_osd_goggle_element_t vtx_temp;
-    setting_osd_goggle_element_t vrx_temp;
-    setting_osd_goggle_element_t battery_low;
-    setting_osd_goggle_element_t channel;
-    setting_osd_goggle_element_t sd_rec;
-    setting_osd_goggle_element_t vlq;
-    setting_osd_goggle_element_t ant0;
-    setting_osd_goggle_element_t ant1;
-    setting_osd_goggle_element_t ant2;
-    setting_osd_goggle_element_t ant3;
-    setting_osd_goggle_element_t osd_tempe[3];
-} setting_osd_goggle_elements_t;
+typedef enum {
+    OSD_GOGGLE_TOPFAN_SPEED = 0,
+    OSD_GOGGLE_LATENCY_LOCK,
+    OSD_GOGGLE_VTX_TEMP,
+    OSD_GOGGLE_VRX_TEMP,
+    OSD_GOGGLE_BATTERY_LOW,
+    OSD_GOGGLE_CHANNEL,
+    OSD_GOGGLE_SD_REC,
+    OSD_GOGGLE_VLQ,
+    OSD_GOGGLE_ANT0,
+    OSD_GOGGLE_ANT1,
+    OSD_GOGGLE_ANT2,
+    OSD_GOGGLE_ANT3,
+    OSD_GOGGLE_TEMP_TOP,
+    OSD_GOGGLE_TEMP_LEFT,
+    OSD_GOGGLE_TEMP_RIGHT,
+    OSD_GOGGLE_NUM,
+} osd_goggle_element_e;
 
 typedef struct {
     setting_embedded_mode_t embedded_mode;
-    setting_osd_goggle_elements_t elements;
+    setting_osd_goggle_element_t element[OSD_GOGGLE_NUM];
 } setting_osd_t;
 
 typedef struct {
