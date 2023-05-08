@@ -128,35 +128,35 @@ int generate_current_version(sys_version_t *sys_ver) {
     if (!fp) {
         return -1;
     }
-    fscanf(fp, "%d.%d.%d-%s",
+    fscanf(fp, "%hhd.%hhd.%hhd-%s",
            &sys_ver->app_major,
            &sys_ver->app_minor,
            &sys_ver->app_patch,
-           &sys_ver->commit);
+           sys_ver->commit);
     fclose(fp);
 
     if (strlen(sys_ver->commit)) {
-        LOGI("app: %d.%d.%d-%s rx: %d va: %d",
+        LOGI("app: %hhu.%hhu.%hhu-%s rx: %u va: %u",
              sys_ver->app_major,
              sys_ver->app_minor,
              sys_ver->app_patch,
              sys_ver->commit,
              sys_ver->rx, sys_ver->va);
 
-        sprintf(sys_ver->current, "app: %d.%d.%d-%s rx: %d va: %d",
+        sprintf(sys_ver->current, "app: %hhu.%hhu.%hhu-%s rx: %u va: %u",
                 sys_ver->app_major,
                 sys_ver->app_minor,
                 sys_ver->app_patch,
                 sys_ver->commit,
                 sys_ver->rx, sys_ver->va);
     } else {
-        LOGI("app: %d.%d.%d rx: %d va: %d",
+        LOGI("app: %hhu.%hhu.%hhu rx: %u va: %u",
              sys_ver->app_major,
              sys_ver->app_minor,
              sys_ver->app_patch,
              sys_ver->rx, sys_ver->va);
 
-        sprintf(sys_ver->current, "app: %d.%d.%d rx: %d va: %d",
+        sprintf(sys_ver->current, "app: %hhu.%hhu.%hhu rx: %u va: %u",
                 sys_ver->app_major,
                 sys_ver->app_minor,
                 sys_ver->app_patch,

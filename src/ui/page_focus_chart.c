@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "core/osd.h"
+
 static lv_obj_t *focus_chart_img;
 
 lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
@@ -33,7 +35,7 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_size(focus_chart_img, 1920, 1080);
 
     char filename[128];
-    sprintf(filename, "%s%s", RESOURCE_PATH, FOCUS_CHART_IMG);
+    osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
     lv_img_set_src(focus_chart_img, filename);
 
     return page;
