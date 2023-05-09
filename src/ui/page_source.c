@@ -181,6 +181,7 @@ page_pack_t pp_source = {
         .max = 4,
     },
 
+    .name = "Source",
     .create = page_source_create,
     .enter = page_source_enter,
     .exit = page_source_exit,

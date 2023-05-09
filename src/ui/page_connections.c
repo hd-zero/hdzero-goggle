@@ -170,7 +170,7 @@ page_pack_t pp_connections = {
         .cur = 0,
         .max = 7,
     },
-
+    .name = "Connections",
     .create = page_connections_create,
     .enter = page_connections_enter,
     .exit = NULL,

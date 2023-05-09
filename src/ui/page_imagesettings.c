@@ -145,7 +145,7 @@ page_pack_t pp_imagesettings = {
         .cur = 0,
         .max = 7,
     },
-
+    .name = "Image Settings",
     .create = page_imagesettings_create,
     .enter = page_imagesettings_enter,
     .exit = NULL,

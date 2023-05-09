@@ -416,6 +416,7 @@ static void page_playback_on_right_button(bool is_short) {
 }
 
 page_pack_t pp_playback = {
+    .name = "Playback",
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,

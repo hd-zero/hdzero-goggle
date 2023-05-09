@@ -569,6 +569,7 @@ page_pack_t pp_clock = {
         .cur = 0,
         .max = 0,
     },
+    .name = "Clock",
     .create = page_clock_create,
     .enter = page_clock_enter,
     .exit = page_clock_exit,

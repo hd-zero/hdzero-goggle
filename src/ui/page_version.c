@@ -523,7 +523,7 @@ page_pack_t pp_version = {
         .cur = 0,
         .max = 5,
     },
-
+    .name = "Firmware",
     .create = page_version_create,
     .enter = page_version_enter,
     .exit = NULL,

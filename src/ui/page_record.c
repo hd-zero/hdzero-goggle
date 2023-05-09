@@ -140,7 +140,7 @@ page_pack_t pp_record = {
         .cur = 0,
         .max = 7,
     },
-
+    .name = "Record Options",
     .create = page_record_create,
     .enter = page_record_enter,
     .exit = page_record_exit,
