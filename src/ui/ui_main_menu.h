@@ -8,25 +8,8 @@
 
 #include "ui/page_common.h"
 
-typedef enum {
-    PAGE_AUTO_SCAN,
-    PAGE_CONNECTIONS,
-    PAGE_FANS,
-    PAGE_HEADTRACKER,
-    PAGE_IMAGE_SETTINGS,
-    PAGE_PLAYBACK,
-    PAGE_POWER,
-    PAGE_RECORD,
-    PAGE_SCAN_NOW,
-    PAGE_SOURCE,
-    PAGE_VERSION,
-    PAGE_FOCUS_CHART,
-    PAGE_CLOCK,
-
-    PAGE_MAX,
-} pages_t;
-
 typedef struct {
+    const char *name;
     panel_arr_t p_arr;
 
     lv_obj_t *page;

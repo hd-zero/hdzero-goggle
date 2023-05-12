@@ -56,6 +56,7 @@ static void page_focus_chart_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_focus_chart = {
+    .name = "Focus Chart",
     .create = page_focus_chart_create,
     .enter = page_focus_chart_enter,
     .exit = page_focus_chart_exit,

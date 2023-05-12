@@ -73,7 +73,7 @@ page_pack_t pp_autoscan = {
         .cur = 0,
         .max = 4,
     },
-
+    .name = "Auto Scan",
     .create = page_autoscan_create,
     .enter = NULL,
     .exit = NULL,

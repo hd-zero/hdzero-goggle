@@ -252,7 +252,9 @@ static void page_power_on_click(uint8_t key, int sel) {
 page_pack_t pp_power = {
     .p_arr = {
         .cur = 0,
-        .max = ROW_COUNT},
+        .max = ROW_COUNT,
+    },
+    .name = "Power",
     .create = page_power_create,
     .enter = NULL,
     .exit = NULL,

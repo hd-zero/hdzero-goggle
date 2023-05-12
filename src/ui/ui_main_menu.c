@@ -35,24 +35,29 @@ progress_bar_t progress_bar;
 static lv_obj_t *menu;
 static lv_obj_t *root_page;
 
-static page_pack_t *page_packs[PAGE_MAX] = {
-    [PAGE_AUTO_SCAN] = &pp_autoscan,
-    [PAGE_CONNECTIONS] = &pp_connections,
-    [PAGE_FANS] = &pp_fans,
-    [PAGE_HEADTRACKER] = &pp_headtracker,
-    [PAGE_IMAGE_SETTINGS] = &pp_imagesettings,
-    [PAGE_PLAYBACK] = &pp_playback,
-    [PAGE_POWER] = &pp_power,
-    [PAGE_RECORD] = &pp_record,
-    [PAGE_SCAN_NOW] = &pp_scannow,
-    [PAGE_SOURCE] = &pp_source,
-    [PAGE_VERSION] = &pp_version,
-    [PAGE_FOCUS_CHART] = &pp_focus_chart,
-    [PAGE_CLOCK] = &pp_clock,
+/**
+ * Page order is enforced by definition.
+ */
+static page_pack_t *page_packs[] = {
+    &pp_scannow,
+    &pp_source,
+    &pp_imagesettings,
+    &pp_power,
+    &pp_fans,
+    &pp_record,
+    &pp_autoscan,
+    &pp_connections,
+    &pp_headtracker,
+    &pp_playback,
+    &pp_version,
+    &pp_focus_chart,
+    &pp_clock,
 };
 
+#define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
+
 static page_pack_t *find_pp(lv_obj_t *page) {
-    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         if (page_packs[i]->page == page) {
             return page_packs[i];
         }
@@ -61,7 +66,7 @@ static page_pack_t *find_pp(lv_obj_t *page) {
 }
 
 static void clear_all_icon(void) {
-    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         lv_img_set_src(page_packs[i]->icon, LV_SYMBOL_DUMMY);
     }
 }
@@ -179,11 +184,11 @@ void menu_nav(uint8_t key) {
     if (key == DIAL_KEY_DOWN) {
         selected--;
         if (selected < 0)
-            selected += PAGE_MAX;
+            selected += PAGE_COUNT;
     } else if (key == DIAL_KEY_UP) {
         selected++;
-        if (selected >= PAGE_MAX)
-            selected -= PAGE_MAX;
+        if (selected >= PAGE_COUNT)
+            selected -= PAGE_COUNT;
     }
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
 }
@@ -220,15 +225,15 @@ void main_menu_show(bool is_show) {
     }
 }
 
-static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, const char *text, page_pack_t *pp) {
-    LOGD("creating main menu entry %s", text);
+static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_t *pp) {
+    LOGD("creating main menu entry %s", pp->name);
 
     pp->page = pp->create(menu, &pp->p_arr);
 
     lv_obj_t *cont = lv_menu_cont_create(section);
 
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, text);
+    lv_label_set_text(label, pp->name);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
@@ -257,19 +262,9 @@ void main_menu_init(void) {
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(menu, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
-    main_menu_create_entry(menu, section, "Scan Now", &pp_scannow);
-    main_menu_create_entry(menu, section, "Source", &pp_source);
-    main_menu_create_entry(menu, section, "Image Settings", &pp_imagesettings);
-    main_menu_create_entry(menu, section, "Power", &pp_power);
-    main_menu_create_entry(menu, section, "Fans", &pp_fans);
-    main_menu_create_entry(menu, section, "Record Options", &pp_record);
-    main_menu_create_entry(menu, section, "Auto Scan", &pp_autoscan);
-    main_menu_create_entry(menu, section, "Connections", &pp_connections);
-    main_menu_create_entry(menu, section, "Head Tracker", &pp_headtracker);
-    main_menu_create_entry(menu, section, "Playback", &pp_playback);
-    main_menu_create_entry(menu, section, "Firmware", &pp_version);
-    main_menu_create_entry(menu, section, "Focus Chart", &pp_focus_chart);
-    main_menu_create_entry(menu, section, "Clock", &pp_clock);
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+        main_menu_create_entry(menu, section, page_packs[i]);
+    }
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
