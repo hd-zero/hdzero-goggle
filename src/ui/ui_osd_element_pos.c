@@ -193,25 +193,8 @@ static int persist_all_osd_element_settings(const setting_osd_t *settings_to_per
 
     res = ini_putl("osd", "embedded_mode", settings_to_persist->embedded_mode, SETTING_INI);
 
-    for (int i = 0; i < OSD_ELEMENTS_TOTAL; i++) {
+    for (int i = 0; i < OSD_ELEMENTS_TOTAL; i++)
         res &= settings_put_osd_element(&settings_to_persist->element[i], osd_element_list[i].name_settings);
-    }
-
-    // res &= settings_put_osd_element(&settings_to_persist->elements.topfan_speed, osd_element_list[OSD_ELEMENT_TOP_FAN_SPEED].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.latency_lock, osd_element_list[OSD_ELEMENT_LATENCY_LOCK].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.vtx_temp, osd_element_list[OSD_ELEMENT_VTX_TEMP].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.vrx_temp, osd_element_list[OSD_ELEMENT_VRX_TEMP].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.battery_low, osd_element_list[OSD_ELEMENT_BATTERY_LOW].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.channel, osd_element_list[OSD_ELEMENT_CHANNEL].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.sd_rec, osd_element_list[OSD_ELEMENT_SD_REC].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.vlq, osd_element_list[OSD_ELEMENT_VLQ].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.ant0, osd_element_list[OSD_ELEMENT_ANT0].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.ant1, osd_element_list[OSD_ELEMENT_ANT1].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.ant2, osd_element_list[OSD_ELEMENT_ANT2].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.ant3, osd_element_list[OSD_ELEMENT_ANT3].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.osd_tempe[0], osd_element_list[OSD_ELEMENT_GOGGLE_TEMP_TOP].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.osd_tempe[1], osd_element_list[OSD_ELEMENT_GOGGLE_TEMP_LEFT].name_settings);
-    // res &= settings_put_osd_element(&settings_to_persist->elements.osd_tempe[2], osd_element_list[OSD_ELEMENT_GOGGLE_TEMP_RIGHT].name_settings);
 
     return res;
 }
@@ -505,7 +488,7 @@ static int ui_handle_click() {
             for (int i = 0; i < OSD_GOGGLE_NUM; i++) {
                 g_setting.osd.element[i] = g_setting_defaults.osd.element[i];
             }
-            
+
             update_ui();
             osd_update_mode();
             lv_label_set_text(label_reset_all_osd_elements, "#00FF00 Elements reset.#");
