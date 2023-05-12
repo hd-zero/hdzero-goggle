@@ -44,14 +44,15 @@ static page_pack_t *page_packs[] = {
     &pp_imagesettings,
     &pp_power,
     &pp_fans,
-    &pp_clock,
     &pp_record,
     &pp_autoscan,
     &pp_connections,
     &pp_headtracker,
     &pp_playback,
     &pp_version,
-    &pp_focus_chart};
+    &pp_focus_chart,
+    &pp_clock,
+};
 
 #define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
 
