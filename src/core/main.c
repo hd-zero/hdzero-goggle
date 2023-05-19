@@ -139,6 +139,7 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
 
     // 1. Recall configuration
+    settings_init();
     settings_load();
 
     // 2. Initialize communications.

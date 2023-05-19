@@ -422,6 +422,9 @@ static void *thread_input_device(void *ptr) {
 
         for (int i = 0; i < ret; i++) {
             if (events[i].events & EPOLLIN) {
+                if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+                    continue;
+
                 get_event(events[i].data.fd);
             }
         }
@@ -441,11 +444,13 @@ static void *thread_input_device(void *ptr) {
     while (true) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_QUIT:
+            if (event.type == SDL_QUIT)
                 exit(0);
-                break;
 
+            if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+                continue;
+
+            switch (event.type) {
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
                 case SDLK_d:

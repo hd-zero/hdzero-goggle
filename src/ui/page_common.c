@@ -73,6 +73,22 @@ void set_select_item(const panel_arr_t *arr, int row) {
     }
 }
 
+lv_obj_t *show_msgbox_ok(const char *title, const char *message) {
+    lv_obj_t *msgbox = lv_msgbox_create(NULL, title, message, NULL, false);
+    lv_obj_set_width(msgbox, 600);
+    lv_obj_center(msgbox);
+
+    lv_obj_set_style_bg_color(msgbox, lv_color_make(19, 19, 19), 0);
+
+    lv_obj_set_style_text_color(lv_msgbox_get_title(msgbox), lv_color_make(0, 255, 0), 0);
+    lv_obj_set_style_text_color(lv_msgbox_get_text(msgbox), lv_color_make(255, 255, 255), 0);
+
+    lv_obj_set_style_border_width(msgbox, 3, 0);
+    lv_obj_set_style_border_color(msgbox, lv_color_make(0, 200, 0), 0);
+
+    return msgbox;
+}
+
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
