@@ -396,7 +396,7 @@ static void page_version_on_click(uint8_t key, int sel) {
             // if(b1 && b2 && b3) {
             if (1) {
                 lv_timer_handler();
-                show_msgbox_ok("Update complete", "Goggle update completed succesfully.\nPlease repower goggle now.");
+                show_msgbox_ok("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
                 app_state_push(APP_STATE_USER_INPUT_DISABLED);
                 beep();
                 usleep(1000000);
