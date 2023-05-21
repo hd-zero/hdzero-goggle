@@ -52,8 +52,6 @@
 static uint8_t tune_state = 0; // 0=init; 1=waiting for key; 2=tuning
 static uint16_t tune_timer = 0;
 
-static lv_timer_t *right_click_timer = NULL;
-
 #define EPOLL_FD_CNT 4
 
 static int epfd;
@@ -232,51 +230,27 @@ static void btn_click(void) // short press enter key
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void rbtn_click0(bool is_short) {
-    // lvgl mutex is already locked either via lv_timer or manually bellow
-
-    switch (g_app_state) {
-    case APP_STATE_SUBMENU:
-        submenu_right_button(is_short);
-        break;
-
-    case APP_STATE_VIDEO:
-        if (is_short) {
-            dvr_cmd(DVR_TOGGLE);
-        } else {
-            step_topfan();
-        }
-        break;
-
-    default:
-        break;
-    }
-}
-
-static void short_right_click_timeout(lv_timer_t *timer) {
-    lv_timer_del(timer);
-    right_click_timer = NULL;
-    rbtn_click0(true);
-}
-
-void rbtn_click(bool is_short) {
+void rbtn_click(right_button_t click_type) {
     if (g_init_done != 1)
         return;
-    if (is_short) {
-        if (!right_click_timer) {
-            right_click_timer = lv_timer_create(short_right_click_timeout, 200, NULL);
-        } else {
-            lv_timer_del(right_click_timer);
-            right_click_timer = NULL;
-            // double-click handler
-            if (g_app_state == APP_STATE_VIDEO) {
-                ht_set_center_position();
-            }
+    switch (g_app_state) {
+    case APP_STATE_SUBMENU:
+		pthread_mutex_lock(&lvgl_mutex);
+        if (click_type == RIGHT_CLICK)
+            submenu_right_button(true);
+        else if (click_type == RIGHT_LONG_PRESS)
+            submenu_right_button(false);
+		pthread_mutex_unlock(&lvgl_mutex);
+        break;
+    case APP_STATE_VIDEO:
+        if (click_type == RIGHT_CLICK) {
+            dvr_cmd(DVR_TOGGLE);
+        } else if (click_type == RIGHT_LONG_PRESS) {
+            step_topfan();
+        } else if (click_type == RIGHT_DOUBLE_CLICK) {
+            ht_set_center_position();
         }
-    } else {
-        pthread_mutex_lock(&lvgl_mutex);
-        rbtn_click0(false);
-        pthread_mutex_unlock(&lvgl_mutex);
+        break;
     }
 }
 
