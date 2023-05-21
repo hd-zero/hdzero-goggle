@@ -121,10 +121,10 @@ void uart_parse(uint8_t sel, uint8_t *state, uint8_t *len, uint8_t *payload, uin
                 g_key = RIGHT_KEY_CLICK + (ptr[2] & 1);
                 LOGI("btn:%x", ptr[2]); // 0=short,1=long
                 if (ptr[2]) {
-                    rbtn_click(1);
+                    rbtn_click(RIGHT_LONG_PRESS);
                 } else if (wait_timeout != NULL) {
                     wait_timeout = NULL;
-                    rbtn_click(2);
+                    rbtn_click(RIGHT_DOUBLE_CLICK);
                 } else {
                     wait_timeout = &short_click_timeout;
                     wait_timeout->tv_usec = 250000;
@@ -210,7 +210,7 @@ static void *pthread_recv_dm5680r(void *arg) {
         else if (fds == 0) {
             // Short click timeout
             wait_timeout = NULL;
-            rbtn_click(0);
+            rbtn_click(RIGHT_CLICK);
         } else {
             len = uart_read(fd_dm5680r, buffer, 128);
             // if(len) LOGI("(UART2-%d)",len);

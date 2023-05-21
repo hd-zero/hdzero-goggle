@@ -230,24 +230,24 @@ static void btn_click(void) // short press enter key
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-void rbtn_click(uint8_t click_type) {
+void rbtn_click(right_button_t click_type) {
     if (g_init_done != 1)
         return;
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
 		pthread_mutex_lock(&lvgl_mutex);
-        if (click_type == 0)
+        if (click_type == RIGHT_CLICK)
             submenu_right_button(true);
-        else if (click_type == 1)
+        else if (click_type == RIGHT_LONG_PRESS)
             submenu_right_button(false);
 		pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_VIDEO:
-        if (click_type == 0) {
+        if (click_type == RIGHT_CLICK) {
             dvr_cmd(DVR_TOGGLE);
-        } else if (click_type == 1) {
+        } else if (click_type == RIGHT_LONG_PRESS) {
             step_topfan();
-        } else if (click_type == 2) {
+        } else if (click_type == RIGHT_DOUBLE_CLICK) {
             ht_set_center_position();
         }
         break;
