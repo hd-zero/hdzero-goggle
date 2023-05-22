@@ -120,7 +120,7 @@ static void page_wifi_update_services() {
         fprintf(fp, "ifconfig wlan0 up\n");
 
         if (g_setting.wifi.dhcp) {
-            fprintf(fp, "udhcpc -H %s -i wlan0 -b&\n", g_setting.wifi.ssid[WIFI_MODE_AP]);
+            fprintf(fp, "udhcpc -H %s -r %s -i wlan0 -b&\n", g_setting.wifi.ssid[WIFI_MODE_AP], g_setting.wifi.ip_addr);
         }
 
         fprintf(fp, "mkdir /var/log\n");
