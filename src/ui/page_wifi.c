@@ -2,8 +2,11 @@
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <linux/if.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <log/log.h>
 #include <minIni.h>
@@ -235,6 +238,25 @@ static void page_wifi_update_settings() {
  * Updates the all notes on every page.
  */
 void page_wifi_update_notes() {
+    const char *address = NULL;
+
+    // Get DHCP Client assigned address
+    if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
+        btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0) {
+        int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+        struct ifreq ifr;
+        strcpy(ifr.ifr_name, "wlan0");
+
+        // Try to derive the real ip address
+        if (0 == ioctl(fd, SIOCGIFADDR, &ifr)) {
+            address = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+        } else {
+            address = "x.x.x.x";
+        }
+
+        close(fd);
+    }
+
     static char buffer[1024];
     snprintf(buffer,
              sizeof(buffer),
@@ -242,7 +264,7 @@ void page_wifi_update_notes() {
              "    1.  Connect to the WiFi network identified above.\n"
              "    2. Use VLC Player to open a Network Stream:\n\n"
              "           rtsp://%s:8554/hdzero\n\n",
-             page_wifi.page_2.ip_addr.text);
+             address ? address : page_wifi.page_2.ip_addr.text);
 
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
