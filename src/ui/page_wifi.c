@@ -134,6 +134,8 @@ static void page_wifi_update_services() {
             fprintf(fp, "route add default gw %s\n", g_setting.wifi.gateway);
         }
 
+        fprintf(fp, "/mnt/app/app/record/rtspLive&\n");
+
         fclose(fp);
         system("chmod +x " WIFI_STA_ON);
     }
