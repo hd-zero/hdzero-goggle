@@ -84,7 +84,7 @@ lv_obj_t *show_msgbox_ok(const char *title, const char *message) {
     lv_obj_set_style_text_color(lv_msgbox_get_text(msgbox), lv_color_make(255, 255, 255), 0);
 
     lv_obj_set_style_border_width(msgbox, 3, 0);
-    lv_obj_set_style_border_color(msgbox, lv_color_make(0, 200, 0), 0);
+    lv_obj_set_style_border_color(msgbox, lv_palette_main(LV_PALETTE_RED), 0);
 
     return msgbox;
 }
