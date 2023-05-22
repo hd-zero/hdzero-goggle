@@ -8,6 +8,7 @@ typedef enum {
     APP_STATE_PLAYBACK = 2,
     APP_STATE_VIDEO = 10,
     APP_STATE_IMS = 11,
+    APP_STATE_WIFI = 12,
 
     PAGE_FAN_SLIDE = 100,
     PAGE_ANGLE_SLIDE = 101,

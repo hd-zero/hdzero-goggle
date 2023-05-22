@@ -218,15 +218,13 @@ static void btn_click(void) // short press enter key
         LOGI("level = 1");
         app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
-        submenu_click();
-    } else if (g_app_state == PAGE_FAN_SLIDE) {
-        submenu_click();
-    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
-        submenu_click();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-        submenu_click();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
+    } else if (g_app_state == APP_STATE_SUBMENU ||
+               g_app_state == APP_STATE_PLAYBACK ||
+               g_app_state == APP_STATE_WIFI ||
+               g_app_state == PAGE_FAN_SLIDE ||
+               g_app_state == PAGE_ANGLE_SLIDE ||
+               g_app_state == PAGE_POWER_SLIDE_CELL_COUNT ||
+               g_app_state == PAGE_POWER_SLIDE_CELL_VOLTAGE) {
         submenu_click();
     }
     pthread_mutex_unlock(&lvgl_mutex);
@@ -237,6 +235,7 @@ static void rbtn_click0(bool is_short) {
 
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
+    case APP_STATE_WIFI:
         submenu_right_button(is_short);
         break;
 
@@ -294,7 +293,9 @@ static void roller_up(void) {
     if (g_app_state == APP_STATE_MAINMENU) // main menu
     {
         menu_nav(DIAL_KEY_UP);
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
+    } else if (g_app_state == APP_STATE_SUBMENU ||
+               g_app_state == APP_STATE_PLAYBACK ||
+               g_app_state == APP_STATE_WIFI) {
         submenu_roller(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
@@ -326,7 +327,9 @@ static void roller_down(void) {
     autoscan_exit();
     if (g_app_state == APP_STATE_MAINMENU) {
         menu_nav(DIAL_KEY_DOWN);
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
+    } else if (g_app_state == APP_STATE_SUBMENU ||
+               g_app_state == APP_STATE_PLAYBACK ||
+               g_app_state == APP_STATE_WIFI) {
         submenu_roller(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)

@@ -9,7 +9,6 @@
 
 #include "core/self_test.h"
 #include "ui/page_common.h"
-#include "ui/page_connections.h"
 #include "util/file.h"
 
 setting_t g_setting;
@@ -38,9 +37,7 @@ const setting_t g_setting_defaults = {
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
     },
-    .source = {
-        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL
-    },
+    .source = {.analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL},
     .record = {
         .mode_manual = false,
         .format_ts = true,
@@ -66,9 +63,6 @@ const setting_t g_setting_defaults = {
         .gyr_z = 0,
     },
     .elrs = {
-        .enable = false,
-    },
-    .wifi = {
         .enable = false,
     },
     .ease = {
@@ -162,7 +156,20 @@ const setting_t g_setting_defaults = {
         .min = 30,
         .sec = 30,
         .format = 0,
-    }};
+    },
+    .wifi = {
+        .enable = false,
+        .mode = 0,
+        .ssid = {"HDZero", "MySSID"},
+        .passwd = {"divimath", "MyPassword"},
+        .dhcp = true,
+        .ip_addr = "192.168.2.122",
+        .netmask = "255.255.255.0",
+        .gateway = "192.168.2.1",
+        .dns = "192.168.2.1",
+        .rf_channel = 6,
+    },
+};
 
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
@@ -282,19 +289,19 @@ void settings_load(void) {
     g_setting.clock.sec = ini_getl("clock", "sec", g_setting_defaults.clock.sec, SETTING_INI);
     g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
 
-    // disable wifi on boot
-    g_setting.wifi.enable = false;
-    settings_put_bool("wifi", "enable", g_setting.wifi.enable);
-    if (file_exists(WIFI_SSID_FILE)) {
-        ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, WIFI_SSID_FILE);
-        ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, WIFI_SSID_FILE);
-        ini_puts("wifi", "ssid", g_setting.wifi.ssid, SETTING_INI);
-        ini_puts("wifi", "passwd", g_setting.wifi.passwd, SETTING_INI); // passwd length is 8+
-    } else {
-        ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, SETTING_INI);
-        ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, SETTING_INI);
-    }
-    update_hostpad_conf();
+    // wifi
+    g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
+    g_setting.wifi.mode = ini_getl("wifi", "mode", g_setting_defaults.wifi.mode, SETTING_INI);
+    ini_gets("wifi", "ap_ssid", g_setting_defaults.wifi.ssid[0], g_setting.wifi.ssid[0], WIFI_SSID_MAX, SETTING_INI);
+    ini_gets("wifi", "ap_passwd", g_setting_defaults.wifi.passwd[0], g_setting.wifi.passwd[0], WIFI_PASSWD_MAX, SETTING_INI);
+    ini_gets("wifi", "sta_ssid", g_setting_defaults.wifi.ssid[1], g_setting.wifi.ssid[1], WIFI_SSID_MAX, SETTING_INI);
+    ini_gets("wifi", "sta_passwd", g_setting_defaults.wifi.passwd[1], g_setting.wifi.passwd[1], WIFI_PASSWD_MAX, SETTING_INI);
+    g_setting.wifi.dhcp = settings_get_bool("wifi", "dhcp", g_setting_defaults.wifi.dhcp);
+    ini_gets("wifi", "ip_addr", g_setting_defaults.wifi.ip_addr, g_setting.wifi.ip_addr, WIFI_NETWORK_MAX, SETTING_INI);
+    ini_gets("wifi", "netmask", g_setting_defaults.wifi.netmask, g_setting.wifi.netmask, WIFI_NETWORK_MAX, SETTING_INI);
+    ini_gets("wifi", "gateway", g_setting_defaults.wifi.gateway, g_setting.wifi.gateway, WIFI_NETWORK_MAX, SETTING_INI);
+    ini_gets("wifi", "dns", g_setting_defaults.wifi.dns, g_setting.wifi.dns, WIFI_NETWORK_MAX, SETTING_INI);
+    g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
 
     // no dial under video mode
     g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);

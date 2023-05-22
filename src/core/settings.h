@@ -150,11 +150,29 @@ typedef struct {
     int format;
 } setting_clock_t;
 
+#define WIFI_RF_CHANNELS 14 // World Channels
+#define WIFI_NETWORK_MAX 16 // Includes NULL-Terminator
+#define WIFI_SSID_MAX    33 // Includes NULL-Terminator
+#define WIFI_PASSWD_MAX  64 // Includes NULL-Terminator
+#define WIFI_PASSWD_MIN  8  // Minimum characters allowed
+
+enum {
+    WIFI_MODE_AP = 0,
+    WIFI_MODE_STA,
+    WIFI_MODE_COUNT
+};
+
 typedef struct {
     bool enable;
-    char ssid[16];   // not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
-    char passwd[16]; // default: "divimath"
-    uint8_t ip[4];   // default: 192.168.2.122
+    uint8_t mode; // 0 == WIFI_MODE_AP, 1 == WIFI_MODE_STA
+    char ssid[WIFI_MODE_COUNT][WIFI_SSID_MAX];
+    char passwd[WIFI_MODE_COUNT][WIFI_PASSWD_MAX];
+    bool dhcp;
+    char ip_addr[WIFI_NETWORK_MAX];
+    char netmask[WIFI_NETWORK_MAX];
+    char gateway[WIFI_NETWORK_MAX];
+    char dns[WIFI_NETWORK_MAX];
+    uint8_t rf_channel;
 } wifi_t;
 
 typedef struct {
@@ -191,5 +209,5 @@ extern bool g_test_en;
 extern const setting_t g_setting_defaults;
 
 void settings_load(void);
-bool settings_get_bool(char* section, char* key, bool default_val);
-int settings_put_bool(char* section, char* key, bool value);
+bool settings_get_bool(char *section, char *key, bool default_val);
+int settings_put_bool(char *section, char *key, bool value);

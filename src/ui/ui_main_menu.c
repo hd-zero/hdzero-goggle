@@ -13,7 +13,7 @@
 #include "ui/page_autoscan.h"
 #include "ui/page_clock.h"
 #include "ui/page_common.h"
-#include "ui/page_connections.h"
+#include "ui/page_elrs.h"
 #include "ui/page_fans.h"
 #include "ui/page_focus_chart.h"
 #include "ui/page_headtracker.h"
@@ -24,7 +24,9 @@
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
 #include "ui/page_version.h"
+#include "ui/page_wifi.h"
 #include "ui/ui_image_setting.h"
+#include "ui/ui_keyboard.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
@@ -46,7 +48,8 @@ static page_pack_t *page_packs[] = {
     &pp_fans,
     &pp_record,
     &pp_autoscan,
-    &pp_connections,
+    &pp_elrs,
+    &pp_wifi,
     &pp_headtracker,
     &pp_playback,
     &pp_version,
@@ -170,7 +173,7 @@ void submenu_click(void) {
         pp->on_click(DIAL_KEY_CLICK, pp->p_arr.cur);
     }
 
-    if (pp->p_arr.max) {
+    if (pp->p_arr.max && g_app_state != APP_STATE_WIFI) {
         // if we have selectable icons, check if we hit the back button
         if (pp->p_arr.cur == pp->p_arr.max - 1) {
             submenu_exit();
@@ -286,6 +289,9 @@ void main_menu_init(void) {
     lv_obj_add_flag(progress_bar.bar, LV_OBJ_FLAG_HIDDEN);
     progress_bar.start = 0;
     progress_bar.val = 0;
+
+    // Create Keyboard Object
+    keyboard_init();
 }
 
 void progress_bar_update() {
