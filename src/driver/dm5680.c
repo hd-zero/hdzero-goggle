@@ -38,6 +38,8 @@ uint8_t uart_buffer[2][256];
 uint8_t uart_rptr[2], uart_wptr[2];
 int fd_dm5680l = 0, fd_dm5680r = 0;
 pthread_mutex_t cmd_to5680_mutex;
+static struct timeval short_click_timeout;
+struct timeval *wait_timeout = NULL;
 
 uint8_t uart_parse_core(uint8_t *buff, uint8_t *rptr, uint8_t *wptr, uint8_t *state, uint8_t *len, uint8_t *payload, uint8_t *payload_ptr) {
     uint8_t pkt_cnt = 0;
@@ -117,8 +119,16 @@ void uart_parse(uint8_t sel, uint8_t *state, uint8_t *len, uint8_t *payload, uin
         case 0x20: // right_btn
             if (sel) {
                 g_key = RIGHT_KEY_CLICK + (ptr[2] & 1);
-                LOGI("btn:%x\n", ptr[2]); // 0=short,1=long
-                rbtn_click(!ptr[2]);
+                LOGI("btn:%x", ptr[2]); // 0=short,1=long
+                if (ptr[2]) {
+                    rbtn_click(RIGHT_LONG_PRESS);
+                } else if (wait_timeout != NULL) {
+                    wait_timeout = NULL;
+                    rbtn_click(RIGHT_DOUBLE_CLICK);
+                } else {
+                    wait_timeout = &short_click_timeout;
+                    wait_timeout->tv_usec = 250000;
+                }
             }
             break;
 
@@ -194,22 +204,25 @@ static void *pthread_recv_dm5680r(void *arg) {
     for (;;) {
         FD_ZERO(&rd);
         FD_SET(fd_dm5680r, &rd);
-        while (FD_ISSET(fd_dm5680r, &rd)) {
-            if (select(fd_dm5680r + 1, &rd, NULL, NULL, NULL) < 0)
-                LOGE("UART2:select error!");
-            else {
-                len = uart_read(fd_dm5680r, buffer, 128);
-                // if(len) LOGI("(UART2-%d)",len);
-                for (i = 0; i < len; i++) {
-                    uart_buffer[1][uart_wptr[1]] = buffer[i];
-                    uart_wptr[1]++;
+        int fds = select(fd_dm5680r + 1, &rd, NULL, NULL, wait_timeout);
+        if (fds < 0)
+            LOGE("UART2:select error!");
+        else if (fds == 0) {
+            // Short click timeout
+            wait_timeout = NULL;
+            rbtn_click(RIGHT_CLICK);
+        } else {
+            len = uart_read(fd_dm5680r, buffer, 128);
+            // if(len) LOGI("(UART2-%d)",len);
+            for (i = 0; i < len; i++) {
+                uart_buffer[1][uart_wptr[1]] = buffer[i];
+                uart_wptr[1]++;
 
-                    if (uart_wptr[1] == uart_rptr[1])
-                        LOGW("UART2 fifo full!");
-                }
-                if (len)
-                    uart_parse(1, &state, &len8, payload, &payload_ptr);
+                if (uart_wptr[1] == uart_rptr[1])
+                    LOGW("UART2 fifo full!");
             }
+            if (len)
+                uart_parse(1, &state, &len8, payload, &payload_ptr);
         }
     }
 
@@ -387,7 +400,7 @@ void DM5680_get_rssi(uint8_t sel, uint8_t *payload) {
         filter_rssi(&rx_status_ptr->rx_rssi[1], payload[3], &avg_buf[sel * 20 + 10]);
         rx_status_ptr->rx_DLQ = payload[4];
         rx_status_ptr->rx_Stat = payload[5];
-#if 0 
+#if 0
 		LOGI("(RSSI %x %x %x %x)",	rx_status[0].rx_rssi[0],
 										rx_status[0].rx_rssi[1],
 										rx_status[1].rx_rssi[0],
