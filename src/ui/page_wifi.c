@@ -123,7 +123,11 @@ static void page_wifi_update_services() {
         fprintf(fp, "ifconfig wlan0 up\n");
 
         if (g_setting.wifi.dhcp) {
-            fprintf(fp, "udhcpc -H %s -r %s -i wlan0 -b&\n", g_setting.wifi.ssid[WIFI_MODE_AP], g_setting.wifi.ip_addr);
+            fprintf(fp,
+                    "udhcpc -x hostname:%s -x 0x3d:%s -r %s -i wlan0 -b&\n",
+                    g_setting.wifi.ssid[WIFI_MODE_AP],
+                    g_setting.wifi.clientid,
+                    g_setting.wifi.ip_addr);
         }
 
         fprintf(fp, "mkdir /var/log\n");
@@ -193,6 +197,17 @@ static void page_wifi_update_services() {
 }
 
 /**
+ * Generate a unqiue Client ID based on a hex seed.
+ */
+static void page_wifi_generate_clientid(char *buffer, int size) {
+    static const char *seed = "0123456789ABCDEF";
+    for (int i = 0; i < size; i++) {
+        buffer[i] = seed[rand() % 16];
+    }
+    buffer[size - 1] = '\0';
+}
+
+/**
  * Update settings and apply them.
  */
 static void page_wifi_update_settings() {
@@ -207,6 +222,11 @@ static void page_wifi_update_settings() {
     snprintf(g_setting.wifi.netmask, WIFI_NETWORK_MAX, "%s", page_wifi.page_2.netmask.text);
     snprintf(g_setting.wifi.gateway, WIFI_NETWORK_MAX, "%s", page_wifi.page_2.gateway.text);
     snprintf(g_setting.wifi.dns, WIFI_NETWORK_MAX, "%s", page_wifi.page_2.dns.text);
+
+    if (0 == strlen(g_setting.wifi.clientid)) {
+        page_wifi_generate_clientid(g_setting.wifi.clientid, WIFI_CLIENTID_MAX);
+        ini_puts("wifi", "clientid", g_setting.wifi.clientid, SETTING_INI);
+    }
 
     settings_put_bool("wifi", "enable", g_setting.wifi.enable);
     ini_putl("wifi", "mode", g_setting.wifi.mode, SETTING_INI);

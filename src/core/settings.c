@@ -160,6 +160,7 @@ const setting_t g_setting_defaults = {
     .wifi = {
         .enable = false,
         .mode = 0,
+        .clientid = {""},
         .ssid = {"HDZero", "MySSID"},
         .passwd = {"divimath", "MyPassword"},
         .dhcp = true,
@@ -292,6 +293,7 @@ void settings_load(void) {
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
     g_setting.wifi.mode = ini_getl("wifi", "mode", g_setting_defaults.wifi.mode, SETTING_INI);
+    ini_gets("wifi", "clientid", g_setting_defaults.wifi.clientid, g_setting.wifi.clientid, WIFI_CLIENTID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_ssid", g_setting_defaults.wifi.ssid[0], g_setting.wifi.ssid[0], WIFI_SSID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_passwd", g_setting_defaults.wifi.passwd[0], g_setting.wifi.passwd[0], WIFI_PASSWD_MAX, SETTING_INI);
     ini_gets("wifi", "sta_ssid", g_setting_defaults.wifi.ssid[1], g_setting.wifi.ssid[1], WIFI_SSID_MAX, SETTING_INI);

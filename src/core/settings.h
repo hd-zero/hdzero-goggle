@@ -150,11 +150,12 @@ typedef struct {
     int format;
 } setting_clock_t;
 
-#define WIFI_RF_CHANNELS 14 // World Channels
-#define WIFI_NETWORK_MAX 16 // Includes NULL-Terminator
-#define WIFI_SSID_MAX    33 // Includes NULL-Terminator
-#define WIFI_PASSWD_MAX  64 // Includes NULL-Terminator
-#define WIFI_PASSWD_MIN  8  // Minimum characters allowed
+#define WIFI_RF_CHANNELS  14 // World Channels
+#define WIFI_NETWORK_MAX  16 // Includes NULL-Terminator
+#define WIFI_SSID_MAX     33 // Includes NULL-Terminator
+#define WIFI_PASSWD_MAX   64 // Includes NULL-Terminator
+#define WIFI_PASSWD_MIN   8  // Minimum characters allowed
+#define WIFI_CLIENTID_MAX 15 // Includes NULL-Terminator
 
 enum {
     WIFI_MODE_AP = 0,
@@ -165,6 +166,7 @@ enum {
 typedef struct {
     bool enable;
     uint8_t mode; // 0 == WIFI_MODE_AP, 1 == WIFI_MODE_STA
+    char clientid[WIFI_CLIENTID_MAX];
     char ssid[WIFI_MODE_COUNT][WIFI_SSID_MAX];
     char passwd[WIFI_MODE_COUNT][WIFI_PASSWD_MAX];
     bool dhcp;
