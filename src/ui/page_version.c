@@ -144,12 +144,15 @@ static bool flash_elrs() {
 int generate_current_version(sys_version_t *sys_ver) {
     sys_ver->va = I2C_Read(ADDR_FPGA, 0xff);
     sys_ver->rx = rx_status[0].rx_ver;
+    memset(sys_ver->commit, 0, sizeof(sys_ver->commit));
 
     FILE *fp = fopen("/mnt/app/version", "r");
     if (!fp) {
         return -1;
     }
-    fscanf(fp, "%hhd.%hhd.%hhd-%s",
+
+    // %9s to read max 9 chars and leave room for null terminator, since sys_ver->commit has length 10
+    fscanf(fp, "%hhd.%hhd.%hhd-%9s",
            &sys_ver->app_major,
            &sys_ver->app_minor,
            &sys_ver->app_patch,
