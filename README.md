@@ -74,10 +74,10 @@ Requires build-essential tools and libsdl2-dev development libraries to be alrea
 ```
 
 ## Emulator Keys
-a = right button press.
-w = wheel up.
-s = wheel down.
-d = wheel center press.
+a = right button press
+w = wheel up
+s = wheel down
+d = wheel center press
 Use F11 to toggle full screen where applicable.
 
 ## Support and Developer Channels
