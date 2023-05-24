@@ -63,7 +63,7 @@ fi
 ## Building the Emulator
 
 Goggle source code can be built natively on the host machine and used for debugging.
-Requires build-essential tools and SDL2 development libraries to be already installed.
+Requires build-essential tools and libsdl2-dev development libraries to be already installed.
 
 ```
 ~/hdzero-goggle$ mkdir build_emu
@@ -72,6 +72,13 @@ Requires build-essential tools and SDL2 development libraries to be already inst
 ~/hdzero-gogglei/build$ make -j
 ~/hdzero-gogglei/build$ ./HDZGOGGLE
 ```
+
+## Emulator Keys
+a = right button press
+w = wheel up
+s = wheel down
+d = wheel center press
+Use F11 to toggle full screen where applicable.
 
 ## Support and Developer Channels
 
