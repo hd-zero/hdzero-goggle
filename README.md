@@ -73,7 +73,7 @@ Requires build-essential tools and SDL2 development libraries (libsdl2-dev for d
 ~/hdzero-gogglei/build$ ./HDZGOGGLE
 ```
 
-Emulator Keys:
+Emulator Keys:  
 a = right button press  
 w = wheel up  
 s = wheel down  
