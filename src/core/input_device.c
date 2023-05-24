@@ -151,6 +151,9 @@ static void btn_press(void) // long press left key
     if (g_scanning || !g_init_done)
         return;
 
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
+
     pthread_mutex_lock(&lvgl_mutex);
 
     g_autoscan_exit = true;
@@ -188,6 +191,9 @@ static void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
     if (!g_init_done)
+        return;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
 
     if (g_app_state == APP_STATE_VIDEO) {
@@ -233,6 +239,10 @@ static void btn_click(void) // short press enter key
 void rbtn_click(right_button_t click_type) {
     if (g_init_done != 1)
         return;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
+
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
 		pthread_mutex_lock(&lvgl_mutex);
@@ -262,6 +272,9 @@ static void roller_up(void) {
 
     if (g_init_done == 0)
         g_init_done = -1;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -295,6 +308,9 @@ static void roller_down(void) {
 
     if (g_init_done == 0)
         g_init_done = -1;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -444,7 +460,6 @@ static void *thread_input_device(void *ptr) {
             switch (event.type) {
             case SDL_QUIT:
                 exit(0);
-                break;
 
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
