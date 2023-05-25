@@ -11,6 +11,7 @@
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
 #include "core/settings.h"
+#include "core/app_state.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
@@ -22,9 +23,27 @@
 #include "ui/ui_style.h"
 #include "util/file.h"
 
+enum {
+    ROW_CUR_VERSION = 0,
+    ROW_RESET_ALL_SETTINGS,
+    ROW_UPDATE_VTX,
+    ROW_UPDATE_GOGGLE,
+    ROW_UPDATE_ESP32,
+    ROW_BACK,
+
+    ROW_COUNT
+};
+
+typedef enum {
+    CONFIRMATION_UNCONFIRMED = 0,
+    CONFIRMATION_CONFIRMED,
+    CONFIRMATION_TIMEOUT
+} ui_confirmation_t;
+
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
+static lv_obj_t *btn_reset_all_settings = NULL;
 static lv_obj_t *bar_vtx = NULL;
 static lv_obj_t *btn_vtx = NULL;
 static lv_obj_t *bar_goggle = NULL;
@@ -41,6 +60,8 @@ static lv_obj_t *label_esp = NULL;
 static bool is_need_update_progress = false;
 static bool reboot_flag = false;
 static lv_obj_t *cur_ver_label;
+
+static int reset_all_settings_confirm = CONFIRMATION_UNCONFIRMED;
 
 #undef RETURN_ON_ERROR
 #define RETURN_ON_ERROR(m, x)              \
@@ -123,12 +144,15 @@ static bool flash_elrs() {
 int generate_current_version(sys_version_t *sys_ver) {
     sys_ver->va = I2C_Read(ADDR_FPGA, 0xff);
     sys_ver->rx = rx_status[0].rx_ver;
+    memset(sys_ver->commit, 0, sizeof(sys_ver->commit));
 
     FILE *fp = fopen("/mnt/app/version", "r");
     if (!fp) {
         return -1;
     }
-    fscanf(fp, "%hhd.%hhd.%hhd-%s",
+
+    // %9s to read max 9 chars and leave room for null terminator, since sys_ver->commit has length 10
+    fscanf(fp, "%hhd.%hhd.%hhd-%9s",
            &sys_ver->app_major,
            &sys_ver->app_minor,
            &sys_ver->app_patch,
@@ -190,30 +214,31 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
-    cur_ver_label = create_label_item(cont, "Current Version", 1, 0, 2);
+    cur_ver_label = create_label_item(cont, "Current Version", 1, ROW_CUR_VERSION, 2);
 
-    btn_vtx = create_label_item(cont, "Update VTX", 1, 1, 2);
-    btn_goggle = create_label_item(cont, "Update Goggle", 1, 2, 2);
-    btn_esp = create_label_item(cont, "Update ESP32", 1, 3, 2);
-    label_esp = create_label_item(cont, "", 3, 3, 2);
-    create_label_item(cont, "< Back", 1, 4, 1);
+    btn_reset_all_settings = create_label_item(cont, "Reset all settings", 1, ROW_RESET_ALL_SETTINGS, 2);
+    btn_vtx = create_label_item(cont, "Update VTX", 1, ROW_UPDATE_VTX, 2);
+    btn_goggle = create_label_item(cont, "Update Goggle", 1, ROW_UPDATE_GOGGLE, 2);
+    btn_esp = create_label_item(cont, "Update ESP32", 1, ROW_UPDATE_ESP32, 2);
+    label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
+    create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
     bar_vtx = lv_bar_create(cont);
     lv_obj_set_size(bar_vtx, 320, 20);
     lv_obj_set_grid_cell(bar_vtx, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, 1, 1);
+                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_VTX, 1);
     lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
 
     bar_goggle = lv_bar_create(cont);
     lv_obj_set_size(bar_goggle, 320, 20);
     lv_obj_set_grid_cell(bar_goggle, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, 2, 1);
+                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_GOGGLE, 1);
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 
     bar_esp = lv_bar_create(cont);
     lv_obj_set_size(bar_esp, 320, 20);
     lv_obj_set_grid_cell(bar_esp, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, 3, 1);
+                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
     return page;
@@ -273,13 +298,22 @@ static void page_version_enter() {
     lv_timer_set_repeat_count(timer, 20);
 }
 
+static void reset_all_settings_reset_label_text() {
+    lv_label_set_text(btn_reset_all_settings, "Reset all settings");
+}
+
 static void page_version_on_roller(uint8_t key) {
     version_update_title();
+
+    if (reset_all_settings_confirm == CONFIRMATION_CONFIRMED) {
+        reset_all_settings_reset_label_text();
+        reset_all_settings_confirm = CONFIRMATION_UNCONFIRMED;
+    }
 }
 
 static void page_version_on_click(uint8_t key, int sel) {
     version_update_title();
-    if (sel == 0) {
+    if (sel == ROW_CUR_VERSION) {
         FILE *fp;
         char buf[80];
         int dat[16];
@@ -307,7 +341,17 @@ static void page_version_on_click(uint8_t key, int sel) {
         }
         fclose(fp);
         // system("rm /tmp/rd_reg");
-    } else if (sel == 1) {
+    } else if (sel == ROW_RESET_ALL_SETTINGS) {
+        if (reset_all_settings_confirm) {
+            settings_reset();
+            reset_all_settings_reset_label_text();
+            show_msgbox_ok("Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+            app_state_push(APP_STATE_USER_INPUT_DISABLED);
+        } else {
+            lv_label_set_text(btn_reset_all_settings, "#FFFF00 click to confirm/scroll to cancel#");
+            reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
+        }
+    } else if (sel == ROW_UPDATE_VTX) {
         uint8_t ret;
         lv_obj_clear_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(btn_vtx, "Flashing...");
@@ -337,7 +381,7 @@ static void page_version_on_click(uint8_t key, int sel) {
         sleep(2);
 
         lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
-    } else if ((sel == 2) && !reboot_flag) {
+    } else if ((sel == ROW_UPDATE_GOGGLE) && !reboot_flag) {
         uint8_t ret = 0;
         lv_obj_clear_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(btn_goggle, "WAIT... DO NOT POWER OFF... ");
@@ -355,7 +399,8 @@ static void page_version_on_click(uint8_t key, int sel) {
             // if(b1 && b2 && b3) {
             if (1) {
                 lv_timer_handler();
-                lv_label_set_text(btn_goggle, "#00FF00 Update success, repower goggle NOW!#");
+                show_msgbox_ok("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+                app_state_push(APP_STATE_USER_INPUT_DISABLED);
                 beep();
                 usleep(1000000);
                 beep();
@@ -374,7 +419,7 @@ static void page_version_on_click(uint8_t key, int sel) {
         } else
             lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
         lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
-    } else if (sel == 3) { // flash ESP via SD
+    } else if (sel == ROW_UPDATE_ESP32) { // flash ESP via SD
         lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(btn_esp, "Flashing...");
@@ -521,7 +566,7 @@ void *thread_version(void *ptr) {
 page_pack_t pp_version = {
     .p_arr = {
         .cur = 0,
-        .max = 5,
+        .max = ROW_COUNT,
     },
     .name = "Firmware",
     .create = page_version_create,

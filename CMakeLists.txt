@@ -2,23 +2,24 @@ cmake_minimum_required(VERSION 3.10)
 
 project(HDZGOGGLE VERSION 1.1)
 
-option(EMULATOR_BUILD "emulate using SDL on host" OFF)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(COMMON_COMPILER_FLAGS "-Wno-unused-function -Wno-unused-variable -Wno-deprecated-declarations -ffunction-sections -fdata-sections -Wl,-gc-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+
+option(EMULATOR_BUILD "emulate using SDL on host" OFF)
 if(NOT EMULATOR_BUILD)
-	set(CMAKE_C_FLAGS "-mfpu=neon -mfloat-abi=hard")
-	set(CMAKE_CXX_FLAGS "-mfpu=neon -mfloat-abi=hard")
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -mfpu=neon -mfloat-abi=hard")
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function -Wno-unused-variable -ffunction-sections -fdata-sections -Wl,-gc-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function -Wno-unused-variable -ffunction-sections -fdata-sections -Wl,-gc-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILER_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS}")
 
 set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_C_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
 
 set(OS_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app)
 set(RECORD_APP_PATH ${PROJECT_SOURCE_DIR}/mkapp/app/app/record)

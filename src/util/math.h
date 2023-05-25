@@ -9,5 +9,6 @@
 
 float normalize(float value, float start, float end);
 void rotate(float pn[3], const float rot[3]);
+void safe_update_value(int min, int max, int *val, int delta);
 
 #endif // __UTIL_MATH_H__
