@@ -43,6 +43,7 @@
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
+#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,7 +178,10 @@ static void btn_press(void) // long press left key
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
         app_switch_to_menu();
-    else if (g_app_state == APP_STATE_PLAYBACK)
+    else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_cancel_and_hide();
+        app_switch_to_menu();
+    } else if (g_app_state == APP_STATE_PLAYBACK)
         pb_key(DIAL_KEY_PRESS);
     else { // Sub-menu  -> Main menu
         submenu_exit();
@@ -207,6 +211,12 @@ static void btn_click(void) // short press enter key
             app_switch_to_menu();
         pthread_mutex_unlock(&lvgl_mutex);
         return;
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        pthread_mutex_lock(&lvgl_mutex);
+        if (ui_osd_element_pos_handle_input(DIAL_KEY_CLICK))
+            app_switch_to_menu();
+        pthread_mutex_unlock(&lvgl_mutex);
+        return;
     }
 
     if (!main_menu_is_shown())
@@ -222,7 +232,7 @@ static void btn_click(void) // short press enter key
         LOGI("level = 1");
         app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_click();
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         submenu_click();
@@ -283,11 +293,15 @@ static void roller_up(void) {
         menu_nav(DIAL_KEY_UP);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_UP);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_UP);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_dec();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
@@ -318,11 +332,15 @@ static void roller_down(void) {
         menu_nav(DIAL_KEY_DOWN);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_DOWN);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_inc();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {

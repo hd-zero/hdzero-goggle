@@ -41,3 +41,14 @@ void rotate(float pn[3], const float rot[3]) {
         memcpy(pn, out, sizeof(out[0]) * 3);
     }
 }
+
+void safe_update_value(int min, int max, int *val, int delta) {
+    int new_val = *val + delta;
+
+    if (new_val > max)
+        *val = max;
+    else if (new_val < min)
+        *val = min;
+    else
+        *val = new_val;
+}
