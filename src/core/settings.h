@@ -210,6 +210,8 @@ extern setting_t g_setting;
 extern bool g_test_en;
 extern const setting_t g_setting_defaults;
 
+void settings_reset(void);
+void settings_init(void);
 void settings_load(void);
 bool settings_get_bool(char *section, char *key, bool default_val);
 int settings_put_bool(char *section, char *key, bool value);

@@ -7,6 +7,7 @@
 #define TMP_DIR         "/tmp"
 #define MEDIA_FILES_DIR "/mnt/extsd/movies"
 #define AUDIO_SEL_SH    "/mnt/app/script/audio_sel.sh"
+#define SETTING_INI_VERSION 1
 #define SETTING_INI     "/mnt/app/setting.ini"
 #define TEST_INI        "/mnt/extsd/test.ini"
 #define REC_START       "/mnt/app/app/record/gogglecmd -rec start"
@@ -126,6 +127,8 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
                 lv_menu_builder_variant_t builder_variant);
 
 lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, int row);
+
+lv_obj_t *show_msgbox_ok(const char *title, const char *message);
 
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 

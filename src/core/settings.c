@@ -11,6 +11,8 @@
 #include "ui/page_common.h"
 #include "util/file.h"
 
+#define SETTINGS_INI_VERSION_UNKNOWN 0
+
 setting_t g_setting;
 bool g_test_en = false;
 
@@ -202,15 +204,36 @@ int settings_put_bool(char *section, char *key, bool value) {
     return ini_puts(section, key, value ? "true" : "false", SETTING_INI);
 }
 
-void settings_load(void) {
+void settings_reset(void) {
+    char buf[256];
+
+    sprintf(buf, "rm -f %s", SETTING_INI);
+    system(buf);
+    usleep(50);
+
+    sprintf(buf, "touch %s", SETTING_INI);
+    system(buf);
+    usleep(50);
+
+    ini_putl("settings", "file_version", SETTING_INI_VERSION, SETTING_INI);
+}
+
+void settings_init(void) {
+    // check if backup of old settings file exists after goggle update
     if (file_exists("/mnt/UDISK/setting.ini")) {
-        char str[128];
-        sprintf(str, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
-        system(str);
+        char buf[256];
+        sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
+        system(buf);
         usleep(10);
         system("rm /mnt/UDISK/setting.ini");
     }
+    
+    int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);
+    if (file_version != SETTING_INI_VERSION)
+        settings_reset();
+}
 
+void settings_load(void) {
     // scan
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
