@@ -18,6 +18,7 @@
 #include "ui/page_focus_chart.h"
 #include "ui/page_headtracker.h"
 #include "ui/page_imagesettings.h"
+#include "ui/page_osd.h"
 #include "ui/page_playback.h"
 #include "ui/page_power.h"
 #include "ui/page_record.h"
@@ -42,6 +43,7 @@ static page_pack_t *page_packs[] = {
     &pp_scannow,
     &pp_source,
     &pp_imagesettings,
+    &pp_osd,
     &pp_power,
     &pp_fans,
     &pp_record,
@@ -136,6 +138,22 @@ void submenu_roller(uint8_t key) {
         }
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
+}
+
+// the submenu pages called on_roller event handler has to update
+// the selection by setting pp->p_arr.cur if a selection change is needed
+void submenu_roller_no_selection_change(uint8_t key) {
+    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
+    if (!pp) {
+        return;
+    }
+
+    if (pp->on_roller) {
+        // if your page as a roller event handler, call it
+        pp->on_roller(key);
+    }
+
+    set_select_item(&pp->p_arr, pp->p_arr.cur);
 }
 
 void submenu_exit() {

@@ -128,15 +128,24 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row);
 
+void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row, const lv_font_t *font);
+
+void update_slider_item_with_value(slider_group_t *slider_group, int value);
+
 void create_btn_item(lv_obj_t *parent, const char *name, int col, int row);
 
-lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, int row);
+lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, int row, int width, int height, int col_span, int pad_top, lv_grid_align_t column_align, const lv_font_t *font);
+
+lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col, int row, int cols, int height, lv_text_align_t text_align, lv_grid_align_t col_align, const lv_font_t *font);
 
 lv_obj_t *show_msgbox_ok(const char *title, const char *message);
 
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 
 lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
+
+void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
+                                   const char *name2, const char *name3, int row, int height, int arrow_scale_percent, const lv_font_t *font);
 
 void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
                            const char *name2, const char *name3, int row);
