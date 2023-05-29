@@ -398,8 +398,8 @@ static void page_version_on_click(uint8_t key, int sel) {
             // LOGI("Verify result: %d %d %d", b1,b2,b3);
             // if(b1 && b2 && b3) {
             if (1) {
-                lv_timer_handler();
                 show_msgbox_ok("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+                lv_timer_handler();
                 app_state_push(APP_STATE_USER_INPUT_DISABLED);
                 beep();
                 usleep(1000000);
