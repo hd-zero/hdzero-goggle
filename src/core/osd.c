@@ -124,7 +124,7 @@ void osd_rec_show(bool bShow) {
     }
 }
 
-void osd_battery_show() {
+void osd_battery_low_show() {
     char buf[128];
     if (g_setting.power.warning_type == SETTING_POWER_WARNING_TYPE_BEEP) { // Beep only
         lv_obj_add_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
@@ -137,6 +137,24 @@ void osd_battery_show() {
         lv_obj_clear_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
     } else
         lv_obj_add_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
+}
+
+void osd_battery_voltage_show(bool bShow) {
+    if (!bShow || !g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].show) {
+        lv_obj_add_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+    char buf[128];
+
+    battery_get_voltage_str(buf);
+    lv_label_set_text(g_osd_hdzero.battery_voltage[is_fhd], buf);
+
+    if (battery_is_low())
+        lv_obj_set_style_text_color(g_osd_hdzero.battery_voltage[is_fhd], lv_color_make(255, 0, 0), 0);
+    else
+        lv_obj_set_style_text_color(g_osd_hdzero.battery_voltage[is_fhd], lv_color_make(255, 255, 255), 0);
+
+    lv_obj_clear_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
 void osd_topfan_show(bool bShow) {
@@ -264,10 +282,9 @@ static void osd_object_create_label(uint8_t fhd, lv_obj_t **obj, char *text, set
     *obj = lv_label_create(so);
     lv_label_set_text(*obj, text);
     osd_object_set_pos(fhd, *obj, pos);
-    lv_obj_set_style_text_color(g_osd_hdzero.channel[fhd], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_text_font(g_osd_hdzero.channel[fhd], &lv_font_montserrat_26, 0);
-    lv_obj_set_style_bg_color(g_osd_hdzero.channel[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
-    lv_obj_set_style_radius(g_osd_hdzero.channel[fhd], 50, 0);
+
+    lv_obj_set_style_text_color(*obj, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_font(*obj, &lv_font_montserrat_26, 0);
 }
 
 void osd_show(bool show) {
@@ -329,6 +346,11 @@ void osd_show_all_elements() {
         lv_obj_clear_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
     else
         lv_obj_add_flag(g_osd_hdzero.battery_low[is_fhd], LV_OBJ_FLAG_HIDDEN);
+
+    if (g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].show)
+        lv_obj_clear_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
 
     if (g_setting.osd.element[OSD_GOGGLE_VTX_TEMP].show)
         lv_obj_clear_flag(g_osd_hdzero.vtx_temp[is_fhd], LV_OBJ_FLAG_HIDDEN);
@@ -443,6 +465,9 @@ void osd_hdzero_update(void) {
 
     // if the user is in the osd element position settings, show all elements
     if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        // show actual value so text length is correct, to make it easier to position
+        osd_battery_voltage_show(true);
+
         // some elements might not be visible, set dummy sources to show them
         osd_elements_set_dummy_sources();
         osd_show_all_elements();
@@ -454,6 +479,7 @@ void osd_hdzero_update(void) {
     osd_rec_show(g_showRXOSD);
     osd_llock_show(g_showRXOSD);
     osd_topfan_show(g_showRXOSD);
+    osd_battery_voltage_show(g_showRXOSD);
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
@@ -486,7 +512,7 @@ void osd_hdzero_update(void) {
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
         lv_gif_set_src(g_osd_hdzero.battery_low[is_fhd], buf);
-        osd_battery_show();
+        osd_battery_low_show();
     }
 
     osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[0]));
@@ -568,6 +594,9 @@ static void embedded_osd_init(uint8_t fhd) {
     osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
     osd_object_create_gif(fhd, &g_osd_hdzero.battery_low[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW].position, so);
 
+    osd_object_create_label(fhd, &g_osd_hdzero.battery_voltage[fhd], "1S 0.0V", &g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.battery_voltage[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
+
     osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
     osd_object_create_gif(fhd, &g_osd_hdzero.vrx_temp[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].position, so);
 
@@ -575,6 +604,8 @@ static void embedded_osd_init(uint8_t fhd) {
     osd_object_create_img(fhd, &g_osd_hdzero.latency_lock[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position, so);
 
     osd_object_create_label(fhd, &g_osd_hdzero.channel[fhd], "CH:-- ", &g_setting.osd.element[OSD_GOGGLE_CHANNEL].position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.channel[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
+    lv_obj_set_style_radius(g_osd_hdzero.channel[fhd], 50, 0);
     channel_osd_mode = 0;
 
     osd_resource_path(buf, "%s", is_fhd, noSdcard_bmp);
@@ -596,10 +627,11 @@ static void embedded_osd_init(uint8_t fhd) {
     }
 }
 
-void osd_update_mode() {
+void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.topfan_speed[is_fhd], &g_setting.osd.element[OSD_GOGGLE_TOPFAN_SPEED].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.vtx_temp[is_fhd], &g_setting.osd.element[OSD_GOGGLE_VTX_TEMP].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.battery_low[is_fhd], &g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW].position);
+    osd_object_set_pos(is_fhd, g_osd_hdzero.battery_voltage[is_fhd], &g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.vrx_temp[is_fhd], &g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.latency_lock[is_fhd], &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.sd_rec[is_fhd], &g_setting.osd.element[OSD_GOGGLE_SD_REC].position);
