@@ -39,7 +39,9 @@ const setting_t g_setting_defaults = {
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
     },
-    .source = {.analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL},
+    .source = {
+        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL,
+    },
     .record = {
         .mode_manual = false,
         .format_ts = true,
@@ -174,6 +176,44 @@ const setting_t g_setting_defaults = {
     },
 };
 
+int settings_put_osd_element_shown(bool show, char *config_name) {
+    char setting_key[128];
+
+    sprintf(setting_key, "element_%s_show", config_name);
+    return settings_put_bool("osd", setting_key, show);
+}
+
+int settings_put_osd_element_pos_x(const setting_osd_goggle_element_positions_t *pos, char *config_name) {
+    char setting_key[128];
+    int ret = 0;
+
+    sprintf(setting_key, "element_%s_pos_4_3_x", config_name);
+    ret = ini_putl("osd", setting_key, pos->mode_4_3.x, SETTING_INI);
+    sprintf(setting_key, "element_%s_pos_16_9_x", config_name);
+    ret &= ini_putl("osd", setting_key, pos->mode_16_9.x, SETTING_INI);
+    return ret;
+}
+
+int settings_put_osd_element_pos_y(const setting_osd_goggle_element_positions_t *pos, char *config_name) {
+    char setting_key[128];
+    int ret = 0;
+
+    sprintf(setting_key, "element_%s_pos_4_3_y", config_name);
+    ret = ini_putl("osd", setting_key, pos->mode_4_3.y, SETTING_INI);
+    sprintf(setting_key, "element_%s_pos_16_9_y", config_name);
+    ret &= ini_putl("osd", setting_key, pos->mode_16_9.y, SETTING_INI);
+    return ret;
+}
+
+int settings_put_osd_element(const setting_osd_goggle_element_t *element, char *config_name) {
+    int ret = 0;
+
+    ret = settings_put_osd_element_shown(element->show, config_name);
+    ret &= settings_put_osd_element_pos_x(&element->position, config_name);
+    ret &= settings_put_osd_element_pos_y(&element->position, config_name);
+    return ret;
+}
+
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
 
@@ -227,7 +267,7 @@ void settings_init(void) {
         usleep(10);
         system("rm /mnt/UDISK/setting.ini");
     }
-    
+
     int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);
     if (file_version != SETTING_INI_VERSION)
         settings_reset();

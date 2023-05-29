@@ -147,7 +147,7 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
     char text[512];
     snprintf(text, sizeof(text), "%d", option);
 
-    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row);
+    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     page_clock_items[item].type = ITEM_TYPE_OBJ;
 
     int index = page_clock_get_dropdown_index(item, text);
