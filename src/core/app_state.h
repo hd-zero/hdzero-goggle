@@ -6,11 +6,23 @@ typedef enum {
     APP_STATE_MAINMENU = 0,
     APP_STATE_SUBMENU = 1,
     APP_STATE_PLAYBACK = 2,
+
+    // in this state, the menu pages' on_roller is called,
+    // but the selected submenu item selection (e.g. pp_osd.p_arr.cur)
+    // is not automatically changed.
+    APP_STATE_SUBMENU_ITEM_FOCUSED = 3,
+
     APP_STATE_VIDEO = 10,
+
+    // the preview for image settings
     APP_STATE_IMS = 11,
+    // the preview for osd element positioning settings
+    APP_STATE_OSD_ELEMENT_PREV = 12,
 
     APP_STATE_USER_INPUT_DISABLED = 20,
 
+    // TODO pages should set the on_roller callback and handle the input themselves
+    // instead of creating an app state. (use APP_STATE_SUBMENU_ITEM_FOCUSED)
     PAGE_FAN_SLIDE = 100,
     PAGE_ANGLE_SLIDE = 101,
     PAGE_POWER_SLIDE_CELL_COUNT = 102,
