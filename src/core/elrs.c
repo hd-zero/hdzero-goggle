@@ -295,7 +295,7 @@ void msp_process_packet() {
             }
         } break;
         case MSP_SET_BUZZER:
-            beep_dur((packet.payload[0] | packet.payload[1] << 8) * 1000);
+            beep_dur((packet.payload[0] | packet.payload[1] << 8));
             break;
         case MSP_SET_OSD_ELEM:
             handle_osd(packet.payload, packet.payload_size);
