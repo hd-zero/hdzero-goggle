@@ -145,6 +145,9 @@ void tune_channel_timer() {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
+static int roller_up_acc = 0;
+static int roller_down_acc = 0;
+
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
@@ -338,24 +341,34 @@ static void roller_down(void) {
 
 static void get_event(int fd) {
     struct input_event event;
-    static int roller_value = 0;
     static int event_type_last = 0;
     static int btn_value = 0;
     static int btn_press_time = 0;
+
+    static int roller_value = 0;
 
     read(fd, &event, sizeof(event));
 
     switch (event.type) {
     case EV_SYN:
         if (event.code == SYN_REPORT) {
-
             if (event_type_last == EV_REL) {
                 if (roller_value == 1) {
+                    roller_up_acc++;
+                    roller_down_acc = 0;
+                } else if (roller_value == -1) {
+                    roller_down_acc++;
+                    roller_up_acc = 0;
+                }
+
+                if (roller_up_acc == DIAL_SENSITIVITY) {
                     roller_up();
                     g_key = DIAL_KEY_UP;
-                } else {
+                    roller_up_acc = 0;
+                } else if (roller_down_acc == DIAL_SENSITIVITY) {
                     roller_down();
                     g_key = DIAL_KEY_DOWN;
+                    roller_down_acc = 0;
                 }
             } else if (event_type_last == EV_KEY) {
                 if (btn_value) {
@@ -430,23 +443,21 @@ static void *thread_input_device(void *ptr) {
     for (;;) {
         struct epoll_event events[EPOLL_FD_CNT];
 
-        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, -1);
+        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, DIAL_SENSITIVTY_TIMEOUT_MS);
         if (ret < 0) {
             perror("epoll_wait");
             continue;
         }
 
-        for (int i = 0; i < ret; i++) {
-            if (events[i].events & EPOLLIN) {
-                get_event(events[i].data.fd);
+        if (ret > 0) {
+            for (int i = 0; i < ret; i++) {
+                if (events[i].events & EPOLLIN) {
+                    get_event(events[i].data.fd);
+                }
             }
-        }
-
-        // enable dial up/down accessible before initialization is done
-        if (g_init_done != 1) {
-            pthread_mutex_lock(&lvgl_mutex);
-            lv_timer_handler();
-            pthread_mutex_unlock(&lvgl_mutex);
+        } else {
+            roller_up_acc = 0;
+            roller_down_acc = 0;
         }
     }
     return NULL;
