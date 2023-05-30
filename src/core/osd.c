@@ -148,7 +148,7 @@ void osd_topfan_show(bool bShow) {
 
     if (g_setting.fans.top_speed > 5)
         return;
-    osd_resource_path(buf, "fan%d.bmp", is_fhd, fan_speeds[2] + 1);
+    osd_resource_path(buf, "fan%d.bmp", is_fhd, fan_speeds[2]);
     lv_img_set_src(g_osd_hdzero.topfan_speed[is_fhd], buf);
     lv_obj_clear_flag(g_osd_hdzero.topfan_speed[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
