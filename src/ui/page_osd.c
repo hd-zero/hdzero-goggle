@@ -118,7 +118,7 @@ static void on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_osd_mode);
         g_setting.osd.embedded_mode = btn_group_get_sel(&btn_group_osd_mode);
         ini_putl("osd", "embedded_mode", g_setting.osd.embedded_mode, SETTING_INI);
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     default:

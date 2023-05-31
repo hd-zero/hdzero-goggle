@@ -61,6 +61,7 @@ typedef enum {
     OSD_ELEMENT_VTX_TEMP,
     OSD_ELEMENT_VRX_TEMP,
     OSD_ELEMENT_BATTERY_LOW,
+    OSD_ELEMENT_BATTERY_VOLTAGE,
     OSD_ELEMENT_CHANNEL,
     OSD_ELEMENT_SD_REC,
     OSD_ELEMENT_VLQ,
@@ -114,13 +115,14 @@ static uint32_t slider_scroll_last_tick = 0;
 static setting_osd_t ui_osd_el_pos_unchanged_settings;
 
 // all elements with a display string and the corresponding setting name
-// this and osd_elements_t must contain the same elements, in the same order
+// this must contain the same elements, in the same order as osd_goggle_element_e in settings.h
 static osd_element_t osd_element_list[] = {
     {"Top Fan Speed", "topfan_speed"},
     {"Latency Lock", "latency_lock"},
     {"VTX Temp", "vtx_temp"},
     {"VRX Temp", "vrx_temp"},
     {"Battery Low", "battery_low"},
+    {"Battery Voltage", "battery_voltage"},
     {"Channel", "channel"},
     {"DVR", "sd_rec"},
     {"VLQ", "vlq"},
@@ -343,13 +345,13 @@ static void ui_handle_roll_up() {
     case ROW_OSD_ELEMENT_POS_X:
         osd_element_pos_x_dec();
         update_ui();
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     case ROW_OSD_ELEMENT_POS_Y:
         osd_element_pos_y_dec();
         update_ui();
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     default:
@@ -387,13 +389,13 @@ static void ui_handle_roll_down() {
     case ROW_OSD_ELEMENT_POS_X:
         osd_element_pos_x_inc();
         update_ui();
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     case ROW_OSD_ELEMENT_POS_Y:
         osd_element_pos_y_inc();
         update_ui();
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     default:
@@ -408,7 +410,7 @@ static int ui_handle_click() {
         btn_group_toggle_sel(&btn_group_osd_mode);
         g_setting.osd.embedded_mode = btn_group_get_sel(&btn_group_osd_mode);
         update_ui();
-        osd_update_mode();
+        osd_update_element_positions();
         break;
 
     case ROW_OSD_ELEMENT:
@@ -490,7 +492,7 @@ static int ui_handle_click() {
             }
 
             update_ui();
-            osd_update_mode();
+            osd_update_element_positions();
             lv_label_set_text(label_reset_all_osd_elements, "#00FF00 Elements reset.#");
             lv_timer_reset(reset_all_osd_elements_timer);
             lv_timer_resume(reset_all_osd_elements_timer);
@@ -578,7 +580,7 @@ void ui_osd_element_pos_update() {
 void ui_osd_element_pos_cancel_and_hide() {
     show_osd_element_pos_ui = false;
     g_setting.osd = ui_osd_el_pos_unchanged_settings;
-    osd_update_mode();
+    osd_update_element_positions();
 }
 
 int ui_osd_element_pos_handle_input(int key) {

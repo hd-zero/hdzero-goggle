@@ -14,12 +14,9 @@
 #define REC_STOP            "/mnt/app/app/record/gogglecmd -rec stop"
 #define REC_STOP_LIVE       "/mnt/app/app/record/gogglecmd -rec stopl"
 #define REC_CONF            "/mnt/app/app/record/confs/record.conf"
-#define WIFI_AP_ON          "/mnt/app/script/wlan_start_ap.sh"
-#define WIFI_AP_OFF         "/mnt/app/script/wlan_stop_ap.sh"
-#define WIFI_STA_ON         "/mnt/app/script/wlan_start_sta.sh"
-#define WIFI_STA_OFF        "/mnt/app/script/wlan_stop_sta.sh"
-#define WIFI_SSHD_ON        "/mnt/app/script/dropbear_start.sh"
-#define WIFI_SSID_FILE      "/mnt/extsd/ssid.txt"
+#define WIFI_OFF            "/mnt/app/script/wlan_stop.sh"
+#define WIFI_AP_ON          "/tmp/wlan_start_ap.sh"
+#define WIFI_STA_ON         "/tmp/wlan_start_sta.sh"
 
 #define FC_OSD_LOCAL_PATH  "/mnt/app/resource/OSD/FC/"
 #define FC_OSD_SDCARD_PATH "/mnt/extsd/resource/OSD/FC/"
@@ -92,10 +89,12 @@ typedef struct {
     btn_with_arr_t btn_a[6];
     int valid;
     int current;
+    lv_obj_t *label;
 } btn_group_t;
 
 typedef struct {
     lv_obj_t *slider;
+    lv_obj_t *name;
     lv_obj_t *label;
 } slider_group_t;
 
@@ -147,21 +146,20 @@ lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row,
 
 void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
                                    const char *name2, const char *name3, int row, int height, int arrow_scale_percent, const lv_font_t *font);
-
 void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
                            const char *name2, const char *name3, int row);
 
 void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent, int count, const char *name, const char *name0, const char *name1,
                             const char *name2, const char *name3, const char *name4, const char *name5, int row);
 
-void set_select_item(const panel_arr_t *arr, int row);
+void btn_group_set_sel(btn_group_t *btn_group, int sel);
+int btn_group_get_sel(btn_group_t *btn_group);
+void btn_group_toggle_sel(btn_group_t *btn_group);
 
 void create_select_item(panel_arr_t *arr, lv_obj_t *parent);
+void set_select_item(const panel_arr_t *arr, int row);
 
-void btn_group_set_sel(btn_group_t *btn_group, int sel);
-
-int btn_group_get_sel(btn_group_t *btn_group);
-
-void btn_group_toggle_sel(btn_group_t *btn_group);
+void slider_show(slider_group_t *slider_group, bool visible);
+void btn_group_show(btn_group_t *btn_group, bool visible);
 
 #endif
