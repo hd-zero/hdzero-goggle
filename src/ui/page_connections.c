@@ -160,6 +160,7 @@ static void page_connections_on_click(uint8_t key, int sel) {
         if (g_setting.wifi.enable) {
             dvr_update_vi_conf(VR_1080P30);
             system(WIFI_AP_ON);
+            system(WIFI_SSHD_ON);
         } else
             system(WIFI_AP_OFF);
     }

@@ -255,7 +255,7 @@ void settings_init(void) {
         usleep(10);
         system("rm /mnt/UDISK/setting.ini");
     }
-    
+
     int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);
     if (file_version != SETTING_INI_VERSION)
         settings_reset();
@@ -311,6 +311,8 @@ void settings_load(void) {
     g_setting.record.osd = settings_get_bool("record", "osd", g_setting_defaults.record.osd);
     g_setting.record.audio = settings_get_bool("record", "audio", g_setting_defaults.record.audio);
     g_setting.record.audio_source = ini_getl("record", "audio_source", g_setting_defaults.record.audio_source, SETTING_INI);
+
+    ini_putl("venc_live", "kbps", 3500, REC_CONF);
 
     // image
     g_setting.image.oled = ini_getl("image", "oled", g_setting_defaults.image.oled, SETTING_INI);

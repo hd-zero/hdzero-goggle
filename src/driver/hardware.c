@@ -10,6 +10,7 @@
 
 #include "../core/common.hh"
 #include "../core/osd.h"
+#include "../ui/page_common.h"
 #include "TP2825.h"
 #include "defines.h"
 #include "dm5680.h"
@@ -218,11 +219,11 @@ void AV_Mode_Switch_fpga(int is_pal) {
     if (is_pal) {
         system("dispw -s vdpo 720p50");
         g_hw_stat.vdpo_tmg = HW_VDPO_720P50;
-        I2C_Write(ADDR_FPGA, 0x80, 0x30);
+        I2C_Write(ADDR_FPGA, 0x80, 0x10);
     } else {
         system("dispw -s vdpo 720p60");
         g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
-        I2C_Write(ADDR_FPGA, 0x80, 0x20);
+        I2C_Write(ADDR_FPGA, 0x80, 0x00);
     }
     I2C_Write(ADDR_FPGA, 0x06, 0x0F);
     system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
@@ -334,6 +335,7 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
             else if (cam_mode_last == VR_1080P30)
                 fhd_req = -1;
             dvr_update_vi_conf(CAM_MODE);
+            system(REC_STOP_LIVE);
             cam_mode_last = CAM_MODE;
             ret = 1;
         }
@@ -400,19 +402,19 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
             // LOGI("Switch mode:%d", g_hw_stat.av_pal_w);
 
-            if (g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
+            /*if (g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
                 I2C_Write(ADDR_FPGA, 0x80, 0x20);
             else if (g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
             else if (g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else if (g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
-                I2C_Write(ADDR_FPGA, 0x80, 0x30);
+                I2C_Write(ADDR_FPGA, 0x80, 0x30);*/
 
-            /*if (g_hw_stat.av_pal[g_hw_stat.av_chid])
+            if (g_hw_stat.av_pal[g_hw_stat.av_chid])
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else
-                I2C_Write(ADDR_FPGA, 0x80, 0x00);*/
+                I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
 
