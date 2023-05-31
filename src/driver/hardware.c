@@ -10,6 +10,7 @@
 
 #include "../core/common.hh"
 #include "../core/osd.h"
+#include "../core/settings.h"
 #include "../ui/page_common.h"
 #include "TP2825.h"
 #include "defines.h"
@@ -246,18 +247,21 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     g_hw_stat.av_chid = sel ? 1 : 0;
-    TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+
+    // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    TP2825_Switch_Mode(g_setting.source.analog_format);
     TP2825_Switch_CH(g_hw_stat.av_chid);
-    AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
+
+    // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
+    AV_Mode_Switch_fpga(g_setting.source.analog_format);
+    g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
-    I2C_Write(ADDR_FPGA, 0x89, 0x20);
-    I2C_Write(ADDR_FPGA, 0x8a, 0x30);
-    I2C_Write(ADDR_FPGA, 0x8b, g_hw_stat.IS_TP2825_L ? 0xFF : 0x08);
+    I2C_Write(ADDR_FPGA, 0x89, 0x01);
 
     HDZero_Close();
     OLED_SetTMG(1);
@@ -415,6 +419,11 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
+
+            if (g_hw_stat.av_pal_w == g_hw_stat.av_pal[g_hw_stat.av_chid])
+                I2C_Write(ADDR_FPGA, 0x89, 0x01);
+            else
+                I2C_Write(ADDR_FPGA, 0x89, 0x00);
 
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
 
