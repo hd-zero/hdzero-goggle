@@ -200,7 +200,7 @@ void ims_save() {
     g_setting.image.auto_off = ims_page.items[4].value;
     ini_putl("image", "auto_off", g_setting.image.auto_off, SETTING_INI);
 
-    osd_update_mode();
+    osd_update_element_positions();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

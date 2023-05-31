@@ -3,6 +3,7 @@
 #include "core/settings.h"
 #include "driver/mcp3021.h"
 #include "ui/page_common.h"
+#include <stdio.h>
 
 sys_battery_t g_battery;
 
@@ -40,4 +41,28 @@ int battery_get_millivolts(bool per_cell) {
         return g_battery.voltage / g_battery.type;
     }
     return g_battery.voltage;
+}
+
+void battery_get_voltage_str(char* buf) {
+    switch (g_setting.power.osd_display_mode) {
+
+    default:
+    case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL:{
+        int bat_mv = battery_get_millivolts(false);
+        sprintf(buf, "%dS %d.%dV",
+                g_battery.type,
+                bat_mv / 1000,
+                bat_mv % 1000 / 100);
+        break;
+    }
+
+    case SETTING_POWER_OSD_DISPLAY_MODE_CELL:{
+        int bat_mv = battery_get_millivolts(true);
+        sprintf(buf, "%dS %d.%dV/C",
+                g_battery.type,
+                bat_mv / 1000,
+                bat_mv % 1000 / 100);
+        break;
+    }
+    }
 }

@@ -22,18 +22,19 @@ typedef enum {
 } osd_resource_t;
 
 typedef struct {
-    lv_obj_t *topfan_speed[2]; // 0
-    lv_obj_t *vtx_temp[2];     // 1
-    lv_obj_t *battery_low[2];  // 2
-    lv_obj_t *vrx_temp[2];     // 3
-    lv_obj_t *latency_lock[2]; // 4
-    lv_obj_t *channel[2];      // middle
-    lv_obj_t *sd_rec[2];       // 5
-    lv_obj_t *vlq[2];          // 6
-    lv_obj_t *ant0[2];         // 7
-    lv_obj_t *ant1[2];         // 8
-    lv_obj_t *ant2[2];         // 9
-    lv_obj_t *ant3[2];         // 10
+    lv_obj_t *topfan_speed[2];
+    lv_obj_t *vtx_temp[2];
+    lv_obj_t *battery_low[2];
+    lv_obj_t *battery_voltage[2];
+    lv_obj_t *vrx_temp[2];
+    lv_obj_t *latency_lock[2];
+    lv_obj_t *channel[2];
+    lv_obj_t *sd_rec[2];
+    lv_obj_t *vlq[2];
+    lv_obj_t *ant0[2];
+    lv_obj_t *ant1[2];
+    lv_obj_t *ant2[2];
+    lv_obj_t *ant3[2];
     lv_obj_t *osd_tempe[2][3]; // top,left,bot
 } osd_hdzero_t;
 
@@ -80,7 +81,7 @@ void osd_signal_update();
 void osd_hdzero_update(void);
 void osd_rec_update(bool enable);
 void osd_show(bool show);
-void osd_update_mode();
+void osd_update_element_positions();
 char *channel2str(uint8_t channel);
 void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
