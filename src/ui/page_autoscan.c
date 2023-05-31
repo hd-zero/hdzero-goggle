@@ -57,14 +57,25 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 static void page_autoscan_on_click(uint8_t key, int sel) {
+    int value = 0;
+
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
-        g_setting.autoscan.status = btn_group_get_sel(&btn_group0);
-        ini_putl("autoscan", "status", g_setting.autoscan.status, SETTING_INI);
+
+        value = btn_group_get_sel(&btn_group0);
+        if (value == 0) {
+            ini_puts("autoscan", "status", "scan", SETTING_INI);
+        } else if (value == 1) {
+            ini_puts("autoscan", "status", "last", SETTING_INI);
+        } else {
+            ini_puts("autoscan", "status", "menu", SETTING_INI);
+        }
+        g_setting.autoscan.status = value;
     } else if (sel < 3) {
         btn_group_toggle_sel(&btn_group1);
-        g_setting.autoscan.source = btn_group_get_sel(&btn_group1);
-        ini_putl("autoscan", "source", g_setting.autoscan.source, SETTING_INI);
+        value = btn_group_get_sel(&btn_group1);
+        ini_putl("autoscan", "source", value, SETTING_INI);
+        g_setting.autoscan.source = value;
     }
 }
 

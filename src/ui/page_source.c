@@ -60,7 +60,7 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     label[3] = create_label_item(cont, "Expansion Module", 1, 3, 3);
 
     create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
-    btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
+    btn_group_set_sel(&btn_group0, g_setting.source.analog_format ? 1 : 0);
 
     if (g_test_en) {
         pp_source.p_arr.max = 7;
@@ -145,7 +145,11 @@ static void page_source_on_click(uint8_t key, int sel) {
     case 4: // Analog video format
         btn_group_toggle_sel(&btn_group0);
         g_setting.source.analog_format = btn_group_get_sel(&btn_group0);
-        ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
+        if (g_setting.source.analog_format) {
+            ini_puts("source", "analog_format", "pal", SETTING_INI);
+        } else {
+            ini_puts("source", "analog_format", "ntsc", SETTING_INI);
+        }
         break;
 
     case 5:

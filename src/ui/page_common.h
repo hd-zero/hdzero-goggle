@@ -17,6 +17,8 @@
 #define WIFI_AP_OFF     "/mnt/app/script/wlan_stop_ap.sh"
 #define WIFI_STA_ON     "/mnt/app/script/wlan_start_sta.sh"
 #define WIFI_STA_OFF    "/mnt/app/script/wlan_stop_sta.sh"
+#define WIFI_SSHD_ON    "/mnt/app/script/dropbear_start.sh"
+
 #define WIFI_SSID_FILE  "/mnt/extsd/ssid.txt"
 
 #define FC_OSD_LOCAL_PATH  "/mnt/app/resource/OSD/FC/"
@@ -68,10 +70,10 @@ typedef enum {
     SOURCE_HDMI_IN = 1,
     SOURCE_AV_IN = 2,
     SOURCE_EXPANSION = 3
-} source_info_source_t;
+} source_t;
 
 typedef struct _source_info {
-    source_info_source_t source;
+    source_t source;
     uint8_t hdmi_in_status; // 0=not detected, 1= detected
     uint8_t av_in_status;   // 0=not detected, 1= detected
     uint8_t av_bay_status;  // 0=not detected, 1= detected

@@ -24,6 +24,7 @@
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
 #include "ui/page_version.h"
+#include "ui/page_sleep.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
@@ -49,6 +50,7 @@ static page_pack_t *page_packs[PAGE_MAX] = {
     [PAGE_VERSION] = &pp_version,
     [PAGE_FOCUS_CHART] = &pp_focus_chart,
     [PAGE_CLOCK] = &pp_clock,
+    [PAGE_SLEEP] = &pp_sleep,
 };
 
 static page_pack_t *find_pp(lv_obj_t *page) {
@@ -262,7 +264,7 @@ void main_menu_init(void) {
     main_menu_create_entry(menu, section, "Image Settings", &pp_imagesettings);
     main_menu_create_entry(menu, section, "Power", &pp_power);
     main_menu_create_entry(menu, section, "Fans", &pp_fans);
-    main_menu_create_entry(menu, section, "Record Options", &pp_record);
+    main_menu_create_entry(menu, section, "Record Option", &pp_record);
     main_menu_create_entry(menu, section, "Auto Scan", &pp_autoscan);
     main_menu_create_entry(menu, section, "Connections", &pp_connections);
     main_menu_create_entry(menu, section, "Head Tracker", &pp_headtracker);
@@ -270,6 +272,7 @@ void main_menu_init(void) {
     main_menu_create_entry(menu, section, "Firmware", &pp_version);
     main_menu_create_entry(menu, section, "Focus Chart", &pp_focus_chart);
     main_menu_create_entry(menu, section, "Clock", &pp_clock);
+    main_menu_create_entry(menu, section, "Go Sleep!", &pp_sleep);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);

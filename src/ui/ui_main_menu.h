@@ -22,6 +22,7 @@ typedef enum {
     PAGE_VERSION,
     PAGE_FOCUS_CHART,
     PAGE_CLOCK,
+    PAGE_SLEEP,
 
     PAGE_MAX,
 } pages_t;

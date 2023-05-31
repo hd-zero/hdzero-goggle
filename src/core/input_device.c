@@ -150,7 +150,7 @@ void tune_channel_timer() {
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
-    if (g_scanning || !g_init_done)
+    if (g_scanning || (g_init_done!=1) ) //no long pree Enter before done with init 
         return;
 
     pthread_mutex_lock(&lvgl_mutex);
@@ -189,7 +189,7 @@ static void btn_press(void) // long press left key
 static void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
-    if (!g_init_done)
+    if (g_init_done != 1) //no short pree Enter before done with init 
         return;
 
     if (g_app_state == APP_STATE_VIDEO) {
@@ -262,9 +262,10 @@ static void short_right_click_timeout(lv_timer_t *timer) {
 void rbtn_click(bool is_short) {
     if (g_init_done != 1)
         return;
+/*        
     if (is_short) {
         if (!right_click_timer) {
-            right_click_timer = lv_timer_create(short_right_click_timeout, 200, NULL);
+            right_click_timer = lv_timer_create(short_right_click_timeout, 10, NULL);
         } else {
             lv_timer_del(right_click_timer);
             right_click_timer = NULL;
@@ -278,6 +279,8 @@ void rbtn_click(bool is_short) {
         rbtn_click0(false);
         pthread_mutex_unlock(&lvgl_mutex);
     }
+*/
+    rbtn_click0(is_short);
 }
 
 static void roller_up(void) {
@@ -286,7 +289,7 @@ static void roller_up(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) //dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     pthread_mutex_lock(&lvgl_mutex);
@@ -319,7 +322,7 @@ static void roller_down(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) //dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     pthread_mutex_lock(&lvgl_mutex);
