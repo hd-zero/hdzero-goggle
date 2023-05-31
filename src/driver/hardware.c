@@ -400,20 +400,9 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
         if (det && det_cnt == AV_DET_SWITCH_CNT) {
             g_hw_stat.av_pal_w = g_hw_stat.av_pal_w ? 0 : 1;
-            // TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal_w);
-            // AV_Mode_Switch(g_hw_stat.av_pal_w);
 
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
             // LOGI("Switch mode:%d", g_hw_stat.av_pal_w);
-
-            /*if (g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
-                I2C_Write(ADDR_FPGA, 0x80, 0x20);
-            else if (g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
-                I2C_Write(ADDR_FPGA, 0x80, 0x00);
-            else if (g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
-                I2C_Write(ADDR_FPGA, 0x80, 0x10);
-            else if (g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
-                I2C_Write(ADDR_FPGA, 0x80, 0x30);*/
 
             if (g_hw_stat.av_pal[g_hw_stat.av_chid])
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);

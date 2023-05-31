@@ -152,10 +152,13 @@ typedef struct {
 } setting_clock_t;
 
 typedef struct {
-    bool enable;
-    char ssid[16];   // not implemented yet, load from configure file from sd card, otherwise use default "HDZero"
+    int enable;
+    char ssid[16];   // loaded from configure file from sd card, otherwise use default "HDZero"
     char passwd[16]; // default: "divimath"
-    uint8_t ip[4];   // default: 192.168.2.122
+    uint8_t ip[4];   // not used, default: 192.168.2.122
+    int rate;        // default: 2500Kbps
+    int channel;     // default: 6
+    char std[2];     // g or n
 } wifi_t;
 
 typedef struct {

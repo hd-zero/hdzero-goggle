@@ -312,8 +312,6 @@ void settings_load(void) {
     g_setting.record.audio = settings_get_bool("record", "audio", g_setting_defaults.record.audio);
     g_setting.record.audio_source = ini_getl("record", "audio_source", g_setting_defaults.record.audio_source, SETTING_INI);
 
-    ini_putl("venc_live", "kbps", 3500, REC_CONF);
-
     // image
     g_setting.image.oled = ini_getl("image", "oled", g_setting_defaults.image.oled, SETTING_INI);
     g_setting.image.brightness = ini_getl("image", "brightness", g_setting_defaults.image.brightness, SETTING_INI);
@@ -349,13 +347,23 @@ void settings_load(void) {
     if (file_exists(WIFI_SSID_FILE)) {
         ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, WIFI_SSID_FILE);
         ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, WIFI_SSID_FILE);
+        ini_gets("wifi", "std", "g", g_setting.wifi.std, 2, WIFI_SSID_FILE);
+        g_setting.wifi.channel = ini_getl("wifi", "channel", 6, WIFI_SSID_FILE);
+        g_setting.wifi.rate = ini_getl("wifi", "rate", 2500, WIFI_SSID_FILE);
         ini_puts("wifi", "ssid", g_setting.wifi.ssid, SETTING_INI);
         ini_puts("wifi", "passwd", g_setting.wifi.passwd, SETTING_INI); // passwd length is 8+
+        ini_puts("wifi", "std", g_setting.wifi.std, SETTING_INI);
+        ini_putl("wifi", "channel", g_setting.wifi.channel, SETTING_INI);
+        ini_putl("wifi", "rate", g_setting.wifi.rate, SETTING_INI);
     } else {
         ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, SETTING_INI);
         ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, SETTING_INI);
+        ini_gets("wifi", "std", "g", g_setting.wifi.std, 2, SETTING_INI);
+        g_setting.wifi.channel = ini_getl("wifi", "channel", 6, SETTING_INI);
+        g_setting.wifi.rate = ini_getl("wifi", "rate", 2500, SETTING_INI);
     }
     update_hostpad_conf();
+    ini_putl("venc_live", "kbps", g_setting.wifi.rate, REC_CONF);
 
     // no dial under video mode
     g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
