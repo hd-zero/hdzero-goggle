@@ -34,14 +34,12 @@ const setting_t g_setting_defaults = {
     },
     .power = {
         .voltage = 35,
+        .display_voltage = true,
         .warning_type = SETTING_POWER_WARNING_TYPE_BOTH,
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
-    },
-    .source = {
-        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL,
     },
     .record = {
         .mode_manual = false,

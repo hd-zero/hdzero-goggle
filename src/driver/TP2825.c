@@ -44,9 +44,9 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x06, 0x32);
         I2C_Write(ADDR_TP2825, 0x08, 0xD0);
-        I2C_Write(ADDR_TP2825, 0x07, 0x80);
-        I2C_Write(ADDR_TP2825, 0x0B, 0x80);
-        I2C_Write(ADDR_TP2825, 0x0C, 0x53);
+        I2C_Write(ADDR_TP2825, 0x07, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x0B, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x0C, g_hw_stat.IS_TP2825_L ? 0x13 : 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, g_hw_stat.IS_TP2825_L ? 0x51 : 0x11);
         // I2C_Write(ADDR_TP2825, 0x15, 0x13);
         I2C_Write(ADDR_TP2825, 0x16, 0x4A);
@@ -54,7 +54,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x18, 0x17);
         I2C_Write(ADDR_TP2825, 0x19, 0x20);
         I2C_Write(ADDR_TP2825, 0x1A, 0x17);
-        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x40 : 0xB0);
+        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x48 : 0xB0);
         I2C_Write(ADDR_TP2825, 0x22, 0x39);
         // I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, g_hw_stat.IS_TP2825_L ? 0x05 : 0x02);
@@ -79,9 +79,9 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x02, 0xCF);
         I2C_Write(ADDR_TP2825, 0x06, 0x32);
         I2C_Write(ADDR_TP2825, 0x08, 0xD0);
-        I2C_Write(ADDR_TP2825, 0x07, 0x80);
-        I2C_Write(ADDR_TP2825, 0x0B, 0x80);
-        I2C_Write(ADDR_TP2825, 0x0C, 0x53);
+        I2C_Write(ADDR_TP2825, 0x07, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x0B, 0xC0);
+        I2C_Write(ADDR_TP2825, 0x0C, g_hw_stat.IS_TP2825_L ? 0x13 : 0x53);
         I2C_Write(ADDR_TP2825, 0x0D, g_hw_stat.IS_TP2825_L ? 0x50 : 0x10);
         // I2C_Write(ADDR_TP2825, 0x15, 0x13);
         I2C_Write(ADDR_TP2825, 0x16, 0x3C);
@@ -89,7 +89,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x18, 0x13);
         I2C_Write(ADDR_TP2825, 0x19, 0xF0);
         I2C_Write(ADDR_TP2825, 0x1A, 0x07);
-        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x30 : 0xA0);
+        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x40 : 0xA0);
         I2C_Write(ADDR_TP2825, 0x22, 0x39);
         // I2C_Write(ADDR_TP2825, 0x23, 0x3c);
         I2C_Write(ADDR_TP2825, 0x26, g_hw_stat.IS_TP2825_L ? 0x15 : 0x12);
@@ -124,7 +124,7 @@ void TP2825_Switch_Mode(int is_pal) {
 
         I2C_Write(ADDR_TP2825, 0x16, 0x4A);
         I2C_Write(ADDR_TP2825, 0x18, 0x17);
-        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x40 : 0xB0);
+        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x48 : 0xB0);
         I2C_Write(ADDR_TP2825, 0x26, g_hw_stat.IS_TP2825_L ? 0x05 : 0x02);
         I2C_Write(ADDR_TP2825, 0x2D, 0x60);
         I2C_Write(ADDR_TP2825, 0x30, 0x7A);
@@ -141,7 +141,7 @@ void TP2825_Switch_Mode(int is_pal) {
 
         I2C_Write(ADDR_TP2825, 0x16, 0x3C);
         I2C_Write(ADDR_TP2825, 0x18, 0x13);
-        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x30 : 0xA0);
+        I2C_Write(ADDR_TP2825, 0x20, g_hw_stat.IS_TP2825_L ? 0x40 : 0xA0);
         I2C_Write(ADDR_TP2825, 0x26, g_hw_stat.IS_TP2825_L ? 0x15 : 0x12);
         I2C_Write(ADDR_TP2825, 0x2D, 0x68);
         I2C_Write(ADDR_TP2825, 0x30, 0x62);
@@ -161,7 +161,7 @@ void TP2825_Switch_CH(uint8_t sel) // 0 = AV in; 1 = Module bay
 
 void TP2825_Set_Clamp(int idx) {
     static int clamp = -1;
-    int clamps[2][3] = {{0x6f, 0x4f, 0x3e}, {0x4f, 0x48, 0x3e}};
+    int clamps[2][3] = {{0x6f, 0x4f, 0x3C}, {0x4f, 0x48, 0x3e}};
 
     if (clamp != idx) {
         I2C_Write(ADDR_TP2825, 0x23, clamps[g_hw_stat.IS_TP2825_L][idx]);

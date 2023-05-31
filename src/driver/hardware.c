@@ -245,7 +245,8 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     g_hw_stat.av_chid = sel ? 1 : 0;
-    TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    TP2825_Switch_CH(g_hw_stat.av_chid);
     AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
     g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
 
@@ -418,6 +419,8 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+
+            LOGI("AV_in_detect -- switch: av_pal = %d,  rdat = %02x\n", g_hw_stat.av_pal_w, rdat);
         } else {
             int vloss, h_lock, vh_lock;
             vloss = (rdat & 0x80) ? 1 : 0;
