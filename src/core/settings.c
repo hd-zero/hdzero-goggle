@@ -372,9 +372,7 @@ void settings_load(void) {
     ini_gets("wifi", "dns", g_setting_defaults.wifi.dns, g_setting.wifi.dns, WIFI_NETWORK_MAX, SETTING_INI);
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
 
-    update_hostpad_conf();
-    ini_putl("venc_live", "kbps", g_setting.wifi.rate, REC_CONF);
-    // no dial under video mode
+    //  no dial under video mode
     g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
 
     // Check
