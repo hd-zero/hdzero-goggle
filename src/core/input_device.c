@@ -149,7 +149,7 @@ void tune_channel_timer() {
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
-    if (g_scanning || !g_init_done)
+    if (g_scanning || (g_init_done != 1)) // no long pree Enter before done with init
         return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -194,7 +194,7 @@ static void btn_press(void) // long press left key
 static void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
-    if (!g_init_done)
+    if (g_init_done != 1) // no short pree Enter before done with init
         return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -255,12 +255,12 @@ void rbtn_click(right_button_t click_type) {
 
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
-		pthread_mutex_lock(&lvgl_mutex);
+        pthread_mutex_lock(&lvgl_mutex);
         if (click_type == RIGHT_CLICK)
             submenu_right_button(true);
         else if (click_type == RIGHT_LONG_PRESS)
             submenu_right_button(false);
-		pthread_mutex_unlock(&lvgl_mutex);
+        pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_VIDEO:
         if (click_type == RIGHT_CLICK) {
@@ -280,7 +280,7 @@ static void roller_up(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -320,7 +320,7 @@ static void roller_down(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
