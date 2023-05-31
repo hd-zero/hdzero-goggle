@@ -19,6 +19,9 @@ typedef enum {
     // the preview for osd element positioning settings
     APP_STATE_OSD_ELEMENT_PREV = 12,
 
+    // WiFi configuration page
+    APP_STATE_WIFI = 13,
+
     APP_STATE_USER_INPUT_DISABLED = 20,
 
     // TODO pages should set the on_roller callback and handle the input themselves

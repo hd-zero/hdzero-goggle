@@ -138,14 +138,14 @@ lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row,
 }
 
 void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row, const lv_font_t *font) {
-    lv_obj_t *label = lv_label_create(parent);
-    lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, font, 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, lv_font_get_line_height(font) >> 1, 0);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 200, 40);
-    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1,
+    slider_group->name = lv_label_create(parent);
+    lv_label_set_text(slider_group->name, name);
+    lv_obj_set_style_text_font(slider_group->name, font, 0);
+    lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_pad_top(slider_group->name, lv_font_get_line_height(font) >> 1, 0);
+    lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_size(slider_group->name, 200, 40);
+    lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     slider_group->slider = lv_slider_create(parent);
@@ -180,14 +180,14 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
 }
 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row) {
-    lv_obj_t *label = lv_label_create(parent);
-    lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 320, 60);
-    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2,
+    slider_group->name = lv_label_create(parent);
+    lv_label_set_text(slider_group->name, name);
+    lv_obj_set_style_text_font(slider_group->name, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_pad_top(slider_group->name, 12, 0);
+    lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_size(slider_group->name, 320, 60);
+    lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     slider_group->slider = lv_slider_create(parent);
@@ -313,6 +313,7 @@ void btn_group_set_sel(btn_group_t *btn_group, int sel) {
 int btn_group_get_sel(btn_group_t *btn_group) {
     return btn_group->current;
 }
+
 void btn_group_toggle_sel(btn_group_t *btn_group) {
     int sel = btn_group_get_sel(btn_group);
     int total = btn_group->valid;
@@ -405,14 +406,14 @@ void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, 
     btn_group->valid = count;
     btn_group->current = 0;
 
-    lv_obj_t *label = lv_label_create(parent);
-    lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 320, 60);
-    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2,
+    btn_group->label = lv_label_create(parent);
+    lv_label_set_text(btn_group->label, name);
+    lv_obj_set_style_text_font(btn_group->label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_align(btn_group->label, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_pad_top(btn_group->label, 12, 0);
+    lv_label_set_long_mode(btn_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_size(btn_group->label, 320, 60);
+    lv_obj_set_grid_cell(btn_group->label, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     create_btn_with_arrow(parent, &btn_group->btn_a[0], name0, row, 2);
@@ -466,4 +467,37 @@ void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent, int count,
     }
 
     btn_group_set_sel(btn_group, 0);
+}
+
+void slider_show(slider_group_t *slider_group, bool visible) {
+    if (visible) {
+        lv_obj_clear_flag(slider_group->slider, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(slider_group->name, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(slider_group->label, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(slider_group->slider, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(slider_group->name, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(slider_group->label, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+void btn_group_show(btn_group_t *btn_group, bool visible) {
+    for (int i = 0; i < btn_group->valid; ++i) {
+        if (visible) {
+            lv_obj_clear_flag(btn_group->btn_a[i].label, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            lv_obj_add_flag(btn_group->btn_a[i].label, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+
+    int sel = btn_group_get_sel(btn_group);
+    if (visible) {
+        lv_obj_clear_flag(btn_group->btn_a[sel].arrow, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(btn_group->btn_a[sel].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(btn_group->label, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(btn_group->btn_a[sel].arrow, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(btn_group->btn_a[sel].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(btn_group->label, LV_OBJ_FLAG_HIDDEN);
+    }
 }
