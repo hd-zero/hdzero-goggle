@@ -13,7 +13,7 @@ set(PREBUILT_LIBRARIES
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libUsageEnvironment.a
 )
 
-add_library(live SHARED IMPORTED GLOBAL)
+add_library(live STATIC IMPORTED GLOBAL)
 set_target_properties(live PROPERTIES
     IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libliveMedia.a # dummy
     INTERFACE_INCLUDE_DIRECTORIES "${LIVE_INCLUDE_DIRECTORIES}"
@@ -21,4 +21,3 @@ set_target_properties(live PROPERTIES
 target_link_libraries(live INTERFACE
     ${PREBUILT_LIBRARIES}
 )
-install(FILES ${PREBUILT_LIBRARIES} TYPE LIB)

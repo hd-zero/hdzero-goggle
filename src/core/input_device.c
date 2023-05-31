@@ -43,6 +43,7 @@
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
+#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,8 +52,6 @@
 
 static uint8_t tune_state = 0; // 0=init; 1=waiting for key; 2=tuning
 static uint16_t tune_timer = 0;
-
-static lv_timer_t *right_click_timer = NULL;
 
 #define EPOLL_FD_CNT 4
 
@@ -150,7 +149,10 @@ void tune_channel_timer() {
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
-    if (g_scanning || (g_init_done!=1) ) //no long pree Enter before done with init 
+    if (g_scanning || (g_init_done != 1)) // no long pree Enter before done with init
+        return;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
 
     pthread_mutex_lock(&lvgl_mutex);
@@ -176,7 +178,10 @@ static void btn_press(void) // long press left key
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
         app_switch_to_menu();
-    else if (g_app_state == APP_STATE_PLAYBACK)
+    else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_cancel_and_hide();
+        app_switch_to_menu();
+    } else if (g_app_state == APP_STATE_PLAYBACK)
         pb_key(DIAL_KEY_PRESS);
     else { // Sub-menu  -> Main menu
         submenu_exit();
@@ -189,7 +194,10 @@ static void btn_press(void) // long press left key
 static void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
-    if (g_init_done != 1) //no short pree Enter before done with init 
+    if (g_init_done != 1) // no short pree Enter before done with init
+        return;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
 
     if (g_app_state == APP_STATE_VIDEO) {
@@ -200,6 +208,12 @@ static void btn_click(void) // short press enter key
     } else if (g_app_state == APP_STATE_IMS) {
         pthread_mutex_lock(&lvgl_mutex);
         if (ims_key(DIAL_KEY_CLICK))
+            app_switch_to_menu();
+        pthread_mutex_unlock(&lvgl_mutex);
+        return;
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        pthread_mutex_lock(&lvgl_mutex);
+        if (ui_osd_element_pos_handle_input(DIAL_KEY_CLICK))
             app_switch_to_menu();
         pthread_mutex_unlock(&lvgl_mutex);
         return;
@@ -218,7 +232,7 @@ static void btn_click(void) // short press enter key
         LOGI("level = 1");
         app_state_push(APP_STATE_SUBMENU);
         submenu_enter();
-    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
+    } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_click();
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         submenu_click();
@@ -232,19 +246,24 @@ static void btn_click(void) // short press enter key
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void rbtn_click0(bool is_short) {
-    // lvgl mutex is already locked either via lv_timer or manually bellow
+void rbtn_click(right_button_t click_type) {
+    if (g_init_done != 1)
+        return;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
 
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
         submenu_right_button(is_short);
         break;
-
     case APP_STATE_VIDEO:
-        if (is_short) {
+        if (click_type == RIGHT_CLICK) {
             dvr_cmd(DVR_TOGGLE);
-        } else {
+        } else if (click_type == RIGHT_LONG_PRESS) {
             step_topfan();
+        } else if (click_type == RIGHT_DOUBLE_CLICK) {
+            ht_set_center_position();
         }
         break;
 
@@ -262,10 +281,9 @@ static void short_right_click_timeout(lv_timer_t *timer) {
 void rbtn_click(bool is_short) {
     if (g_init_done != 1)
         return;
-/*        
     if (is_short) {
         if (!right_click_timer) {
-            right_click_timer = lv_timer_create(short_right_click_timeout, 10, NULL);
+            right_click_timer = lv_timer_create(short_right_click_timeout, 200, NULL);
         } else {
             lv_timer_del(right_click_timer);
             right_click_timer = NULL;
@@ -279,8 +297,8 @@ void rbtn_click(bool is_short) {
         rbtn_click0(false);
         pthread_mutex_unlock(&lvgl_mutex);
     }
-*/
-    rbtn_click0(is_short);
+    * /
+        rbtn_click0(is_short);
 }
 
 static void roller_up(void) {
@@ -289,8 +307,11 @@ static void roller_up(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0) //dialed before done with init, cancel auto scan
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -299,11 +320,15 @@ static void roller_up(void) {
         menu_nav(DIAL_KEY_UP);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_UP);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_UP);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_dec();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
@@ -322,8 +347,11 @@ static void roller_down(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0) //dialed before done with init, cancel auto scan
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
+
+    if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
+        return;
 
     pthread_mutex_lock(&lvgl_mutex);
     autoscan_exit();
@@ -331,11 +359,15 @@ static void roller_down(void) {
         menu_nav(DIAL_KEY_DOWN);
     } else if ((g_app_state == APP_STATE_SUBMENU) || (g_app_state == APP_STATE_PLAYBACK)) {
         submenu_roller(DIAL_KEY_DOWN);
+    } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
+        submenu_roller_no_selection_change(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
         if (g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+        ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
     } else if (g_app_state == PAGE_FAN_SLIDE) {
         fans_speed_inc();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
@@ -473,16 +505,19 @@ static void *thread_input_device(void *ptr) {
             switch (event.type) {
             case SDL_QUIT:
                 exit(0);
-                break;
 
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
                 case SDLK_d:
-                    btn_d_start = event.key.timestamp;
+                    if (!btn_d_start) {
+                        btn_d_start = event.key.timestamp;
+                    }
                     break;
 
                 case SDLK_a:
-                    btn_a_start = event.key.timestamp;
+                    if (!btn_a_start) {
+                        btn_a_start = event.key.timestamp;
+                    }
                     break;
                 }
                 break;
@@ -507,6 +542,7 @@ static void *thread_input_device(void *ptr) {
                         btn_click();
                         g_key = DIAL_KEY_CLICK;
                     }
+                    btn_d_start = 0;
                     break;
 
                 case SDLK_a:
@@ -517,6 +553,7 @@ static void *thread_input_device(void *ptr) {
                         rbtn_click(true);
                         g_key = RIGHT_KEY_CLICK;
                     }
+                    btn_a_start = 0;
                     break;
                 }
                 break;

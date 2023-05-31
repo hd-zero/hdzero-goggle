@@ -185,7 +185,7 @@ page_pack_t pp_headtracker = {
         .cur = 0,
         .max = 5,
     },
-
+    .name = "Head Tracker",
     .create = page_headtracker_create,
     .enter = page_headtracker_enter,
     .exit = page_headtracker_exit,

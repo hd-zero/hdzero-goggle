@@ -12,6 +12,8 @@
 #include "ui/page_connections.h"
 #include "util/file.h"
 
+#define SETTINGS_INI_VERSION_UNKNOWN 0
+
 setting_t g_setting;
 bool g_test_en = false;
 
@@ -38,6 +40,9 @@ const setting_t g_setting_defaults = {
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
+    },
+    .source = {
+        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL,
     },
     .record = {
         .mode_manual = false,
@@ -74,64 +79,79 @@ const setting_t g_setting_defaults = {
     },
     .osd = {
         .embedded_mode = EMBEDDED_4x3,
-        .elements = {
-            .topfan_speed = {
+        .element = {
+            // OSD_GOGGLE_TOPFAN_SPEED
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 160, .y = 0}, .mode_16_9 = {.x = 0, .y = 0}},
             },
-            .latency_lock = {
+            // OSD_GOGGLE_LATENCY_LOCK
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 200, .y = 0}, .mode_16_9 = {.x = 40, .y = 0}},
             },
-            .vtx_temp = {
+            // OSD_GOGGLE_VTX_TEMP
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 240, .y = 0}, .mode_16_9 = {.x = 80, .y = 0}},
             },
-            .vrx_temp = {
+            // OSD_GOGGLE_VRX_TEMP
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 280, .y = 0}, .mode_16_9 = {.x = 120, .y = 0}},
             },
-            .battery_low = {
+            // OSD_GOGGLE_BATTERY_LOW
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 320, .y = 0}, .mode_16_9 = {.x = 160, .y = 0}},
             },
-            .channel = {
+            // OSD_GOGGLE_CHANNEL
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 540, .y = 0}, .mode_16_9 = {.x = 540, .y = 0}},
             },
-            .sd_rec = {
+            // OSD_GOGGLE_SD_REC
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 840, .y = 0}, .mode_16_9 = {.x = 1000, .y = 0}},
             },
-            .vlq = {
+            // OSD_GOGGLE_VLQ
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 880, .y = 0}, .mode_16_9 = {.x = 1040, .y = 0}},
             },
-            .ant0 = {
+            // OSD_GOGGLE_ANT0
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 960, .y = 0}, .mode_16_9 = {.x = 1120, .y = 0}},
             },
-            .ant1 = {
+            // OSD_GOGGLE_ANT1
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 920, .y = 0}, .mode_16_9 = {.x = 1080, .y = 0}},
             },
-            .ant2 = {
+            // OSD_GOGGLE_ANT2
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1040, .y = 0}, .mode_16_9 = {.x = 1200, .y = 0}},
             },
-            .ant3 = {
+            // OSD_GOGGLE_ANT3
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 1000, .y = 0}, .mode_16_9 = {.x = 1160, .y = 0}},
             },
-            .osd_tempe[0] = {
+            // OSD_GOGGLE_TEMP_TOP
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 170, .y = 50}, .mode_16_9 = {.x = 170, .y = 50}},
             },
-            .osd_tempe[1] = {
+            // OSD_GOGGLE_TEMP_LEFT
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 270, .y = 50}, .mode_16_9 = {.x = 270, .y = 50}},
             },
-            .osd_tempe[2] = {
+            // OSD_GOGGLE_TEMP_RIGHT
+            {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
             },
@@ -146,6 +166,44 @@ const setting_t g_setting_defaults = {
         .sec = 30,
         .format = 0,
     }};
+
+int settings_put_osd_element_shown(bool show, char *config_name) {
+    char setting_key[128];
+
+    sprintf(setting_key, "element_%s_show", config_name);
+    return settings_put_bool("osd", setting_key, show);
+}
+
+int settings_put_osd_element_pos_x(const setting_osd_goggle_element_positions_t *pos, char *config_name) {
+    char setting_key[128];
+    int ret = 0;
+
+    sprintf(setting_key, "element_%s_pos_4_3_x", config_name);
+    ret = ini_putl("osd", setting_key, pos->mode_4_3.x, SETTING_INI);
+    sprintf(setting_key, "element_%s_pos_16_9_x", config_name);
+    ret &= ini_putl("osd", setting_key, pos->mode_16_9.x, SETTING_INI);
+    return ret;
+}
+
+int settings_put_osd_element_pos_y(const setting_osd_goggle_element_positions_t *pos, char *config_name) {
+    char setting_key[128];
+    int ret = 0;
+
+    sprintf(setting_key, "element_%s_pos_4_3_y", config_name);
+    ret = ini_putl("osd", setting_key, pos->mode_4_3.y, SETTING_INI);
+    sprintf(setting_key, "element_%s_pos_16_9_y", config_name);
+    ret &= ini_putl("osd", setting_key, pos->mode_16_9.y, SETTING_INI);
+    return ret;
+}
+
+int settings_put_osd_element(const setting_osd_goggle_element_t *element, char *config_name) {
+    int ret = 0;
+
+    ret = settings_put_osd_element_shown(element->show, config_name);
+    ret &= settings_put_osd_element_pos_x(&element->position, config_name);
+    ret &= settings_put_osd_element_pos_y(&element->position, config_name);
+    return ret;
+}
 
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
@@ -166,16 +224,48 @@ static void settings_load_osd_element(setting_osd_goggle_element_t *element, cha
     element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
 }
 
-void settings_load(void) {
-    char str[128];
+bool settings_get_bool(char *section, char *key, bool default_val) {
+    char buf[128];
 
+    ini_gets(section, key, default_val ? "true" : "false", buf, sizeof(buf), SETTING_INI);
+    return strcmp(buf, "true") == 0;
+}
+
+int settings_put_bool(char *section, char *key, bool value) {
+    return ini_puts(section, key, value ? "true" : "false", SETTING_INI);
+}
+
+void settings_reset(void) {
+    char buf[256];
+
+    sprintf(buf, "rm -f %s", SETTING_INI);
+    system(buf);
+    usleep(50);
+
+    sprintf(buf, "touch %s", SETTING_INI);
+    system(buf);
+    usleep(50);
+
+    ini_putl("settings", "file_version", SETTING_INI_VERSION, SETTING_INI);
+}
+
+void settings_init(void) {
+    // check if backup of old settings file exists after goggle update
     if (file_exists("/mnt/UDISK/setting.ini")) {
-        sprintf(str, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
-        system(str);
+        char buf[256];
+        sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
+        system(buf);
         usleep(10);
         system("rm /mnt/UDISK/setting.ini");
     }
 
+    int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);
+    if (file_version != SETTING_INI_VERSION)
+        settings_reset();
+}
+
+void settings_load(void) {
+    // scan
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
     // fans
@@ -203,21 +293,21 @@ void settings_load(void) {
 
     // osd
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
-    settings_load_osd_element(&g_setting.osd.elements.topfan_speed, "topfan_speed", &g_setting_defaults.osd.elements.topfan_speed);
-    settings_load_osd_element(&g_setting.osd.elements.latency_lock, "latency_lock", &g_setting_defaults.osd.elements.latency_lock);
-    settings_load_osd_element(&g_setting.osd.elements.vtx_temp, "vtx_temp", &g_setting_defaults.osd.elements.vtx_temp);
-    settings_load_osd_element(&g_setting.osd.elements.vrx_temp, "vrx_temp", &g_setting_defaults.osd.elements.vrx_temp);
-    settings_load_osd_element(&g_setting.osd.elements.battery_low, "battery_low", &g_setting_defaults.osd.elements.battery_low);
-    settings_load_osd_element(&g_setting.osd.elements.channel, "channel", &g_setting_defaults.osd.elements.channel);
-    settings_load_osd_element(&g_setting.osd.elements.sd_rec, "sd_rec", &g_setting_defaults.osd.elements.sd_rec);
-    settings_load_osd_element(&g_setting.osd.elements.vlq, "vlq", &g_setting_defaults.osd.elements.vlq);
-    settings_load_osd_element(&g_setting.osd.elements.ant0, "ant0", &g_setting_defaults.osd.elements.ant0);
-    settings_load_osd_element(&g_setting.osd.elements.ant1, "ant1", &g_setting_defaults.osd.elements.ant1);
-    settings_load_osd_element(&g_setting.osd.elements.ant2, "ant2", &g_setting_defaults.osd.elements.ant2);
-    settings_load_osd_element(&g_setting.osd.elements.ant3, "ant3", &g_setting_defaults.osd.elements.ant3);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[0], "goggle_temp_top", &g_setting_defaults.osd.elements.osd_tempe[0]);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[1], "goggle_temp_left", &g_setting_defaults.osd.elements.osd_tempe[1]);
-    settings_load_osd_element(&g_setting.osd.elements.osd_tempe[2], "goggle_temp_right", &g_setting_defaults.osd.elements.osd_tempe[2]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TOPFAN_SPEED], "topfan_speed", &g_setting_defaults.osd.element[OSD_GOGGLE_TOPFAN_SPEED]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK], "latency_lock", &g_setting_defaults.osd.element[OSD_GOGGLE_LATENCY_LOCK]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VTX_TEMP], "vtx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VTX_TEMP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VRX_TEMP], "vrx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VRX_TEMP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW], "battery_low", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_LOW]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CHANNEL], "channel", &g_setting_defaults.osd.element[OSD_GOGGLE_CHANNEL]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_SD_REC], "sd_rec", &g_setting_defaults.osd.element[OSD_GOGGLE_SD_REC]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VLQ], "vlq", &g_setting_defaults.osd.element[OSD_GOGGLE_VLQ]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT0], "ant0", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT0]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT1], "ant1", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT1]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT2], "ant2", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT2]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_ANT3], "ant3", &g_setting_defaults.osd.element[OSD_GOGGLE_ANT3]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_TOP], "goggle_temp_top", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_TOP]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT], "goggle_temp_left", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_LEFT]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT], "goggle_temp_right", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_RIGHT]);
 
     // power
     g_setting.power.voltage = ini_getl("power", "voltage", g_setting_defaults.power.voltage, SETTING_INI);
@@ -279,9 +369,9 @@ void settings_load(void) {
 
         ini_puts("wifi", "ssid", g_setting.wifi.ssid, SETTING_INI);
         ini_puts("wifi", "passwd", g_setting.wifi.passwd, SETTING_INI); // passwd length is 8+
-        ini_puts("wifi", "std", g_setting.wifi.std, SETTING_INI); 
-        ini_putl("wifi", "channel",g_setting.wifi.channel,SETTING_INI);
-        ini_putl("wifi", "rate",g_setting.wifi.rate,SETTING_INI);
+        ini_puts("wifi", "std", g_setting.wifi.std, SETTING_INI);
+        ini_putl("wifi", "channel", g_setting.wifi.channel, SETTING_INI);
+        ini_putl("wifi", "rate", g_setting.wifi.rate, SETTING_INI);
     } else {
         ini_gets("wifi", "ssid", "HDZero", g_setting.wifi.ssid, 16, SETTING_INI);
         ini_gets("wifi", "passwd", "divimath", g_setting.wifi.passwd, 16, SETTING_INI);

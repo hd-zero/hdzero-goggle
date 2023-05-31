@@ -89,6 +89,21 @@ fi
 #system led
 /mnt/app/script/system_daemon.sh &
 
+#external services
+if [ ! -z $(ls -1 /mnt/extsd/hdzgoggle-services-* 2> /dev/null) ]; then
+	if [ -e /mnt/extsd/SERVICES.log ]; then
+		/mnt/app/services/install.sh > /mnt/extsd/SERVICES.log 2>&1 &
+	else
+		/mnt/app/services/install.sh &
+	fi
+elif [ -e /mnt/app/services/startup.sh ]; then
+	if [ -e /mnt/extsd/SERVICES.log ]; then
+		/mnt/app/services/startup.sh > /mnt/extsd/SERVICES.log 2>&1 &
+	else
+		/mnt/app/services/startup.sh &
+	fi
+fi
+
 #start applicaion
 if [ -e /mnt/extsd/develop.sh ]; then
 	/mnt/extsd/develop.sh

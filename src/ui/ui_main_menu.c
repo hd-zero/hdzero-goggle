@@ -18,13 +18,14 @@
 #include "ui/page_focus_chart.h"
 #include "ui/page_headtracker.h"
 #include "ui/page_imagesettings.h"
+#include "ui/page_osd.h"
 #include "ui/page_playback.h"
 #include "ui/page_power.h"
 #include "ui/page_record.h"
 #include "ui/page_scannow.h"
+#include "ui/page_sleep.h"
 #include "ui/page_source.h"
 #include "ui/page_version.h"
-#include "ui/page_sleep.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
@@ -53,8 +54,10 @@ static page_pack_t *page_packs[PAGE_MAX] = {
     [PAGE_SLEEP] = &pp_sleep,
 };
 
+#define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
+
 static page_pack_t *find_pp(lv_obj_t *page) {
-    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         if (page_packs[i]->page == page) {
             return page_packs[i];
         }
@@ -63,7 +66,7 @@ static page_pack_t *find_pp(lv_obj_t *page) {
 }
 
 static void clear_all_icon(void) {
-    for (uint32_t i = 0; i < PAGE_MAX; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         lv_img_set_src(page_packs[i]->icon, LV_SYMBOL_DUMMY);
     }
 }
@@ -135,6 +138,22 @@ void submenu_roller(uint8_t key) {
     }
 }
 
+// the submenu pages called on_roller event handler has to update
+// the selection by setting pp->p_arr.cur if a selection change is needed
+void submenu_roller_no_selection_change(uint8_t key) {
+    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
+    if (!pp) {
+        return;
+    }
+
+    if (pp->on_roller) {
+        // if your page as a roller event handler, call it
+        pp->on_roller(key);
+    }
+
+    set_select_item(&pp->p_arr, pp->p_arr.cur);
+}
+
 void submenu_exit() {
     LOGI("submenu_exit");
     app_state_push(APP_STATE_MAINMENU);
@@ -181,11 +200,11 @@ void menu_nav(uint8_t key) {
     if (key == DIAL_KEY_DOWN) {
         selected--;
         if (selected < 0)
-            selected += PAGE_MAX;
+            selected += PAGE_COUNT;
     } else if (key == DIAL_KEY_UP) {
         selected++;
-        if (selected >= PAGE_MAX)
-            selected -= PAGE_MAX;
+        if (selected >= PAGE_COUNT)
+            selected -= PAGE_COUNT;
     }
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
 }
@@ -222,15 +241,15 @@ void main_menu_show(bool is_show) {
     }
 }
 
-static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, const char *text, page_pack_t *pp) {
-    LOGD("creating main menu entry %s", text);
+static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_t *pp) {
+    LOGD("creating main menu entry %s", pp->name);
 
     pp->page = pp->create(menu, &pp->p_arr);
 
     lv_obj_t *cont = lv_menu_cont_create(section);
 
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, text);
+    lv_label_set_text(label, pp->name);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
@@ -247,7 +266,7 @@ void main_menu_init(void) {
     lv_obj_clear_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(menu, lv_color_make(32, 32, 32), 0);
-    lv_obj_set_style_border_width(menu, 3, 0);
+    lv_obj_set_style_border_width(menu, 2, 0);
     lv_obj_set_style_border_color(menu, lv_color_make(255, 0, 0), 0);
     lv_obj_set_style_border_side(menu, LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT, 0);
     lv_obj_set_size(menu, lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96);
@@ -259,20 +278,9 @@ void main_menu_init(void) {
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(menu, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
-    main_menu_create_entry(menu, section, "Scan Now", &pp_scannow);
-    main_menu_create_entry(menu, section, "Source", &pp_source);
-    main_menu_create_entry(menu, section, "Image Settings", &pp_imagesettings);
-    main_menu_create_entry(menu, section, "Power", &pp_power);
-    main_menu_create_entry(menu, section, "Fans", &pp_fans);
-    main_menu_create_entry(menu, section, "Record Option", &pp_record);
-    main_menu_create_entry(menu, section, "Auto Scan", &pp_autoscan);
-    main_menu_create_entry(menu, section, "Connections", &pp_connections);
-    main_menu_create_entry(menu, section, "Head Tracker", &pp_headtracker);
-    main_menu_create_entry(menu, section, "Playback", &pp_playback);
-    main_menu_create_entry(menu, section, "Firmware", &pp_version);
-    main_menu_create_entry(menu, section, "Focus Chart", &pp_focus_chart);
-    main_menu_create_entry(menu, section, "Clock", &pp_clock);
-    main_menu_create_entry(menu, section, "Go Sleep!", &pp_sleep);
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+        main_menu_create_entry(menu, section, page_packs[i]);
+    }
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);

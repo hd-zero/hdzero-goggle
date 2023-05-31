@@ -13,6 +13,7 @@
 
 #include "common.hh"
 #include "core/app_state.h"
+#include "core/osd.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
@@ -104,7 +105,7 @@ static void show_pb_item(uint8_t pos, char *label) {
     if (file_exists(fname))
         sprintf(fname, "A:%s/%s.jpg", TMP_DIR, label);
     else
-        sprintf(fname, "%s%s", RESOURCE_PATH, DEF_VIDEOICON);
+        osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
     lv_img_set_src(pb_ui[pos]._img, fname);
 
     if (pb_ui[pos].state == ITEM_STATE_HIGHLIGHT) {
@@ -179,7 +180,7 @@ static int walk_sdcard() {
             continue;
         }
 
-        char fname[128];
+        char fname[512];
         sprintf(fname, "%s/%s", MEDIA_FILES_DIR, in_file->d_name);
 
         long size = file_get_size(fname);
@@ -298,7 +299,7 @@ static void mark_video_file(int seq) {
 
     const int index = find_hot_index();
 
-    char cmd[128];
+    char cmd[256];
     sprintf(cmd, "mv  %s/%s %s/hot_hdz_%03d.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, index, pnode->ext);
     system(cmd);
     sprintf(cmd, "mv %s/%s.jpg %s/hot_hdz_%03d.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, index);
@@ -415,6 +416,7 @@ static void page_playback_on_right_button(bool is_short) {
 }
 
 page_pack_t pp_playback = {
+    .name = "Playback",
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,

@@ -38,9 +38,12 @@
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
+#include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
 #include "util/file.h"
+
+int gif_cnt = 0;
 
 static void *thread_autoscan(void *ptr) {
     for (;;) {
@@ -137,6 +140,7 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
 
     // 1. Recall configuration
+    settings_init();
     settings_load();
 
     // 2. Initialize communications.
@@ -166,6 +170,7 @@ int main(int argc, char *argv[]) {
     OLED_Pattern(0, 0, 0);
     osd_init();
     ims_init();
+    ui_osd_element_pos_init();
 
     // 6. Enable functionality
     if (g_setting.ht.enable) {
@@ -178,6 +183,9 @@ int main(int argc, char *argv[]) {
     start_running();
     create_threads();
 
+    // synthetic counter for gif refresh
+    gif_cnt = 0;
+
     // 8. Execute main loop
     g_init_done = 1;
     for (;;) {
@@ -185,11 +193,13 @@ int main(int argc, char *argv[]) {
         statubar_update();
         osd_hdzero_update();
         ims_update();
+        ui_osd_element_pos_update();
         ht_detect_motion();
         lv_timer_handler();
         source_status_timer();
         pthread_mutex_unlock(&lvgl_mutex);
         usleep(5000);
+        gif_cnt++;
     }
     return 0;
 }

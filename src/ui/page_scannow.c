@@ -399,6 +399,7 @@ static void page_scannow_on_click(uint8_t key, int sel) {
 }
 
 page_pack_t pp_scannow = {
+    .name = "Scan Now",
     .create = page_scannow_create,
     .enter = page_scannow_enter,
     .exit = page_scannow_exit,
