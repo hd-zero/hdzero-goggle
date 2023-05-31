@@ -105,7 +105,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     system("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 

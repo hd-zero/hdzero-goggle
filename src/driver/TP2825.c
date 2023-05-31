@@ -41,7 +41,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
     I2C_Write(ADDR_TP2825, 0x41, ch_sel);
 
     if (is_pal) {
-        I2C_Write(ADDR_TP2825, 0x02, 0xDE);
+        I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x06, 0x32);
         I2C_Write(ADDR_TP2825, 0x07, 0xC0);
         I2C_Write(ADDR_TP2825, 0x08, 0x00);
@@ -185,11 +185,13 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x4E, 0x37);
         I2C_Write(ADDR_TP2825, 0x4F, 0x01);
     }
+
+    I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 
 void TP2825_Switch_Mode(int is_pal) {
     if (is_pal) {
-        I2C_Write(ADDR_TP2825, 0x02, 0xDE);
+        I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x0D, 0x11);
 
         I2C_Write(ADDR_TP2825, 0x19, 0x20);
