@@ -524,10 +524,10 @@ static void *thread_input_device(void *ptr) {
 
                 case SDLK_a:
                     if (event.key.timestamp - btn_a_start > 500) {
-                        rbtn_click(false);
+                        rbtn_click(RIGHT_LONG_PRESS);
                         g_key = RIGHT_KEY_PRESS;
                     } else {
-                        rbtn_click(true);
+                        rbtn_click(RIGHT_CLICK);
                         g_key = RIGHT_KEY_CLICK;
                     }
                     btn_a_start = 0;
