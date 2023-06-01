@@ -442,6 +442,32 @@ static bool page_wifi_is_network_address_valid(const char *address) {
 }
 
 /**
+ * Marks the overall dirty bit and sets the callback if dirty.
+ */
+static void page_wifi_update_dirty_flag() {
+    page_wifi.dirty =
+        page_wifi.page_1.enable.dirty ||
+        page_wifi.page_1.mode.dirty ||
+        page_wifi.page_1.ssid.dirty ||
+        page_wifi.page_1.passwd.dirty ||
+        page_wifi.page_2.dhcp.dirty ||
+        page_wifi.page_2.ip_addr.dirty ||
+        page_wifi.page_2.netmask.dirty ||
+        page_wifi.page_2.gateway.dirty ||
+        page_wifi.page_2.dns.dirty ||
+        page_wifi.page_2.rf_channel.dirty;
+
+    if (page_wifi.dirty) {
+        if (!page_wifi_apply_settings_pending_timer) {
+            page_wifi_apply_settings_pending_timer = lv_timer_create(page_wifi_apply_settings_pending_cb, 50, NULL);
+            lv_timer_set_repeat_count(page_wifi_apply_settings_pending_timer, -1);
+        }
+    } else {
+        page_wifi_apply_settings_reset();
+    }
+}
+
+/**
  * Page 1 contains basic settings.
  */
 static void page_wifi_create_page_1(lv_obj_t *parent) {
@@ -744,27 +770,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             ? 0
             : page_wifi_get_current_page_max();
 
-    // Mark overall dirty flag if any of the elements are dirty.
-    page_wifi.dirty =
-        page_wifi.page_1.enable.dirty ||
-        page_wifi.page_1.mode.dirty ||
-        page_wifi.page_1.ssid.dirty ||
-        page_wifi.page_1.passwd.dirty ||
-        page_wifi.page_2.dhcp.dirty ||
-        page_wifi.page_2.ip_addr.dirty ||
-        page_wifi.page_2.netmask.dirty ||
-        page_wifi.page_2.gateway.dirty ||
-        page_wifi.page_2.dns.dirty ||
-        page_wifi.page_2.rf_channel.dirty;
-
-    if (page_wifi.dirty) {
-        if (!page_wifi_apply_settings_pending_timer) {
-            page_wifi_apply_settings_pending_timer = lv_timer_create(page_wifi_apply_settings_pending_cb, 50, NULL);
-            lv_timer_set_repeat_count(page_wifi_apply_settings_pending_timer, -1);
-        }
-    } else {
-        page_wifi_apply_settings_reset();
-    }
+    page_wifi_update_dirty_flag();
 }
 
 static void page_wifi_on_right_button(bool is_short) {
@@ -855,35 +861,10 @@ static void page_wifi_on_right_button(bool is_short) {
                 break;
             }
 
+            // Restore panel scrolling when elements are in focus
+            pp_wifi.p_arr.max = page_wifi_get_current_page_max();
+            page_wifi_update_dirty_flag();
             keyboard_close();
-
-            // Enable/Disable panel scrolling when elements are in focus
-            pp_wifi.p_arr.max =
-                page_wifi.page_2.rf_channel.active
-                    ? 0
-                    : page_wifi_get_current_page_max();
-
-            // Mark overall dirty flag if any of the elements are dirty.
-            page_wifi.dirty =
-                page_wifi.page_1.enable.dirty ||
-                page_wifi.page_1.mode.dirty ||
-                page_wifi.page_1.ssid.dirty ||
-                page_wifi.page_1.passwd.dirty ||
-                page_wifi.page_2.dhcp.dirty ||
-                page_wifi.page_2.ip_addr.dirty ||
-                page_wifi.page_2.netmask.dirty ||
-                page_wifi.page_2.gateway.dirty ||
-                page_wifi.page_2.dns.dirty ||
-                page_wifi.page_2.rf_channel.dirty;
-
-            if (page_wifi.dirty) {
-                if (!page_wifi_apply_settings_pending_timer) {
-                    page_wifi_apply_settings_pending_timer = lv_timer_create(page_wifi_apply_settings_pending_cb, 50, NULL);
-                    lv_timer_set_repeat_count(page_wifi_apply_settings_pending_timer, -1);
-                }
-            } else {
-                page_wifi_apply_settings_reset();
-            }
         }
     } else {
         if (keyboard_active()) {
