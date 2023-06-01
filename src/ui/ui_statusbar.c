@@ -11,15 +11,22 @@
 #include "driver/gpio.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
+#include "ui/page_wifi.h"
 #include "ui/ui_style.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // local
-static lv_obj_t *label0;
-static lv_obj_t *label1;
-static lv_obj_t *label2;
-static lv_obj_t *label3;
-static lv_obj_t *label4;
+enum STATUS {
+    STS_SDCARD,
+    STS_SOURCE,
+    STS_ELRS,
+    STS_WIFI,
+    STS_BATT,
+
+    STS_TOTAL
+};
+
+static lv_obj_t *label[STS_TOTAL];
 
 static lv_obj_t *img_sdc;
 LV_IMG_DECLARE(img_sdcard);
@@ -91,59 +98,59 @@ int statusbar_init(void) {
     lv_obj_set_grid_cell(img_battery, LV_GRID_ALIGN_CENTER, 9, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label0 = lv_label_create(cont);
-    lv_label_set_long_mode(label0, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(label0, "SD Card                 ");
-    lv_obj_set_width(label0, 267); /*Set smaller width to make the lines wrap*/
-    lv_label_set_recolor(label0, true);
-    lv_obj_set_style_text_align(label0, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label0, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label0, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    label[STS_SDCARD] = lv_label_create(cont);
+    lv_label_set_long_mode(label[STS_SDCARD], LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
+    lv_obj_set_width(label[STS_SDCARD], 267); /*Set smaller width to make the lines wrap*/
+    lv_label_set_recolor(label[STS_SDCARD], true);
+    lv_obj_set_style_text_align(label[STS_SDCARD], LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label[STS_SDCARD], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_grid_cell(label[STS_SDCARD], LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label1 = lv_label_create(cont);
-    lv_label_set_long_mode(label1, LV_LABEL_LONG_DOT); /*Break the long lines*/
+    label[STS_SOURCE] = lv_label_create(cont);
+    lv_label_set_long_mode(label[STS_SOURCE], LV_LABEL_LONG_DOT); /*Break the long lines*/
 
     sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0xF));
 
-    lv_label_set_text(label1, buf);
-    lv_obj_set_width(label1, 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label1, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label1, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label1, LV_GRID_ALIGN_CENTER, 4, 1,
+    lv_label_set_text(label[STS_SOURCE], buf);
+    lv_obj_set_width(label[STS_SOURCE], 267); /*Set smaller width to make the lines wrap*/
+    lv_obj_set_style_text_align(label[STS_SOURCE], LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label[STS_SOURCE], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_grid_cell(label[STS_SOURCE], LV_GRID_ALIGN_CENTER, 4, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label2 = lv_label_create(cont);
-    lv_label_set_long_mode(label2, LV_LABEL_LONG_DOT); /*Break the long lines*/
-    lv_label_set_text(label2, "ELRS: Off");
-    lv_obj_set_width(label2, 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_CENTER, 6, 1,
+    label[STS_ELRS] = lv_label_create(cont);
+    lv_label_set_long_mode(label[STS_ELRS], LV_LABEL_LONG_DOT); /*Break the long lines*/
+    lv_label_set_text(label[STS_ELRS], "ELRS: Off");
+    lv_obj_set_width(label[STS_ELRS], 267); /*Set smaller width to make the lines wrap*/
+    lv_obj_set_style_text_align(label[STS_ELRS], LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label[STS_ELRS], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_grid_cell(label[STS_ELRS], LV_GRID_ALIGN_CENTER, 6, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label3 = lv_label_create(cont);
-    lv_label_set_long_mode(label3, LV_LABEL_LONG_DOT); /*Break the long lines*/
-    lv_label_set_text(label3, "Wifi: Off");
-    lv_obj_set_width(label3, 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label3, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label3, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label3, LV_GRID_ALIGN_CENTER, 8, 1,
+    label[STS_WIFI] = lv_label_create(cont);
+    lv_label_set_long_mode(label[STS_WIFI], LV_LABEL_LONG_DOT); /*Break the long lines*/
+    lv_label_set_text(label[STS_WIFI], "WiFi: Off");
+    lv_obj_set_width(label[STS_WIFI], 267); /*Set smaller width to make the lines wrap*/
+    lv_obj_set_style_text_align(label[STS_WIFI], LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label[STS_WIFI], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_grid_cell(label[STS_WIFI], LV_GRID_ALIGN_CENTER, 8, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label4 = lv_label_create(cont);
-    lv_label_set_long_mode(label4, LV_LABEL_LONG_DOT); /*Break the long lines*/
-    lv_label_set_text(label4, "       ");
-    lv_obj_set_width(label4, 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label4, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label4, LV_GRID_ALIGN_CENTER, 10, 1,
+    label[STS_BATT] = lv_label_create(cont);
+    lv_label_set_long_mode(label[STS_BATT], LV_LABEL_LONG_DOT); /*Break the long lines*/
+    lv_label_set_text(label[STS_BATT], "       ");
+    lv_obj_set_width(label[STS_BATT], 267); /*Set smaller width to make the lines wrap*/
+    lv_obj_set_style_text_align(label[STS_BATT], LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_grid_cell(label[STS_BATT], LV_GRID_ALIGN_CENTER, 10, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    lv_obj_set_style_text_font(label0, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label1, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label3, &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label4, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
 
     return 0;
 }
@@ -154,7 +161,7 @@ void statubar_update(void) {
 
     // display battery voltage
     battery_get_voltage_str(buf);
-    lv_label_set_text(label4, buf);
+    lv_label_set_text(label[STS_BATT], buf);
 
     {
 #define BEEP_INTERVAL 20
@@ -173,15 +180,15 @@ void statubar_update(void) {
                     beep();
                     beep_gap = 0;
                 }
-                lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
             }
             break;
 
         case SETTING_POWER_WARNING_TYPE_VISUAL:
             if (low)
-                lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 0, 0), 0);
             else
-                lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
             break;
 
         case SETTING_POWER_WARNING_TYPE_BOTH:
@@ -190,9 +197,9 @@ void statubar_update(void) {
                     beep();
                     beep_gap = 0;
                 }
-                lv_obj_set_style_text_color(label4, lv_color_make(255, 0, 0), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 0, 0), 0);
             } else
-                lv_obj_set_style_text_color(label4, lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
             break;
         default:
             break;
@@ -216,7 +223,7 @@ void statubar_update(void) {
         else
             sprintf(buf, "Expansion Module");
 
-        lv_label_set_text(label1, buf);
+        lv_label_set_text(label[STS_SOURCE], buf);
     }
     channel_last = g_setting.scan.channel;
     source_last = g_source_info.source;
@@ -242,15 +249,13 @@ void statubar_update(void) {
         lv_img_set_src(img_sdc, &img_noSdcard);
     }
 
-    lv_label_set_text(label0, buf);
+    lv_label_set_text(label[STS_SDCARD], buf);
 
     if (g_setting.elrs.enable)
-        lv_label_set_text(label2, "ELRS: On ");
+        lv_label_set_text(label[STS_ELRS], "ELRS: On ");
     else
-        lv_label_set_text(label2, "ELRS: Off");
+        lv_label_set_text(label[STS_ELRS], "ELRS: Off");
 
-    if (g_setting.wifi.enable)
-        lv_label_set_text(label3, "WIFI: On ");
-    else
-        lv_label_set_text(label3, "WIFI: Off");
+    page_wifi_get_statusbar_text(buf, sizeof(buf));
+    lv_label_set_text(label[STS_WIFI], buf);
 }

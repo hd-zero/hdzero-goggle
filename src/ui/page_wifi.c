@@ -258,26 +258,37 @@ static void page_wifi_update_settings() {
 }
 
 /**
- * Updates the all notes on every page.
+ * Acquire the actual address in use.
  */
-void page_wifi_update_notes() {
+static const char *page_wifi_get_real_address() {
     const char *address = NULL;
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
-    // Get DHCP Client assigned address
-    if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
-        btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0) {
-        int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (fd >= 0) {
         struct ifreq ifr;
         strcpy(ifr.ifr_name, "wlan0");
 
         // Try to derive the real ip address
         if (0 == ioctl(fd, SIOCGIFADDR, &ifr)) {
             address = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-        } else {
-            address = "x.x.x.x";
         }
 
         close(fd);
+    }
+
+    return address;
+}
+
+/**
+ * Updates the all notes on every page.
+ */
+static void page_wifi_update_notes() {
+    const char *address = page_wifi_get_real_address();
+
+    if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
+        btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0 &&
+        address == NULL) {
+        address = "x.x.x.x";
     }
 
     static char buffer[1024];
@@ -892,3 +903,25 @@ page_pack_t pp_wifi = {
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,
 };
+
+/**
+ * Provides the WiFi status string referenced by ui_statusbar.
+ */
+void page_wifi_get_statusbar_text(char *buffer, int size) {
+    if (g_setting.wifi.enable) {
+        switch (g_setting.wifi.mode) {
+        case WIFI_MODE_AP:
+            snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
+            break;
+        case WIFI_MODE_STA:
+            if (page_wifi_get_real_address()) {
+                snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
+            } else {
+                snprintf(buffer, size, "WiFi: Searching");
+            }
+            break;
+        }
+    } else {
+        snprintf(buffer, size, "WiFi: Off");
+    }
+}
