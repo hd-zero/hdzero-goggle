@@ -795,7 +795,7 @@ static void page_wifi_on_right_button(bool is_short) {
                 break;
             case 3:
                 switch (btn_group_get_sel(&page_wifi.page_select.button)) {
-                case 0:
+                case 0: {
                     int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
                     if (keyboard_get_text(page_wifi.page_1.ssid.text[mode], WIFI_SSID_MAX)) {
                         lv_label_set_text(page_wifi.page_1.ssid.input, page_wifi.page_1.ssid.text[mode]);
@@ -803,6 +803,7 @@ static void page_wifi_on_right_button(bool is_short) {
                             (0 != strcmp(page_wifi.page_1.ssid.text[mode], g_setting.wifi.ssid[mode]));
                     }
                     break;
+                }
                 case 1:
                     if (keyboard_get_text(page_wifi.page_2.netmask.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.netmask.input, page_wifi.page_2.netmask.text);
@@ -819,7 +820,7 @@ static void page_wifi_on_right_button(bool is_short) {
                 break;
             case 4:
                 switch (btn_group_get_sel(&page_wifi.page_select.button)) {
-                case 0:
+                case 0: {
                     int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
                     int written = keyboard_get_text(page_wifi.page_1.passwd.text[mode], WIFI_PASSWD_MAX);
                     if (0 < written) {
@@ -829,6 +830,7 @@ static void page_wifi_on_right_button(bool is_short) {
                             (0 != strcmp(page_wifi.page_1.passwd.text[mode], g_setting.wifi.passwd[mode]));
                     }
                     break;
+                }
                 case 1:
                     if (keyboard_get_text(page_wifi.page_2.gateway.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.gateway.input, page_wifi.page_2.gateway.text);
