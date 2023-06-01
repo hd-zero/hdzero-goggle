@@ -69,10 +69,10 @@ typedef enum {
     SOURCE_HDMI_IN = 1,
     SOURCE_AV_IN = 2,
     SOURCE_EXPANSION = 3
-} source_info_source_t;
+} source_t;
 
 typedef struct _source_info {
-    source_info_source_t source;
+    source_t source;
     uint8_t hdmi_in_status; // 0=not detected, 1= detected
     uint8_t av_in_status;   // 0=not detected, 1= detected
     uint8_t av_bay_status;  // 0=not detected, 1= detected
@@ -138,7 +138,7 @@ lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, i
 
 lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col, int row, int cols, int height, lv_text_align_t text_align, lv_grid_align_t col_align, const lv_font_t *font);
 
-lv_obj_t *show_msgbox_ok(const char *title, const char *message);
+lv_obj_t *create_msgbox_item(lv_obj_t *parent, const char *title, const char *message);
 
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 

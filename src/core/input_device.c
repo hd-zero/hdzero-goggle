@@ -149,7 +149,7 @@ void tune_channel_timer() {
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
-    if (g_scanning || !g_init_done)
+    if (g_scanning || (g_init_done != 1)) // no long pree Enter before done with init
         return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -194,7 +194,7 @@ static void btn_press(void) // long press left key
 static void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
-    if (!g_init_done)
+    if (g_init_done != 1) // no short pree Enter before done with init
         return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -280,7 +280,7 @@ static void roller_up(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
@@ -322,7 +322,7 @@ static void roller_down(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0)
+    if (g_init_done == 0) // dialed before done with init, cancel auto scan
         g_init_done = -1;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
