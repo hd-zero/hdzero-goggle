@@ -79,6 +79,7 @@ typedef struct {
 } page_2_t;
 
 typedef struct {
+    int item_select;
     button_t page_select;
     page_1_t page_1;
     page_2_t page_2;
@@ -540,6 +541,7 @@ static void page_wifi_enter() {
     app_state_push(APP_STATE_WIFI);
     keyboard_clear_text();
     page_wifi_update_current_page(0);
+    page_wifi.item_select = 0;
 }
 
 /**
@@ -568,6 +570,7 @@ static void page_wifi_exit() {
     page_wifi_apply_settings_reset();
 
     keyboard_close();
+    page_wifi.item_select = 0;
 }
 
 /**
@@ -611,7 +614,9 @@ static void page_wifi_on_roller(uint8_t key) {
  * Main input selection routine for this page.
  */
 static void page_wifi_on_click(uint8_t key, int sel) {
-    switch (sel) {
+    page_wifi.item_select = sel;
+
+    switch (page_wifi.item_select) {
     case 0:
         btn_group_toggle_sel(&page_wifi.page_select.button);
         page_wifi_update_current_page(btn_group_get_sel(&page_wifi.page_select.button));
@@ -645,17 +650,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_2.ip_addr.text);
                 keyboard_open();
             } else {
-                if (keyboard_get_text(page_wifi.page_2.ip_addr.text, WIFI_NETWORK_MAX)) {
-                    lv_label_set_text(page_wifi.page_2.ip_addr.input, page_wifi.page_2.ip_addr.text);
-                    if (!page_wifi_is_network_address_valid(page_wifi.page_2.ip_addr.text)) {
-                        lv_label_set_text(page_wifi.page_2.ip_addr.status, "#FF0000 Invalid Format#");
-                    } else {
-                        lv_label_set_text(page_wifi.page_2.ip_addr.status, "");
-                    }
-                    page_wifi.page_2.ip_addr.dirty =
-                        (0 != strcmp(page_wifi.page_2.ip_addr.text, g_setting.wifi.ip_addr));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         }
@@ -668,13 +663,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_1.ssid.text[mode]);
                 keyboard_open();
             } else {
-                int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
-                if (keyboard_get_text(page_wifi.page_1.ssid.text[mode], WIFI_SSID_MAX)) {
-                    lv_label_set_text(page_wifi.page_1.ssid.input, page_wifi.page_1.ssid.text[mode]);
-                    page_wifi.page_1.ssid.dirty =
-                        (0 != strcmp(page_wifi.page_1.ssid.text[mode], g_setting.wifi.ssid[mode]));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         case 1:
@@ -682,17 +671,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_2.netmask.text);
                 keyboard_open();
             } else {
-                if (keyboard_get_text(page_wifi.page_2.netmask.text, WIFI_NETWORK_MAX)) {
-                    lv_label_set_text(page_wifi.page_2.netmask.input, page_wifi.page_2.netmask.text);
-                    if (!page_wifi_is_network_address_valid(page_wifi.page_2.netmask.text)) {
-                        lv_label_set_text(page_wifi.page_2.netmask.status, "#FF0000 Invalid Format#");
-                    } else {
-                        lv_label_set_text(page_wifi.page_2.netmask.status, "");
-                    }
-                    page_wifi.page_2.netmask.dirty =
-                        (0 != strcmp(page_wifi.page_2.netmask.text, g_setting.wifi.netmask));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         }
@@ -705,15 +684,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_1.passwd.text[mode]);
                 keyboard_open();
             } else {
-                int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
-                int written = keyboard_get_text(page_wifi.page_1.passwd.text[mode], WIFI_PASSWD_MAX);
-                if (0 < written) {
-                    lv_label_set_text(page_wifi.page_1.passwd.input, page_wifi.page_1.passwd.text[mode]);
-                    lv_label_set_text(page_wifi.page_1.passwd.status, written < 8 ? "#FF0000 Invalid Too Short#" : "");
-                    page_wifi.page_1.passwd.dirty =
-                        (0 != strcmp(page_wifi.page_1.passwd.text[mode], g_setting.wifi.passwd[mode]));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         case 1:
@@ -721,17 +692,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_2.gateway.text);
                 keyboard_open();
             } else {
-                if (keyboard_get_text(page_wifi.page_2.gateway.text, WIFI_NETWORK_MAX)) {
-                    lv_label_set_text(page_wifi.page_2.gateway.input, page_wifi.page_2.gateway.text);
-                    if (!page_wifi_is_network_address_valid(page_wifi.page_2.gateway.text)) {
-                        lv_label_set_text(page_wifi.page_2.gateway.status, "#FF0000 Invalid Format#");
-                    } else {
-                        lv_label_set_text(page_wifi.page_2.gateway.status, "");
-                    }
-                    page_wifi.page_2.gateway.dirty =
-                        (0 != strcmp(page_wifi.page_2.gateway.text, g_setting.wifi.gateway));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         }
@@ -754,17 +715,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_set_text(page_wifi.page_2.dns.text);
                 keyboard_open();
             } else {
-                if (keyboard_get_text(page_wifi.page_2.dns.text, WIFI_NETWORK_MAX)) {
-                    lv_label_set_text(page_wifi.page_2.dns.input, page_wifi.page_2.dns.text);
-                    if (!page_wifi_is_network_address_valid(page_wifi.page_2.dns.text)) {
-                        lv_label_set_text(page_wifi.page_2.dns.status, "#FF0000 Invalid Format#");
-                    } else {
-                        lv_label_set_text(page_wifi.page_2.dns.status, "");
-                    }
-                    page_wifi.page_2.dns.dirty =
-                        (0 != strcmp(page_wifi.page_2.dns.text, g_setting.wifi.dns));
-                }
-                keyboard_close();
+                keyboard_press();
             }
             break;
         }
@@ -817,10 +768,125 @@ static void page_wifi_on_click(uint8_t key, int sel) {
 }
 
 static void page_wifi_on_right_button(bool is_short) {
-    if (keyboard_active()) {
-        if (is_short) {
-            keyboard_press();
-        } else {
+    if (is_short) {
+        if (keyboard_active()) {
+            switch (page_wifi.item_select) {
+            case 2:
+                switch (btn_group_get_sel(&page_wifi.page_select.button)) {
+                case 1:
+                    if (keyboard_get_text(page_wifi.page_2.ip_addr.text, WIFI_NETWORK_MAX)) {
+                        lv_label_set_text(page_wifi.page_2.ip_addr.input, page_wifi.page_2.ip_addr.text);
+                        if (!page_wifi_is_network_address_valid(page_wifi.page_2.ip_addr.text)) {
+                            lv_label_set_text(page_wifi.page_2.ip_addr.status, "#FF0000 Invalid Format#");
+                        } else {
+                            lv_label_set_text(page_wifi.page_2.ip_addr.status, "");
+                        }
+                        page_wifi.page_2.ip_addr.dirty =
+                            (0 != strcmp(page_wifi.page_2.ip_addr.text, g_setting.wifi.ip_addr));
+                    }
+                    break;
+                }
+                break;
+            case 3:
+                switch (btn_group_get_sel(&page_wifi.page_select.button)) {
+                case 0:
+                    int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
+                    if (keyboard_get_text(page_wifi.page_1.ssid.text[mode], WIFI_SSID_MAX)) {
+                        lv_label_set_text(page_wifi.page_1.ssid.input, page_wifi.page_1.ssid.text[mode]);
+                        page_wifi.page_1.ssid.dirty =
+                            (0 != strcmp(page_wifi.page_1.ssid.text[mode], g_setting.wifi.ssid[mode]));
+                    }
+                    break;
+                case 1:
+                    if (keyboard_get_text(page_wifi.page_2.netmask.text, WIFI_NETWORK_MAX)) {
+                        lv_label_set_text(page_wifi.page_2.netmask.input, page_wifi.page_2.netmask.text);
+                        if (!page_wifi_is_network_address_valid(page_wifi.page_2.netmask.text)) {
+                            lv_label_set_text(page_wifi.page_2.netmask.status, "#FF0000 Invalid Format#");
+                        } else {
+                            lv_label_set_text(page_wifi.page_2.netmask.status, "");
+                        }
+                        page_wifi.page_2.netmask.dirty =
+                            (0 != strcmp(page_wifi.page_2.netmask.text, g_setting.wifi.netmask));
+                    }
+                    break;
+                }
+                break;
+            case 4:
+                switch (btn_group_get_sel(&page_wifi.page_select.button)) {
+                case 0:
+                    int mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
+                    int written = keyboard_get_text(page_wifi.page_1.passwd.text[mode], WIFI_PASSWD_MAX);
+                    if (0 < written) {
+                        lv_label_set_text(page_wifi.page_1.passwd.input, page_wifi.page_1.passwd.text[mode]);
+                        lv_label_set_text(page_wifi.page_1.passwd.status, written < 8 ? "#FF0000 Invalid Too Short#" : "");
+                        page_wifi.page_1.passwd.dirty =
+                            (0 != strcmp(page_wifi.page_1.passwd.text[mode], g_setting.wifi.passwd[mode]));
+                    }
+                    break;
+                case 1:
+                    if (keyboard_get_text(page_wifi.page_2.gateway.text, WIFI_NETWORK_MAX)) {
+                        lv_label_set_text(page_wifi.page_2.gateway.input, page_wifi.page_2.gateway.text);
+                        if (!page_wifi_is_network_address_valid(page_wifi.page_2.gateway.text)) {
+                            lv_label_set_text(page_wifi.page_2.gateway.status, "#FF0000 Invalid Format#");
+                        } else {
+                            lv_label_set_text(page_wifi.page_2.gateway.status, "");
+                        }
+                        page_wifi.page_2.gateway.dirty =
+                            (0 != strcmp(page_wifi.page_2.gateway.text, g_setting.wifi.gateway));
+                    }
+                    break;
+                }
+                break;
+            case 5:
+                switch (btn_group_get_sel(&page_wifi.page_select.button)) {
+                case 1:
+                    if (keyboard_get_text(page_wifi.page_2.dns.text, WIFI_NETWORK_MAX)) {
+                        lv_label_set_text(page_wifi.page_2.dns.input, page_wifi.page_2.dns.text);
+                        if (!page_wifi_is_network_address_valid(page_wifi.page_2.dns.text)) {
+                            lv_label_set_text(page_wifi.page_2.dns.status, "#FF0000 Invalid Format#");
+                        } else {
+                            lv_label_set_text(page_wifi.page_2.dns.status, "");
+                        }
+                        page_wifi.page_2.dns.dirty =
+                            (0 != strcmp(page_wifi.page_2.dns.text, g_setting.wifi.dns));
+                    }
+                    break;
+                }
+                break;
+            }
+
+            keyboard_close();
+
+            // Enable/Disable panel scrolling when elements are in focus
+            pp_wifi.p_arr.max =
+                page_wifi.page_2.rf_channel.active
+                    ? 0
+                    : page_wifi_get_current_page_max();
+
+            // Mark overall dirty flag if any of the elements are dirty.
+            page_wifi.dirty =
+                page_wifi.page_1.enable.dirty ||
+                page_wifi.page_1.mode.dirty ||
+                page_wifi.page_1.ssid.dirty ||
+                page_wifi.page_1.passwd.dirty ||
+                page_wifi.page_2.dhcp.dirty ||
+                page_wifi.page_2.ip_addr.dirty ||
+                page_wifi.page_2.netmask.dirty ||
+                page_wifi.page_2.gateway.dirty ||
+                page_wifi.page_2.dns.dirty ||
+                page_wifi.page_2.rf_channel.dirty;
+
+            if (page_wifi.dirty) {
+                if (!page_wifi_apply_settings_pending_timer) {
+                    page_wifi_apply_settings_pending_timer = lv_timer_create(page_wifi_apply_settings_pending_cb, 50, NULL);
+                    lv_timer_set_repeat_count(page_wifi_apply_settings_pending_timer, -1);
+                }
+            } else {
+                page_wifi_apply_settings_reset();
+            }
+        }
+    } else {
+        if (keyboard_active()) {
             keyboard_clear_text();
         }
     }
