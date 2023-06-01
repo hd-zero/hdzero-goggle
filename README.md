@@ -6,13 +6,13 @@ The firmware can either be built in a [devcontainer](https://containers.dev/) or
 
 ### Devcontainer Setup
 
-This repository supports the [vscode devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) integration.  
-To get started install docker, vscode and the decontainer extension.  
+This repository supports the [vscode devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) integration.
+To get started install docker, vscode and the decontainer extension.
 A [prompt](https://code.visualstudio.com/docs/devcontainers/create-dev-container#_add-configuration-files-to-a-repository) to reopen this repository in a container should appear.
 
 ### Native Setup
 
-CMake is required for generating the build files.  
+CMake is required for generating the build files.
 A bash script is supplied to take care of the bootstrap process:
 
 ```
@@ -21,7 +21,7 @@ A bash script is supplied to take care of the bootstrap process:
 
 ## Building the Firmware
 
-In either of the above scenarios the firmware can be built via make.  
+In either of the above scenarios the firmware can be built via make.
 An appropiate vscode build task ships with this repository as well.
 
 ```
@@ -63,29 +63,39 @@ fi
 ## Building the Emulator
 
 Goggle source code can be built natively on the host machine and used for debugging.
+
+### Library required
+
 Requires build-essential tools and SDL2 development libraries (libsdl2-dev for debian) to be already installed.
+
+```
+sudo apt-get install build-essential
+sudo apt-get install libsdl2-dev
+```
+
+### Build and Run
 
 ```
 ~/hdzero-goggle$ mkdir build_emu
 ~/hdzero-goggle$ cd build_emu
-~/hdzero-gogglei/build$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
-~/hdzero-gogglei/build$ make -j
-~/hdzero-gogglei/build$ ./HDZGOGGLE
+~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
+~/hdzero-goggle/build_emu$ make -j
+~/hdzero-goggle/build_emu$ ./HDZGOGGLE
 ```
 
-Emulator Keys:  
-a = right button press  
-w = wheel up  
-s = wheel down  
-d = wheel center press  
-Use F11 to toggle full screen where applicable.
+### Emulator Keys
+
+`a` = right button press
+`w` = wheel up
+`s` = wheel down
+`d` = wheel center press
+Use `F11` to toggle full screen where applicable.
 
 ## Support and Developer Channels
 
 Join the official Discord server here:
 
 https://discord.gg/kGsnEDMb2V
-
 
 Or the official Facebook group:
 
