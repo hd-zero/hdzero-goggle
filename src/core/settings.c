@@ -48,11 +48,11 @@ const setting_t g_setting_defaults = {
         .audio_source = SETTING_RECORD_AUDIO_SOURCE_MIC,
     },
     .image = {
-        .oled = 7,
-        .brightness = 0,
-        .saturation = 0,
-        .contrast = 0,
-        .auto_off = 2,
+        .oled = 8,
+        .brightness = 39,
+        .saturation = 16,
+        .contrast = 16,
+        .auto_off = 1,
     },
     .ht = {
         .enable = false,

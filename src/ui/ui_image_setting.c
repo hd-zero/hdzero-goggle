@@ -248,11 +248,11 @@ uint8_t ims_key(uint8_t key) {
                 ims_save();
                 ret = 1;
             } else if (ims_page.selection == 6) { //"Reset All"
-                ims_page.items[0].value = IMS_DEFAULT_LUM;
-                ims_page.items[1].value = IMS_DEFAULT_BRI;
-                ims_page.items[2].value = IMS_DEFAULT_SAT;
-                ims_page.items[3].value = IMS_DEFAULT_CON;
-                ims_page.items[4].value = IMS_DEFAULT_AO;
+                ims_page.items[0].value = g_setting_defaults.image.oled;
+                ims_page.items[1].value = g_setting_defaults.image.brightness;
+                ims_page.items[2].value = g_setting_defaults.image.saturation;
+                ims_page.items[3].value = g_setting_defaults.image.contrast;
+                ims_page.items[4].value = g_setting_defaults.image.auto_off;
                 ims_save();
             } else {
                 ims_page.items[ims_page.selection].state = 2;
