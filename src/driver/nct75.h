@@ -12,6 +12,7 @@ typedef struct {
     int left;
     int right;
     int is_rescuing;
+    int is_overheat;
 } sys_temperature_t;
 
 extern sys_temperature_t g_temperature;

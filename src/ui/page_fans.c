@@ -292,6 +292,10 @@ bool rescue_from_hot() {
     }
 
     g_temperature.is_rescuing = respeeding[0] || respeeding[1] || respeeding[2];
+    g_temperature.is_overheat = (g_temperature.top > TOP_TEMPERATURE_RISKH) &&
+                                (g_temperature.right > SIDE_TEMPERATURE_RISKH) &&
+                                (g_temperature.left > SIDE_TEMPERATURE_RISKH);
+
     return g_temperature.is_rescuing;
 }
 
