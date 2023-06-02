@@ -52,6 +52,7 @@ typedef enum {
 
 typedef struct {
     int voltage;
+    bool display_voltage;
     setting_power_warning_type_t warning_type;
     setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;

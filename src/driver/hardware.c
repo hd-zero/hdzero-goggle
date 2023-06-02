@@ -10,6 +10,8 @@
 
 #include "../core/common.hh"
 #include "../core/osd.h"
+#include "../core/settings.h"
+#include "../ui/page_common.h"
 #include "TP2825.h"
 #include "defines.h"
 #include "dm5680.h"
@@ -103,7 +105,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     system("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
@@ -245,15 +247,21 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     g_hw_stat.av_chid = sel ? 1 : 0;
-    TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
+
+    // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    TP2825_Switch_Mode(g_setting.source.analog_format);
+    TP2825_Switch_CH(g_hw_stat.av_chid);
+
+    // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
+    AV_Mode_Switch_fpga(g_setting.source.analog_format);
+    g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x80);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
-    I2C_Write(ADDR_FPGA, 0x8b, g_hw_stat.IS_TP2825_L ? 0xFF : 0x08);
+    I2C_Write(ADDR_FPGA, 0x89, 0x01);
 
     HDZero_Close();
     OLED_SetTMG(1);
@@ -331,6 +339,7 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
             else if (cam_mode_last == VR_1080P30)
                 fhd_req = -1;
             dvr_update_vi_conf(CAM_MODE);
+            system(REC_STOP_LIVE);
             cam_mode_last = CAM_MODE;
             ret = 1;
         }
@@ -356,7 +365,6 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 {
     static int det_last = -1;
     static int det_cnt = 0, det2_cnt = 0;
-    static int switch_av_cnt = 0;
     int rdat, det;
     int ret = 0;
 
@@ -374,18 +382,13 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
             g_hw_stat.av_pal[g_hw_stat.av_chid] = ((rdat & 0xAC) == 0x2c) ? 1 : 0;
 
-            if (!switch_av_cnt) {
-                g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
-                TP2825_Switch_CH(g_hw_stat.av_chid);
-                det_last = -1;
-                switch_av_cnt = 20;
-            } else
-                switch_av_cnt--;
+            g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
+            TP2825_Switch_CH(g_hw_stat.av_chid);
+            det_last = -1;
         }
 
         det_cnt = det2_cnt = 0;
     } else if (g_hw_stat.source_mode == HW_SRC_MODE_AV) { // detect in AV_in/Module_bay mode
-        switch_av_cnt = 0;
         det = ((rdat & 0xAE) == (g_hw_stat.av_pal_w ? 0x28 : 0x2C)) ? 1 : 0;
 
         if (det_last != det) {
@@ -397,27 +400,23 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
         if (det && det_cnt == AV_DET_SWITCH_CNT) {
             g_hw_stat.av_pal_w = g_hw_stat.av_pal_w ? 0 : 1;
-            // TP2825_Config(g_hw_stat.av_chid, g_hw_stat.av_pal_w);
-            // AV_Mode_Switch(g_hw_stat.av_pal_w);
 
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
             // LOGI("Switch mode:%d", g_hw_stat.av_pal_w);
-
-            /*if(g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
-                I2C_Write(ADDR_FPGA, 0x80, 0x20);
-            else if(g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 0)
-                I2C_Write(ADDR_FPGA, 0x80, 0x00);
-            else if(g_hw_stat.av_pal_w == 0 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
-                I2C_Write(ADDR_FPGA, 0x80, 0x10);
-            else if(g_hw_stat.av_pal_w == 1 && g_hw_stat.av_pal[g_hw_stat.av_chid] == 1)
-                I2C_Write(ADDR_FPGA, 0x80, 0x30);*/
 
             if (g_hw_stat.av_pal[g_hw_stat.av_chid])
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
+            if (g_hw_stat.av_pal_w == g_hw_stat.av_pal[g_hw_stat.av_chid])
+                I2C_Write(ADDR_FPGA, 0x89, 0x01);
+            else
+                I2C_Write(ADDR_FPGA, 0x89, 0x00);
+
             g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+
+            LOGI("AV_in_detect -- switch: av_pal = %d,  rdat = %02x\n", g_hw_stat.av_pal_w, rdat);
         } else {
             int vloss, h_lock, vh_lock;
             vloss = (rdat & 0x80) ? 1 : 0;

@@ -33,14 +33,12 @@ const setting_t g_setting_defaults = {
     },
     .power = {
         .voltage = 35,
+        .display_voltage = true,
         .warning_type = SETTING_POWER_WARNING_TYPE_BOTH,
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
-    },
-    .source = {
-        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_PAL,
     },
     .record = {
         .mode_manual = false,
@@ -50,11 +48,11 @@ const setting_t g_setting_defaults = {
         .audio_source = SETTING_RECORD_AUDIO_SOURCE_MIC,
     },
     .image = {
-        .oled = 7,
-        .brightness = 0,
-        .saturation = 0,
-        .contrast = 0,
-        .auto_off = 2,
+        .oled = 8,
+        .brightness = 39,
+        .saturation = 16,
+        .contrast = 16,
+        .auto_off = 1,
     },
     .ht = {
         .enable = false,
@@ -374,7 +372,7 @@ void settings_load(void) {
     ini_gets("wifi", "dns", g_setting_defaults.wifi.dns, g_setting.wifi.dns, WIFI_NETWORK_MAX, SETTING_INI);
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
 
-    // no dial under video mode
+    //  no dial under video mode
     g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
 
     // Check

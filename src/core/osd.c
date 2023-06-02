@@ -173,7 +173,7 @@ void osd_topfan_show(bool bShow) {
 
 void osd_vrxtemp_show() {
     char buf[128];
-    if (g_temperature.is_rescuing && g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].show) {
+    if (g_temperature.is_overheat && g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].show) {
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
         lv_gif_set_src(g_osd_hdzero.vrx_temp[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.vrx_temp[is_fhd], LV_OBJ_FLAG_HIDDEN);

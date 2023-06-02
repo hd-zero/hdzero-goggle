@@ -40,7 +40,7 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "ELRS Backpack:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, "ELRS:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -143,7 +143,7 @@ page_pack_t pp_elrs = {
         .cur = 0,
         .max = 4,
     },
-    .name = "ELRS Backpack",
+    .name = "ELRS",
     .create = page_elrs_create,
     .enter = page_elrs_enter,
     .exit = NULL,

@@ -8,10 +8,10 @@
 #include <minIni.h>
 
 #include "common.hh"
+#include "core/app_state.h"
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
 #include "core/settings.h"
-#include "core/app_state.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
@@ -51,6 +51,8 @@ static lv_obj_t *btn_goggle = NULL;
 static lv_obj_t *bar_esp = NULL;
 static lv_obj_t *btn_esp = NULL;
 static lv_obj_t *label_esp = NULL;
+static lv_obj_t *msgbox_update_complete = NULL;
+static lv_obj_t *msgbox_settings_reset = NULL;
 
 #define ADDR_AL            0x65
 #define ADDR_FPGA          0x64
@@ -241,6 +243,12 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
+    msgbox_update_complete = create_msgbox_item(cont, "Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+    lv_obj_add_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
+
+    msgbox_settings_reset = create_msgbox_item(cont, "Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+    lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
+
     return page;
 }
 
@@ -345,7 +353,7 @@ static void page_version_on_click(uint8_t key, int sel) {
         if (reset_all_settings_confirm) {
             settings_reset();
             reset_all_settings_reset_label_text();
-            show_msgbox_ok("Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+            lv_obj_clear_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
             app_state_push(APP_STATE_USER_INPUT_DISABLED);
         } else {
             lv_label_set_text(btn_reset_all_settings, "#FFFF00 click to confirm/scroll to cancel#");
@@ -398,7 +406,7 @@ static void page_version_on_click(uint8_t key, int sel) {
             // LOGI("Verify result: %d %d %d", b1,b2,b3);
             // if(b1 && b2 && b3) {
             if (1) {
-                show_msgbox_ok("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+                lv_obj_clear_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
                 lv_timer_handler();
                 app_state_push(APP_STATE_USER_INPUT_DISABLED);
                 beep();
