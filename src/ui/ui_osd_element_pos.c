@@ -455,7 +455,6 @@ static int ui_handle_click() {
 
     case ROW_CANCEL:
         if (cancel_changes_confirm) {
-            cancel_osd_elements_reset_label_text();
             ui_osd_element_pos_cancel_and_hide();
             return 1;
         }
@@ -510,6 +509,38 @@ static int ui_handle_click() {
     return 0;
 }
 
+static void reset_ui() {
+    if (ui_state == UI_STATE_FOCUSED) {
+        switch (ui_cur_row)
+        {
+        case ROW_OSD_ELEMENT:
+            lv_event_send(dropdown_osd_element, LV_EVENT_RELEASED, NULL);
+            break;
+        case ROW_OSD_ELEMENT_POS_X:
+            lv_obj_add_style(slider_group_osd_element_pos_x.slider, &style_silder_main, LV_PART_MAIN);
+            break;
+        case ROW_OSD_ELEMENT_POS_Y:
+            lv_obj_add_style(slider_group_osd_element_pos_y.slider, &style_silder_main, LV_PART_MAIN);
+            break;
+        
+        default:
+            break;
+        }
+    }
+
+    ui_state = UI_STATE_SCROLL;
+    ui_cur_row = ROW_OSD_MODE;
+
+    ui_set_selection(ui_cur_row);
+    lv_dropdown_set_selected(dropdown_osd_element, 0);
+    
+    save_osd_elements_reset_label_text();
+    cancel_osd_elements_reset_label_text();
+    reset_all_osd_elements_reset_label_text();
+    
+    update_ui();
+}
+
 void ui_osd_element_pos_init(void) {
     ui_root_container = lv_obj_create(lv_scr_act());
     lv_obj_add_flag(ui_root_container, LV_OBJ_FLAG_HIDDEN);
@@ -558,15 +589,8 @@ void ui_osd_element_pos_init(void) {
 void ui_osd_element_pos_on_enter() {
     ui_osd_el_pos_unchanged_settings = g_setting.osd;
 
-    ui_cur_row = ROW_OSD_MODE;
-    ui_set_selection(ui_cur_row);
-    lv_dropdown_set_selected(dropdown_osd_element, 0);
-
-    update_ui();
-    save_osd_elements_reset_label_text();
-    cancel_osd_elements_reset_label_text();
-    reset_all_osd_elements_reset_label_text();
-
+    reset_ui();
+    
     show_osd_element_pos_ui = true;
 }
 
@@ -580,6 +604,8 @@ void ui_osd_element_pos_update() {
 void ui_osd_element_pos_cancel_and_hide() {
     show_osd_element_pos_ui = false;
     g_setting.osd = ui_osd_el_pos_unchanged_settings;
+    reset_ui();
+
     osd_update_element_positions();
 }
 
