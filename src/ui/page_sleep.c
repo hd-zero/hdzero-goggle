@@ -1,6 +1,7 @@
 #include "page_sleep.h"
 
 #include "core/common.hh"
+#include "core/app_state.h"
 #include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
@@ -48,9 +49,7 @@ static void page_sleep_enter() {
 
     // Turn off Analog Receiver  -- Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        g_setting.power.power_ana = 1;
-        ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
-        DM5680_Power_AnalogModule(g_setting.power.power_ana);
+        DM5680_Power_AnalogModule(1);
     }
 
     // Minimum fan
@@ -67,11 +66,31 @@ static void page_sleep_enter() {
 static void page_sleep_exit() {
     LOGI("page_sleep_exit");
     OLED_ON(1); // Turn on OLED
-
+    if (getHwRevision() >= HW_REV_2) {
+		DM5680_Power_AnalogModule(g_setting.power.power_ana);
+    }
+    
     g_setting.fans.auto_mode = fans_auto_mode_save;
     fans_top_setspeed(fan_speeds_save[2]);
     fans_left_setspeed(fan_speeds_save[1]);
     fans_right_setspeed(fan_speeds_save[0]);
+    // return to live video after sleep exit
+        switch (g_source_info.source) {
+        case SOURCE_HDZERO:
+            progress_bar.start = 1;
+            app_switch_to_hdzero(true);
+            break;
+        case SOURCE_HDMI_IN:
+            app_switch_to_hdmi_in();
+            break;
+        case SOURCE_AV_IN:
+            app_switch_to_analog(0);
+            break;
+        case SOURCE_EXPANSION:
+            app_switch_to_analog(1);
+            break;
+        }
+        app_state_push(APP_STATE_VIDEO);
 }
 
 static void page_sleep_click(uint8_t key, int sel) {
