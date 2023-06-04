@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "core/common.hh"
+#include "core/osd.h"
+#include "ui/page_common.h"
 #include "ui/ui_style.h"
 
 /**
@@ -12,6 +14,12 @@ typedef struct {
     lv_obj_t *input;
     lv_obj_t *text;
     uint16_t button;
+    lv_obj_t *dial_click_img;
+    lv_obj_t *dial_click_text;
+    lv_obj_t *dial_scroll_img;
+    lv_obj_t *dial_scroll_text;
+    lv_obj_t *right_button_img;
+    lv_obj_t *right_button_text;
 } keyboard_t;
 
 static keyboard_t g_keyboard = {NULL, NULL, 1};
@@ -79,6 +87,8 @@ static void keyboard_update(uint8_t key) {
  */
 void keyboard_init() {
     if (!g_keyboard.input || !g_keyboard.text) {
+        char filename[128];
+
         // Create main objects and bind the two
         g_keyboard.input = lv_keyboard_create(lv_scr_act());
         g_keyboard.text = lv_textarea_create(lv_scr_act());
@@ -101,6 +111,53 @@ void keyboard_init() {
         lv_obj_add_style(g_keyboard.text, &style_keyboard[KB_STYLE_TEXT], LV_PART_MAIN);
         lv_obj_add_style(g_keyboard.text, &style_keyboard[KB_STYLE_CURSOR], LV_PART_CURSOR | LV_STATE_FOCUSED);
 
+        // Help - Dial Scroll
+        g_keyboard.dial_scroll_img = lv_img_create(lv_scr_act());
+        lv_obj_add_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_FLOATING);
+        lv_obj_clear_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_pos(g_keyboard.dial_scroll_img, 520, 100);
+        osd_resource_path(filename, "%s", OSD_RESOURCE_720, DIAL_SCROLL_IMG);
+        lv_img_set_src(g_keyboard.dial_scroll_img, filename);
+
+        g_keyboard.dial_scroll_text = lv_label_create(lv_scr_act());
+        lv_obj_add_style(g_keyboard.dial_scroll_text, &style_rootmenu, LV_PART_MAIN);
+        lv_label_set_text(g_keyboard.dial_scroll_text, "Highlight Key");
+        lv_obj_set_style_text_font(g_keyboard.dial_scroll_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_align(g_keyboard.dial_scroll_text, LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_pos(g_keyboard.dial_scroll_text, 620, 130);
+
+        // Help - Dial Click
+        g_keyboard.dial_click_img = lv_img_create(lv_scr_act());
+        lv_obj_add_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_FLOATING);
+        lv_obj_clear_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_pos(g_keyboard.dial_click_img, 920, 100);
+        osd_resource_path(filename, "%s", OSD_RESOURCE_720, DIAL_CLICK_IMG);
+        lv_img_set_src(g_keyboard.dial_click_img, filename);
+
+        g_keyboard.dial_click_text = lv_label_create(lv_scr_act());
+        lv_obj_add_style(g_keyboard.dial_click_text, &style_rootmenu, LV_PART_MAIN);
+        lv_label_set_text(g_keyboard.dial_click_text, "Select Key");
+        lv_obj_set_style_text_font(g_keyboard.dial_click_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_align(g_keyboard.dial_click_text, LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_pos(g_keyboard.dial_click_text, 1020, 130);
+        lv_label_set_recolor(g_keyboard.dial_click_text, true);
+
+        // Help - Right Button
+        g_keyboard.right_button_img = lv_img_create(lv_scr_act());
+        lv_obj_add_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_FLOATING);
+        lv_obj_clear_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_pos(g_keyboard.right_button_img, 1270, 100);
+        osd_resource_path(filename, "%s", OSD_RESOURCE_720, RIGHT_BUTTON_IMG);
+        lv_img_set_src(g_keyboard.right_button_img, filename);
+
+        g_keyboard.right_button_text = lv_label_create(lv_scr_act());
+        lv_obj_add_style(g_keyboard.right_button_text, &style_rootmenu, LV_PART_MAIN);
+        lv_label_set_text(g_keyboard.right_button_text, "Click: Close Keyboard\nHold: Erase Text");
+        lv_obj_set_style_text_font(g_keyboard.right_button_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_align(g_keyboard.right_button_text, LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_pos(g_keyboard.right_button_text, 1360, 116);
+        lv_label_set_recolor(g_keyboard.right_button_text, true);
+
         keyboard_close();
     }
 }
@@ -113,12 +170,25 @@ void keyboard_open() {
     lv_obj_clear_flag(g_keyboard.input, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(g_keyboard.text, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_state(g_keyboard.text, LV_STATE_FOCUSED);
+    lv_obj_clear_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_keyboard.dial_click_text, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_keyboard.dial_scroll_text, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_keyboard.right_button_text, LV_OBJ_FLAG_HIDDEN);
 }
 
 void keyboard_close() {
     lv_obj_add_flag(g_keyboard.input, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(g_keyboard.text, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_state(g_keyboard.text, LV_STATE_FOCUSED);
+    lv_obj_add_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(g_keyboard.dial_click_text, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(g_keyboard.dial_scroll_text, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(g_keyboard.right_button_text, LV_OBJ_FLAG_HIDDEN);
+
     keyboard_reset();
 }
 
