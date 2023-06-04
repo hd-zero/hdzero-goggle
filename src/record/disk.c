@@ -134,6 +134,31 @@ bool disk_isMounted(char* sPath)
     return false;
 }
 
+int disk_checkFsStatus(void)
+{
+    const char* doneFilePath = "/tmp/repairsd.done";
+
+    // Open the done file
+    FILE* doneFile = fopen(doneFilePath, "r");
+    if (doneFile == NULL) {
+        // The done file does not exist, implying the fsck script has not completed
+        LOGE("fsck check not completed. %s does not exist.\n", doneFilePath);
+        return -1;
+    }
+
+    int fsckExitStatus;
+    int readItems = fscanf(doneFile, "%d", &fsckExitStatus);
+    fclose(doneFile);
+
+    if (readItems != 1) {
+        // There was an error reading the exit status from the file
+        LOGE("Error reading fsck exit status from %s.\n", doneFilePath);
+        return -1;
+    }
+
+    return fsckExitStatus;
+}
+
 /***********************************************************
  * check the path
  * create the path if not exist
@@ -304,9 +329,19 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
 	bool mbInserted = false;
 	bool mbUpdated = false;
 	bool mbSizeUpdated = false;
+    int fsStatus = -1;
+
 
 	mbInserted = disk_insterted();
-    mbMounted = disk_mounted(sdstat->path, &mbTotal, &mbAvail);
+    if (mbInserted) {
+        fsStatus = disk_checkFsStatus();
+        if (fsStatus != 0) {
+            LOGE("File system check failed with status: %d\n", fsStatus);
+            // Maybe we should handle different filesystem status codes? 
+        } else {
+            mbMounted = disk_mounted(sdstat->path, &mbTotal, &mbAvail);
+        }
+    }
 
     if(sdstat->inserted != mbInserted) {
         sdstat->inserted = mbInserted;
