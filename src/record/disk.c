@@ -329,7 +329,7 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
 	bool mbInserted = false;
 	bool mbUpdated = false;
 	bool mbSizeUpdated = false;
-    int fsStatus = -1;
+	int fsStatus = -1;
 
 
 	mbInserted = disk_insterted();
