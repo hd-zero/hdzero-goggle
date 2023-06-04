@@ -18,22 +18,27 @@ EXITSTATUS=$?
 echo "fsck exit status: ${EXITSTATUS}" >> ${LOGFILE}
 
 # Depending on the exit status, handle different cases
+# For now we will just echo the exit status into the done file and handle the issues in disk.c
+# TODO: Talk about different fixes for these issues here in this script
 case ${EXITSTATUS} in
     0)
         # No errors were detected, or the errors were corrected without intervention
-        touch ${DONEFILE}
+        echo ${EXITSTATUS} > ${DONEFILE}
         ;;
     1)
         # Errors were found and corrected, but user intervention may be needed
         # You can decide how to handle this case
+        echo ${EXITSTATUS} > ${DONEFILE}
         ;;
     2)
         # Errors were found but not corrected. The filesystem may be corrupt.
         # You can decide how to handle this case
+        echo ${EXITSTATUS} > ${DONEFILE}
         ;;
     *)
         # Some other exit status was returned. This could indicate a different kind of error.
         # You can decide how to handle this case
+        echo ${EXITSTATUS} > ${DONEFILE}
         ;;
 esac
 
