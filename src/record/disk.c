@@ -143,7 +143,7 @@ int disk_checkFsStatus(void)
     FILE* doneFile = fopen(doneFilePath, "r");
     if (doneFile == NULL) {
         // The done file does not exist, implying the fsck script has not completed
-        LOGE("fsck check not completed. %s does not exist.\n", doneFilePath);
+        log_write(ERROR, "sdcard: fsck check not completed. %s does not exist.", doneFilePath);
         return -1;
     }
 
@@ -153,7 +153,7 @@ int disk_checkFsStatus(void)
 
     if (readItems != 1) {
         // There was an error reading the exit status from the file
-        LOGE("Error reading fsck exit status from %s.\n", doneFilePath);
+        log_write(ERROR, "sdcard: Error reading fsck exit status from %s.", doneFilePath);
         return -1;
     }
 
@@ -171,9 +171,9 @@ int disk_checkFsStatus(void)
 
             // Log the line based on the fsck exit status
             if (fsckExitStatus == 0) {
-                LOGI("fsck log: %s\n", line);
+                log_write(INFO, "fsck log: %s", line);
             } else {
-                LOGE("fsck log: %s\n", line);
+                log_write(ERROR, "fsck log: %s", line);
             }
         }
 
@@ -182,6 +182,7 @@ int disk_checkFsStatus(void)
 
     return fsckExitStatus;
 }
+
 
 
 /***********************************************************
@@ -358,13 +359,6 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
 
 
 	mbInserted = disk_insterted();
-    if (mbInserted) {
-        fsStatus = disk_checkFsStatus();
-        if (fsStatus != 0) {
-            LOGE("File system check failed with status: %d\n", fsStatus);
-        } 
-    }
-
     mbMounted = disk_mounted(sdstat->path, &mbTotal, &mbAvail);
 
 
@@ -406,6 +400,11 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
         sdstat->tkUpdated = tkNow;
         sdstat->updated = mbUpdated;
         //LOGE("log_period: %d\n", log_period());
+
+        fsStatus = disk_checkFsStatus();
+        if (fsStatus != 0) {
+            log_write(ERROR, "sdcard: File system check failed with status: %d\n", fsStatus);
+        } 
     }
     else if( mbSizeUpdated ) {
         if( (tkNow-sdstat->tkUpdated) >= log_period()*1000 ) {
