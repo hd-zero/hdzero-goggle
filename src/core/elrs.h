@@ -62,6 +62,13 @@ typedef struct {
     bool read_error;
 } mspPacket_t;
 
+typedef enum {
+    AWAIT_SUCCESS = 0,
+    AWAIT_TIMEDOUT,
+    AWAIT_FAILED,
+    AWAIT_CANCELLED
+} mspAwaitResposne_e;
+
 extern uint16_t elrs_osd[HD_VMAX][HD_HMAX];
 
 void elrs_init();
@@ -70,7 +77,8 @@ void elrs_clear_osd();
 
 void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload);
 bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *payload);
-bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms);
+mspAwaitResposne_e msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms);
+void msp_cancel_await();
 void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll);
 
 #endif //__ELRS_H__

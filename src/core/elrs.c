@@ -46,6 +46,7 @@ static mspPacket_t response_packet;
 static int record_state;
 static uint32_t record_time = 0;
 static bool headtracking_enabled = false;
+static volatile bool cancelled = false;
 
 uint16_t elrs_osd[HD_VMAX][HD_HMAX];
 static uint16_t elrs_osd_overlay[HD_VMAX][HD_HMAX];
@@ -338,7 +339,7 @@ bool msp_read_resposne(uint16_t function, uint16_t *payload_size, uint8_t *paylo
     return true;
 }
 
-bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms) {
+mspAwaitResposne_e msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *payload, uint32_t timeout_ms) {
     struct timespec ts;
     if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
         LOGE("clock_gettime failed");
@@ -353,16 +354,24 @@ bool msp_await_resposne(uint16_t function, uint16_t payload_size, uint8_t *paylo
     }
     ts.tv_sec += timeout_ms / 1000;
 
+    cancelled = false;
     while (sem_timedwait(&response_semaphore, &ts) == 0) {
+        if (cancelled) return AWAIT_CANCELLED;
         if (response_packet.function == function) {
             if (response_packet.payload_size >= payload_size &&
                 memcmp(response_packet.payload, payload, payload_size) == 0) {
-                return true;
+                return AWAIT_SUCCESS;
             }
-            return false;
+            return AWAIT_FAILED;
         }
     }
-    return false;
+    return AWAIT_TIMEDOUT;
+}
+
+void msp_cancel_await()
+{
+    cancelled = true;
+    sem_post(&response_semaphore);
 }
 
 void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_size, uint8_t *payload) {
@@ -374,6 +383,7 @@ void msp_send_packet(uint16_t function, mspPacketType_e type, uint16_t payload_s
     for (int i = 3; i < payload_size + 8; i++)
         crc = msp_crc8_dvb_s2(crc, buffer[i]);
     buffer[payload_size + 8] = crc;
+    response_packet.function = 0;
     uart_write(fd_esp32, buffer, payload_size + 9);
 }
 
