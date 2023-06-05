@@ -11,8 +11,10 @@ DEVICE="/dev/mmcblk0"
 rm -rf ${DONEFILE}
 
 # Run fsck on the device, capturing output and exit status
+/mnt/app/script/umountsd.sh
 /bin/fsck.fat -a ${DEVICE} > ${LOGFILE} 2>&1
 EXITSTATUS=$?
+/mnt/app/script/mountsd.sh
 
 # Add fsck exit status to the log file
 echo "fsck exit status: ${EXITSTATUS}" >> ${LOGFILE}
