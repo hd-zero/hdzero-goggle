@@ -1,4 +1,5 @@
 /build
+/build_emu
 linux-4.9
 /media
 toolchain
