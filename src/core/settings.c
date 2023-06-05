@@ -50,8 +50,8 @@ const setting_t g_setting_defaults = {
     .image = {
         .oled = 8,
         .brightness = 39,
-        .saturation = 16,
-        .contrast = 16,
+        .saturation = 28,
+        .contrast = 25,
         .auto_off = 1,
     },
     .ht = {
