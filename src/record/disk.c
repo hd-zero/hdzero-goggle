@@ -362,7 +362,6 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
         fsStatus = disk_checkFsStatus();
         if (fsStatus != 0) {
             LOGE("File system check failed with status: %d\n", fsStatus);
-            // Maybe we should handle different filesystem status codes? 
         } 
     }
 
