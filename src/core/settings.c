@@ -177,6 +177,9 @@ const setting_t g_setting_defaults = {
         .dns = "192.168.2.1",
         .rf_channel = 6,
     },
+    .storage = {
+        .logging = false,
+    },
 };
 
 int settings_put_osd_element_shown(bool show, char *config_name) {
@@ -375,9 +378,12 @@ void settings_load(void) {
     //  no dial under video mode
     g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
 
+    // storage
+    g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
+
     // Check
     g_test_en = false;
-    if (file_exists(LOG_FILE) && log_enable_file(LOG_FILE)) {
+    if (file_exists(LOG_FILE) && log_file_open(LOG_FILE)) {
         g_test_en = true;
     }
 }

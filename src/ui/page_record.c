@@ -7,7 +7,6 @@
 #include "../core/common.hh"
 #include "core/settings.h"
 #include "page_common.h"
-#include "ui/page_playback.h"
 #include "ui/ui_style.h"
 
 static btn_group_t btn_group0;
@@ -15,11 +14,9 @@ static btn_group_t btn_group1;
 static btn_group_t btn_group2;
 static btn_group_t btn_group3;
 static btn_group_t btn_group4;
-static lv_obj_t *label_formatSD;
 
 static lv_coord_t col_dsc[] = {160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
-static bool bConfirmed = false;
 
 static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -51,7 +48,6 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group2, cont, 2, "Record OSD", "Yes", "No", "", "", 2);
     create_btn_group_item(&btn_group3, cont, 2, "Record Audio", "Yes", "No", "", "", 3);
     create_btn_group_item(&btn_group4, cont, 3, "Audio Source", "Mic", "Line In", "A/V In", "", 4);
-    label_formatSD = create_label_item(cont, "Format SD Card", 1, 5, 3);
     create_label_item(cont, "< Back", 1, 6, 1);
 
     btn_group_set_sel(&btn_group0, g_setting.record.mode_manual ? 1 : 0);
@@ -73,27 +69,16 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-static void page_record_cancel() {
-    bConfirmed = false;
-    lv_label_set_text(label_formatSD, "Format SD Card");
-}
-
 static void page_record_enter() {
-    page_record_cancel();
 }
 
 static void page_record_exit() {
-    page_record_cancel();
 }
 
 static void page_record_on_roller(uint8_t key) {
-    page_record_cancel();
 }
 
 static void page_record_on_click(uint8_t key, int sel) {
-    if (sel != 5)
-        bConfirmed = false;
-
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
         g_setting.record.mode_manual = btn_group_get_sel(&btn_group0);
@@ -118,20 +103,6 @@ static void page_record_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group4);
         g_setting.record.audio_source = btn_group_get_sel(&btn_group4);
         ini_putl("record", "audio_source", g_setting.record.audio_source, SETTING_INI);
-    } else if (sel == 5) { // format sd card
-        if (bConfirmed) {
-            lv_label_set_text(label_formatSD, "Formatting...");
-            lv_timer_handler();
-            system("/mnt/app/script/formatsd.sh");
-            clear_videofile_cnt();
-            lv_label_set_text(label_formatSD, "Format SD Card");
-            lv_timer_handler();
-            bConfirmed = false;
-        } else {
-            lv_label_set_text(label_formatSD, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
-            lv_timer_handler();
-            bConfirmed = true;
-        }
     }
 }
 

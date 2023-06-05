@@ -25,6 +25,7 @@
 #include "ui/page_scannow.h"
 #include "ui/page_sleep.h"
 #include "ui/page_source.h"
+#include "ui/page_storage.h"
 #include "ui/page_version.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_image_setting.h"
@@ -59,6 +60,7 @@ static page_pack_t *page_packs[] = {
     &pp_focus_chart,
     &pp_clock,
     &pp_sleep,
+    &pp_storage,
 };
 
 #define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
