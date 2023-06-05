@@ -137,6 +137,7 @@ bool disk_isMounted(char* sPath)
 int disk_checkFsStatus(void)
 {
     const char* doneFilePath = "/tmp/repairsd.done";
+    const char* logFilePath = "/tmp/fsck.log";
 
     // Open the done file
     FILE* doneFile = fopen(doneFilePath, "r");
@@ -156,8 +157,32 @@ int disk_checkFsStatus(void)
         return -1;
     }
 
+    // Open the fsck log file
+    FILE* logFile = fopen(logFilePath, "r");
+    if (logFile != NULL) {
+        char line[256];
+
+        while (fgets(line, sizeof(line), logFile) != NULL) {
+            // Remove the newline at the end of the line, if there is one
+            char* newline = strchr(line, '\n');
+            if (newline != NULL) {
+                *newline = '\0';
+            }
+
+            // Log the line based on the fsck exit status
+            if (fsckExitStatus == 0) {
+                LOGI("fsck log: %s\n", line);
+            } else {
+                LOGE("fsck log: %s\n", line);
+            }
+        }
+
+        fclose(logFile);
+    }
+
     return fsckExitStatus;
 }
+
 
 /***********************************************************
  * check the path
