@@ -134,6 +134,57 @@ bool disk_isMounted(char* sPath)
     return false;
 }
 
+int disk_checkFsStatus(void)
+{
+    const char* doneFilePath = "/tmp/repairsd.done";
+    const char* logFilePath = "/tmp/fsck.log";
+
+    // Open the done file
+    FILE* doneFile = fopen(doneFilePath, "r");
+    if (doneFile == NULL) {
+        // The done file does not exist, implying the fsck script has not completed
+        log_write(ERROR, "sdcard: fsck check not completed. %s does not exist.", doneFilePath);
+        return -1;
+    }
+
+    int fsckExitStatus;
+    int readItems = fscanf(doneFile, "%d", &fsckExitStatus);
+    fclose(doneFile);
+
+    if (readItems != 1) {
+        // There was an error reading the exit status from the file
+        log_write(ERROR, "sdcard: Error reading fsck exit status from %s.", doneFilePath);
+        return -1;
+    }
+
+    // Open the fsck log file
+    FILE* logFile = fopen(logFilePath, "r");
+    if (logFile != NULL) {
+        char line[256];
+
+        while (fgets(line, sizeof(line), logFile) != NULL) {
+            // Remove the newline at the end of the line, if there is one
+            char* newline = strchr(line, '\n');
+            if (newline != NULL) {
+                *newline = '\0';
+            }
+
+            // Log the line based on the fsck exit status
+            if (fsckExitStatus == 0) {
+                log_write(INFO, "fsck log: %s", line);
+            } else {
+                log_write(ERROR, "fsck log: %s", line);
+            }
+        }
+
+        fclose(logFile);
+    }
+
+    return fsckExitStatus;
+}
+
+
+
 /***********************************************************
  * check the path
  * create the path if not exist
@@ -304,9 +355,12 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
 	bool mbInserted = false;
 	bool mbUpdated = false;
 	bool mbSizeUpdated = false;
+	int fsStatus = -1;
+
 
 	mbInserted = disk_insterted();
     mbMounted = disk_mounted(sdstat->path, &mbTotal, &mbAvail);
+
 
     if(sdstat->inserted != mbInserted) {
         sdstat->inserted = mbInserted;
@@ -346,6 +400,11 @@ void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
         sdstat->tkUpdated = tkNow;
         sdstat->updated = mbUpdated;
         //LOGE("log_period: %d\n", log_period());
+
+        fsStatus = disk_checkFsStatus();
+        if (fsStatus != 0) {
+            log_write(ERROR, "sdcard: File system check failed with status: %d\n", fsStatus);
+        } 
     }
     else if( mbSizeUpdated ) {
         if( (tkNow-sdstat->tkUpdated) >= log_period()*1000 ) {
