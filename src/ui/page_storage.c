@@ -1,6 +1,7 @@
 #include "page_storage.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <log/log.h>
 #include <minIni.h>
@@ -8,6 +9,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "ui/page_playback.h"
+#include "util/file.h"
 
 /**
  * Types
@@ -25,8 +27,8 @@ typedef struct {
     btn_group_t logging;
     lv_obj_t *format_sd;
     lv_obj_t *repair_sd;
-    bool confirm_format;
-    bool confirm_repair;
+    int confirm_format;
+    int confirm_repair;
     lv_obj_t *back;
     lv_obj_t *note;
 } page_options_t;
@@ -37,15 +39,69 @@ typedef struct {
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
 static page_options_t page_storage;
+static lv_timer_t *page_storage_format_sd_timer = NULL;
+static lv_timer_t *page_storage_repair_sd_timer = NULL;
 
 /**
  * Cancel operation.
  */
 static void page_storage_cancel() {
-    page_storage.confirm_format = false;
-    page_storage.confirm_repair = false;
+    page_storage.confirm_format = 0;
+    page_storage.confirm_repair = 0;
     lv_label_set_text(page_storage.format_sd, "Format SD Card");
     lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
+}
+
+/**
+ * Callback invoked once `Format SD` is triggered and confirmed via the menu.
+ */
+static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
+    const char *logfile = NULL;
+    if (log_file_opened()) {
+        logfile = g_setting.storage.selftest ? SELF_TEST_FILE
+                                             : APP_LOG_FILE;
+        log_file_close();
+    }
+
+    unlink("/tmp/mkfs.result");
+    system("/mnt/app/script/formatsd.sh &");
+
+    while (!file_exists("/tmp/mkfs.result")) {
+        usleep(500);
+    }
+
+    clear_videofile_cnt();
+
+    if (logfile) {
+        log_file_open(logfile);
+    }
+
+    page_storage_cancel();
+}
+
+/**
+ * Callback invoked once `Repair SD` is triggered and confirmed via the menu.
+ */
+static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
+    const char *logfile = NULL;
+    if (log_file_opened()) {
+        logfile = g_setting.storage.selftest ? SELF_TEST_FILE
+                                             : APP_LOG_FILE;
+        log_file_close();
+    }
+
+    unlink("/tmp/fsck.result");
+    system("/mnt/app/script/chkfixsd.sh &");
+
+    while (!file_exists("/tmp/fsck.result")) {
+        usleep(500);
+    }
+
+    if (logfile) {
+        log_file_open(logfile);
+    }
+
+    page_storage_cancel();
 }
 
 /**
@@ -115,6 +171,13 @@ static void page_storage_exit() {
  * Main navigation routine for this page.
  */
 static void page_storage_on_roller(uint8_t key) {
+    // Ignore commands until timer has expired before allowing user to proceed.
+    if (page_storage.confirm_format == 2 ||
+        page_storage.confirm_repair == 2) {
+        return;
+    }
+
+    // If a click was not previous pressed to confirm, then update is canceled.
     page_storage_cancel();
 }
 
@@ -140,53 +203,25 @@ static void page_storage_on_click(uint8_t key, int sel) {
         break;
     case 1:
         if (page_storage.confirm_format) {
-            const char *logfile = NULL;
-            if (log_file_opened()) {
-                logfile = g_setting.storage.selftest ? SELF_TEST_FILE
-                                                     : APP_LOG_FILE;
-                log_file_close();
-            }
-
-            lv_label_set_text(page_storage.format_sd, "Formatting...");
-            lv_timer_handler();
-            system("rm /tmp/mkfs.result; /mnt/app/script/formatsd.sh");
-            clear_videofile_cnt();
-            lv_label_set_text(page_storage.format_sd, "Format SD Card");
-            lv_timer_handler();
-            page_storage.confirm_format = false;
-
-            if (logfile) {
-                log_file_open(logfile);
-            }
+            page_storage.confirm_format = 2;
+            page_storage_format_sd_timer = lv_timer_create(page_storage_format_sd_timer_cb, 1000, NULL);
+            lv_timer_set_repeat_count(page_storage_format_sd_timer, 1);
+            lv_label_set_text(page_storage.format_sd, "Format SD Card #FF0000 Formatting...#");
         } else {
-            lv_label_set_text(page_storage.format_sd, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
-            lv_timer_handler();
-            page_storage.confirm_format = true;
+            page_storage.confirm_format = 1;
+            lv_label_set_text(page_storage.format_sd, "Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
         }
         break;
     case 2:
         if (page_storage.confirm_repair) {
-            const char *logfile = NULL;
-            if (log_file_opened()) {
-                logfile = g_setting.storage.selftest ? SELF_TEST_FILE
-                                                     : APP_LOG_FILE;
-                log_file_close();
-            }
+            page_storage.confirm_repair = 2;
+            page_storage_repair_sd_timer = lv_timer_create(page_storage_repair_sd_timer_cb, 1000, NULL);
+            lv_timer_set_repeat_count(page_storage_repair_sd_timer, 1);
+            lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FF0000 Repairing...#");
 
-            lv_label_set_text(page_storage.repair_sd, "Repairing...");
-            lv_timer_handler();
-            system("rm /tmp/fsck.result; /mnt/app/script/chkfixsd.sh");
-            lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
-            lv_timer_handler();
-            page_storage.confirm_repair = false;
-
-            if (logfile) {
-                log_file_open(logfile);
-            }
         } else {
-            lv_label_set_text(page_storage.repair_sd, "#FFFF00 Potential data loss? Click the Enter Button to confirm...#");
-            lv_timer_handler();
-            page_storage.confirm_repair = true;
+            page_storage.confirm_repair = 1;
+            lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
         }
         break;
     default:
