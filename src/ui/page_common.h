@@ -141,7 +141,7 @@ lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, i
 
 lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col, int row, int cols, int height, lv_text_align_t text_align, lv_grid_align_t col_align, const lv_font_t *font);
 
-lv_obj_t *create_msgbox_item(lv_obj_t *parent, const char *title, const char *message);
+lv_obj_t *create_msgbox_item(const char *title, const char *message);
 
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols);
 

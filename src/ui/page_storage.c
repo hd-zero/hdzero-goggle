@@ -62,6 +62,7 @@ static void page_storage_open_status_box(const char *title, const char *text) {
     lv_label_set_text(lv_msgbox_get_text(page_storage.status), text);
     lv_obj_clear_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
     page_storage.status_displayed = true;
+    pp_storage.p_arr.max = 0;
 }
 
 /**
@@ -70,6 +71,7 @@ static void page_storage_open_status_box(const char *title, const char *text) {
 static void page_storage_close_status_box() {
     lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
     page_storage.status_displayed = false;
+    pp_storage.p_arr.max = ITEM_LIST_TOTAL;
 }
 
 /**
@@ -87,12 +89,12 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
     }
 
     unlink("/tmp/mkfs.result");
-    system("/mnt/app/script/formatsd.sh &");
+    system("/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &");
 
     int timeout_seconds = 30;
     int timeout_interval = 0;
     while (!file_exists("/tmp/mkfs.result") && ++timeout_interval < timeout_seconds) {
-        usleep(1000);
+        sleep(1);
     }
 
     FILE *results = fopen("/tmp/mkfs.result", "r");
@@ -139,12 +141,12 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     }
 
     unlink("/tmp/fsck.result");
-    system("/mnt/app/script/chkfixsd.sh &");
+    system("/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &");
 
     int timeout_seconds = 30;
     int timeout_interval = 0;
     while (!file_exists("/tmp/fsck.result") && ++timeout_interval < timeout_seconds) {
-        usleep(1000);
+        sleep(1);
     }
 
     FILE *results = fopen("/tmp/fsck.result", "r");
@@ -208,8 +210,6 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
     page_storage.repair_sd = create_label_item(cont, "Repair SD Card", 1, 2, 3);
     page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
-    page_storage.status = create_msgbox_item(cont, "Status", "None");
-    lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
 
     if (g_setting.storage.selftest) {
         page_storage.note = lv_label_create(cont);
@@ -221,6 +221,9 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_label_set_long_mode(page_storage.note, LV_LABEL_LONG_WRAP);
         lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     }
+
+    page_storage.status = create_msgbox_item("Status", "None");
+    lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
 
     return page;
 }
@@ -246,7 +249,8 @@ static void page_storage_exit() {
 static void page_storage_on_roller(uint8_t key) {
     // Ignore commands until timer has expired before allowing user to proceed.
     if (page_storage.confirm_format == 2 ||
-        page_storage.confirm_repair == 2) {
+        page_storage.confirm_repair == 2 ||
+        page_storage.status_displayed) {
         return;
     }
 

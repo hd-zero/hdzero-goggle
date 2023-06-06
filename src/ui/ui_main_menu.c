@@ -56,10 +56,10 @@ static page_pack_t *page_packs[] = {
     &pp_wifi,
     &pp_headtracker,
     &pp_playback,
+    &pp_storage,
     &pp_version,
     &pp_focus_chart,
     &pp_clock,
-    &pp_storage,
     &pp_sleep,
 };
 
