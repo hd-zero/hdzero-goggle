@@ -194,6 +194,7 @@ typedef struct {
 
 typedef struct {
     bool logging;
+    bool selftest;
 } setting_storage_t;
 
 typedef struct {
@@ -214,7 +215,6 @@ typedef struct {
 } setting_t;
 
 extern setting_t g_setting;
-extern bool g_test_en;
 extern const setting_t g_setting_defaults;
 
 void settings_reset(void);

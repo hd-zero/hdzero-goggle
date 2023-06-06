@@ -12,26 +12,40 @@
 /**
  * Types
  */
+typedef enum {
+    ITEM_LOGGING,
+    ITEM_FORMAT,
+    ITEM_REPAIR,
+    ITEM_BACK,
+
+    ITEM_LIST_TOTAL
+} ITEM_LIST;
+
+typedef struct {
+    btn_group_t logging;
+    lv_obj_t *format_sd;
+    lv_obj_t *repair_sd;
+    bool confirm_format;
+    bool confirm_repair;
+    lv_obj_t *back;
+    lv_obj_t *note;
+} page_options_t;
 
 /**
  *  Globals
  */
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
-static btn_group_t btn_group0;
-static lv_obj_t *label_formatSD;
-static lv_obj_t *label_repairSD;
-static bool confirmFormat = false;
-static bool confirmRepair = false;
+static page_options_t page_storage;
 
 /**
  * Cancel operation.
  */
 static void page_storage_cancel() {
-    confirmFormat = false;
-    confirmRepair = false;
-    lv_label_set_text(label_formatSD, "Format SD Card");
-    lv_label_set_text(label_repairSD, "Repair SD Card");
+    page_storage.confirm_format = false;
+    page_storage.confirm_repair = false;
+    lv_label_set_text(page_storage.format_sd, "Format SD Card");
+    lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
 }
 
 /**
@@ -62,12 +76,23 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&btn_group0, cont, 2, "Logging", "On", "Off", "", "", 0);
-    label_formatSD = create_label_item(cont, "Format SD Card", 1, 1, 3);
-    label_repairSD = create_label_item(cont, "Repair SD Card", 1, 2, 3);
-    create_label_item(cont, "< Back", 1, 3, 1);
+    create_btn_group_item(&page_storage.logging, cont, 2, "Logging", "On", "Off", "", "", 0);
+    btn_group_set_sel(&page_storage.logging, g_setting.storage.logging ? 0 : 1);
 
-    btn_group_set_sel(&btn_group0, g_setting.storage.logging ? 0 : 1);
+    page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
+    page_storage.repair_sd = create_label_item(cont, "Repair SD Card", 1, 2, 3);
+    page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
+
+    if (g_setting.storage.selftest) {
+        page_storage.note = lv_label_create(cont);
+        lv_label_set_text(page_storage.note, "Self-Test is enabled, Logging option disabled");
+        lv_obj_set_style_text_font(page_storage.note, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_align(page_storage.note, LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
+        lv_obj_set_style_pad_top(page_storage.note, 12, 0);
+        lv_label_set_long_mode(page_storage.note, LV_LABEL_LONG_WRAP);
+        lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
+    }
 
     return page;
 }
@@ -99,34 +124,47 @@ static void page_storage_on_roller(uint8_t key) {
 static void page_storage_on_click(uint8_t key, int sel) {
     switch (sel) {
     case 0:
+        if (!g_setting.storage.selftest) {
+            btn_group_toggle_sel(&page_storage.logging);
+            g_setting.storage.logging = btn_group_get_sel(&page_storage.logging) == 0;
+            settings_put_bool("storage", "logging", g_setting.storage.logging);
+
+            if (g_setting.storage.logging) {
+                if (!log_file_opened()) {
+                    log_file_open(APP_LOG_FILE);
+                }
+            } else if (log_file_opened()) {
+                log_file_close();
+            }
+        }
         break;
     case 1:
-        if (confirmFormat) {
-            lv_label_set_text(label_formatSD, "Formatting...");
+        if (page_storage.confirm_format) {
+            lv_label_set_text(page_storage.format_sd, "Formatting...");
             lv_timer_handler();
             system("/mnt/app/script/formatsd.sh");
             clear_videofile_cnt();
-            lv_label_set_text(label_formatSD, "Format SD Card");
+            lv_label_set_text(page_storage.format_sd, "Format SD Card");
             lv_timer_handler();
-            confirmFormat = false;
+            page_storage.confirm_format = false;
         } else {
-            lv_label_set_text(label_formatSD, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
+            lv_label_set_text(page_storage.format_sd, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
             lv_timer_handler();
-            confirmFormat = true;
+            page_storage.confirm_format = true;
         }
         break;
     case 2:
-        if (confirmRepair) {
-            lv_label_set_text(label_repairSD, "Repairing...");
+        if (page_storage.confirm_repair) {
+            lv_label_set_text(page_storage.repair_sd, "Repairing...");
             lv_timer_handler();
             system("/mnt/app/script/repairsd.sh");
-            lv_label_set_text(label_repairSD, "Repair SD Card");
+            lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
             lv_timer_handler();
-            confirmRepair = false;
+            page_storage.confirm_repair = false;
         } else {
-            lv_label_set_text(label_repairSD, "#FFFF00 Potential data loss? Click the Enter Button to confirm...#");
+            lv_label_set_text(page_storage.repair_sd, "#FFFF00 Potential data loss? Click the Enter Button to confirm...#");
             lv_timer_handler();
-            confirmRepair = true;
+            page_storage.confirm_repair = true;
         }
         break;
     default:
@@ -145,7 +183,7 @@ static void page_storage_on_right_button(bool is_short) {
 page_pack_t pp_storage = {
     .p_arr = {
         .cur = 0,
-        .max = 3,
+        .max = ITEM_LIST_TOTAL,
     },
     .name = "Storage",
     .create = page_storage_create,

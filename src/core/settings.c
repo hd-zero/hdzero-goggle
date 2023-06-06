@@ -14,7 +14,6 @@
 #define SETTINGS_INI_VERSION_UNKNOWN 0
 
 setting_t g_setting;
-bool g_test_en = false;
 
 const setting_t g_setting_defaults = {
     .scan = {
@@ -179,6 +178,7 @@ const setting_t g_setting_defaults = {
     },
     .storage = {
         .logging = false,
+        .selftest = false,
     },
 };
 
@@ -382,8 +382,10 @@ void settings_load(void) {
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
     // Check
-    g_test_en = false;
-    if (file_exists(LOG_FILE) && log_file_open(LOG_FILE)) {
-        g_test_en = true;
+    if (file_exists(SELF_TEST_FILE) && log_file_open(SELF_TEST_FILE)) {
+        g_setting.storage.logging = true;
+        g_setting.storage.selftest = true;
+    } else if (g_setting.storage.logging) {
+        g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
 }

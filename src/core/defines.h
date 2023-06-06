@@ -1,5 +1,4 @@
-#ifndef __DEFINES_H
-#define __DEFINES_H
+#pragma once
 
 typedef enum {
     LEFT_DAIL_UP = 1,
@@ -27,4 +26,6 @@ typedef enum {
 #define DEV_SPI_VRX_L     "/dev/mtd9"
 #define DEV_SPI_VA        "/dev/mtd10"
 
-#endif //__DEFINES_H
+#define SELF_TEST_FILE "/mnt/extsd/self_test.txt"
+#define NO_DIAL_FILE   "/mnt/extsd/no_dial.txt"
+#define APP_LOG_FILE   "/mnt/extsd/HDZGOGGLE.log"

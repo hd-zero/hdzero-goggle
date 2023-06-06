@@ -62,7 +62,7 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 
-    if (g_test_en) {
+    if (g_setting.storage.selftest) {
         pp_source.p_arr.max = 7;
         label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 5, 3);
         create_label_item(cont, "< Back", 1, 6, 3);
@@ -101,7 +101,7 @@ void source_status_timer() {
     sprintf(buf, "Expansion Module: %s", state2string(g_source_info.av_bay_status));
     lv_label_set_text(label[3], buf);
 
-    if (g_test_en && label[3]) {
+    if (g_setting.storage.selftest && label[3]) {
         uint8_t oled_tm = oled_tst_mode & 0x0F;
         char *pattern_label[6] = {"Normal", "Color Bar", "Grid", "All Black", "All White", "Boot logo"};
         char str[32];
@@ -149,7 +149,7 @@ static void page_source_on_click(uint8_t key, int sel) {
         break;
 
     case 5:
-        if (g_test_en && label[4]) {
+        if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
             // LOGI("OLED TE=%d,TM=%d",oled_te,oled_tm);
@@ -168,7 +168,7 @@ static void page_source_enter() {
 
 static void page_source_exit() {
     // LOGI("page_source_exit %d",oled_tst_mode);
-    if ((oled_tst_mode != 0) && g_test_en) {
+    if ((oled_tst_mode != 0) && g_setting.storage.selftest) {
         OLED_Pattern(0, 0, 4);
         oled_tst_mode = 0;
     }

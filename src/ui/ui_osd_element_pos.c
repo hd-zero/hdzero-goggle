@@ -173,7 +173,7 @@ static setting_osd_goggle_element_t *get_osd_element_setting_entry(int element_i
 static void fill_osd_elements_str() {
     int max_element = OSD_ELEMENT_ANT3;
 
-    if (g_test_en) {
+    if (g_setting.storage.selftest) {
         max_element = OSD_ELEMENT_GOGGLE_TEMP_RIGHT;
     }
 
@@ -511,8 +511,7 @@ static int ui_handle_click() {
 
 static void reset_ui() {
     if (ui_state == UI_STATE_FOCUSED) {
-        switch (ui_cur_row)
-        {
+        switch (ui_cur_row) {
         case ROW_OSD_ELEMENT:
             lv_event_send(dropdown_osd_element, LV_EVENT_RELEASED, NULL);
             break;
@@ -522,7 +521,7 @@ static void reset_ui() {
         case ROW_OSD_ELEMENT_POS_Y:
             lv_obj_add_style(slider_group_osd_element_pos_y.slider, &style_silder_main, LV_PART_MAIN);
             break;
-        
+
         default:
             break;
         }
@@ -533,11 +532,11 @@ static void reset_ui() {
 
     ui_set_selection(ui_cur_row);
     lv_dropdown_set_selected(dropdown_osd_element, 0);
-    
+
     save_osd_elements_reset_label_text();
     cancel_osd_elements_reset_label_text();
     reset_all_osd_elements_reset_label_text();
-    
+
     update_ui();
 }
 
@@ -590,7 +589,7 @@ void ui_osd_element_pos_on_enter() {
     ui_osd_el_pos_unchanged_settings = g_setting.osd;
 
     reset_ui();
-    
+
     show_osd_element_pos_ui = true;
 }
 
