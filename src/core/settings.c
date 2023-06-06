@@ -382,10 +382,14 @@ void settings_load(void) {
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
     // Check
-    if (file_exists(SELF_TEST_FILE) && log_file_open(SELF_TEST_FILE)) {
-        g_setting.storage.logging = true;
-        g_setting.storage.selftest = true;
+    if (file_exists(SELF_TEST_FILE)) {
+        unlink(SELF_TEST_FILE);
+        if (log_file_open(SELF_TEST_FILE)) {
+            g_setting.storage.logging = true;
+            g_setting.storage.selftest = true;
+        }
     } else if (g_setting.storage.logging) {
+        unlink(APP_LOG_FILE);
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
 }

@@ -140,13 +140,24 @@ static void page_storage_on_click(uint8_t key, int sel) {
         break;
     case 1:
         if (page_storage.confirm_format) {
+            const char *logfile = NULL;
+            if (log_file_opened()) {
+                logfile = g_setting.storage.selftest ? SELF_TEST_FILE
+                                                     : APP_LOG_FILE;
+                log_file_close();
+            }
+
             lv_label_set_text(page_storage.format_sd, "Formatting...");
             lv_timer_handler();
-            system("/mnt/app/script/formatsd.sh");
+            system("rm /tmp/mkfs.result; /mnt/app/script/formatsd.sh");
             clear_videofile_cnt();
             lv_label_set_text(page_storage.format_sd, "Format SD Card");
             lv_timer_handler();
             page_storage.confirm_format = false;
+
+            if (logfile) {
+                log_file_open(logfile);
+            }
         } else {
             lv_label_set_text(page_storage.format_sd, "#FFFF00 Delete all data? Click the Enter Button to confirm...#");
             lv_timer_handler();
@@ -155,12 +166,23 @@ static void page_storage_on_click(uint8_t key, int sel) {
         break;
     case 2:
         if (page_storage.confirm_repair) {
+            const char *logfile = NULL;
+            if (log_file_opened()) {
+                logfile = g_setting.storage.selftest ? SELF_TEST_FILE
+                                                     : APP_LOG_FILE;
+                log_file_close();
+            }
+
             lv_label_set_text(page_storage.repair_sd, "Repairing...");
             lv_timer_handler();
-            system("/mnt/app/script/repairsd.sh");
+            system("rm /tmp/fsck.result; /mnt/app/script/chkfixsd.sh");
             lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
             lv_timer_handler();
             page_storage.confirm_repair = false;
+
+            if (logfile) {
+                log_file_open(logfile);
+            }
         } else {
             lv_label_set_text(page_storage.repair_sd, "#FFFF00 Potential data loss? Click the Enter Button to confirm...#");
             lv_timer_handler();

@@ -3,7 +3,6 @@
 source /mnt/app/app/record/record-env.sh
 /mnt/app/app/record/gogglecmd -rec quit
 /mnt/app/app/record/gogglecmd -sds quit
-rm -f /mnt/extsd/*.log
 sleep 2
 
 umount /mnt/extsd
