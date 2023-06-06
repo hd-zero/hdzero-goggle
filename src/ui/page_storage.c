@@ -78,48 +78,63 @@ static void page_storage_close_status_box() {
  * Callback invoked once `Format SD` is triggered and confirmed via the menu.
  */
 static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
+    const char *shell_command = "/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &";
+    const char *results_file = "/tmp/mkfs.result";
+    const char *log_file = "/tmp/mkfs.log";
     char text[128];
 
     // Temporarily disable logging if needed
-    const char *logfile = NULL;
+    const char *applogfile = NULL;
     if (log_file_opened()) {
-        logfile = g_setting.storage.selftest ? SELF_TEST_FILE
-                                             : APP_LOG_FILE;
+        applogfile = g_setting.storage.selftest ? SELF_TEST_FILE
+                                                : APP_LOG_FILE;
         log_file_close();
     }
 
-    unlink("/tmp/mkfs.result");
-    system("/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &");
+    unlink(results_file);
+    system(shell_command);
 
-    int timeout_seconds = 30;
     int timeout_interval = 0;
-    while (!file_exists("/tmp/mkfs.result") && ++timeout_interval < timeout_seconds) {
+    while (!file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
-    FILE *results = fopen("/tmp/mkfs.result", "r");
-    if (results) {
-        int exit_code;
-        if (fscanf(results, "%d", &exit_code) == 1) {
-            if (exit_code == 0) {
-                snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
-            } else {
-                snprintf(text, sizeof(text), "%s", "Format was not successful.\nPress click to exit.");
-            }
-        } else {
-            snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
-        }
-
-        fclose(results);
+    if (timeout_interval > 5) {
+        snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
     } else {
-        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        timeout_interval = 0;
+        while (!file_exists(results_file) && ++timeout_interval < 60) {
+            sleep(1);
+        }
+        if (timeout_interval > 60) {
+            snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        } else {
+            FILE *results = fopen(results_file, "r");
+            if (!results) {
+                snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+            } else {
+                int exit_code;
+                if (fscanf(results, "%d", &exit_code) != 1) {
+                    snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+                } else {
+                    if (exit_code != 0) {
+                        snprintf(text, sizeof(text), "%s", "Format was not successful.\nPress click to exit.");
+
+                    } else {
+                        snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+                    }
+                }
+
+                fclose(results);
+            }
+        }
     }
 
     clear_videofile_cnt();
 
     // Restore logging if needed
-    if (logfile) {
-        log_file_open(logfile);
+    if (applogfile) {
+        log_file_open(applogfile);
     }
 
     page_storage_open_status_box("SD Card Format Status", text);
@@ -130,46 +145,62 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
  * Callback invoked once `Repair SD` is triggered and confirmed via the menu.
  */
 static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
+    const char *shell_command = "/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &";
+    const char *results_file = "/tmp/fsck.result";
+    const char *log_file = "/tmp/fsck.log";
+
     char text[128];
 
     // Temporarily disable logging if needed
-    const char *logfile = NULL;
+    const char *app_log_file = NULL;
     if (log_file_opened()) {
-        logfile = g_setting.storage.selftest ? SELF_TEST_FILE
-                                             : APP_LOG_FILE;
+        app_log_file = g_setting.storage.selftest ? SELF_TEST_FILE
+                                                  : APP_LOG_FILE;
         log_file_close();
     }
 
-    unlink("/tmp/fsck.result");
-    system("/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &");
+    unlink(results_file);
+    system(shell_command);
 
-    int timeout_seconds = 30;
     int timeout_interval = 0;
-    while (!file_exists("/tmp/fsck.result") && ++timeout_interval < timeout_seconds) {
+    while (!file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
-    FILE *results = fopen("/tmp/fsck.result", "r");
-    if (results) {
-        int exit_code;
-        if (fscanf(results, "%d", &exit_code) == 1) {
-            if (exit_code == 0) {
-                snprintf(text, sizeof(text), "%s", "Repair was successful.\nPress click to exit.");
-            } else {
-                snprintf(text, sizeof(text), "%s", "Repair was not successful.\nPress click to exit.");
-            }
-        } else {
-            snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
-        }
-
-        fclose(results);
+    if (timeout_interval > 5) {
+        snprintf(text, sizeof(text), "%s", "Failed to start repair.\nPress click to exit.");
     } else {
-        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        timeout_interval = 0;
+        while (!file_exists(results_file) && ++timeout_interval < 60) {
+            sleep(1);
+        }
+        if (timeout_interval > 60) {
+            snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        } else {
+            FILE *results = fopen(results_file, "r");
+            if (!results) {
+                snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+            } else {
+                int exit_code;
+                if (fscanf(results, "%d", &exit_code) != 1) {
+                    snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+                } else {
+                    if (exit_code != 0) {
+                        snprintf(text, sizeof(text), "%s", "Repair was not successful.\nPress click to exit.");
+
+                    } else {
+                        snprintf(text, sizeof(text), "%s", "Repair was successful.\nPress click to exit.");
+                    }
+                }
+
+                fclose(results);
+            }
+        }
     }
 
     // Restore logging if needed
-    if (logfile) {
-        log_file_open(logfile);
+    if (app_log_file) {
+        log_file_open(app_log_file);
     }
 
     page_storage_open_status_box("SD Card Repair Status", text);
