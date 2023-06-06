@@ -29,7 +29,9 @@ typedef struct {
     lv_obj_t *repair_sd;
     int confirm_format;
     int confirm_repair;
+    bool status_displayed;
     lv_obj_t *back;
+    lv_obj_t *status;
     lv_obj_t *note;
 } page_options_t;
 
@@ -53,9 +55,30 @@ static void page_storage_cancel() {
 }
 
 /**
+ * Displays the status message box.
+ */
+static void page_storage_open_status_box(const char *title, const char *text) {
+    lv_label_set_text(lv_msgbox_get_title(page_storage.status), title);
+    lv_label_set_text(lv_msgbox_get_text(page_storage.status), text);
+    lv_obj_clear_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
+    page_storage.status_displayed = true;
+}
+
+/**
+ * Hides the status message box.
+ */
+static void page_storage_close_status_box() {
+    lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
+    page_storage.status_displayed = false;
+}
+
+/**
  * Callback invoked once `Format SD` is triggered and confirmed via the menu.
  */
 static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
+    char text[128];
+
+    // Temporarily disable logging if needed
     const char *logfile = NULL;
     if (log_file_opened()) {
         logfile = g_setting.storage.selftest ? SELF_TEST_FILE
@@ -66,16 +89,38 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
     unlink("/tmp/mkfs.result");
     system("/mnt/app/script/formatsd.sh &");
 
-    while (!file_exists("/tmp/mkfs.result")) {
-        usleep(500);
+    int timeout_seconds = 30;
+    int timeout_interval = 0;
+    while (!file_exists("/tmp/mkfs.result") && ++timeout_interval < timeout_seconds) {
+        usleep(1000);
+    }
+
+    FILE *results = fopen("/tmp/mkfs.result", "r");
+    if (results) {
+        int exit_code;
+        if (fscanf(results, "%d", &exit_code) == 1) {
+            if (exit_code == 0) {
+                snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+            } else {
+                snprintf(text, sizeof(text), "%s", "Format was not successful.\nPress click to exit.");
+            }
+        } else {
+            snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        }
+
+        fclose(results);
+    } else {
+        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
     }
 
     clear_videofile_cnt();
 
+    // Restore logging if needed
     if (logfile) {
         log_file_open(logfile);
     }
 
+    page_storage_open_status_box("SD Card Format Status", text);
     page_storage_cancel();
 }
 
@@ -83,6 +128,9 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
  * Callback invoked once `Repair SD` is triggered and confirmed via the menu.
  */
 static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
+    char text[128];
+
+    // Temporarily disable logging if needed
     const char *logfile = NULL;
     if (log_file_opened()) {
         logfile = g_setting.storage.selftest ? SELF_TEST_FILE
@@ -93,14 +141,36 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     unlink("/tmp/fsck.result");
     system("/mnt/app/script/chkfixsd.sh &");
 
-    while (!file_exists("/tmp/fsck.result")) {
-        usleep(500);
+    int timeout_seconds = 30;
+    int timeout_interval = 0;
+    while (!file_exists("/tmp/fsck.result") && ++timeout_interval < timeout_seconds) {
+        usleep(1000);
     }
 
+    FILE *results = fopen("/tmp/fsck.result", "r");
+    if (results) {
+        int exit_code;
+        if (fscanf(results, "%d", &exit_code) == 1) {
+            if (exit_code == 0) {
+                snprintf(text, sizeof(text), "%s", "Repair was successful.\nPress click to exit.");
+            } else {
+                snprintf(text, sizeof(text), "%s", "Repair was not successful.\nPress click to exit.");
+            }
+        } else {
+            snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        }
+
+        fclose(results);
+    } else {
+        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+    }
+
+    // Restore logging if needed
     if (logfile) {
         log_file_open(logfile);
     }
 
+    page_storage_open_status_box("SD Card Repair Status", text);
     page_storage_cancel();
 }
 
@@ -138,10 +208,12 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
     page_storage.repair_sd = create_label_item(cont, "Repair SD Card", 1, 2, 3);
     page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
+    page_storage.status = create_msgbox_item(cont, "Status", "None");
+    lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
 
     if (g_setting.storage.selftest) {
         page_storage.note = lv_label_create(cont);
-        lv_label_set_text(page_storage.note, "Self-Test is enabled, Logging option disabled");
+        lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled");
         lv_obj_set_style_text_font(page_storage.note, &lv_font_montserrat_16, 0);
         lv_obj_set_style_text_align(page_storage.note, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
@@ -164,6 +236,7 @@ static void page_storage_enter() {
  * Main exit routine for this page.
  */
 static void page_storage_exit() {
+    page_storage_close_status_box();
     page_storage_cancel();
 }
 
@@ -185,6 +258,11 @@ static void page_storage_on_roller(uint8_t key) {
  * Main input selection routine for this page.
  */
 static void page_storage_on_click(uint8_t key, int sel) {
+    if (page_storage.status_displayed) {
+        page_storage_close_status_box();
+        return;
+    }
+
     switch (sel) {
     case 0:
         if (!g_setting.storage.selftest) {
@@ -202,26 +280,30 @@ static void page_storage_on_click(uint8_t key, int sel) {
         }
         break;
     case 1:
-        if (page_storage.confirm_format) {
-            page_storage.confirm_format = 2;
-            page_storage_format_sd_timer = lv_timer_create(page_storage_format_sd_timer_cb, 1000, NULL);
-            lv_timer_set_repeat_count(page_storage_format_sd_timer, 1);
-            lv_label_set_text(page_storage.format_sd, "Format SD Card #FF0000 Formatting...#");
-        } else {
-            page_storage.confirm_format = 1;
-            lv_label_set_text(page_storage.format_sd, "Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+        if (!g_setting.storage.selftest) {
+            if (page_storage.confirm_format) {
+                page_storage.confirm_format = 2;
+                page_storage_format_sd_timer = lv_timer_create(page_storage_format_sd_timer_cb, 1000, NULL);
+                lv_timer_set_repeat_count(page_storage_format_sd_timer, 1);
+                lv_label_set_text(page_storage.format_sd, "Format SD Card #FF0000 Formatting...#");
+            } else {
+                page_storage.confirm_format = 1;
+                lv_label_set_text(page_storage.format_sd, "Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+            }
         }
         break;
     case 2:
-        if (page_storage.confirm_repair) {
-            page_storage.confirm_repair = 2;
-            page_storage_repair_sd_timer = lv_timer_create(page_storage_repair_sd_timer_cb, 1000, NULL);
-            lv_timer_set_repeat_count(page_storage_repair_sd_timer, 1);
-            lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FF0000 Repairing...#");
+        if (!g_setting.storage.selftest) {
+            if (page_storage.confirm_repair) {
+                page_storage.confirm_repair = 2;
+                page_storage_repair_sd_timer = lv_timer_create(page_storage_repair_sd_timer_cb, 1000, NULL);
+                lv_timer_set_repeat_count(page_storage_repair_sd_timer, 1);
+                lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FF0000 Repairing...#");
 
-        } else {
-            page_storage.confirm_repair = 1;
-            lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+            } else {
+                page_storage.confirm_repair = 1;
+                lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+            }
         }
         break;
     default:

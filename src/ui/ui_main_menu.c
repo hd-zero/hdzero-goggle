@@ -59,8 +59,8 @@ static page_pack_t *page_packs[] = {
     &pp_version,
     &pp_focus_chart,
     &pp_clock,
-    &pp_sleep,
     &pp_storage,
+    &pp_sleep,
 };
 
 #define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
