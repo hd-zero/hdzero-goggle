@@ -118,14 +118,12 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
                 if (fscanf(results, "%d", &exit_code) != 1) {
                     snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
                 } else {
-                    if (exit_code != 0) {
-                        snprintf(text, sizeof(text), "%s", "Format was not successful.\nPress click to exit.");
-
-                    } else {
+                    if (exit_code == 0) {
                         snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+                    } else {
+                        snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
                     }
                 }
-
                 fclose(results);
             }
         }
@@ -186,14 +184,12 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
                 if (fscanf(results, "%d", &exit_code) != 1) {
                     snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
                 } else {
-                    if (exit_code != 0) {
-                        snprintf(text, sizeof(text), "%s", "Repair was not successful.\nPress click to exit.");
-
+                    if (exit_code == 1) {
+                        snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
                     } else {
-                        snprintf(text, sizeof(text), "%s", "Repair was successful.\nPress click to exit.");
+                        snprintf(text, sizeof(text), "%s", "Filesystem is OK.\nPress click to exit.");
                     }
                 }
-
                 fclose(results);
             }
         }

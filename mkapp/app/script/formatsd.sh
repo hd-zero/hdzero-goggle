@@ -9,14 +9,27 @@ if [ -e /mnt/extsd/resource ]; then
 fi
 sleep 2
 
+echo "Umounting SD Card"
 umount /mnt/extsd
+if [ $? -eq 0 ]; then
+    echo "Umounting SD Card: SUCCESS"
+else
+    echo "Umounting SD Card: FAILURE"
+fi
+
 rm -f /tmp/mkfs.result
 mkfs.vfat -F 32 /dev/mmcblk0 -n "HDZERO" > /tmp/mkfs.log 2>&1
 RESULT=$?
 echo "mkfs result: $RESULT" >> /tmp/mkfs.log
 echo $RESULT > /tmp/mkfs.result
 
+echo "Mounting SD Card"
 mount /dev/mmcblk0 /mnt/extsd
+if [ $? -eq 0 ]; then
+    echo "Mounting SD Card: SUCCESS"
+else
+    echo "Mounting SD Card: FAILURE"
+fi
 sleep 1
 
 if [ -e /tmp/resource ]; then
