@@ -311,7 +311,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(page_storage.note, 12, 0);
     lv_label_set_long_mode(page_storage.note, LV_LABEL_LONG_WRAP);
-    lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
+    lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 5, 2);
 
     if (g_setting.storage.selftest) {
         lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled.");
@@ -373,7 +373,7 @@ static void page_storage_on_click(uint8_t key, int sel) {
     }
 
     switch (sel) {
-    case 0:
+    case ITEM_LOGGING:
         if (!page_storage.disable_controls) {
             btn_group_toggle_sel(&page_storage.logging);
             g_setting.storage.logging = btn_group_get_sel(&page_storage.logging) == 0;
@@ -388,7 +388,7 @@ static void page_storage_on_click(uint8_t key, int sel) {
             }
         }
         break;
-    case 1:
+    case ITEM_FORMAT:
         if (!page_storage.disable_controls) {
             if (page_storage.confirm_format) {
                 page_storage.confirm_format = 2;
@@ -401,7 +401,7 @@ static void page_storage_on_click(uint8_t key, int sel) {
             }
         }
         break;
-    case 2:
+    case ITEM_REPAIR:
         if (!page_storage.disable_controls) {
             if (page_storage.confirm_repair) {
                 page_storage.confirm_repair = 2;
