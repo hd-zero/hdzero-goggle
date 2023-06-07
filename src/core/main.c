@@ -36,6 +36,7 @@
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
+#include "ui/page_storage.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_osd_element_pos.h"
@@ -183,10 +184,13 @@ int main(int argc, char *argv[]) {
     start_running();
     create_threads();
 
-    // synthetic counter for gif refresh
+    // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
 
-    // 8. Execute main loop
+    // 9. Repair SD Card if needed
+    page_storage_init_auto_sd_repair();
+
+    // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);

@@ -44,6 +44,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_
 static page_options_t page_storage;
 static lv_timer_t *page_storage_format_sd_timer = NULL;
 static lv_timer_t *page_storage_repair_sd_timer = NULL;
+static bool page_storage_auto_sd_repair_active = false;
 
 /**
  * Cancel operation.
@@ -76,13 +77,13 @@ static void page_storage_close_status_box() {
 }
 
 /**
- * Callback invoked once `Format SD` is triggered and confirmed via the menu.
+ * The formatting routine.
  */
-static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
+static int page_storage_format_sd() {
     const char *shell_command = "/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &";
     const char *results_file = "/tmp/mkfs.result";
     const char *log_file = "/tmp/mkfs.log";
-    char text[128];
+    int status = -1;
 
     // Temporarily disable logging if needed
     const char *applogfile = NULL;
@@ -101,27 +102,28 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
     }
 
     if (timeout_interval > 5) {
-        snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
+        status = 5;
     } else {
         timeout_interval = 0;
         while (!file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
-            snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+            status = 4;
         } else {
             FILE *results = fopen(results_file, "r");
             if (!results) {
-                snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+                status = 3;
             } else {
                 int exit_code;
                 if (fscanf(results, "%d", &exit_code) != 1) {
-                    snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+                    status = 2;
                 } else {
-                    if (exit_code == 0) {
-                        snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+                    if (exit_code != 0) {
+                        status = 1;
+
                     } else {
-                        snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
+                        status = 0;
                     }
                 }
                 fclose(results);
@@ -136,19 +138,17 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
         log_file_open(applogfile);
     }
 
-    page_storage_open_status_box("SD Card Format Status", text);
-    page_storage_cancel();
+    return status;
 }
 
 /**
- * Callback invoked once `Repair SD` is triggered and confirmed via the menu.
+ * The repairing routine.
  */
-static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
+static int page_storage_repair_sd() {
     const char *shell_command = "/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &";
     const char *results_file = "/tmp/fsck.result";
     const char *log_file = "/tmp/fsck.log";
-
-    char text[128];
+    int status = -1;
 
     // Temporarily disable logging if needed
     const char *app_log_file = NULL;
@@ -167,27 +167,27 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     }
 
     if (timeout_interval > 5) {
-        snprintf(text, sizeof(text), "%s", "Failed to start repair.\nPress click to exit.");
+        status = 5;
     } else {
         timeout_interval = 0;
         while (!file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
-            snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+            status = 4;
         } else {
             FILE *results = fopen(results_file, "r");
             if (!results) {
-                snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+                status = 3;
             } else {
                 int exit_code;
                 if (fscanf(results, "%d", &exit_code) != 1) {
-                    snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+                    status = 2;
                 } else {
                     if (exit_code == 1) {
-                        snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
+                        status = 1;
                     } else {
-                        snprintf(text, sizeof(text), "%s", "Filesystem is OK.\nPress click to exit.");
+                        status = 0;
                     }
                 }
                 fclose(results);
@@ -198,6 +198,72 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     // Restore logging if needed
     if (app_log_file) {
         log_file_open(app_log_file);
+    }
+
+    return status;
+}
+
+/**
+ * Callback invoked once `Format SD` is triggered and confirmed via the menu.
+ */
+static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
+    char text[128];
+
+    switch (page_storage_format_sd()) {
+    case 0:
+        snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+        break;
+    case 1:
+        snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
+        break;
+    case 2:
+        snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        break;
+    case 3:
+        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        break;
+    case 4:
+        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        break;
+    case 5:
+        snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
+        break;
+    default:
+        snprintf(text, sizeof(text), "%s", "Unsupported status code.\nPress click to exit.");
+        break;
+    }
+
+    page_storage_open_status_box("SD Card Format Status", text);
+    page_storage_cancel();
+}
+
+/**
+ * Callback invoked once `Repair SD` is triggered and confirmed via the menu.
+ */
+static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
+    char text[128];
+    switch (page_storage_repair_sd()) {
+    case 0:
+        snprintf(text, sizeof(text), "%s", "Filesystem is OK.\nPress click to exit.");
+        break;
+    case 1:
+        snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
+        break;
+    case 2:
+        snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        break;
+    case 3:
+        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        break;
+    case 4:
+        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        break;
+    case 5:
+        snprintf(text, sizeof(text), "%s", "Failed to start repair.\nPress click to exit.");
+        break;
+    default:
+        snprintf(text, sizeof(text), "%s", "Unsupported status code.\nPress click to exit.");
+        break;
     }
 
     page_storage_open_status_box("SD Card Repair Status", text);
@@ -375,3 +441,36 @@ page_pack_t pp_storage = {
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,
 };
+
+/**
+ * Worker thread for repairing SD Card.
+ */
+static void *page_storage_repair_thread(void *arg) {
+    if (!page_storage.disable_controls) {
+        page_storage_auto_sd_repair_active = true;
+        page_storage.disable_controls = true;
+        lv_label_set_text(page_storage.note, "Auto-repairing SD Card is active, controls are disabled until process has completed.");
+        page_storage_repair_sd();
+        page_storage.disable_controls = false;
+        lv_label_set_text(page_storage.note, "");
+        page_storage_auto_sd_repair_active = false;
+    }
+    pthread_exit(NULL);
+}
+
+/**
+ * Returns true if auto-repairing is active.
+ */
+bool page_storage_is_auto_sd_repair_active() {
+    return page_storage_auto_sd_repair_active;
+}
+
+/**
+ * Once initialized detach until completed.
+ */
+void page_storage_init_auto_sd_repair() {
+    pthread_t tid;
+    if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
+        pthread_detach(tid);
+    }
+}
