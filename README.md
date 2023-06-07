@@ -54,7 +54,7 @@ Development script (develop.sh):
 
 # Load via SD Card if found
 if [ -e /mnt/extsd/HDZGOGGLE ]; then
-	/mnt/extsd/HDZGOGGLE > /mnt/extsd/HDZGOGGLE.dev.log 2>&1 &
+	/mnt/extsd/HDZGOGGLE &
 else
 	/mnt/app/app/HDZGOGGLE &
 fi
