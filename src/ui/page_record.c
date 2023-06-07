@@ -69,15 +69,6 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-static void page_record_enter() {
-}
-
-static void page_record_exit() {
-}
-
-static void page_record_on_roller(uint8_t key) {
-}
-
 static void page_record_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
@@ -109,13 +100,13 @@ static void page_record_on_click(uint8_t key, int sel) {
 page_pack_t pp_record = {
     .p_arr = {
         .cur = 0,
-        .max = 7,
+        .max = 6,
     },
     .name = "Record Option",
     .create = page_record_create,
-    .enter = page_record_enter,
-    .exit = page_record_exit,
-    .on_roller = page_record_on_roller,
+    .enter = NULL,
+    .exit = NULL,
+    .on_roller = NULL,
     .on_click = page_record_on_click,
     .on_right_button = NULL,
 };
