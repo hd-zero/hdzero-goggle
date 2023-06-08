@@ -168,6 +168,7 @@ static format_codes_t page_storage_format_sd() {
 static repair_codes_t page_storage_repair_sd() {
     page_storage.is_sd_repair_active = true;
 
+    const char *shell_move_files = "mkdir /mnt/extsd/FSCK; mv /mnt/extsd/FSCK*.REC /mnt/extsd/FSCK/";
     const char *shell_command = "/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &";
     const char *results_file = "/tmp/fsck.result";
     const char *log_file = "/tmp/fsck.log";
@@ -219,6 +220,7 @@ static repair_codes_t page_storage_repair_sd() {
                         } else {
                             status = RPC_SUCCESS_NO_CHANGES;
                         }
+                        system(shell_move_files);
                     }
                     fclose(results);
                 }
