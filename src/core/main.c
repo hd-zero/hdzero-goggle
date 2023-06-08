@@ -187,9 +187,6 @@ int main(int argc, char *argv[]) {
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
 
-    // 9. Repair SD Card if needed
-    page_storage_init_auto_sd_repair();
-
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {

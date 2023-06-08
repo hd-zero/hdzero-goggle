@@ -10,6 +10,7 @@
 #include "core/settings.h"
 #include "ui/page_playback.h"
 #include "util/file.h"
+#include "util/sdcard.h"
 
 /**
  * Types
@@ -34,6 +35,8 @@ typedef struct {
     lv_obj_t *status;
     lv_obj_t *note;
     bool disable_controls;
+    bool is_sd_repair_active;
+    bool is_auto_sd_repair_active;
 } page_options_t;
 
 /**
@@ -44,7 +47,6 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_
 static page_options_t page_storage;
 static lv_timer_t *page_storage_format_sd_timer = NULL;
 static lv_timer_t *page_storage_repair_sd_timer = NULL;
-static bool page_storage_auto_sd_repair_active = false;
 
 /**
  * Cancel operation.
@@ -145,6 +147,8 @@ static int page_storage_format_sd() {
  * The repairing routine.
  */
 static int page_storage_repair_sd() {
+    page_storage.is_sd_repair_active = true;
+
     const char *shell_command = "/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &";
     const char *results_file = "/tmp/fsck.result";
     const char *log_file = "/tmp/fsck.log";
@@ -167,30 +171,38 @@ static int page_storage_repair_sd() {
     }
 
     if (timeout_interval > 5) {
-        status = 5;
+        status = 6;
     } else {
         timeout_interval = 0;
         while (!file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
-            status = 4;
+            status = 5;
         } else {
-            FILE *results = fopen(results_file, "r");
-            if (!results) {
-                status = 3;
+            timeout_interval = 0;
+            while (!sdcard_mounted() && ++timeout_interval < 10) {
+                sleep(1);
+            }
+            if (timeout_interval > 10) {
+                status = 4;
             } else {
-                int exit_code;
-                if (fscanf(results, "%d", &exit_code) != 1) {
-                    status = 2;
+                FILE *results = fopen(results_file, "r");
+                if (!results) {
+                    status = 3;
                 } else {
-                    if (exit_code == 1) {
-                        status = 1;
+                    int exit_code;
+                    if (fscanf(results, "%d", &exit_code) != 1) {
+                        status = 2;
                     } else {
-                        status = 0;
+                        if (exit_code == 1) {
+                            status = 1;
+                        } else {
+                            status = 0;
+                        }
                     }
+                    fclose(results);
                 }
-                fclose(results);
             }
         }
     }
@@ -199,6 +211,8 @@ static int page_storage_repair_sd() {
     if (app_log_file) {
         log_file_open(app_log_file);
     }
+
+    page_storage.is_sd_repair_active = false;
 
     return status;
 }
@@ -223,9 +237,12 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
         snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
         break;
     case 4:
-        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", "Failed to remount volume.\nPress click to exit.");
         break;
     case 5:
+        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        break;
+    case 6:
         snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
         break;
     default:
@@ -447,30 +464,32 @@ page_pack_t pp_storage = {
  */
 static void *page_storage_repair_thread(void *arg) {
     if (!page_storage.disable_controls) {
-        page_storage_auto_sd_repair_active = true;
+        page_storage.is_auto_sd_repair_active = true;
         page_storage.disable_controls = true;
-        lv_label_set_text(page_storage.note, "Auto-repairing SD Card is active, controls are disabled until process has completed.");
+        lv_label_set_text(page_storage.note, "SD Card integrity check is active, controls are disabled until process has completed.");
         page_storage_repair_sd();
         page_storage.disable_controls = false;
         lv_label_set_text(page_storage.note, "");
-        page_storage_auto_sd_repair_active = false;
+        page_storage.is_auto_sd_repair_active = false;
     }
     pthread_exit(NULL);
 }
 
 /**
- * Returns true if auto-repairing is active.
+ * Returns true if repairing is active.
  */
-bool page_storage_is_auto_sd_repair_active() {
-    return page_storage_auto_sd_repair_active;
+bool page_storage_is_sd_repair_active() {
+    return page_storage.is_sd_repair_active;
 }
 
 /**
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
-    pthread_t tid;
-    if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
-        pthread_detach(tid);
+    if (!page_storage.is_auto_sd_repair_active) {
+        pthread_t tid;
+        if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
+            pthread_detach(tid);
+        }
     }
 }

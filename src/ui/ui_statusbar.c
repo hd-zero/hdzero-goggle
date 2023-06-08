@@ -229,7 +229,7 @@ void statubar_update(void) {
     channel_last = g_setting.scan.channel;
     source_last = g_source_info.source;
 
-    if (page_storage_is_auto_sd_repair_active()) {
+    if (page_storage_is_sd_repair_active()) {
         lv_img_set_src(img_sdc, &img_sdcard);
         lv_label_set_text(label[STS_SDCARD], "Integrity check");
     } else {

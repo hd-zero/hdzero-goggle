@@ -4,5 +4,5 @@
 
 extern page_pack_t pp_storage;
 
-bool page_storage_is_auto_sd_repair_active();
+bool page_storage_is_sd_repair_active();
 void page_storage_init_auto_sd_repair();
