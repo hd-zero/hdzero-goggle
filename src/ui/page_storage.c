@@ -24,6 +24,25 @@ typedef enum {
     ITEM_LIST_TOTAL
 } ITEM_LIST;
 
+typedef enum {
+    FMC_SUCCESS = 0,
+    FMC_FAILURE,
+    FMC_ERR_RESULTS_NOT_EXTRACTED,
+    FMC_ERR_RESULTS_NOT_ACCESSIBLE,
+    FMC_ERR_RESULTS_FILE_MISSING,
+    FMC_ERR_PROCESS_DID_NOT_START,
+} format_codes_t;
+
+typedef enum {
+    RPC_SUCCESS_NO_CHANGES = 0,
+    RPC_SUCCESS_CARD_FIXED,
+    RPC_ERR_RESULTS_NOT_EXTRACTED,
+    RPC_ERR_RESULTS_NOT_ACCESSIBLE,
+    RPC_ERR_FAILED_TO_REMOUNT_CARD,
+    RPC_ERR_RESULTS_FILE_MISSING,
+    RPC_ERR_PROCESS_DID_NOT_START,
+} repair_codes_t;
+
 typedef struct {
     btn_group_t logging;
     lv_obj_t *format_sd;
@@ -81,11 +100,11 @@ static void page_storage_close_status_box() {
 /**
  * The formatting routine.
  */
-static int page_storage_format_sd() {
+static format_codes_t page_storage_format_sd() {
     const char *shell_command = "/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &";
     const char *results_file = "/tmp/mkfs.result";
     const char *log_file = "/tmp/mkfs.log";
-    int status = -1;
+    format_codes_t status = FMC_SUCCESS;
 
     // Temporarily disable logging if needed
     const char *applogfile = NULL;
@@ -104,28 +123,28 @@ static int page_storage_format_sd() {
     }
 
     if (timeout_interval > 5) {
-        status = 5;
+        status = FMC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
         while (!file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
-            status = 4;
+            status = FMC_ERR_RESULTS_FILE_MISSING;
         } else {
             FILE *results = fopen(results_file, "r");
             if (!results) {
-                status = 3;
+                status = FMC_ERR_RESULTS_NOT_ACCESSIBLE;
             } else {
                 int exit_code;
                 if (fscanf(results, "%d", &exit_code) != 1) {
-                    status = 2;
+                    status = FMC_ERR_RESULTS_NOT_EXTRACTED;
                 } else {
                     if (exit_code != 0) {
-                        status = 1;
+                        status = FMC_FAILURE;
 
                     } else {
-                        status = 0;
+                        status = FMC_SUCCESS;
                     }
                 }
                 fclose(results);
@@ -146,13 +165,13 @@ static int page_storage_format_sd() {
 /**
  * The repairing routine.
  */
-static int page_storage_repair_sd() {
+static repair_codes_t page_storage_repair_sd() {
     page_storage.is_sd_repair_active = true;
 
     const char *shell_command = "/mnt/app/script/chkfixsd.sh > /tmp/chkfixsd.log 2>&1 &";
     const char *results_file = "/tmp/fsck.result";
     const char *log_file = "/tmp/fsck.log";
-    int status = -1;
+    repair_codes_t status = RPC_SUCCESS_NO_CHANGES;
 
     // Temporarily disable logging if needed
     const char *app_log_file = NULL;
@@ -171,34 +190,34 @@ static int page_storage_repair_sd() {
     }
 
     if (timeout_interval > 5) {
-        status = 6;
+        status = RPC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
         while (!file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
-            status = 5;
+            status = RPC_ERR_RESULTS_FILE_MISSING;
         } else {
             timeout_interval = 0;
             while (!sdcard_mounted() && ++timeout_interval < 10) {
                 sleep(1);
             }
             if (timeout_interval > 10) {
-                status = 4;
+                status = RPC_ERR_FAILED_TO_REMOUNT_CARD;
             } else {
                 FILE *results = fopen(results_file, "r");
                 if (!results) {
-                    status = 3;
+                    status = RPC_ERR_RESULTS_NOT_ACCESSIBLE;
                 } else {
                     int exit_code;
                     if (fscanf(results, "%d", &exit_code) != 1) {
-                        status = 2;
+                        status = RPC_ERR_RESULTS_NOT_EXTRACTED;
                     } else {
                         if (exit_code == 1) {
-                            status = 1;
+                            status = RPC_SUCCESS_CARD_FIXED;
                         } else {
-                            status = 0;
+                            status = RPC_SUCCESS_NO_CHANGES;
                         }
                     }
                     fclose(results);
@@ -224,25 +243,22 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
     char text[128];
 
     switch (page_storage_format_sd()) {
-    case 0:
+    case FMC_SUCCESS:
         snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
         break;
-    case 1:
+    case FMC_FAILURE:
         snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
         break;
-    case 2:
+    case FMC_ERR_RESULTS_NOT_EXTRACTED:
         snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
         break;
-    case 3:
+    case FMC_ERR_RESULTS_NOT_ACCESSIBLE:
         snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
         break;
-    case 4:
-        snprintf(text, sizeof(text), "%s", "Failed to remount volume.\nPress click to exit.");
-        break;
-    case 5:
+    case FMC_ERR_RESULTS_FILE_MISSING:
         snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
         break;
-    case 6:
+    case FMC_ERR_PROCESS_DID_NOT_START:
         snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
         break;
     default:
@@ -260,22 +276,25 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
 static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     char text[128];
     switch (page_storage_repair_sd()) {
-    case 0:
+    case RPC_SUCCESS_NO_CHANGES:
         snprintf(text, sizeof(text), "%s", "Filesystem is OK.\nPress click to exit.");
         break;
-    case 1:
+    case RPC_SUCCESS_CARD_FIXED:
         snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
         break;
-    case 2:
+    case RPC_ERR_RESULTS_NOT_EXTRACTED:
         snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
         break;
-    case 3:
+    case RPC_ERR_RESULTS_NOT_ACCESSIBLE:
         snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
         break;
-    case 4:
+    case RPC_ERR_FAILED_TO_REMOUNT_CARD:
+        snprintf(text, sizeof(text), "%s", "Failed to remount SD Card.\nPress click to exit.");
+        break;
+    case RPC_ERR_RESULTS_FILE_MISSING:
         snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
         break;
-    case 5:
+    case RPC_ERR_PROCESS_DID_NOT_START:
         snprintf(text, sizeof(text), "%s", "Failed to start repair.\nPress click to exit.");
         break;
     default:
@@ -323,6 +342,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
 
     page_storage.note = lv_label_create(cont);
+    lv_label_set_text(page_storage.note, "");
     lv_obj_set_style_text_font(page_storage.note, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(page_storage.note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
@@ -334,8 +354,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled.");
         page_storage.disable_controls = true;
     } else {
-        if (file_exists(DEVELOP_SCRIPT) ||
-            file_exists(APP_BIN_FILE)) {
+        if (file_exists(DEVELOP_SCRIPT) || file_exists(APP_BIN_FILE)) {
             char text[256];
             snprintf(text, sizeof(text), "Detected files being accessed by SD Card, All storage options are disabled.\n"
                                          "Remove the following files from the SD Card and try again:\n" DEVELOP_SCRIPT "\n" APP_BIN_FILE);
