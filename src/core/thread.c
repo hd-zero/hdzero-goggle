@@ -32,8 +32,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
-static void
-detect_sdcard(void) {
+static void detect_sdcard(void) {
     static bool sdcard_init_scan = true;
     static bool sdcard_enable_last = false;
 
