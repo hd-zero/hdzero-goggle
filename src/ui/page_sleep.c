@@ -26,7 +26,7 @@ lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *cont = lv_menu_cont_create(section);
     lv_obj_t *desc_label = lv_label_create(cont);
-    lv_label_set_text(desc_label, "Click the Enter Button to go sleep.\nClick any button to exit sleep mode and return to Live view.");
+    lv_label_set_text(desc_label, "Click the Enter Button to go sleep.\nClick any button to exit sleep mode.");
     lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(desc_label, 12, 0);
@@ -74,23 +74,6 @@ static void page_sleep_exit() {
     fans_top_setspeed(fan_speeds_save[2]);
     fans_left_setspeed(fan_speeds_save[1]);
     fans_right_setspeed(fan_speeds_save[0]);
-    // return to live video after sleep exit
-        switch (g_source_info.source) {
-        case SOURCE_HDZERO:
-            progress_bar.start = 1;
-            app_switch_to_hdzero(true);
-            break;
-        case SOURCE_HDMI_IN:
-            app_switch_to_hdmi_in();
-            break;
-        case SOURCE_AV_IN:
-            app_switch_to_analog(0);
-            break;
-        case SOURCE_EXPANSION:
-            app_switch_to_analog(1);
-            break;
-        }
-        app_state_push(APP_STATE_VIDEO);
 }
 
 static void page_sleep_click(uint8_t key, int sel) {
