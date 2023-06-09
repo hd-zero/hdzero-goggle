@@ -1,7 +1,7 @@
 #ifndef __DEFINES_H
 #define __DEFINES_H
 
-#define DIAL_SENSITIVITY 2    // number of clicks before dial event is triggered
+#define DIAL_SENSITIVITY 1    // number of clicks before dial event is triggered
 #define DIAL_SENSITIVTY_TIMEOUT_MS 1000 // ms
 #define CHANNEL_SHOWTIME 30 // must <= 127
 
