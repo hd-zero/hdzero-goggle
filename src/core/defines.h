@@ -1,14 +1,8 @@
 #ifndef __DEFINES_H
 #define __DEFINES_H
 
-typedef enum {
-    LEFT_DAIL_UP = 1,
-    LEFT_DAIL_DOWN = 2,
-    LEFT_DAIL_CLICK = 3,
-    LEFT_DAIL_LONGPRESS = 4
-} left_dial_t;
-
-#define DIAL_SENSITIVITY 1  // slow down rate =  DIAL_SENSITIVITY+1
+#define DIAL_SENSITIVITY 1    // number of clicks before dial event is triggered
+#define DIAL_SENSITIVTY_TIMEOUT_MS 1000 // ms
 #define CHANNEL_SHOWTIME 30 // must <= 127
 
 #define GPIO_BEEP 131
