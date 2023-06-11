@@ -103,7 +103,7 @@ int statusbar_init(void) {
         lv_obj_set_width(label[i], 267); /*Set smaller width to make the lines wrap*/
         lv_obj_set_style_text_align(label[i], LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(label[i], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_style_text_font(label[i], &conthrax_26, 0);
+        lv_obj_set_style_text_font(label[i], &lv_font_montserrat_26, 0);
 
         if (i == STS_SDCARD) {
             lv_label_set_long_mode(label[i], LV_LABEL_LONG_SCROLL_CIRCULAR);
