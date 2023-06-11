@@ -98,60 +98,33 @@ int statusbar_init(void) {
     lv_obj_set_grid_cell(img_battery, LV_GRID_ALIGN_CENTER, 9, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label[STS_SDCARD] = lv_label_create(cont);
-    lv_label_set_long_mode(label[STS_SDCARD], LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
-    lv_obj_set_width(label[STS_SDCARD], 267); /*Set smaller width to make the lines wrap*/
-    lv_label_set_recolor(label[STS_SDCARD], true);
-    lv_obj_set_style_text_align(label[STS_SDCARD], LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label[STS_SDCARD], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label[STS_SDCARD], LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    for (int i = 0; i < STS_TOTAL; ++i) {
+        label[i] = lv_label_create(cont);
+        lv_obj_set_width(label[i], 267); /*Set smaller width to make the lines wrap*/
+        lv_obj_set_style_text_align(label[i], LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_style_text_color(label[i], lv_color_make(255, 255, 255), 0);
+        lv_obj_set_style_text_font(label[i], &conthrax_26, 0);
 
-    label[STS_SOURCE] = lv_label_create(cont);
-    lv_label_set_long_mode(label[STS_SOURCE], LV_LABEL_LONG_DOT); /*Break the long lines*/
+        if (i == STS_SDCARD) {
+            lv_label_set_long_mode(label[i], LV_LABEL_LONG_SCROLL_CIRCULAR);
+        } else {
+            lv_label_set_long_mode(label[i], LV_LABEL_LONG_DOT); /*Break the long lines*/
+        }
+
+        lv_obj_set_grid_cell(label[i], LV_GRID_ALIGN_CENTER, ((i + 1) * 2), 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    }
+
+    lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
+    lv_label_set_recolor(label[STS_SDCARD], true);
 
     sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0xF));
-
     lv_label_set_text(label[STS_SOURCE], buf);
-    lv_obj_set_width(label[STS_SOURCE], 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label[STS_SOURCE], LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label[STS_SOURCE], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label[STS_SOURCE], LV_GRID_ALIGN_CENTER, 4, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label[STS_ELRS] = lv_label_create(cont);
-    lv_label_set_long_mode(label[STS_ELRS], LV_LABEL_LONG_DOT); /*Break the long lines*/
     lv_label_set_text(label[STS_ELRS], "ELRS: Off");
-    lv_obj_set_width(label[STS_ELRS], 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label[STS_ELRS], LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label[STS_ELRS], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label[STS_ELRS], LV_GRID_ALIGN_CENTER, 6, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label[STS_WIFI] = lv_label_create(cont);
-    lv_label_set_long_mode(label[STS_WIFI], LV_LABEL_LONG_DOT); /*Break the long lines*/
     lv_label_set_text(label[STS_WIFI], "WiFi: Off");
-    lv_obj_set_width(label[STS_WIFI], 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label[STS_WIFI], LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label[STS_WIFI], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label[STS_WIFI], LV_GRID_ALIGN_CENTER, 8, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
 
-    label[STS_BATT] = lv_label_create(cont);
-    lv_label_set_long_mode(label[STS_BATT], LV_LABEL_LONG_DOT); /*Break the long lines*/
     lv_label_set_text(label[STS_BATT], "       ");
-    lv_obj_set_width(label[STS_BATT], 267); /*Set smaller width to make the lines wrap*/
-    lv_obj_set_style_text_align(label[STS_BATT], LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_grid_cell(label[STS_BATT], LV_GRID_ALIGN_CENTER, 10, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
-
-    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
-    lv_obj_set_style_text_font(label[STS_BATT], &lv_font_montserrat_26, 0);
-
     return 0;
 }
 
