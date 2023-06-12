@@ -14,7 +14,7 @@ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`-=[]\;',./~!@#$%^
 
 # Compiling
 
-Simply just add them to the font directory and regenerate cmake via setup.sh
+Simply click convert then add the newly downloaded source file to the font directory and regenerate cmake via setup.sh
 
 In order to include the font in the HDZero Goggle Source code, you must forward declare the font source.
 ```
