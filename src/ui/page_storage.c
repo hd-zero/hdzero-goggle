@@ -27,6 +27,7 @@ typedef enum {
 typedef enum {
     FMC_SUCCESS = 0,
     FMC_FAILURE,
+    FMC_ERR_SDCARD_NOT_INSERTED,
     FMC_ERR_RESULTS_NOT_EXTRACTED,
     FMC_ERR_RESULTS_NOT_ACCESSIBLE,
     FMC_ERR_RESULTS_FILE_MISSING,
@@ -36,6 +37,7 @@ typedef enum {
 typedef enum {
     RPC_SUCCESS_NO_CHANGES = 0,
     RPC_SUCCESS_CARD_FIXED,
+    RPC_ERR_SDCARD_NOT_INSERTED,
     RPC_ERR_RESULTS_NOT_EXTRACTED,
     RPC_ERR_RESULTS_NOT_ACCESSIBLE,
     RPC_ERR_FAILED_TO_REMOUNT_CARD,
@@ -101,6 +103,10 @@ static void page_storage_close_status_box() {
  * The formatting routine.
  */
 static format_codes_t page_storage_format_sd() {
+    if (!sdcard_mounted()) {
+        return FMC_ERR_SDCARD_NOT_INSERTED;
+    }
+
     const char *shell_command = "/mnt/app/script/formatsd.sh > /tmp/formatsd.log 2>&1 &";
     const char *results_file = "/tmp/mkfs.result";
     const char *log_file = "/tmp/mkfs.log";
@@ -166,6 +172,10 @@ static format_codes_t page_storage_format_sd() {
  * The repairing routine.
  */
 static repair_codes_t page_storage_repair_sd() {
+    if (!sdcard_mounted()) {
+        return RPC_ERR_SDCARD_NOT_INSERTED;
+    }
+
     page_storage.is_sd_repair_active = true;
 
     const char *shell_move_files = "mkdir /mnt/extsd/FSCK; mv /mnt/extsd/FSCK*.REC /mnt/extsd/FSCK/";
@@ -251,6 +261,9 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
     case FMC_FAILURE:
         snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
         break;
+    case FMC_ERR_SDCARD_NOT_INSERTED:
+        snprintf(text, sizeof(text), "%s", "Please insert a SD Card.\nPress click to exit.");
+        break;
     case FMC_ERR_RESULTS_NOT_EXTRACTED:
         snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
         break;
@@ -283,6 +296,9 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
         break;
     case RPC_SUCCESS_CARD_FIXED:
         snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
+        break;
+    case RPC_ERR_SDCARD_NOT_INSERTED:
+        snprintf(text, sizeof(text), "%s", "Please insert a SD Card.\nPress click to exit.");
         break;
     case RPC_ERR_RESULTS_NOT_EXTRACTED:
         snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
