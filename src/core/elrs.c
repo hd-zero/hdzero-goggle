@@ -26,7 +26,7 @@
 #include "core/osd.h"
 #include "core/settings.h"
 #include "driver/dm5680.h"
-#include "driver/gpio.h"
+#include "driver/beep.h"
 #include "driver/hardware.h"
 #include "driver/rtc.h"
 #include "driver/uart.h"
