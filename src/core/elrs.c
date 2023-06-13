@@ -26,7 +26,7 @@
 #include "core/osd.h"
 #include "core/settings.h"
 #include "driver/dm5680.h"
-#include "driver/gpio.h"
+#include "driver/beep.h"
 #include "driver/hardware.h"
 #include "driver/rtc.h"
 #include "driver/uart.h"
@@ -296,7 +296,7 @@ void msp_process_packet() {
             }
         } break;
         case MSP_SET_BUZZER:
-            beep_dur((packet.payload[0] | packet.payload[1] << 8) * 1000);
+            beep_dur((packet.payload[0] | packet.payload[1] << 8));
             break;
         case MSP_SET_OSD_ELEM:
             handle_osd(packet.payload, packet.payload_size);

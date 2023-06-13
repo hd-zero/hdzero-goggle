@@ -33,6 +33,7 @@
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
 #include "driver/rtc.h"
+#include "driver/beep.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -158,6 +159,7 @@ int main(int argc, char *argv[]) {
     esp32_init();
     elrs_init();
     ht_init();
+    beep_init();
 
     // 4. Initilize UI
     lvgl_init();

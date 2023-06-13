@@ -1,5 +1,6 @@
 #include "gpio.h"
 
+#include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -46,15 +47,4 @@ void gpio_set(int port_num, bool val) {
     char buf[64];
     sprintf(buf, "/sys/class/gpio/gpio%d/value", port_num);
     file_printf(buf, "%d", val ? 1 : 0);
-}
-
-void beep_dur(int dur_us) {
-    static bool bInit = true;
-    if (bInit) {
-        bInit = false;
-        gpio_open(GPIO_BEEP);
-    }
-    gpio_set(GPIO_BEEP, 1);
-    usleep(dur_us);
-    gpio_set(GPIO_BEEP, 0);
 }
