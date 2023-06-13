@@ -33,6 +33,9 @@
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
 
+extern const lv_font_t conthrax_26;
+extern const lv_font_t robotomono_26;
+
 //////////////////////////////////////////////////////////////////
 // local
 static sem_t osd_semaphore;
@@ -284,7 +287,16 @@ static void osd_object_create_label(uint8_t fhd, lv_obj_t **obj, char *text, set
     osd_object_set_pos(fhd, *obj, pos);
 
     lv_obj_set_style_text_color(*obj, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_text_font(*obj, &lv_font_montserrat_26, 0);
+
+    if (0 == strncmp(fc_variant, "ARDU", sizeof(fc_variant)) ||
+        0 == strncmp(fc_variant, "BTFL", sizeof(fc_variant)) ||
+        0 == strncmp(fc_variant, "INAV", sizeof(fc_variant))) {
+        lv_obj_set_style_text_font(*obj, &conthrax_26, 0);
+    } else if (0 == strncmp(fc_variant, "QUIC", sizeof(fc_variant))) {
+        lv_obj_set_style_text_font(*obj, &robotomono_26, 0);
+    } else {
+        lv_obj_set_style_text_font(*obj, &lv_font_montserrat_26, 0);
+    }
 }
 
 void osd_show(bool show) {
