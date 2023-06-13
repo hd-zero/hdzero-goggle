@@ -73,8 +73,8 @@ void set_select_item(const panel_arr_t *arr, int row) {
     }
 }
 
-lv_obj_t *create_msgbox_item(lv_obj_t *parent, const char *title, const char *message) {
-    lv_obj_t *msgbox = lv_msgbox_create(parent, title, message, NULL, false);
+lv_obj_t *create_msgbox_item(const char *title, const char *message) {
+    lv_obj_t *msgbox = lv_msgbox_create(lv_scr_act(), title, message, NULL, false);
     lv_obj_set_width(msgbox, 600);
     lv_obj_center(msgbox);
 

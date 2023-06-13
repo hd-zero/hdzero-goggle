@@ -25,6 +25,7 @@
 #include "ui/page_scannow.h"
 #include "ui/page_sleep.h"
 #include "ui/page_source.h"
+#include "ui/page_storage.h"
 #include "ui/page_version.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_image_setting.h"
@@ -55,6 +56,7 @@ static page_pack_t *page_packs[] = {
     &pp_wifi,
     &pp_headtracker,
     &pp_playback,
+    &pp_storage,
     &pp_version,
     &pp_focus_chart,
     &pp_clock,

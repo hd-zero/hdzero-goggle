@@ -25,34 +25,41 @@
 #include "driver/nct75.h"
 #include "driver/oled.h"
 #include "ui/page_fans.h"
+#include "ui/page_storage.h"
 #include "ui/page_version.h"
 #include "ui/ui_porting.h"
+#include "util/sdcard.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void) {
+    static bool sdcard_init_scan = true;
     static bool sdcard_enable_last = false;
-    struct stat mountpoint;
-    struct stat mountpoint_parent;
 
-    // fetch mountpoint and mountpoint parent dev_id
-    if (stat("/mnt/extsd", &mountpoint) == 0 &&
-        stat("/mnt", &mountpoint_parent) == 0) {
-        // iff the dev ids _do not_ match there is a filesystem mounted
-        g_sdcard_enable = mountpoint.st_dev != mountpoint_parent.st_dev;
-    } else {
-        g_sdcard_enable = false;
-    }
+    if (!page_storage_is_sd_repair_active()) {
+        g_sdcard_enable = sdcard_mounted();
 
-    if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-        struct statfs info;
-        if (statfs("/mnt/extsd", &info) == 0)
-            g_sdcard_size = (info.f_bsize * info.f_bavail) >> 20; // in MB
-        else
-            g_sdcard_size = 0;
-        g_sdcard_det_req = 0;
+        if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
+            struct statfs info;
+            if (statfs("/mnt/extsd", &info) == 0)
+                g_sdcard_size = (info.f_bsize * info.f_bavail) >> 20; // in MB
+            else
+                g_sdcard_size = 0;
+            g_sdcard_det_req = 0;
+        }
+
+        // Only repair card at bootup or when inserted
+        if (g_init_done) {
+            if (sdcard_init_scan && g_sdcard_enable) {
+                page_storage_init_auto_sd_repair();
+                sdcard_init_scan = false;
+            } else if (!g_sdcard_enable && sdcard_enable_last) {
+                sdcard_init_scan = true;
+            }
+        }
+
+        sdcard_enable_last = g_sdcard_enable;
     }
-    sdcard_enable_last = g_sdcard_enable;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

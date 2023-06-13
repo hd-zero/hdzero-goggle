@@ -25,7 +25,7 @@ void self_test() {
     uint32_t dat0, dat1;
     char *msg[2] = {"[Error]", "[Pass] "};
 
-    if (!g_test_en)
+    if (!g_setting.storage.selftest)
         return;
 
     LOGI("==== Self Test ======================");

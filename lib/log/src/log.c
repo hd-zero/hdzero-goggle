@@ -65,10 +65,21 @@ int log_printf(const char *file, const char *func, int line, const int level, co
     return ret;
 }
 
-bool log_enable_file(const char *filename) {
+bool log_file_opened() {
+    return log_file == NULL ? false : true;
+}
+
+bool log_file_open(const char *filename) {
     log_file = fopen(filename, "w+");
     if (log_file) {
         return true;
     }
     return false;
+}
+
+void log_file_close() {
+    if (log_file) {
+        fclose(log_file);
+        log_file = NULL;
+    }
 }

@@ -36,7 +36,7 @@ Where x.x.x is the OTA_VER.RX_VER.VA_VER
 
 Firmware can be either flashed via goggle menu or alternatively be executed via the SD Card with a custom development script.  An example of this development script is provided below.  The goggles automatically checks to see if the develop.sh script exists in the root of the SD Card and if found develop.sh is then executed.
 
-The following files must be placed in the root of SD Card in this example. This script will then check to see if HDZGOGGLE binary has been found and if found then executed. The standard output for logging will be written to a file called HDZGOOGLE.dev.log
+The following files must be placed in the root of SD Card in this example. This script will then check to see if HDZGOGGLE binary has been found during bootup and if found then executed.
 
 Otherwise, if the HDZGOOGLE binary is not detected, the goggles will continue to load the built-in executable which was previously flashed.
 
@@ -54,7 +54,7 @@ Development script (develop.sh):
 
 # Load via SD Card if found
 if [ -e /mnt/extsd/HDZGOGGLE ]; then
-	/mnt/extsd/HDZGOGGLE > /mnt/extsd/HDZGOGGLE.dev.log 2>&1 &
+	/mnt/extsd/HDZGOGGLE &
 else
 	/mnt/app/app/HDZGOGGLE &
 fi

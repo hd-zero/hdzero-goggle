@@ -18,6 +18,8 @@
 
 int log_printf(const char *file, const char *func, int line, const int level, const char *fmt, ...);
 
-bool log_enable_file(const char *filename);
+bool log_file_opened();
+bool log_file_open(const char *filename);
+void log_file_close();
 
 #endif

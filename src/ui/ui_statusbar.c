@@ -11,6 +11,7 @@
 #include "driver/gpio.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
+#include "ui/page_storage.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_style.h"
 
@@ -201,28 +202,33 @@ void statubar_update(void) {
     channel_last = g_setting.scan.channel;
     source_last = g_source_info.source;
 
-    if (g_sdcard_enable) {
-        int cnt = get_videofile_cnt();
-        float gb = g_sdcard_size / 1024.0;
-        bool bFull = g_sdcard_size < 103;
+    if (page_storage_is_sd_repair_active()) {
         lv_img_set_src(img_sdc, &img_sdcard);
-        if (cnt != 0) {
-            if (bFull)
-                sprintf(buf, "%d clip(s), SD Card full", cnt);
-            else
-                sprintf(buf, "%d clip(s), %.2fGB available", cnt, gb);
-        } else {
-            if (bFull)
-                sprintf(buf, "#FF0000 SD Card full#");
-            else
-                sprintf(buf, "%.2fGB available", gb);
-        }
+        lv_label_set_text(label[STS_SDCARD], "Integrity check");
     } else {
-        sprintf(buf, "No SD card");
-        lv_img_set_src(img_sdc, &img_noSdcard);
-    }
+        if (g_sdcard_enable) {
+            int cnt = get_videofile_cnt();
+            float gb = g_sdcard_size / 1024.0;
+            bool bFull = g_sdcard_size < 103;
+            lv_img_set_src(img_sdc, &img_sdcard);
+            if (cnt != 0) {
+                if (bFull)
+                    sprintf(buf, "%d clip(s), SD Card full", cnt);
+                else
+                    sprintf(buf, "%d clip(s), %.2fGB available", cnt, gb);
+            } else {
+                if (bFull)
+                    sprintf(buf, "#FF0000 SD Card full#");
+                else
+                    sprintf(buf, "%.2fGB available", gb);
+            }
+        } else {
+            sprintf(buf, "No SD card");
+            lv_img_set_src(img_sdc, &img_noSdcard);
+        }
 
-    lv_label_set_text(label[STS_SDCARD], buf);
+        lv_label_set_text(label[STS_SDCARD], buf);
+    }
 
     if (g_setting.elrs.enable)
         lv_label_set_text(label[STS_ELRS], "ELRS: On ");

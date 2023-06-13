@@ -243,10 +243,10 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_update_complete = create_msgbox_item(cont, "Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+    msgbox_update_complete = create_msgbox_item("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
     lv_obj_add_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_settings_reset = create_msgbox_item(cont, "Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+    msgbox_settings_reset = create_msgbox_item("Settings reset", "All settings have been reset.\nPlease repower goggle now.");
     lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
 
     return page;
