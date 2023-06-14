@@ -7,7 +7,7 @@ extern page_pack_t pp_power;
 
 void power_cell_count_inc(void);
 void power_cell_count_dec(void);
-void power_voltage_inc(void);
-void power_voltage_dec(void);
+void power_warning_voltage_inc(void);
+void power_warning_voltage_dec(void);
 
 #endif
