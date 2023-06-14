@@ -118,6 +118,17 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     page_power_update_cell_count();
 
+    lv_obj_t *label = lv_label_create(cont);
+    lv_label_set_text(label, "*Cell count setting is disabled in auto mode");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 4,
+                         LV_GRID_ALIGN_START, pp_power.p_arr.max, 3);
+
     return page;
 }
 
