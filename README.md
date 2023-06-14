@@ -26,7 +26,7 @@ An appropiate vscode build task ships with this repository as well.
 
 ```
 ~/hdzero-goggle$ cd build
-~/hdzero-goggle/build$ make clean all
+~/hdzero-goggle/build$ make clean all -j `nproc`
 ```
 
 The firmware is generated as ~/hdz_goggle/code/out/HDZERO_GOGGLE-x.x.x.bin
@@ -69,8 +69,7 @@ Goggle source code can be built natively on the host machine and used for debugg
 Requires build-essential tools and SDL2 development libraries (libsdl2-dev for debian) to be already installed.
 
 ```
-sudo apt-get install build-essential
-sudo apt-get install libsdl2-dev
+sudo apt-get install build-essential libsdl2-dev
 ```
 
 ### Build and Run
@@ -79,7 +78,7 @@ sudo apt-get install libsdl2-dev
 ~/hdzero-goggle$ mkdir build_emu
 ~/hdzero-goggle$ cd build_emu
 ~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
-~/hdzero-goggle/build_emu$ make -j
+~/hdzero-goggle/build_emu$ make -j `nproc`
 ~/hdzero-goggle/build_emu$ ./HDZGOGGLE
 ```
 
