@@ -19,6 +19,7 @@ void battery_init() {
         g_battery.type = battery_detect_type();
         if (g_battery.type < CELL_MIN_COUNT)
             g_battery.type = CELL_MIN_COUNT;
+        g_setting.power.cell_count = g_battery.type;
         break;
     case SETTING_POWER_CELL_COUNT_MODE_MANUAL:
         g_battery.type = g_setting.power.cell_count;

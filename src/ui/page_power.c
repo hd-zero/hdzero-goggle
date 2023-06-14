@@ -45,6 +45,14 @@ static void page_power_update_cell_count() {
 
     // re-trigger cell detection
     battery_init();
+
+    LOGI("cell_count:%d", g_battery.type);
+    ini_putl("power", "cell_count", g_battery.type, SETTING_INI);
+
+    lv_slider_set_value(slider_group_cell_count.slider, g_battery.type, LV_ANIM_OFF);
+    char buf[5];
+    sprintf(buf, "%d", g_battery.type);
+    lv_label_set_text(slider_group_cell_count.label, buf);
 }
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
@@ -119,16 +127,8 @@ void power_cell_count_inc(void) {
     value = lv_slider_get_value(slider_group_cell_count.slider);
     if (value < CELL_MAX_COUNT)
         value += 1;
-
-    lv_slider_set_value(slider_group_cell_count.slider, value, LV_ANIM_OFF);
-
-    char buf[5];
-    sprintf(buf, "%d", value);
-    lv_label_set_text(slider_group_cell_count.label, buf);
-
     g_setting.power.cell_count = value;
-    LOGI("cell_count:%d", g_setting.power.cell_count);
-    ini_putl("power", "cell_count", g_setting.power.cell_count, SETTING_INI);
+
     page_power_update_cell_count();
 }
 
@@ -139,15 +139,8 @@ void power_cell_count_dec(void) {
     if (value > CELL_MIN_COUNT)
         value -= 1;
 
-    lv_slider_set_value(slider_group_cell_count.slider, value, LV_ANIM_OFF);
-
-    char buf[5];
-    sprintf(buf, "%d", value);
-    lv_label_set_text(slider_group_cell_count.label, buf);
-
     g_setting.power.cell_count = value;
-    LOGI("cell_count:%d", g_setting.power.cell_count);
-    ini_putl("power", "cell_count", g_setting.power.cell_count, SETTING_INI);
+
     page_power_update_cell_count();
 }
 
@@ -194,18 +187,8 @@ static void page_power_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_cell_count_mode);
         g_setting.power.cell_count_mode = btn_group_get_sel(&btn_group_cell_count_mode);
         ini_putl("power", "cell_count_mode", g_setting.power.cell_count_mode, SETTING_INI);
+
         page_power_update_cell_count();
-        if (g_setting.power.cell_count_mode == SETTING_POWER_CELL_COUNT_MODE_AUTO) {
-            g_setting.power.cell_count = g_battery.type;
-
-            LOGI("cell_count:%d", g_setting.power.cell_count);
-            ini_putl("power", "cell_count", g_setting.power.cell_count, SETTING_INI);
-
-            lv_slider_set_value(slider_group_cell_count.slider, g_setting.power.cell_count, LV_ANIM_OFF);
-            char buf[5];
-            sprintf(buf, "%d", g_setting.power.cell_count);
-            lv_label_set_text(slider_group_cell_count.label, buf);
-        }
         break;
 
     case ROW_CELL_COUNT:
