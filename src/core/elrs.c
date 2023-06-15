@@ -25,8 +25,8 @@
 #include "core/msp_displayport.h"
 #include "core/osd.h"
 #include "core/settings.h"
-#include "driver/dm5680.h"
 #include "driver/beep.h"
+#include "driver/dm5680.h"
 #include "driver/hardware.h"
 #include "driver/rtc.h"
 #include "driver/uart.h"
@@ -356,7 +356,8 @@ mspAwaitResposne_e msp_await_resposne(uint16_t function, uint16_t payload_size, 
 
     cancelled = false;
     while (sem_timedwait(&response_semaphore, &ts) == 0) {
-        if (cancelled) return AWAIT_CANCELLED;
+        if (cancelled)
+            return AWAIT_CANCELLED;
         if (response_packet.function == function) {
             if (response_packet.payload_size >= payload_size &&
                 memcmp(response_packet.payload, payload, payload_size) == 0) {
@@ -368,8 +369,7 @@ mspAwaitResposne_e msp_await_resposne(uint16_t function, uint16_t payload_size, 
     return AWAIT_TIMEDOUT;
 }
 
-void msp_cancel_await()
-{
+void msp_cancel_await() {
     cancelled = true;
     sem_post(&response_semaphore);
 }
@@ -396,6 +396,20 @@ void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll) {
 
 bool elrs_headtracking_enabled() {
     return headtracking_enabled;
+}
+
+void msp_channel_update() {
+    // Channel 1...10 for R1...8, F2 and F4
+    uint8_t const ch = g_setting.scan.channel;
+    uint8_t chan;
+    if (ch == 0 || 10 < ch)
+        return; // Invalid value -> ignore
+    if (ch <= 8) {
+        chan = ch - 1 + (4 * 8); // Map R1..8
+    } else {
+        chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+    }
+    msp_send_packet(MSP_SET_BAND_CHAN, MSP_PACKET_COMMAND, sizeof(chan), &chan);
 }
 
 void elrs_clear_osd() {
