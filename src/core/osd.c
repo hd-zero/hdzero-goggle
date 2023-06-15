@@ -486,12 +486,12 @@ void osd_hdzero_update(void) {
         return;
     }
 
-    bool showRXOSD = g_showRXOSD && (g_source_info.source == SOURCE_HDZERO);
+    bool showRXOSD = g_setting.osd.is_visible && (g_source_info.source == SOURCE_HDZERO);
 
-    osd_rec_show(g_showRXOSD);
-    osd_llock_show(g_showRXOSD);
-    osd_topfan_show(g_showRXOSD);
-    osd_battery_voltage_show(g_showRXOSD);
+    osd_rec_show(g_setting.osd.is_visible);
+    osd_llock_show(g_setting.osd.is_visible);
+    osd_topfan_show(g_setting.osd.is_visible);
+    osd_battery_voltage_show(g_setting.osd.is_visible);
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);

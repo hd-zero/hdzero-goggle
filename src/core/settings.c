@@ -71,6 +71,8 @@ const setting_t g_setting_defaults = {
     },
     .osd = {
         .embedded_mode = EMBEDDED_4x3,
+        .startup_visibility = SETTING_OSD_SHOW_AT_STARTUP_SHOW,
+        .is_visible = true,
         .element = {
             // OSD_GOGGLE_TOPFAN_SPEED
             {
@@ -299,6 +301,22 @@ void settings_load(void) {
 
     // osd
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
+    g_setting.osd.startup_visibility = ini_getl("osd", "startup_visibility", g_setting_defaults.osd.startup_visibility, SETTING_INI);
+    g_setting.osd.is_visible = settings_get_bool("osd", "is_visible", g_setting_defaults.osd.is_visible);
+
+    switch (g_setting.osd.startup_visibility) {
+    case SETTING_OSD_SHOW_AT_STARTUP_SHOW:
+        g_setting.osd.is_visible = true;
+        settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
+        break;
+    case SETTING_OSD_SHOW_AT_STARTUP_HIDE:
+        g_setting.osd.is_visible = false;
+        settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
+        break;
+    default:
+        break;
+    }
+
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TOPFAN_SPEED], "topfan_speed", &g_setting_defaults.osd.element[OSD_GOGGLE_TOPFAN_SPEED]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK], "latency_lock", &g_setting_defaults.osd.element[OSD_GOGGLE_LATENCY_LOCK]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VTX_TEMP], "vtx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VTX_TEMP]);

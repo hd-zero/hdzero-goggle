@@ -84,9 +84,11 @@ void tune_channel(uint8_t action) {
             tune_state = 2;
             channel = g_setting.scan.channel;
         } else if (action == DIAL_KEY_CLICK) {
-            g_showRXOSD = !g_showRXOSD;
-            if (g_showRXOSD)
+            g_setting.osd.is_visible = !g_setting.osd.is_visible;
+            if (g_setting.osd.is_visible)
                 channel_osd_mode = CHANNEL_SHOWTIME;
+
+            settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
         }
     }
 
