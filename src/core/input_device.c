@@ -27,6 +27,7 @@
 #include "core/app_state.h"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "core/elrs.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -108,12 +109,16 @@ void tune_channel(uint8_t action) {
             channel--;
         break;
 
+    case DIAL_KEY_PRESS: // confirm to tune with VTX freq send
     case DIAL_KEY_CLICK: // confirm to tune
         if (g_setting.scan.channel != channel) {
             g_setting.scan.channel = channel;
             ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
             dvr_cmd(DVR_STOP);
             app_switch_to_hdzero(true);
+            if (action == DIAL_KEY_PRESS) {
+                msp_channel_update();
+            }
         }
         tune_timer = 0;
         tune_state = 1;
@@ -179,9 +184,12 @@ static void btn_press(void) // long press left key
             break;
         }
         app_state_push(APP_STATE_VIDEO);
-    } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) // video -> Main menu
-        app_switch_to_menu();
-    else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
+    } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) { // video -> Main menu
+        if (tune_timer && g_source_info.source == SOURCE_HDZERO)
+            tune_channel(DIAL_KEY_PRESS);
+        else
+            app_switch_to_menu();
+    } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_cancel_and_hide();
         app_switch_to_menu();
     } else if (g_app_state == APP_STATE_PLAYBACK)

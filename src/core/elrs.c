@@ -410,6 +410,7 @@ void msp_channel_update() {
         chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
     }
     msp_send_packet(MSP_SET_BAND_CHAN, MSP_PACKET_COMMAND, sizeof(chan), &chan);
+    LOGI("MSPv2 MSP_SET_BAND_CHAN %d sent", chan);
 }
 
 void elrs_clear_osd() {
