@@ -302,9 +302,9 @@ void settings_load(void) {
     // osd
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
     g_setting.osd.startup_visibility = ini_getl("osd", "startup_visibility", g_setting_defaults.osd.startup_visibility, SETTING_INI);
-    g_setting.osd.is_visible = settings_get_bool("osd", "is_visible", g_setting_defaults.osd.is_visible);
 
     switch (g_setting.osd.startup_visibility) {
+    default:
     case SETTING_OSD_SHOW_AT_STARTUP_SHOW:
         g_setting.osd.is_visible = true;
         settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
@@ -313,7 +313,8 @@ void settings_load(void) {
         g_setting.osd.is_visible = false;
         settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
         break;
-    default:
+    case SETTING_OSD_SHOW_AT_STARTUP_LAST:
+        g_setting.osd.is_visible = settings_get_bool("osd", "is_visible", g_setting_defaults.osd.is_visible);
         break;
     }
 
