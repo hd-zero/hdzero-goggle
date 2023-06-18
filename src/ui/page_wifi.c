@@ -103,6 +103,13 @@ typedef struct {
 } page_options_t;
 
 /**
+ *  Constants
+ */
+#define PW_MIN_SIZE_STR       "Min 8 Characters"
+#define INVALID_TOO_SHORT_STR "#FF0000 Invalid Too Short#"
+#define INVALID_FORMAT_STR    "#FF0000 Invalid Format#"
+
+/**
  *  Globals
  */
 static lv_coord_t col_dsc[] = {160, 160, 160, 180, 160, 160, LV_GRID_TEMPLATE_LAST};
@@ -549,7 +556,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi.page_1.ssid.input = create_label_item(parent, g_setting.wifi.ssid[g_setting.wifi.mode], 2, 3, 2);
     page_wifi.page_1.passwd.label = create_label_item(parent, "Password", 1, 4, 1);
     page_wifi.page_1.passwd.input = create_label_item(parent, g_setting.wifi.passwd[g_setting.wifi.mode], 2, 4, 2);
-    page_wifi.page_1.passwd.status = create_label_item(parent, "Min 8 Characters", 4, 4, 2);
+    page_wifi.page_1.passwd.status = create_label_item(parent, PW_MIN_SIZE_STR, 4, 4, 2);
 
     page_wifi.page_1.apply_settings = create_label_item(parent, "Apply Settings", 1, 5, 3);
     page_wifi.page_1.back = create_label_item(parent, "< Back", 1, 6, 3);
@@ -596,7 +603,7 @@ static void page_wifi_create_page_2(lv_obj_t *parent) {
 static void page_wifi_create_page_3(lv_obj_t *parent) {
     page_wifi.page_3.root_pw.label = create_label_item(parent, "Root PW", 1, 1, 1);
     page_wifi.page_3.root_pw.input = create_label_item(parent, g_setting.wifi.root_pw, 2, 1, 2);
-    page_wifi.page_3.root_pw.status = create_label_item(parent, "Min 8 Characters", 4, 1, 2);
+    page_wifi.page_3.root_pw.status = create_label_item(parent, PW_MIN_SIZE_STR, 4, 1, 2);
 
     create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", "On", "Off", "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
@@ -673,10 +680,10 @@ static void page_wifi_exit() {
     lv_label_set_text(page_wifi.page_1.ssid.input, page_wifi.page_1.ssid.text[mode]);
     snprintf(page_wifi.page_1.passwd.text[mode], WIFI_PASSWD_MAX, "%s", g_setting.wifi.passwd[mode]);
     lv_label_set_text(page_wifi.page_1.passwd.input, page_wifi.page_1.passwd.text[mode]);
-    lv_label_set_text(page_wifi.page_1.passwd.status, "Min 8 Characters");
+    lv_label_set_text(page_wifi.page_1.passwd.status, PW_MIN_SIZE_STR);
     snprintf(page_wifi.page_3.root_pw.text, WIFI_PASSWD_MAX, "%s", g_setting.wifi.root_pw);
     lv_label_set_text(page_wifi.page_3.root_pw.input, page_wifi.page_3.root_pw.text);
-    lv_label_set_text(page_wifi.page_3.root_pw.status, "Min 8 Characters");
+    lv_label_set_text(page_wifi.page_3.root_pw.status, PW_MIN_SIZE_STR);
 
     page_wifi_dirty_flag_reset();
     page_wifi_apply_settings_reset();
@@ -881,9 +888,9 @@ static void page_wifi_on_right_button(bool is_short) {
                 if (0 < written) {
                     lv_label_set_text(page_wifi.page_3.root_pw.input, page_wifi.page_3.root_pw.text);
                     if (written < 8) {
-                        lv_label_set_text(page_wifi.page_3.root_pw.status, "#FF0000 Invalid Too Short#");
+                        lv_label_set_text(page_wifi.page_3.root_pw.status, INVALID_TOO_SHORT_STR);
                     } else {
-                        lv_label_set_text(page_wifi.page_3.root_pw.status, "Min 8 Characters");
+                        lv_label_set_text(page_wifi.page_3.root_pw.status, PW_MIN_SIZE_STR);
                         page_wifi.page_3.root_pw.dirty =
                             (0 != strcmp(page_wifi.page_3.root_pw.text, g_setting.wifi.root_pw));
                     }
@@ -896,7 +903,7 @@ static void page_wifi_on_right_button(bool is_short) {
                     if (keyboard_get_text(page_wifi.page_2.ip_addr.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.ip_addr.input, page_wifi.page_2.ip_addr.text);
                         if (!page_wifi_is_network_address_valid(page_wifi.page_2.ip_addr.text)) {
-                            lv_label_set_text(page_wifi.page_2.ip_addr.status, "#FF0000 Invalid Format#");
+                            lv_label_set_text(page_wifi.page_2.ip_addr.status, INVALID_FORMAT_STR);
                         } else {
                             lv_label_set_text(page_wifi.page_2.ip_addr.status, "");
                         }
@@ -921,7 +928,7 @@ static void page_wifi_on_right_button(bool is_short) {
                     if (keyboard_get_text(page_wifi.page_2.netmask.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.netmask.input, page_wifi.page_2.netmask.text);
                         if (!page_wifi_is_network_address_valid(page_wifi.page_2.netmask.text)) {
-                            lv_label_set_text(page_wifi.page_2.netmask.status, "#FF0000 Invalid Format#");
+                            lv_label_set_text(page_wifi.page_2.netmask.status, INVALID_FORMAT_STR);
                         } else {
                             lv_label_set_text(page_wifi.page_2.netmask.status, "");
                         }
@@ -939,9 +946,9 @@ static void page_wifi_on_right_button(bool is_short) {
                     if (0 < written) {
                         lv_label_set_text(page_wifi.page_1.passwd.input, page_wifi.page_1.passwd.text[mode]);
                         if (written < 8) {
-                            lv_label_set_text(page_wifi.page_1.passwd.status, "#FF0000 Invalid Too Short#");
+                            lv_label_set_text(page_wifi.page_1.passwd.status, INVALID_TOO_SHORT_STR);
                         } else {
-                            lv_label_set_text(page_wifi.page_1.passwd.status, "Min 8 Characters");
+                            lv_label_set_text(page_wifi.page_1.passwd.status, PW_MIN_SIZE_STR);
                             page_wifi.page_1.passwd.dirty =
                                 (0 != strcmp(page_wifi.page_1.passwd.text[mode], g_setting.wifi.passwd[mode]));
                         }
@@ -952,7 +959,7 @@ static void page_wifi_on_right_button(bool is_short) {
                     if (keyboard_get_text(page_wifi.page_2.gateway.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.gateway.input, page_wifi.page_2.gateway.text);
                         if (!page_wifi_is_network_address_valid(page_wifi.page_2.gateway.text)) {
-                            lv_label_set_text(page_wifi.page_2.gateway.status, "#FF0000 Invalid Format#");
+                            lv_label_set_text(page_wifi.page_2.gateway.status, INVALID_FORMAT_STR);
                         } else {
                             lv_label_set_text(page_wifi.page_2.gateway.status, "");
                         }
@@ -968,7 +975,7 @@ static void page_wifi_on_right_button(bool is_short) {
                     if (keyboard_get_text(page_wifi.page_2.dns.text, WIFI_NETWORK_MAX)) {
                         lv_label_set_text(page_wifi.page_2.dns.input, page_wifi.page_2.dns.text);
                         if (!page_wifi_is_network_address_valid(page_wifi.page_2.dns.text)) {
-                            lv_label_set_text(page_wifi.page_2.dns.status, "#FF0000 Invalid Format#");
+                            lv_label_set_text(page_wifi.page_2.dns.status, INVALID_FORMAT_STR);
                         } else {
                             lv_label_set_text(page_wifi.page_2.dns.status, "");
                         }
