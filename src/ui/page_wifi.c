@@ -195,6 +195,16 @@ static void page_wifi_update_services() {
         fclose(fp);
         system("ln -snf /tmp/resolve.conf /etc/resolve.conf");
     }
+
+    if ((fp = fopen(ROOT_PW_SET, "w"))) {
+        fprintf(fp, "#!/bin/sh\n");
+        fprintf(fp, "passwd << EOF\n");
+        fprintf(fp, "%s\n", g_setting.wifi.passwd[WIFI_MODE_AP]);
+        fprintf(fp, "%s\n", g_setting.wifi.passwd[WIFI_MODE_AP]);
+        fprintf(fp, "EOF\n");
+        fclose(fp);
+        system("chmod +x " ROOT_PW_SET "; " ROOT_PW_SET);
+    }
 }
 
 /**
