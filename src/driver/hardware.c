@@ -77,7 +77,7 @@ void Display_UI_init() {
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
     Display_VO_SWITCH(0);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
@@ -153,7 +153,7 @@ void Display_1080P30_t(int mode) {
 
     system("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P60;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x00);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
