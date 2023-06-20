@@ -18,7 +18,8 @@
 #define WARNING_CELL_VOLTAGE_MAX 42
 
 enum {
-    ROW_CELL_COUNT_MODE = 0,
+    ROW_BATT_C_LABEL = 0,
+    ROW_CELL_COUNT_MODE,
     ROW_CELL_COUNT,
     ROW_WARNING_CELL_VOLTAGE,
     ROW_OSD_DISPLAY_MODE,
@@ -48,6 +49,9 @@ static void page_power_update_cell_count() {
 
     LOGI("cell_count:%d", g_battery.type);
     ini_putl("power", "cell_count", g_battery.type, SETTING_INI);
+
+    sprintf(str, "%dS", g_battery.type);
+    lv_label_set_text(label_cell_count, str);
 
     lv_slider_set_value(slider_group_cell_count.slider, g_battery.type, LV_ANIM_OFF);
     char buf[5];
@@ -84,6 +88,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_select_item(arr, cont);
 
     // create menu entries
+    create_label_item(cont, "Battery", 1, ROW_BATT_C_LABEL, 1);
+    label_cell_count = create_label_item(cont, "-S", 2, ROW_BATT_C_LABEL, 1);
     create_btn_group_item(&btn_group_cell_count_mode, cont, 2, "Cell Count Mode", "Auto", "Manual", "", "", ROW_CELL_COUNT_MODE);
     create_slider_item(&slider_group_cell_count, cont, "Cell Count", CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
     create_slider_item(&slider_group_cell_voltage, cont, "Warning Cell Voltage", WARNING_CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_WARNING_CELL_VOLTAGE);
