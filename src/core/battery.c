@@ -17,6 +17,9 @@ void battery_init() {
     default:
     case SETTING_POWER_CELL_COUNT_MODE_AUTO:
         g_battery.type = battery_detect_type();
+        if (g_battery.type < CELL_MIN_COUNT)
+            g_battery.type = CELL_MIN_COUNT;
+        g_setting.power.cell_count = g_battery.type;
         break;
     case SETTING_POWER_CELL_COUNT_MODE_MANUAL:
         g_battery.type = g_setting.power.cell_count;
@@ -43,11 +46,11 @@ int battery_get_millivolts(bool per_cell) {
     return g_battery.voltage;
 }
 
-void battery_get_voltage_str(char* buf) {
+void battery_get_voltage_str(char *buf) {
     switch (g_setting.power.osd_display_mode) {
 
     default:
-    case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL:{
+    case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL: {
         int bat_mv = battery_get_millivolts(false);
         sprintf(buf, "%dS %d.%dV",
                 g_battery.type,
@@ -56,7 +59,7 @@ void battery_get_voltage_str(char* buf) {
         break;
     }
 
-    case SETTING_POWER_OSD_DISPLAY_MODE_CELL:{
+    case SETTING_POWER_OSD_DISPLAY_MODE_CELL: {
         int bat_mv = battery_get_millivolts(true);
         sprintf(buf, "%dS %d.%dV/C",
                 g_battery.type,
