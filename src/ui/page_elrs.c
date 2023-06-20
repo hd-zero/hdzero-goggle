@@ -21,6 +21,15 @@
 #include "page_version.h"
 #include "ui/ui_style.h"
 
+enum {
+    POS_VTX,
+    POS_PWR,
+    POS_WIFI,
+    POS_BIND,
+    POS_BACK,
+    POS_MAX
+};
+
 static lv_coord_t col_dsc[] = {160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *btn_wifi;
@@ -28,6 +37,7 @@ static lv_obj_t *label_wifi_status;
 static lv_obj_t *btn_bind;
 static lv_obj_t *label_bind_status;
 static lv_obj_t *cancel_label;
+static lv_obj_t *btn_vtx_send;
 static btn_group_t elrs_group;
 static bool binding = false;
 
@@ -56,14 +66,14 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&elrs_group, cont, 2, "Backpack", "On", "Off", "", "", 0);
+    create_btn_group_item(&elrs_group, cont, 2, "Backpack", "On", "Off", "", "", POS_PWR);
     btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
-    btn_wifi = create_label_item(cont, "WiFi", 1, 1, 1);
-    label_wifi_status = create_label_item(cont, "Click to start", 2, 1, 1);
-    btn_bind = create_label_item(cont, "Bind", 1, 2, 1);
-    label_bind_status = create_label_item(cont, "Click to start", 2, 2, 1);
-
-    create_label_item(cont, "< Back", 1, 3, 1);
+    btn_vtx_send = create_label_item(cont, "Send VTX", 1, POS_VTX, 1);
+    btn_wifi = create_label_item(cont, "WiFi", 1, POS_WIFI, 1);
+    label_wifi_status = create_label_item(cont, "Click to start", 2, POS_WIFI, 1);
+    btn_bind = create_label_item(cont, "Bind", 1, POS_BIND, 1);
+    label_bind_status = create_label_item(cont, "Click to start", 2, POS_BIND, 1);
+    create_label_item(cont, "< Back", 1, POS_BACK, 1);
 
     cancel_label = lv_label_create(cont);
     lv_obj_add_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
@@ -73,7 +83,7 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_text_color(cancel_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(cancel_label, 12, 0);
     lv_label_set_long_mode(cancel_label, LV_LABEL_LONG_WRAP);
-    lv_obj_set_grid_cell(cancel_label, LV_GRID_ALIGN_START, 1, 3, LV_GRID_ALIGN_START, 4, 2);
+    lv_obj_set_grid_cell(cancel_label, LV_GRID_ALIGN_START, 1, 3, LV_GRID_ALIGN_START, POS_MAX, 2);
 
     return page;
 }
@@ -125,7 +135,7 @@ static void page_elrs_enter() {
 
 static void page_elrs_on_click(uint8_t key, int sel) {
     page_elrs_reset();
-    if (sel == 0) {
+    if (sel == POS_PWR) {
         btn_group_toggle_sel(&elrs_group);
         g_setting.elrs.enable = btn_group_get_sel(&elrs_group) == 0;
         settings_put_bool("elrs", "enable", g_setting.elrs.enable);
@@ -133,7 +143,10 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             enable_esp32();
         else
             disable_esp32();
-    } else if (sel == 1) // start ESP Wifi
+    } else if (sel == POS_VTX) // Send VTX freq
+    {
+        msp_channel_update();
+    } else if (sel == POS_WIFI) // start ESP Wifi
     {
         lv_label_set_text(label_wifi_status, "Starting...");
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
@@ -142,7 +155,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             lv_label_set_text(label_wifi_status, "#FF0000 FAILED#");
         else
             lv_label_set_text(label_wifi_status, "#00FF00 Success#");
-    } else if (sel == 2) // start ESP bind
+    } else if (sel == POS_BIND) // start ESP bind
     {
         lv_label_set_text(label_bind_status, "Starting...");
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
@@ -193,7 +206,7 @@ static void page_elrs_on_rbtn(bool is_short)
 page_pack_t pp_elrs = {
     .p_arr = {
         .cur = 0,
-        .max = 4,
+        .max = POS_MAX,
     },
     .name = "ELRS",
     .create = page_elrs_create,
