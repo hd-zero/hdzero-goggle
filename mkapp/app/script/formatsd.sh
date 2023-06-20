@@ -17,14 +17,19 @@ else
     echo "Umounting SD Card: FAILURE"
 fi
 
+BLKDEV=/dev/mmcblk0p1
+if [ ! -b "$BLKDEV" ]; then
+    BLKDEV=/dev/mmcblk0
+fi
+
 rm -f /tmp/mkfs.result
-mkfs.vfat -F 32 /dev/mmcblk0 -n "HDZERO" > /tmp/mkfs.log 2>&1
+mkfs.vfat -F 32 "$BLKDEV" -n "HDZERO" > /tmp/mkfs.log 2>&1
 RESULT=$?
 echo "mkfs result: $RESULT" >> /tmp/mkfs.log
 echo $RESULT > /tmp/mkfs.result
 
 echo "Mounting SD Card"
-mount /dev/mmcblk0 /mnt/extsd
+mount "$BLKDEV" /mnt/extsd
 if [ $? -eq 0 ]; then
     echo "Mounting SD Card: SUCCESS"
 else

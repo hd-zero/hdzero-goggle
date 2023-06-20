@@ -13,14 +13,19 @@ else
     echo "Umounting SD Card: FAILURE"
 fi
 
+BLKDEV=/dev/mmcblk0p1
+if [ ! -b "$BLKDEV" ]; then
+    BLKDEV=/dev/mmcblk0
+fi
+
 rm -f /tmp/fsck.result
-/bin/fsck.fat -y /dev/mmcblk0 > /tmp/fsck.log 2>&1
+/bin/fsck.fat -y "$BLKDEV" > /tmp/fsck.log 2>&1
 RESULT=$?
 echo "fsck result: $RESULT" >> /tmp/fsck.log
 echo $RESULT > /tmp/fsck.result
 
 echo "Mounting SD Card"
-mount /dev/mmcblk0 /mnt/extsd
+mount "$BLKDEV" /mnt/extsd
 if [ $? -eq 0 ]; then
     echo "Mounting SD Card: SUCCESS"
 else
