@@ -367,7 +367,7 @@ void pb_key(uint8_t key) {
     done = false;
     switch (key) {
     case DIAL_KEY_UP: // up
-        if (media_db.cur_sel = (media_db.count - 1)) {
+        if (media_db.cur_sel == (media_db.count - 1)) {
             media_db.cur_sel = 0;
         } else {
             media_db.cur_sel++;
