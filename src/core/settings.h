@@ -102,6 +102,12 @@ typedef enum {
     EMBEDDED_16x9
 } setting_embedded_mode_t;
 
+typedef enum {
+    SETTING_OSD_SHOW_AT_STARTUP_SHOW,
+    SETTING_OSD_SHOW_AT_STARTUP_HIDE,
+    SETTING_OSD_SHOW_AT_STARTUP_LAST
+} setting_osd_show_at_startup_t;
+
 typedef struct {
     int x;
     int y;
@@ -139,6 +145,8 @@ typedef enum {
 
 typedef struct {
     setting_embedded_mode_t embedded_mode;
+    setting_osd_show_at_startup_t startup_visibility;
+    bool is_visible;
     setting_osd_goggle_element_t element[OSD_GOGGLE_NUM];
 } setting_osd_t;
 

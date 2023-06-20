@@ -17,6 +17,7 @@
 
 enum {
     ROW_OSD_MODE = 0,
+    ROW_OSD_STARTUP_VISIBILITY,
     ROW_ADJUST_OSD_ELEMENTS,
     ROW_BACK,
 
@@ -28,6 +29,7 @@ static lv_coord_t col_dsc[] = {160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static btn_group_t btn_group_osd_mode;
+static btn_group_t btn_group_osd_startup_visibility;
 
 static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -57,6 +59,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     // create menu entries
     create_label_item(cont, "Adjust OSD Elements", 1, ROW_ADJUST_OSD_ELEMENTS, 1);
     create_btn_group_item(&btn_group_osd_mode, cont, 2, "OSD Mode", "4x3", "16x9", "", "", ROW_OSD_MODE);
+    create_btn_group_item(&btn_group_osd_startup_visibility, cont, 3, "At Startup", "Show", "Hide", "Last", "", ROW_OSD_STARTUP_VISIBILITY);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
     lv_obj_t *label_user_hint = lv_label_create(cont);
@@ -71,6 +74,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     // set ui values from settings
     btn_group_set_sel(&btn_group_osd_mode, g_setting.osd.embedded_mode);
+    btn_group_set_sel(&btn_group_osd_startup_visibility, g_setting.osd.startup_visibility);
 
     return page;
 }
@@ -112,6 +116,12 @@ static void on_click(uint8_t key, int sel) {
 
     case ROW_ADJUST_OSD_ELEMENTS:
         open_element_pos_preview();
+        break;
+
+    case ROW_OSD_STARTUP_VISIBILITY:
+        btn_group_toggle_sel(&btn_group_osd_startup_visibility);
+        g_setting.osd.startup_visibility = btn_group_get_sel(&btn_group_osd_startup_visibility);
+        ini_putl("osd", "startup_visibility", g_setting.osd.startup_visibility, SETTING_INI);
         break;
 
     case ROW_OSD_MODE:

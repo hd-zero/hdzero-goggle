@@ -122,7 +122,6 @@ extern bool g_sdcard_det_req;
 extern int g_sdcard_size;
 extern bool g_autoscan_exit;
 extern bool g_scanning;
-extern bool g_showRXOSD;
 extern bool g_latency_locked;
 extern source_info_t g_source_info;
 
