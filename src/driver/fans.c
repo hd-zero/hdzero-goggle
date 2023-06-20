@@ -10,13 +10,13 @@
 #include "i2c.h"
 #include "uart.h"
 
-uint8_t fan_speeds[3]; // 0=right,1=left,2=top
+fan_speed_t fan_speed;
 
 uint8_t get_topfan_value(uint8_t level) {
     uint8_t topfan_tbl[6] = {0, 17, 33, 41, 62, 100};
     if (level > 5)
         level = 5;
-    fan_speeds[2] = level;
+    fan_speed.top = level;
     return topfan_tbl[level];
 }
 
@@ -27,13 +27,13 @@ void fans_top_setspeed(uint8_t speed) {
 }
 
 void fans_left_setspeed(uint8_t speed) {
-    fan_speeds[1] = speed;
+    fan_speed.left = speed;
     DM5680_SetFanSpeed(1, speed);
     LOGI("fans_left_setspeed: %d", speed);
 }
 
 void fans_right_setspeed(uint8_t speed) {
-    fan_speeds[0] = speed;
+    fan_speed.right = speed;
     DM5680_SetFanSpeed(0, speed);
     LOGI("fans_right_setspeed: %d", speed);
 }

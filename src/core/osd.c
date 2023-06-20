@@ -169,7 +169,7 @@ void osd_topfan_show(bool bShow) {
 
     if (g_setting.fans.top_speed > 5)
         return;
-    osd_resource_path(buf, "fan%d.bmp", is_fhd, fan_speeds[2]);
+    osd_resource_path(buf, "fan%d.bmp", is_fhd, fan_speed.top);
     lv_img_set_src(g_osd_hdzero.topfan_speed[is_fhd], buf);
     lv_obj_clear_flag(g_osd_hdzero.topfan_speed[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
@@ -560,13 +560,13 @@ void osd_hdzero_update(void) {
         lv_obj_add_flag(g_osd_hdzero.ant3[is_fhd], LV_OBJ_FLAG_HIDDEN);
 
     if (g_setting.storage.selftest) {
-        sprintf(buf, "T:%d-%d", fan_speeds[2], g_temperature.top / 10);
+        sprintf(buf, "T:%d-%d", fan_speed.top, g_temperature.top / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][0], buf);
 
-        sprintf(buf, "L:%d-%d", fan_speeds[1], g_temperature.left / 10);
+        sprintf(buf, "L:%d-%d", fan_speed.left, g_temperature.left / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][1], buf);
 
-        sprintf(buf, "R:%d-%d", fan_speeds[0], g_temperature.right / 10);
+        sprintf(buf, "R:%d-%d", fan_speed.right, g_temperature.right / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][2], buf);
     }
 }

@@ -246,19 +246,19 @@ void fans_auto_ctrl_core(bool is_left, int tempe, bool binit) {
 }
 
 bool rescue_from_hot() {
-    static uint8_t speeds_saved[3];
+    static fan_speed_t speed_saved;
     static bool respeeding[3] = {false, false, false};
 
     // Right
     if (g_temperature.right > SIDE_TEMPERATURE_RISKH) {
         if (!respeeding[0]) {
-            speeds_saved[0] = fan_speeds[0];
+            speed_saved.right = fan_speed.right;
             respeeding[0] = true;
             fans_right_setspeed(MAX_FAN_SIDE);
             LOGI("Right fan: rescue ON.\n");
         }
     } else if (respeeding[0] && (g_temperature.right < FAN_TEMPERATURE_THR_L)) {
-        fans_right_setspeed(speeds_saved[0]);
+        fans_right_setspeed(speed_saved.right);
         respeeding[0] = false;
         LOGI("Right fan: rescue OFF.");
     }
@@ -266,13 +266,13 @@ bool rescue_from_hot() {
     // Left
     if (g_temperature.left > SIDE_TEMPERATURE_RISKH) {
         if (!respeeding[1]) {
-            speeds_saved[1] = fan_speeds[1];
+            speed_saved.left = fan_speed.left;
             respeeding[1] = true;
             fans_left_setspeed(MAX_FAN_SIDE);
             LOGI("Left fan: rescue ON.\n");
         }
     } else if (respeeding[1] && (g_temperature.left < FAN_TEMPERATURE_THR_L)) {
-        fans_left_setspeed(speeds_saved[1]);
+        fans_left_setspeed(speed_saved.left);
         respeeding[1] = false;
         LOGI("Left fan: rescue OFF.");
     }
@@ -280,13 +280,13 @@ bool rescue_from_hot() {
     // Top
     if (g_temperature.top > TOP_TEMPERATURE_RISKH) {
         if (!respeeding[2]) {
-            speeds_saved[2] = fan_speeds[2];
+            speed_saved.top = fan_speed.top;
             respeeding[2] = true;
             fans_top_setspeed(MAX_FAN_TOP);
             LOGI("Top fan: rescue ON.\n");
         }
     } else if (respeeding[2] && (g_temperature.top < TOP_TEMPERATURE_NORM)) {
-        fans_top_setspeed(speeds_saved[2]);
+        fans_top_setspeed(speed_saved.top);
         respeeding[2] = false;
         LOGI("Top fan: rescue OFF.");
     }
@@ -301,7 +301,7 @@ bool rescue_from_hot() {
 
 void fans_auto_ctrl() {
     static uint8_t auto_mode_d;
-    static uint8_t speeds[3];
+    static fan_speed_t speed;
     uint8_t binit_r, binit_f;
 
     if (rescue_from_hot())
@@ -316,21 +316,21 @@ void fans_auto_ctrl() {
         fans_auto_ctrl_core(true, g_temperature.left, binit_r);
     } else {
         if (binit_f)
-            speeds[0] = speeds[1] = speeds[2] = 0xFF;
+            speed.top = speed.left = speed.right = 0xFF;
 
-        if (speeds[0] != g_setting.fans.right_speed) {
+        if (speed.right != g_setting.fans.right_speed) {
             fans_right_setspeed(g_setting.fans.right_speed);
-            speeds[0] = g_setting.fans.right_speed;
+            speed.right = g_setting.fans.right_speed;
         }
 
-        if (speeds[1] != g_setting.fans.left_speed) {
+        if (speed.left != g_setting.fans.left_speed) {
             fans_left_setspeed(g_setting.fans.left_speed);
-            speeds[1] = g_setting.fans.left_speed;
+            speed.left = g_setting.fans.left_speed;
         }
 
-        if (speeds[2] != g_setting.fans.top_speed) {
+        if (speed.top != g_setting.fans.top_speed) {
             fans_top_setspeed(g_setting.fans.top_speed);
-            speeds[2] = g_setting.fans.top_speed;
+            speed.top = g_setting.fans.top_speed;
         }
     }
 }

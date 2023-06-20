@@ -1,7 +1,7 @@
 #include "page_sleep.h"
 
-#include "core/common.hh"
 #include "core/app_state.h"
+#include "core/common.hh"
 #include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
@@ -36,7 +36,7 @@ lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 int fans_auto_mode_save;
-int fan_speeds_save[3];
+static fan_speed_t fan_speed_save;
 
 static void page_sleep_enter() {
     LOGI("page_sleep_enter");
@@ -54,9 +54,12 @@ static void page_sleep_enter() {
 
     // Minimum fan
     fans_auto_mode_save = g_setting.fans.auto_mode;
-    fan_speeds_save[0] = fan_speeds[0];
-    fan_speeds_save[1] = fan_speeds[1];
-    fan_speeds_save[2] = fan_speeds[2];
+    fan_speed_save.top = fan_speed.top;
+    fan_speed_save.left = fan_speed.left;
+    fan_speed_save.right = fan_speed.right;
+    g_setting.fans.top_speed = MIN_FAN_TOP;
+    g_setting.fans.left_speed = MIN_FAN_SIDE;
+    g_setting.fans.right_speed = MIN_FAN_SIDE;
     g_setting.fans.auto_mode = 0;
     fans_top_setspeed(MIN_FAN_TOP);
     fans_left_setspeed(MIN_FAN_SIDE);
@@ -67,13 +70,16 @@ static void page_sleep_exit() {
     LOGI("page_sleep_exit");
     OLED_ON(1); // Turn on OLED
     if (getHwRevision() >= HW_REV_2) {
-		DM5680_Power_AnalogModule(g_setting.power.power_ana);
+        DM5680_Power_AnalogModule(g_setting.power.power_ana);
     }
-    
+
+    g_setting.fans.top_speed = fan_speed_save.top;
+    g_setting.fans.left_speed = fan_speed_save.left;
+    g_setting.fans.right_speed = fan_speed_save.right;
     g_setting.fans.auto_mode = fans_auto_mode_save;
-    fans_top_setspeed(fan_speeds_save[2]);
-    fans_left_setspeed(fan_speeds_save[1]);
-    fans_right_setspeed(fan_speeds_save[0]);
+    fans_top_setspeed(fan_speed_save.top);
+    fans_left_setspeed(fan_speed_save.left);
+    fans_right_setspeed(fan_speed_save.right);
 }
 
 static void page_sleep_click(uint8_t key, int sel) {
