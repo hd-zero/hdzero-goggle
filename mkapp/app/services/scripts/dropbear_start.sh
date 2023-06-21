@@ -10,5 +10,3 @@ if [ ! -e /etc/dropbear/dropbear_rsa_host_key ]; then
     mkdir -p /etc/dropbear
     /bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
 fi
-
-dropbear

@@ -4,6 +4,7 @@ sleep 1
 killall rtspLive
 killall hostapd
 killall udhcpd
+killall dropbear
 ifconfig wlan0 down
 rmmod xradio_wlan.ko
 rmmod xradio_core.ko
