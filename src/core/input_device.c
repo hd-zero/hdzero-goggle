@@ -26,8 +26,8 @@
 
 #include "core/app_state.h"
 #include "core/dvr.h"
-#include "core/settings.h"
 #include "core/elrs.h"
+#include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -544,7 +544,7 @@ static void *thread_input_device(void *ptr) {
                     break;
 
                 case SDLK_a:
-                    if (event.key.timestamp - btn_a_start > 500) {
+                    if (event.key.timestamp - btn_a_start > 1500) {
                         rbtn_click(RIGHT_LONG_PRESS);
                         g_key = RIGHT_KEY_PRESS;
                     } else {
