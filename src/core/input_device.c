@@ -26,8 +26,8 @@
 
 #include "core/app_state.h"
 #include "core/dvr.h"
-#include "core/settings.h"
 #include "core/elrs.h"
+#include "core/settings.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -499,7 +499,7 @@ static void *thread_input_device(void *ptr) {
 
     while (true) {
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        while (SDL_WaitEvent(&event)) {
             switch (event.type) {
             case SDL_QUIT:
                 exit(0);
