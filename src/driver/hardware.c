@@ -77,8 +77,8 @@ void Display_UI_init() {
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
     Display_VO_SWITCH(0);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
@@ -105,7 +105,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     system("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
@@ -131,7 +131,7 @@ void Display_720P90_t(int mode) {
     system("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P90;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
@@ -153,8 +153,8 @@ void Display_1080P30_t(int mode) {
 
     system("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P60;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
@@ -258,7 +258,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
     I2C_Write(ADDR_FPGA, 0x89, 0x01);
@@ -281,7 +281,7 @@ void Source_HDMI_in() {
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x04);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
     HDZero_Close();
@@ -501,7 +501,7 @@ void HDMI_in_detect() {
                         system("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
@@ -515,7 +515,7 @@ void HDMI_in_detect() {
                         system("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = HW_VDPO_720P100;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x04);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
