@@ -26,7 +26,7 @@ const setting_t g_setting_defaults = {
         .right_speed = 5,
     },
     .autoscan = {
-        .status = SETTING_AUTOSCAN_STATUS_ON,
+        .status = SETTING_AUTOSCAN_STATUS_OFF,
         .last_source = SETTING_AUTOSCAN_SOURCE_LAST,
         .source = SETTING_AUTOSCAN_SOURCE_HDZERO,
     },
@@ -271,10 +271,6 @@ void settings_reset(void) {
 void settings_init(void) {
     // check if backup of old settings file exists after goggle update
     if (file_exists("/mnt/UDISK/setting.ini")) {
-        char buf[256];
-        sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
-        system(buf);
-        usleep(10);
         system("rm /mnt/UDISK/setting.ini");
     }
 
