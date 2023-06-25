@@ -130,7 +130,7 @@ void Display_720P90_t(int mode) {
 
     system("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P90;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x04);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
