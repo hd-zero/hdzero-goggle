@@ -5,7 +5,6 @@
 #include "ui/ui_style.h"
 
 #define TMP_DIR             "/tmp"
-#define MEDIA_FILES_DIR     "/mnt/extsd/movies"
 #define AUDIO_SEL_SH        "/mnt/app/script/audio_sel.sh"
 #define SETTING_INI_VERSION 1
 #ifndef EMULATOR_BUILD
