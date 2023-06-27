@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -62,4 +63,13 @@ long file_get_size(const char *filename) {
         return 0;
     }
     return st.st_size;
+}
+
+const char *file_get_name(const char *path) {
+    for (int i = strlen(path); i >= 0; --i) {
+        if (path[i] == '/') {
+            return &path[i + 1];
+        }
+    }
+    return path;
 }

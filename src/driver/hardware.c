@@ -23,6 +23,7 @@
 #include "msp_displayport.h"
 #include "oled.h"
 #include "uart.h"
+#include "util/system.h"
 
 /////////////////////////////////////////////////////////////////////////
 // global
@@ -73,7 +74,7 @@ void Display_UI_init() {
     g_hw_stat.source_mode = HW_SRC_MODE_UI;
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    system("dispw -s vdpo 1080p50");
+    system_exec("dispw -s vdpo 1080p50");
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
     Display_VO_SWITCH(0);
 
@@ -84,7 +85,7 @@ void Display_UI_init() {
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     OLED_SetTMG(0);
-    system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_UI() {
@@ -102,7 +103,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     OLED_display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    system("dispw -s vdpo 720p60");
+    system_exec("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
     I2C_Write(ADDR_FPGA, 0x8e, 0x04);
@@ -121,14 +122,14 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     g_hw_stat.source_mode = HW_SRC_MODE_HDZERO;
     Display_VO_SWITCH(1);
     OLED_display(1);
-    system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_720P90_t(int mode) {
     OLED_display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    system("dispw -s vdpo 720p90");
+    system_exec("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = HW_VDPO_720P90;
     I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x04);
@@ -144,14 +145,14 @@ void Display_720P90_t(int mode) {
     g_hw_stat.source_mode = HW_SRC_MODE_HDZERO;
     Display_VO_SWITCH(1);
     OLED_display(1);
-    system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_1080P30_t(int mode) {
     OLED_display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    system("dispw -s vdpo 1080p60");
+    system_exec("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = HW_VDPO_1080P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x10);
     I2C_Write(ADDR_FPGA, 0x8e, 0x04);
@@ -168,7 +169,7 @@ void Display_1080P30_t(int mode) {
     g_hw_stat.source_mode = HW_SRC_MODE_HDZERO;
     Display_VO_SWITCH(1);
     OLED_display(1);
-    system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_720P60_50(int mode, uint8_t is_43) {
@@ -218,16 +219,16 @@ void HDZero_Close() {
 
 void AV_Mode_Switch_fpga(int is_pal) {
     if (is_pal) {
-        system("dispw -s vdpo 720p50");
+        system_exec("dispw -s vdpo 720p50");
         g_hw_stat.vdpo_tmg = HW_VDPO_720P50;
         I2C_Write(ADDR_FPGA, 0x80, 0x10);
     } else {
-        system("dispw -s vdpo 720p60");
+        system_exec("dispw -s vdpo 720p60");
         g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
         I2C_Write(ADDR_FPGA, 0x80, 0x00);
     }
     I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-    system("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void AV_Mode_Switch(int is_pal) {
@@ -339,7 +340,7 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
             else if (cam_mode_last == VR_1080P30)
                 fhd_req = -1;
             dvr_update_vi_conf(CAM_MODE);
-            system(REC_STOP_LIVE);
+            system_script(REC_STOP_LIVE);
             cam_mode_last = CAM_MODE;
             ret = 1;
         }
@@ -498,7 +499,7 @@ void HDMI_in_detect() {
                     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
                     if (vtmg == 1) {
-                        system("dispw -s vdpo 1080p50");
+                        system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
                         I2C_Write(ADDR_FPGA, 0x8e, 0x04);
@@ -512,7 +513,7 @@ void HDMI_in_detect() {
                         OLED_display(1);
                         g_hw_stat.hdmiin_vtmg = 1;
                     } else if (vtmg == 2) {
-                        system("dispw -s vdpo 720p30"); // 100fps actually
+                        system_exec("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = HW_VDPO_720P100;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x04);
                         I2C_Write(ADDR_FPGA, 0x8e, 0x04);

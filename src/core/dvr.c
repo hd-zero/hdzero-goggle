@@ -12,6 +12,7 @@
 #include "core/settings.h"
 #include "driver/hardware.h"
 #include "ui/page_common.h"
+#include "util/system.h"
 
 bool dvr_is_recording = false;
 
@@ -41,14 +42,14 @@ void dvr_enable_line_out(bool enable) {
     char buf[128];
     if (enable) {
         sprintf(buf, "%s out_on", AUDIO_SEL_SH);
-        system(buf);
+        system_exec(buf);
         sprintf(buf, "%s out_linein_on", AUDIO_SEL_SH);
-        system(buf);
+        system_exec(buf);
         sprintf(buf, "%s out_dac_off", AUDIO_SEL_SH);
-        system(buf);
+        system_exec(buf);
     } else {
         sprintf(buf, "%s out_off", AUDIO_SEL_SH);
-        system(buf);
+        system_exec(buf);
     }
 }
 
@@ -62,7 +63,7 @@ void dvr_select_audio_source(uint8_t source) {
     if (source > 2)
         source = 2;
     sprintf(buf, "%s %s", AUDIO_SEL_SH, audio_source[source]);
-    system(buf);
+    system_exec(buf);
 }
 
 void dvr_update_vi_conf(video_resolution_t fmt) {
@@ -162,13 +163,13 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         if (!dvr_is_recording && g_sdcard_size >= 103) {
             dvr_update_record_conf();
             dvr_is_recording = true;
-            system(REC_START);
+            system_script(REC_START);
             sleep(2); // wait for record process
         }
     } else {
         if (dvr_is_recording) {
             dvr_is_recording = false;
-            system(REC_STOP);
+            system_script(REC_STOP);
             sleep(2); // wait for record process
         }
     }

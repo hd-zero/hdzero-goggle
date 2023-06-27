@@ -19,6 +19,7 @@
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
 #include "ui/ui_style.h"
+#include "util/system.h"
 
 /**
  * Types
@@ -135,7 +136,7 @@ static void page_wifi_update_services() {
         fprintf(fp, "route add default gw %s\n", g_setting.wifi.gateway);
         fprintf(fp, "/mnt/app/app/record/rtspLive&\n");
         fclose(fp);
-        system("chmod +x " WIFI_AP_ON);
+        system_exec("chmod +x " WIFI_AP_ON);
     }
 
     if ((fp = fopen(WIFI_STA_ON, "w"))) {
@@ -164,7 +165,7 @@ static void page_wifi_update_services() {
         fprintf(fp, "/mnt/app/app/record/rtspLive&\n");
 
         fclose(fp);
-        system("chmod +x " WIFI_STA_ON);
+        system_exec("chmod +x " WIFI_STA_ON);
     }
 
     if ((fp = fopen("/tmp/hostapd.conf", "w"))) {
@@ -215,7 +216,7 @@ static void page_wifi_update_services() {
         fprintf(fp, "nameserver %s\n", g_setting.wifi.dns);
         fprintf(fp, "options wlan0 trust-ad\n");
         fclose(fp);
-        system("ln -snf /tmp/resolve.conf /etc/resolve.conf");
+        system_exec("ln -snf /tmp/resolve.conf /etc/resolve.conf");
     }
 
     if ((fp = fopen(ROOT_PW_SET, "w"))) {
@@ -225,11 +226,11 @@ static void page_wifi_update_services() {
         fprintf(fp, "%s\n", g_setting.wifi.root_pw);
         fprintf(fp, "EOF\n");
         fclose(fp);
-        system("chmod +x " ROOT_PW_SET "; " ROOT_PW_SET);
+        system_exec("chmod +x " ROOT_PW_SET "; " ROOT_PW_SET);
     }
 
     if (g_setting.wifi.ssh) {
-        system("dropbear");
+        system_exec("dropbear");
     }
 }
 
@@ -297,16 +298,16 @@ static void page_wifi_update_settings() {
     settings_put_bool("wifi", "ssh", g_setting.wifi.ssh);
 
     // Prepare WiFi interfaces
-    system(WIFI_OFF);
+    system_script(WIFI_OFF);
     page_wifi_update_services();
 
     // Activate WiFi interface
     if (g_setting.wifi.enable) {
         dvr_update_vi_conf(VR_1080P30);
         if (WIFI_MODE_AP == g_setting.wifi.mode) {
-            system(WIFI_AP_ON);
+            system_script(WIFI_AP_ON);
         } else {
-            system(WIFI_STA_ON);
+            system_script(WIFI_STA_ON);
         }
     }
 }

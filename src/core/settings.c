@@ -10,6 +10,7 @@
 #include "core/self_test.h"
 #include "ui/page_common.h"
 #include "util/file.h"
+#include "util/system.h"
 
 #define SETTINGS_INI_VERSION_UNKNOWN 0
 
@@ -258,11 +259,11 @@ void settings_reset(void) {
     char buf[256];
 
     sprintf(buf, "rm -f %s", SETTING_INI);
-    system(buf);
+    system_exec(buf);
     usleep(50);
 
     sprintf(buf, "touch %s", SETTING_INI);
-    system(buf);
+    system_exec(buf);
     usleep(50);
 
     ini_putl("settings", "file_version", SETTING_INI_VERSION, SETTING_INI);
@@ -273,9 +274,9 @@ void settings_init(void) {
     if (file_exists("/mnt/UDISK/setting.ini")) {
         char buf[256];
         sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
-        system(buf);
+        system_exec(buf);
         usleep(10);
-        system("rm /mnt/UDISK/setting.ini");
+        system_exec("rm /mnt/UDISK/setting.ini");
     }
 
     int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);

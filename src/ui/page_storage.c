@@ -11,6 +11,7 @@
 #include "ui/page_playback.h"
 #include "util/file.h"
 #include "util/sdcard.h"
+#include "util/system.h"
 
 /**
  * Types
@@ -121,7 +122,7 @@ static format_codes_t page_storage_format_sd() {
     }
 
     unlink(results_file);
-    system(shell_command);
+    system_exec(shell_command);
 
     int timeout_interval = 0;
     while (!file_exists(log_file) && ++timeout_interval < 5) {
@@ -193,7 +194,7 @@ static repair_codes_t page_storage_repair_sd() {
     }
 
     unlink(results_file);
-    system(shell_command);
+    system_exec(shell_command);
 
     int timeout_interval = 0;
     while (!file_exists(log_file) && ++timeout_interval < 5) {
@@ -230,7 +231,7 @@ static repair_codes_t page_storage_repair_sd() {
                         } else {
                             status = RPC_SUCCESS_NO_CHANGES;
                         }
-                        system(shell_move_files);
+                        system_exec(shell_move_files);
                     }
                     fclose(results);
                 }
