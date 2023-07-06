@@ -29,6 +29,7 @@
 #include "ui/page_version.h"
 #include "ui/ui_porting.h"
 #include "util/sdcard.h"
+#include "util/system.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
@@ -98,7 +99,7 @@ static void check_hdzero_signal(int vtmg_change) {
     if ((g_source_info.source == SOURCE_HDZERO) && vtmg_change) {
         LOGI("HDZero VTMG change (A)\n");
         dvr_cmd(DVR_STOP);
-        system(REC_STOP_LIVE);
+        system_script(REC_STOP_LIVE);
         cnt = 0;
     }
 

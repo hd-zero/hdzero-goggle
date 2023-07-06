@@ -18,6 +18,7 @@
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
+#include "util/system.h"
 
 app_state_t g_app_state = APP_STATE_MAINMENU;
 
@@ -51,7 +52,7 @@ void app_switch_to_menu() {
     if (g_source_info.source == SOURCE_HDMI_IN) // HDMI
         IT66121_init();
 
-    system(REC_STOP_LIVE);
+    system_script(REC_STOP_LIVE);
 }
 
 void app_switch_to_analog(bool is_bay) {
@@ -70,7 +71,7 @@ void app_switch_to_analog(bool is_bay) {
 
     // usleep(300*1000);
     sleep(1);
-    system(REC_STOP_LIVE);
+    system_script(REC_STOP_LIVE);
 }
 
 void app_switch_to_hdmi_in() {
@@ -95,7 +96,7 @@ void app_switch_to_hdmi_in() {
     g_setting.autoscan.last_source = SETTING_AUTOSCAN_SOURCE_HDMI_IN;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
-    system(REC_STOP_LIVE);
+    system_script(REC_STOP_LIVE);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -154,10 +155,10 @@ void app_switch_to_hdzero(bool is_default) {
     osd_show(true);
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
-    
+
     g_setting.autoscan.last_source = SETTING_AUTOSCAN_SOURCE_HDZERO;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     dvr_update_vi_conf(CAM_MODE);
-    system(REC_STOP_LIVE);
+    system_script(REC_STOP_LIVE);
 }

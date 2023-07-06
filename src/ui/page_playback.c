@@ -19,6 +19,7 @@
 #include "ui/ui_style.h"
 #include "util/file.h"
 #include "util/math.h"
+#include "util/system.h"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -214,7 +215,7 @@ static int walk_sdcard() {
     // copy all thumbnail files to /tmp
     char fname[128];
     sprintf(fname, "cp %s/*.jpg %s", MEDIA_FILES_DIR, TMP_DIR);
-    system(fname);
+    system_exec(fname);
 
     return media_db.count;
 }
@@ -301,9 +302,9 @@ static void mark_video_file(int seq) {
 
     char cmd[256];
     sprintf(cmd, "mv  %s/%s %s/hot_hdz_%03d.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, index, pnode->ext);
-    system(cmd);
+    system_exec(cmd);
     sprintf(cmd, "mv %s/%s.jpg %s/hot_hdz_%03d.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, index);
-    system(cmd);
+    system_exec(cmd);
 
     walk_sdcard();
     media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
@@ -320,7 +321,7 @@ static void delete_video_file(int seq) {
     char cmd[128];
     sprintf(cmd, "rm %s/%s.*", MEDIA_FILES_DIR, pnode->label);
 
-    if (system(cmd) != -1) {
+    if (system_exec(cmd) != -1) {
         walk_sdcard();
         media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
         update_page();

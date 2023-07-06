@@ -12,16 +12,17 @@
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
 #include "core/settings.h"
+#include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
-#include "driver/beep.h"
 #include "driver/i2c.h"
 #include "driver/uart.h"
 #include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_style.h"
 #include "util/file.h"
+#include "util/system.h"
 
 enum {
     ROW_CUR_VERSION = 0,
@@ -334,7 +335,7 @@ static void page_version_on_click(uint8_t key, int sel) {
                 usleep(100000);
             }
             fclose(fp);
-            // system("rm /tmp/wr_reg");
+            // system_exec("rm /tmp/wr_reg");
         }
 
         fp = fopen("/tmp/rd_reg", "r");
@@ -348,7 +349,7 @@ static void page_version_on_click(uint8_t key, int sel) {
             LOGI("DM5680_1 REG[%02x,%02x]-> %02x", dat[0], dat[1], rx_status[1].rx_regval);
         }
         fclose(fp);
-        // system("rm /tmp/rd_reg");
+        // system_exec("rm /tmp/rd_reg");
     } else if (sel == ROW_RESET_ALL_SETTINGS) {
         if (reset_all_settings_confirm) {
             settings_reset();
@@ -381,8 +382,8 @@ static void page_version_on_click(uint8_t key, int sel) {
         }
         lv_timer_handler();
 
-        system("rm /tmp/HDZERO_TX.bin");
-        system("rm /tmp/HDZERO_TX_RB.bin");
+        system_exec("rm /tmp/HDZERO_TX.bin");
+        system_exec("rm /tmp/HDZERO_TX_RB.bin");
 
         sleep(2);
         beep();
