@@ -10,6 +10,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "driver/dm5680.h"
+#include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
@@ -98,7 +99,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Off", "", "", ROW_POWER_ANA);
+        create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Auto", "", "", ROW_POWER_ANA);
     }
 
     // Back entry
@@ -248,7 +249,7 @@ static void page_power_on_click(uint8_t key, int sel) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
-            DM5680_Power_AnalogModule(g_setting.power.power_ana);
+            Analog_Module_Power(1); 
         }
         break;
 
