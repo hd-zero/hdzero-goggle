@@ -527,16 +527,16 @@ void osd_hdzero_update(void) {
         osd_battery_low_show();
     }
 
-    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[0]));
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[1]));
     lv_img_set_src(g_osd_hdzero.ant0[is_fhd], buf);
 
-    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[1]));
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[0].rx_rssi[0]));
     lv_img_set_src(g_osd_hdzero.ant1[is_fhd], buf);
 
-    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[0]));
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[1]));
     lv_img_set_src(g_osd_hdzero.ant2[is_fhd], buf);
 
-    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[1]));
+    osd_resource_path(buf, "ant%d.bmp", is_fhd, RSSI2Ant(rx_status[1].rx_rssi[0]));
     lv_img_set_src(g_osd_hdzero.ant3[is_fhd], buf);
 
     if (showRXOSD && g_setting.osd.element[OSD_GOGGLE_ANT0].show)
