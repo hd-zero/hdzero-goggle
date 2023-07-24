@@ -10,6 +10,8 @@
 #define FFPack_bufSIZE 65535
 #define FFPack(p)      ((FFPack_t *)(p))
 
+static AVDictionary *ffpack_encoder_params = NULL;
+
 void ff_printerr(char *sPrefix, int err) {
     char strError[256] = {0};
     av_strerror(err, strError, 256);
@@ -95,6 +97,9 @@ FFPack_t *ffpack_openFile(char *sName, void *context) {
     }
 
     ff->cbContext = context;
+
+    // Configure AvDictionary
+    av_dict_set(&ffpack_encoder_params, "movflags", "faststart+frag_keyframe+empty_moov", 0);
 
     LOGD("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
 
@@ -296,7 +301,7 @@ int ffpack_start(FFPack_t *ff) {
 
     // ffpack_dumpTimebase(ff);
 
-    ret = avformat_write_header(ff->ofmtContext, NULL);
+    ret = avformat_write_header(ff->ofmtContext, &ffpack_encoder_params);
     if (ret < 0) {
         ff_printerr("failed: ", ret);
         return ret;
