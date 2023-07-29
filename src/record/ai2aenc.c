@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "ai2aenc.h"
+#include "record.h"
 
 static void ai2aenc_configAiAttr(Ai2Aenc_t *aa, AiParams_t *param) {
     memset(&aa->aiAttr, 0, sizeof(AIO_ATTR_S));
@@ -31,14 +32,21 @@ static void ai2aenc_configAiAttr(Ai2Aenc_t *aa, AiParams_t *param) {
 }
 
 static void ai2aenc_configAencAttr(Ai2Aenc_t *aa, AiParams_t *aiParam, AencParams_t *aeParam) {
+    RecordContext_t *recCtx = (RecordContext_t *)aa->contextOfOnFrame;
+
     memset(&aa->aeAttr, 0, sizeof(AENC_ATTR_S));
 
     aa->aeAttr.sampleRate = aiParam->sampleRate;
     aa->aeAttr.channels = aiParam->channels;
     aa->aeAttr.bitRate = aeParam->bitRate; // usful when codec G726
     aa->aeAttr.bitsPerSample = aiParam->bitsPerSample;
-    aa->aeAttr.attachAACHeader = 1; // ADTS
     aa->aeAttr.Type = aeParam->codecType;
+
+    if (strcmp(recCtx->params.packType, REC_packTS) == 0) {
+        aa->aeAttr.attachAACHeader = 1; // ADTS
+    } else {
+        aa->aeAttr.attachAACHeader = 0; // ACC
+    }
 }
 
 static ERRORTYPE MPPCallbackWrapper(void *cookie, MPP_CHN_S *pChn, MPP_EVENT_TYPE event, void *pEventData) {

@@ -99,7 +99,7 @@ FFPack_t *ffpack_openFile(char *sName, void *context) {
     ff->cbContext = context;
 
     // Configure AvDictionary
-    av_dict_set(&ffpack_encoder_params, "movflags", "frag_keyframe", 0);
+    av_dict_set(&ffpack_encoder_params, "movflags", "frag_keyframe+empty_moov+default_base_moof", 0);
 
     LOGD("format %s[%s]\n", ff->ofmtContext->oformat->name, ff->ofmtContext->oformat->long_name);
 
