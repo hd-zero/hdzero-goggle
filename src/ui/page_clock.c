@@ -55,9 +55,7 @@ typedef struct {
 } dropdown_list_t;
 
 typedef struct {
-    lv_obj_t *date;
-    lv_obj_t *time;
-    lv_obj_t *format;
+    lv_obj_t *datetime;
 } date_time_t;
 
 /**
@@ -176,21 +174,15 @@ static lv_obj_t *page_clock_create_datetime_item_attr(lv_obj_t *parent, int row)
  * Create a datetime_t object and initialize their respective fields.
  */
 static void page_clock_create_datetime_item(lv_obj_t *parent, int row) {
-    page_clock_datetime.date = page_clock_create_datetime_item_attr(parent, row);
-    lv_obj_set_style_pad_left(page_clock_datetime.date, 0, 0);
-    page_clock_datetime.time = page_clock_create_datetime_item_attr(parent, row);
-    lv_obj_set_style_pad_left(page_clock_datetime.time, 100, 0);
-    page_clock_datetime.format = page_clock_create_datetime_item_attr(parent, row);
-    lv_obj_set_style_pad_left(page_clock_datetime.format, 170, 0);
+    page_clock_datetime.datetime = page_clock_create_datetime_item_attr(parent, row);
+    lv_obj_set_style_pad_left(page_clock_datetime.datetime, 0, 0);
 }
 
 /**
  * Clear all visible fields from datetime_t objects.
  */
 static void page_clock_clear_datetime() {
-    lv_label_set_text(page_clock_datetime.date, "");
-    lv_label_set_text(page_clock_datetime.time, "");
-    lv_label_set_text(page_clock_datetime.format, "");
+    lv_label_set_text(page_clock_datetime.datetime, "");
 }
 
 /**
@@ -198,23 +190,9 @@ static void page_clock_clear_datetime() {
  */
 static void page_clock_refresh_datetime() {
     char text[128];
-    struct rtc_date date;
-    rtc_get_clock(&date);
 
-    snprintf(text, sizeof(text), "%04d/%02d/%02d", date.year, date.month, date.day);
-    lv_label_set_text(page_clock_datetime.date, text);
-
-    int hour = date.hour;
-    if (g_setting.clock.format == 0) {
-        if (hour > 12) {
-            hour -= 12;
-        }
-        hour = hour == 0 ? 12 : hour;
-    }
-    snprintf(text, sizeof(text), "%02d:%02d:%02d", hour, date.min, date.sec);
-    lv_label_set_text(page_clock_datetime.time, text);
-    snprintf(text, sizeof(text), "%s", g_setting.clock.format == 0 ? (date.hour > 11 ? "PM" : "AM") : "");
-    lv_label_set_text(page_clock_datetime.format, text);
+    rtc_get_clock_osd_str(text, sizeof(text));
+    lv_label_set_text(page_clock_datetime.datetime, text);
 }
 
 /**

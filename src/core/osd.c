@@ -32,6 +32,7 @@
 #include "ui/page_fans.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
+#include "rtc.h"
 
 extern const lv_font_t conthrax_26;
 extern const lv_font_t robotomono_26;
@@ -158,6 +159,19 @@ void osd_battery_voltage_show(bool bShow) {
         lv_obj_set_style_text_color(g_osd_hdzero.battery_voltage[is_fhd], lv_color_make(255, 255, 255), 0);
 
     lv_obj_clear_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
+}
+
+void osd_clock_show(bool bShow) {
+    if (!bShow || !g_setting.osd.element[OSD_GOGGLE_CLOCK].show) {
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd], LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+
+    char buf[128];
+    rtc_get_clock_osd_str(buf, sizeof(buf));
+    lv_label_set_text(g_osd_hdzero.clock[is_fhd], buf);
+    lv_obj_set_style_text_color(g_osd_hdzero.clock[is_fhd], lv_color_make(255, 255, 255), 0);
+    lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
 void osd_topfan_show(bool bShow) {
@@ -364,6 +378,11 @@ void osd_show_all_elements() {
     else
         lv_obj_add_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
 
+    if (g_setting.osd.element[OSD_GOGGLE_CLOCK].show)
+        lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd], LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd], LV_OBJ_FLAG_HIDDEN);
+
     if (g_setting.osd.element[OSD_GOGGLE_VTX_TEMP].show)
         lv_obj_clear_flag(g_osd_hdzero.vtx_temp[is_fhd], LV_OBJ_FLAG_HIDDEN);
     else
@@ -479,6 +498,7 @@ void osd_hdzero_update(void) {
     if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         // show actual value so text length is correct, to make it easier to position
         osd_battery_voltage_show(true);
+        osd_clock_show(true);
 
         // some elements might not be visible, set dummy sources to show them
         osd_elements_set_dummy_sources();
@@ -492,6 +512,7 @@ void osd_hdzero_update(void) {
     osd_llock_show(g_setting.osd.is_visible);
     osd_topfan_show(g_setting.osd.is_visible);
     osd_battery_voltage_show(g_setting.osd.is_visible);
+    osd_clock_show(g_setting.osd.is_visible);
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
@@ -609,6 +630,9 @@ static void embedded_osd_init(uint8_t fhd) {
     osd_object_create_label(fhd, &g_osd_hdzero.battery_voltage[fhd], "1S 0.0V", &g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].position, so);
     lv_obj_set_style_bg_color(g_osd_hdzero.battery_voltage[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
 
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd], "2023-07-30 14:50:23", &g_setting.osd.element[OSD_GOGGLE_CLOCK].position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
+
     osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
     osd_object_create_gif(fhd, &g_osd_hdzero.vrx_temp[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].position, so);
 
@@ -644,6 +668,7 @@ void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.vtx_temp[is_fhd], &g_setting.osd.element[OSD_GOGGLE_VTX_TEMP].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.battery_low[is_fhd], &g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.battery_voltage[is_fhd], &g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE].position);
+    osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd], &g_setting.osd.element[OSD_GOGGLE_CLOCK].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.vrx_temp[is_fhd], &g_setting.osd.element[OSD_GOGGLE_VRX_TEMP].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.latency_lock[is_fhd], &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.sd_rec[is_fhd], &g_setting.osd.element[OSD_GOGGLE_SD_REC].position);

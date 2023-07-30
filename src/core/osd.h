@@ -26,6 +26,7 @@ typedef struct {
     lv_obj_t *vtx_temp[2];
     lv_obj_t *battery_low[2];
     lv_obj_t *battery_voltage[2];
+    lv_obj_t *clock[2];
     lv_obj_t *vrx_temp[2];
     lv_obj_t *latency_lock[2];
     lv_obj_t *channel[2];

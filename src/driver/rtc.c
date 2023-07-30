@@ -25,7 +25,7 @@
  *  Constants
  */
 #define RTC_LOG_FORMAT       "%04u-%02u-%02uT%02u_%02u_%02u"
-#define RTC_OSD_FORMAT       "%04u/%02u/%02u %02u:%02u:%02u"
+#define RTC_OSD_FORMAT       "%04d/%02d/%02d %02d:%02d:%02d %s"
 #define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
 
 static const char *RTC_DEV = "/dev/rtc";
@@ -130,13 +130,20 @@ void rtc_rt2rd(const struct rtc_time *rt, struct rtc_date *rd) {
     rd->sec = rt->tm_sec;
 }
 int rtc_date2str(const struct rtc_date *rd, char *buffer, int size) {
-    return snprintf(buffer, size, RTC_OSD_FORMAT,
-                    rd->year,
-                    rd->month,
-                    rd->day,
-                    rd->hour,
-                    rd->min,
-                    rd->sec);
+    int hour = rd->hour;
+    if (g_setting.clock.format == 0) {
+        if (hour > 12) {
+            hour -= 12;
+        }
+        hour = hour == 0 ? 12 : hour;
+    }
+
+    return snprintf(buffer, size, RTC_OSD_FORMAT, 
+        rd->year, rd->month, rd->day,
+        hour, rd->min, rd->sec,
+        g_setting.clock.format == 0 ? (rd->hour > 11 ? "PM" : "AM") : ""
+    );
+
 }
 
 /**
@@ -281,17 +288,11 @@ int rtc_get_clock_log_str(char *buffer, int size) {
 }
 
 /**
- *  Formats buffer to an OSD pretty UTC string.
+ *  Formats buffer to an OSD string.
  *  Returns the number of characters written.
  */
 int rtc_get_clock_osd_str(char *buffer, int size) {
     struct rtc_date rd;
     rtc_get_clock(&rd);
-    return snprintf(buffer, size, RTC_OSD_FORMAT,
-                    rd.year,
-                    rd.month,
-                    rd.day,
-                    rd.hour,
-                    rd.min,
-                    rd.sec);
+    return rtc_date2str(&rd, buffer, size);
 }
