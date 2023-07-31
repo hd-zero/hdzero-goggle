@@ -65,6 +65,8 @@ void Set_Saturation(uint8_t sat);
 void Set_HT_status(uint8_t is_open, uint8_t frame_period, uint8_t sync_len);
 void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2);
 
+void Analog_Module_Power(bool Force);
+
 int HDZERO_detect();
 int AV_in_detect();
 void HDMI_in_detect();
