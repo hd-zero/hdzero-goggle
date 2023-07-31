@@ -185,11 +185,14 @@ void statubar_update(void) {
     if ((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source)) {
         memset(buf, 0, sizeof(buf));
         if (g_source_info.source == SOURCE_HDZERO) { // HDZero
-            int ch = g_setting.scan.channel & 0xF;
-            if (ch > 8)
-                sprintf(buf, "RF: HDZero F%d", (ch - 8) * 2);
-            else
+            int ch = g_setting.scan.channel & 0x7F;
+            if (ch <= 8) {
                 sprintf(buf, "RF: HDZero R%d", ch);
+            } else if (ch <= 10) {
+                sprintf(buf, "RF: HDZero F%d", (ch - 8) * 2);
+            } else {
+                sprintf(buf, "RF: HDZero L%d", ch - 10);
+            }
         } else if (g_source_info.source == SOURCE_HDMI_IN)
             sprintf(buf, "HDMI In");
         else if (g_source_info.source == SOURCE_AV_IN)

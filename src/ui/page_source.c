@@ -85,11 +85,14 @@ void source_status_timer() {
     if (!in_sourcepage)
         return;
 
-    ch = g_setting.scan.channel & 0xF;
-    if (ch > 8)
-        sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
-    else
+    ch = g_setting.scan.channel & 0x7F;
+    if (ch <= 8) {
         sprintf(buf, "HDZero: R%d", ch);
+    } else if (ch <= 10) {
+        sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
+    } else {
+        sprintf(buf, "HDZero: L%d", ch - 10);
+    }
     lv_label_set_text(label[0], buf);
 
     sprintf(buf, "HDMI In: %s", state2string(g_source_info.hdmi_in_status));
