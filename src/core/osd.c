@@ -217,7 +217,7 @@ char *channel2str(uint8_t channel) // channel=[1:18]
         "F2", "F4",
         "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"};
 
-    if ((channel > 0) && (channel < FREQ_NUM))
+    if ((channel > 0) && (channel <= FREQ_NUM))
         return ChannelName[channel - 1];
     else
         return ChannelName[0];
