@@ -124,7 +124,6 @@ static void device_init(void) {
     TP2825_Config(0, 0);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
-    DM5680_Power_AnalogModule(g_setting.power.power_ana);
 }
 
 void lvgl_init() {
@@ -188,7 +187,10 @@ int main(int argc, char *argv[]) {
 
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
-
+    
+    // 8.1 set initial analog module power state
+    Analog_Module_Power(0);
+    
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
