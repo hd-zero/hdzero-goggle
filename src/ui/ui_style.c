@@ -32,18 +32,6 @@ int style_init(void) {
     lv_style_set_pad_right(&style_rootmenu, 0);
     lv_style_set_radius(&style_rootmenu, 0);
     lv_style_set_border_width(&style_rootmenu, 0);
-
-    lv_style_set_border_color(&style_rootmenu, lv_palette_main(LV_PALETTE_RED));
-    lv_style_reset(&style_rootmenu);
-    lv_style_init(&style_rootmenu);
-    lv_style_set_bg_color(&style_rootmenu, lv_color_make(19, 19, 19));
-    lv_style_set_text_color(&style_rootmenu, lv_color_make(0xff, 0xff, 0xff));
-    lv_style_set_pad_top(&style_rootmenu, 0);
-    lv_style_set_pad_bottom(&style_rootmenu, 0);
-    lv_style_set_pad_left(&style_rootmenu, 0);
-    lv_style_set_pad_right(&style_rootmenu, 0);
-    lv_style_set_radius(&style_rootmenu, 0);
-    lv_style_set_border_width(&style_rootmenu, 0);
     lv_style_set_border_color(&style_rootmenu, lv_palette_main(LV_PALETTE_RED));
 
     lv_style_reset(&style_submenu);

@@ -8,7 +8,11 @@
 #define MEDIA_FILES_DIR     "/mnt/extsd/movies"
 #define AUDIO_SEL_SH        "/mnt/app/script/audio_sel.sh"
 #define SETTING_INI_VERSION 1
+#ifndef EMULATOR_BUILD
 #define SETTING_INI         "/mnt/app/setting.ini"
+#else
+#define SETTING_INI         "setting.ini"
+#endif
 #define TEST_INI            "/mnt/extsd/test.ini"
 #define REC_START           "/mnt/app/app/record/gogglecmd -rec start"
 #define REC_STOP            "/mnt/app/app/record/gogglecmd -rec stop"
