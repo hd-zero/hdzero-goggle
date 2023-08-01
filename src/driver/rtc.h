@@ -77,4 +77,5 @@ int rtc_get_clock_log_str(char *buffer, int size);
  *  Formats buffer to an OSD pretty UTC string.
  *  Returns the number of characters written.
  */
-int rtc_get_clock_osd_str(char *buffer, int size);
+int rtc_get_clock_date_osd_str(char *buffer, int size);
+int rtc_get_clock_time_osd_str(char *buffer, int size);

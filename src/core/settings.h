@@ -130,7 +130,8 @@ typedef enum {
     OSD_GOGGLE_VRX_TEMP,
     OSD_GOGGLE_BATTERY_LOW,
     OSD_GOGGLE_BATTERY_VOLTAGE,
-    OSD_GOGGLE_CLOCK,
+    OSD_GOGGLE_CLOCK_DATE,
+    OSD_GOGGLE_CLOCK_TIME,
     OSD_GOGGLE_CHANNEL,
     OSD_GOGGLE_SD_REC,
     OSD_GOGGLE_VLQ,
@@ -158,7 +159,9 @@ typedef struct {
     int hour;
     int min;
     int sec;
-    int format;
+    int format_date;
+    int format_time;
+    int format_ampm24;
 } setting_clock_t;
 
 #define WIFI_RF_CHANNELS  14 // World Channels

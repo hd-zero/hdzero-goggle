@@ -42,7 +42,9 @@ typedef enum {
     ITEM_HOUR,
     ITEM_MINUTE,
     ITEM_SECOND,
-    ITEM_FORMAT,
+    ITEM_FORMAT_DATE,
+    ITEM_FORMAT_TIME,
+    ITEM_FORMAT_AMPM24,
     ITEM_SET_CLOCK,
     ITEM_BACK,
 
@@ -55,7 +57,8 @@ typedef struct {
 } dropdown_list_t;
 
 typedef struct {
-    lv_obj_t *datetime;
+    lv_obj_t *date;
+    lv_obj_t *time;
 } date_time_t;
 
 /**
@@ -63,7 +66,7 @@ typedef struct {
  */
 static const int MAX_YEARS_DROPDOWN = 300; // 2023 + 300 == 2323
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 15, 10, 60, LV_GRID_TEMPLATE_LAST};
 static item_t page_clock_items[ITEM_LIST_TOTAL] = {0};
 static int page_clock_item_selected = ITEM_YEAR;
 static int page_clock_item_focused = 0;
@@ -126,7 +129,7 @@ static void page_clock_build_options_from_date(struct rtc_date *date) {
     page_clock_build_options(&page_clock_options[ITEM_MINUTE], 60, 0, date->min);
     page_clock_build_options(&page_clock_options[ITEM_SECOND], 60, 0, date->sec);
 
-    for (int i = 0; i < ITEM_FORMAT; ++i) {
+    for (int i = 0; i < ITEM_FORMAT_DATE; ++i) {
         if (page_clock_items[i].data.obj) {
             lv_dropdown_set_options(page_clock_items[i].data.obj, page_clock_options[i].list);
             lv_dropdown_set_selected(page_clock_items[i].data.obj, page_clock_get_dropdown_index(i, page_clock_options[i].entry));
@@ -174,15 +177,18 @@ static lv_obj_t *page_clock_create_datetime_item_attr(lv_obj_t *parent, int row)
  * Create a datetime_t object and initialize their respective fields.
  */
 static void page_clock_create_datetime_item(lv_obj_t *parent, int row) {
-    page_clock_datetime.datetime = page_clock_create_datetime_item_attr(parent, row);
-    lv_obj_set_style_pad_left(page_clock_datetime.datetime, 0, 0);
+    page_clock_datetime.date = page_clock_create_datetime_item_attr(parent, row);
+    lv_obj_set_style_pad_left(page_clock_datetime.date, 0, 0);
+    page_clock_datetime.time = page_clock_create_datetime_item_attr(parent, row);
+    lv_obj_set_style_pad_left(page_clock_datetime.time, 100, 0);
 }
 
 /**
  * Clear all visible fields from datetime_t objects.
  */
 static void page_clock_clear_datetime() {
-    lv_label_set_text(page_clock_datetime.datetime, "");
+    lv_label_set_text(page_clock_datetime.date, "");
+    lv_label_set_text(page_clock_datetime.time, "");
 }
 
 /**
@@ -191,8 +197,10 @@ static void page_clock_clear_datetime() {
 static void page_clock_refresh_datetime() {
     char text[128];
 
-    rtc_get_clock_osd_str(text, sizeof(text));
-    lv_label_set_text(page_clock_datetime.datetime, text);
+    rtc_get_clock_date_osd_str(text, sizeof(text));
+    lv_label_set_text(page_clock_datetime.date, text);
+    rtc_get_clock_time_osd_str(text, sizeof(text));
+    lv_label_set_text(page_clock_datetime.time, text);
 }
 
 /**
@@ -354,20 +362,30 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
-    create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, "Format", "AM/PM", "24 Hour", "", "", 2);
-    page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
-    btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
+    create_btn_group_item(&page_clock_items[ITEM_FORMAT_DATE].data.btn, cont, 2, "Date Format", "y/m/d", "m/d", "", "", 2);
+    page_clock_items[ITEM_FORMAT_DATE].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_FORMAT_DATE].panel = arr->panel[2];
+    btn_group_set_sel(&page_clock_items[ITEM_FORMAT_DATE].data.btn, g_setting.clock.format_date);
 
-    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, "Set Clock", 1, 3, 3);
+    create_btn_group_item(&page_clock_items[ITEM_FORMAT_TIME].data.btn, cont, 2, "Time Format", "h:m:s", "h:m", "", "", 3);
+    page_clock_items[ITEM_FORMAT_TIME].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_FORMAT_TIME].panel = arr->panel[3];
+    btn_group_set_sel(&page_clock_items[ITEM_FORMAT_TIME].data.btn, g_setting.clock.format_time);
+
+    create_btn_group_item(&page_clock_items[ITEM_FORMAT_AMPM24].data.btn, cont, 2, "12h/24h", "AM/PM", "24 Hour", "", "", 4);
+    page_clock_items[ITEM_FORMAT_AMPM24].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_FORMAT_AMPM24].panel = arr->panel[4];
+    btn_group_set_sel(&page_clock_items[ITEM_FORMAT_AMPM24].data.btn, g_setting.clock.format_ampm24);
+
+    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, "Set Clock", 1, 5, 3);
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_OBJ;
-    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
+    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[5];
 
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, "< Back", 1, 4, 1);
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, "< Back", 1, 6, 1);
     page_clock_items[ITEM_BACK].type = ITEM_TYPE_OBJ;
-    page_clock_items[ITEM_BACK].panel = arr->panel[4];
+    page_clock_items[ITEM_BACK].panel = arr->panel[6];
 
-    page_clock_create_datetime_item(cont, 5);
+    page_clock_create_datetime_item(cont, 7);
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
@@ -377,7 +395,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
         lv_obj_set_style_pad_top(note, 12, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
-        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
+        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 8, 2);
     }
 
     page_clock_clear_datetime();
@@ -484,10 +502,20 @@ static void page_clock_on_click(uint8_t key, int sel) {
     }
 
     switch (page_clock_item_selected) {
-    case ITEM_FORMAT:
-        btn_group_toggle_sel(&page_clock_items[ITEM_FORMAT].data.btn);
-        g_setting.clock.format = btn_group_get_sel(&page_clock_items[ITEM_FORMAT].data.btn);
-        ini_putl("clock", "format", g_setting.clock.format, SETTING_INI);
+    case ITEM_FORMAT_DATE:
+        btn_group_toggle_sel(&page_clock_items[ITEM_FORMAT_DATE].data.btn);
+        g_setting.clock.format_date = btn_group_get_sel(&page_clock_items[ITEM_FORMAT_DATE].data.btn);
+        ini_putl("clock", "format_date", g_setting.clock.format_date, SETTING_INI);
+        break;
+    case ITEM_FORMAT_TIME:
+        btn_group_toggle_sel(&page_clock_items[ITEM_FORMAT_TIME].data.btn);
+        g_setting.clock.format_time = btn_group_get_sel(&page_clock_items[ITEM_FORMAT_TIME].data.btn);
+        ini_putl("clock", "format_time", g_setting.clock.format_time, SETTING_INI);
+        break;
+    case ITEM_FORMAT_AMPM24:
+        btn_group_toggle_sel(&page_clock_items[ITEM_FORMAT_AMPM24].data.btn);
+        g_setting.clock.format_ampm24 = btn_group_get_sel(&page_clock_items[ITEM_FORMAT_AMPM24].data.btn);
+        ini_putl("clock", "format_ampm24", g_setting.clock.format_ampm24, SETTING_INI);
         break;
     case ITEM_SET_CLOCK:
         if (page_clock_set_clock_confirm) {

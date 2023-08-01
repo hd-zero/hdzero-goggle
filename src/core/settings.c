@@ -105,10 +105,15 @@ const setting_t g_setting_defaults = {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 360, .y = 0}, .mode_16_9 = {.x = 200, .y = 0}},
             },
-            // OSD_GOGGLE_CLOCK
+            // OSD_GOGGLE_CLOCK_DATE
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 360, .y = 24}, .mode_16_9 = {.x = 200, .y = 24}},
+            },
+            // OSD_GOGGLE_CLOCK_TIME
+            {
+                .show = true,
+                .position = {.mode_4_3 = {.x = 570, .y = 24}, .mode_16_9 = {.x = 410, .y = 24}},
             },
             // OSD_GOGGLE_CHANNEL
             {
@@ -169,7 +174,9 @@ const setting_t g_setting_defaults = {
         .hour = 12,
         .min = 30,
         .sec = 30,
-        .format = 0,
+        .format_date = 0,
+        .format_time = 0,
+        .format_ampm24 = 0,
     },
     .wifi = {
         .enable = false,
@@ -332,7 +339,8 @@ void settings_load(void) {
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VRX_TEMP], "vrx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VRX_TEMP]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW], "battery_low", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_LOW]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE], "battery_voltage", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE]);
-    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CLOCK], "clock", &g_setting_defaults.osd.element[OSD_GOGGLE_CLOCK]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE], "clock_date", &g_setting_defaults.osd.element[OSD_GOGGLE_CLOCK_DATE]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME], "clock_time", &g_setting_defaults.osd.element[OSD_GOGGLE_CLOCK_TIME]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CHANNEL], "channel", &g_setting_defaults.osd.element[OSD_GOGGLE_CHANNEL]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_SD_REC], "sd_rec", &g_setting_defaults.osd.element[OSD_GOGGLE_SD_REC]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VLQ], "vlq", &g_setting_defaults.osd.element[OSD_GOGGLE_VLQ]);
@@ -386,7 +394,9 @@ void settings_load(void) {
     g_setting.clock.hour = ini_getl("clock", "hour", g_setting_defaults.clock.hour, SETTING_INI);
     g_setting.clock.min = ini_getl("clock", "min", g_setting_defaults.clock.min, SETTING_INI);
     g_setting.clock.sec = ini_getl("clock", "sec", g_setting_defaults.clock.sec, SETTING_INI);
-    g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
+    g_setting.clock.format_date = ini_getl("clock", "format_date", g_setting_defaults.clock.format_date, SETTING_INI);
+    g_setting.clock.format_time = ini_getl("clock", "format_time", g_setting_defaults.clock.format_time, SETTING_INI);
+    g_setting.clock.format_ampm24 = ini_getl("clock", "format_ampm24", g_setting_defaults.clock.format_ampm24, SETTING_INI);
 
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
