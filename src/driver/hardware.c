@@ -8,11 +8,13 @@
 
 #include <log/log.h>
 
+#include "../core/app_state.h"
 #include "../core/common.hh"
 #include "../core/osd.h"
 #include "../core/settings.h"
 #include "../ui/page_common.h"
 #include "TP2825.h"
+#include "beep.h"
 #include "defines.h"
 #include "dm5680.h"
 #include "dm6302.h"
@@ -591,6 +593,28 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
     I2C_Write(ADDR_FPGA, 0x75, (ch1 >> 8) & 0xff);
     I2C_Write(ADDR_FPGA, 0x76, ch2 & 0xff);
     I2C_Write(ADDR_FPGA, 0x77, (ch2 >> 8) & 0xff);
+}
+
+void Analog_Module_Power(bool ForceSet) {
+    // Batch 2 goggles only
+    if (getHwRevision() >= HW_REV_2) {
+    static bool Analog_Module_Power_State = 0;
+    static bool Analog_Module_Power_State_Last = 0;
+        if (g_setting.power.power_ana == 0) {
+        Analog_Module_Power_State = 0;
+        } else {
+            if (g_source_info.source != SOURCE_EXPANSION) {
+            Analog_Module_Power_State = 1;
+            } else {
+            Analog_Module_Power_State = 0;
+            }
+        }       
+        if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
+        beep();                 
+        Analog_Module_Power_State_Last = Analog_Module_Power_State;
+        DM5680_Power_AnalogModule(Analog_Module_Power_State);
+        }
+    }
 }
 
 int Get_VideoLatancy_status() // ret: 0=unlocked, 1=locked
