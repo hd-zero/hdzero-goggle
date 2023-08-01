@@ -29,7 +29,7 @@ typedef enum {
 } cmd_5680_t;
 
 int DM6302_init(uint8_t freq, uint8_t bw);
-void DM6302_SetChannel(uint8_t ch);
+void DM6302_SetChannel(uint8_t band, uint8_t ch);
 void DM6302_openM0(uint32_t open);
 void DM6302_get_gain(uint8_t *gain);
 

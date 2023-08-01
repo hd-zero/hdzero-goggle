@@ -135,7 +135,7 @@ void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat) {
 }
 
 // ����Ƶ��
-uint32_t tab[3][20] = {
+uint32_t tab[3][18] = {
     {
         // race band
         0x3741,
@@ -158,9 +158,6 @@ uint32_t tab[3][20] = {
         0x374C,
         0x37AA,
         0x3809,
-        // fatshark band
-        0x3840,
-        0x38A4,
     },
     {
         // race band
@@ -184,9 +181,6 @@ uint32_t tab[3][20] = {
         0x90,
         0x91,
         0x92,
-        // fatshark band
-        0x96,
-        0x97,
     },
     {
         // race band
@@ -210,33 +204,32 @@ uint32_t tab[3][20] = {
         0xE80000,
         0xD55555,
         0xC2AAAB,
-        // fatshark band
-        0x000000,
-        0x155555,
     },
 };
 
-void DM6302_SetChannel(uint8_t ch) {
+void DM6302_SetChannel(uint8_t band, uint8_t ch) {
+    if (band == 1)
+        ch = ch + 10;
     SPI_Write(0, 0x6, 0xFF0, 0x00000018);
     SPI_Write(0, 0x3, 0x130, 0x00000013);
     SPI_Write(0, 0x3, 0x134, 0x00000013);
     SPI_Write(0, 0x3, 0x138, 0x00000370);
     SPI_Write(0, 0x3, 0x13C, 0x00000410);
     SPI_Write(0, 0x3, 0x140, 0x00000000);
-    if (ch >= 10 && ch <= 17) {
+    if (band == 1) {
         SPI_Write(0, 0x3, 0x144, 0x15240735);
     } else {
         SPI_Write(0, 0x3, 0x144, 0x0D640735);
     }
 
     SPI_Write(0, 0x3, 0x148, 0x01017F03);
-    if (ch >= 10 && ch <= 17) {
+    if (band == 1) {
         SPI_Write(0, 0x3, 0x14C, 0x021288A2);
     } else {
         SPI_Write(0, 0x3, 0x14C, 0x022288A2);
     }
     SPI_Write(0, 0x3, 0x150, 0x00FFCF33);
-    if (ch >= 10 && ch <= 17) {
+    if (band == 1) {
         SPI_Write(0, 0x3, 0x154, 0x1F2C3840);
         SPI_Write(0, 0x3, 0x128, 0x00008031);
     } else {
@@ -248,7 +241,7 @@ void DM6302_SetChannel(uint8_t ch) {
     SPI_Write(0, 0x3, 0x11C, 0x00000002);
     SPI_Write(0, 0x3, 0x118, 0x00000001);
     SPI_Write(0, 0x3, 0x118, 0x00000000);
-    if (ch >= 10 && ch <= 17) {
+    if (band == 1) {
         SPI_Write(0, 0x3, 0x128, 0x00008031);
     } else {
         SPI_Write(0, 0x3, 0x128, 0x00008030);
@@ -263,7 +256,7 @@ void DM6302_SetChannel(uint8_t ch) {
     SPI_Write(0, 0x3, 0x100, 0x00000000);
     SPI_Write(0, 0x3, 0x100, 0x00000003);
     SPI_Write(0, 0x3, 0x150, 0x000333B3);
-    if (ch >= 10 && ch <= 17) {
+    if (band == 1) {
         SPI_Write(0, 0x3, 0x140, 0x07070002);
     } else {
         SPI_Write(0, 0x3, 0x140, 0x07070000);

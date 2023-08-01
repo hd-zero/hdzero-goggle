@@ -6,17 +6,17 @@
 #include "ui/ui_main_menu.h"
 
 #define INC_17MHZ_MODE 0 // 0 or 1
+#define CHANNEL_NUM    (band == RACE_BAND ? 10 : 8)
+
 typedef enum {
     RACE_BAND = 0,
     LOW_BAND = 1,
 } band_t;
 
-extern page_pack_t pp_scannow;
-
 int scan(void);
 int scan_reinit(void);
-
 void autoscan_exit(void);
 
 extern band_t band;
+extern page_pack_t pp_scannow;
 #endif

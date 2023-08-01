@@ -164,14 +164,29 @@ void page_scannow_set_channel_label(void) {
 
     // set channel label
     if (band == RACE_BAND) {
-        for (i = 0; i < 8; i++)
+        for (i = 0; i < 8; i++) {
             lv_label_set_text(channel_tb[i].label, race_band_channel_str[i]);
+        }
+        lv_label_set_text(channel_tb[8].label, fatshark_band_channel_str[0]);
+        lv_label_set_text(channel_tb[9].label, fatshark_band_channel_str[1]);
+
+        lv_obj_clear_flag(channel_tb[8].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[8].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[8].img1, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].img1, LV_OBJ_FLAG_HIDDEN);
     } else {
-        for (i = 0; i < 8; i++)
+        for (i = 0; i < 8; i++) {
             lv_label_set_text(channel_tb[i].label, low_band_channel_str[i]);
+        }
+        lv_obj_add_flag(channel_tb[8].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[8].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[8].img1, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].img1, LV_OBJ_FLAG_HIDDEN);
     }
-    lv_label_set_text(channel_tb[8].label, fatshark_band_channel_str[0]);
-    lv_label_set_text(channel_tb[9].label, fatshark_band_channel_str[1]);
 }
 
 // 1920-500
@@ -274,11 +289,11 @@ uint8_t max4(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
     return (b1 > b2) ? b1 : b2;
 }
 
-void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid) {
+void scan_channel(band_t band, uint8_t channel, uint8_t *gain_ret, bool *valid) {
     uint8_t vld0, vld1;
     uint8_t gain[4];
 
-    DM6302_SetChannel(channel);
+    DM6302_SetChannel(band, channel);
 
     usleep(60000);
     DM5680_clear_vldflg();
@@ -291,7 +306,7 @@ void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid) {
     vld1 = rx_status[1].rx_valid;
     *valid = vld0 | vld1;
 
-    LOGI("Scan channel%d: valid:%d, gain:%d", channel, *valid, *gain_ret);
+    LOGI("Scan band:%d, channel%d: valid:%d, gain:%d", band, channel, *valid, *gain_ret);
 }
 
 int8_t scan_now(void) {
@@ -317,9 +332,9 @@ int8_t scan_now(void) {
         lv_bar_set_value(progressbar, bw * 14 + 4, LV_ANIM_OFF);
         lv_timer_handler();
 
-        for (ch = 0; ch < 10; ch++) {
+        for (ch = 0; ch < CHANNEL_NUM; ch++) {
             if (!channel_status_tb[ch].is_valid) {
-                scan_channel(ch + band * 10, &gain, &valid);
+                scan_channel(band, ch, &gain, &valid);
                 if (valid) {
                     channel_status_tb[ch].is_valid = 1;
                     channel_status_tb[ch].gain = gain;
@@ -331,9 +346,10 @@ int8_t scan_now(void) {
             lv_timer_handler();
         }
     }
+    lv_bar_set_value(progressbar, 14 * (INC_17MHZ_MODE + 1), LV_ANIM_OFF);
 
     valid_index = 0;
-    for (ch = 0; ch < 10; ch++) {
+    for (ch = 0; ch < CHANNEL_NUM; ch++) {
         if (channel_status_tb[ch].is_valid)
             valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw << 7);
 

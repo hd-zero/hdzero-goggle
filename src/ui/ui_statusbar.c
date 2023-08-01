@@ -11,9 +11,11 @@
 #include "driver/beep.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
+#include "ui/page_scannow.h"
 #include "ui/page_storage.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_style.h"
+#include <log/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // local
@@ -118,7 +120,8 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0x7F));
+    LOGI("%d,%d", band, g_setting.scan.channel & 0x7F);
+    sprintf(buf, "RF: HDZero %s", channel2str(band, g_setting.scan.channel & 0x7F));
     lv_label_set_text(label[STS_SOURCE], buf);
 
     lv_label_set_text(label[STS_ELRS], "ELRS: Off");
@@ -186,13 +189,7 @@ void statubar_update(void) {
         memset(buf, 0, sizeof(buf));
         if (g_source_info.source == SOURCE_HDZERO) { // HDZero
             int ch = g_setting.scan.channel & 0x7F;
-            if (ch <= 8) {
-                sprintf(buf, "RF: HDZero R%d", ch);
-            } else if (ch <= 10) {
-                sprintf(buf, "RF: HDZero F%d", (ch - 8) * 2);
-            } else {
-                sprintf(buf, "RF: HDZero L%d", ch - 10);
-            }
+            sprintf(buf, "RF: HDZero %s", channel2str(band, g_setting.scan.channel & 0x7F));
         } else if (g_source_info.source == SOURCE_HDMI_IN)
             sprintf(buf, "HDMI In");
         else if (g_source_info.source == SOURCE_AV_IN)
