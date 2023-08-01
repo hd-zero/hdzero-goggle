@@ -30,6 +30,7 @@
 #include "driver/nct75.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
+#include "ui/page_scannow.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
 
@@ -213,11 +214,12 @@ uint8_t channel_osd_mode;
 char *channel2str(uint8_t channel) // channel=[1:18]
 {
     static char *ChannelName[] = {
-        "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-        "F2", "F4",
-        "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"};
+        "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "F2", "F4",
+        "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "F2", "F4"};
 
-    if ((channel > 0) && (channel <= FREQ_NUM))
+    channel += band * 10;
+
+    if ((channel > 0) && (channel <= 20))
         return ChannelName[channel - 1];
     else
         return ChannelName[0];

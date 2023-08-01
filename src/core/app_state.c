@@ -15,6 +15,7 @@
 #include "driver/it66121.h"
 #include "ui/page_common.h"
 #include "ui/page_imagesettings.h"
+#include "ui/page_scannow.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
@@ -116,8 +117,9 @@ void app_switch_to_hdzero(bool is_default) {
 
     HDZero_open(0);
     ch &= 0x7f;
+    ch += band * 10;
 
-    LOGI("switch to ch:%x, CAM_MODE=%d 4:3=%d", g_setting.scan.channel, CAM_MODE, cam_4_3);
+    LOGI("switch to ch:%d, CAM_MODE=%d 4:3=%d", g_setting.scan.channel, CAM_MODE, cam_4_3);
     DM6302_SetChannel(ch);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();

@@ -62,6 +62,7 @@ typedef struct {
 channel_t channel_tb[10];
 channel_status_t channel_status_tb[10];
 
+band_t band = LOW_BAND; // 0:race band 1:low band
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 int valid_channel_tb[10];
 int user_select_index = 0;
@@ -131,7 +132,7 @@ static void set_signal(channel_t *channel, bool is_valid, int gain) {
     }
 }
 // gain, 0-60
-static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, channel_t *channel) {
+static void create_channel_switch(lv_obj_t *parent, int col, int row, channel_t *channel) {
 
     channel->img0 = lv_img_create(parent);
     lv_img_set_src(channel->img0, &img_signal_status);
@@ -140,7 +141,6 @@ static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, ch
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     channel->label = lv_label_create(parent);
-    lv_label_set_text(channel->label, name);
     lv_obj_set_style_text_font(channel->label, &lv_font_montserrat_40, 0);
     lv_obj_set_style_text_align(channel->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(channel->label, lv_color_make(255, 255, 255), 0);
@@ -154,6 +154,24 @@ static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, ch
     lv_obj_set_size(channel->img1, 164, 78);
     lv_obj_set_grid_cell(channel->img1, LV_GRID_ALIGN_START, col + 2, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
+}
+
+void page_scannow_set_channel_label(void) {
+    static const char *race_band_channel_str[] = {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"};
+    static const char *fatshark_band_channel_str[] = {"F2", "F4"};
+    static const char *low_band_channel_str[] = {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"};
+    uint8_t i;
+
+    // set channel label
+    if (band == RACE_BAND) {
+        for (i = 0; i < 8; i++)
+            lv_label_set_text(channel_tb[i].label, race_band_channel_str[i]);
+    } else {
+        for (i = 0; i < 8; i++)
+            lv_label_set_text(channel_tb[i].label, low_band_channel_str[i]);
+    }
+    lv_label_set_text(channel_tb[8].label, fatshark_band_channel_str[0]);
+    lv_label_set_text(channel_tb[9].label, fatshark_band_channel_str[1]);
 }
 
 // 1920-500
@@ -221,27 +239,16 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_column_dsc_array(cont2, col_dsc2, 0);
     lv_obj_set_style_grid_row_dsc_array(cont2, row_dsc2, 0);
 
-    static const char *race_band_channel_str[] = {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"};
-    static const char *fatshark_band_channel_str[] = {"F2", "F4"};
-#if (0)
-    static const char *low_band_channel_str[] = {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"};
-#endif
+    // create channel
     uint8_t i;
-
-    // race band
     for (int i = 0; i < 8; i++) {
-        draw_signal(cont2, race_band_channel_str[i], ((i >> 2) << 2) + 1, i & 0x03, &channel_tb[i]);
+        create_channel_switch(cont2, ((i >> 2) << 2) + 1, i & 0x03, &channel_tb[i]);
     }
-    // fatshark band
     for (int i = 0; i < 2; i++) {
-        draw_signal(cont2, fatshark_band_channel_str[i], (i << 2) + 1, 4, &channel_tb[8 + i]);
+        create_channel_switch(cont2, (i << 2) + 1, 4, &channel_tb[8 + i]);
     }
-#if (0)
-    // low band
-    for (int i = 0; i < 8; i++) {
-        draw_signal(cont2, low_band_channel_str[i], ((i >> 2) << 2) + 1, (i & 0x03) + 5, &channel_tb[10 + i]);
-    }
-#endif
+    page_scannow_set_channel_label();
+
     return page;
 }
 
@@ -312,7 +319,7 @@ int8_t scan_now(void) {
 
         for (ch = 0; ch < 10; ch++) {
             if (!channel_status_tb[ch].is_valid) {
-                scan_channel(ch, &gain, &valid);
+                scan_channel(ch + band * 10, &gain, &valid);
                 if (valid) {
                     channel_status_tb[ch].is_valid = 1;
                     channel_status_tb[ch].gain = gain;

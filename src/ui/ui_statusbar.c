@@ -118,7 +118,7 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0xF));
+    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0x7F));
     lv_label_set_text(label[STS_SOURCE], buf);
 
     lv_label_set_text(label[STS_ELRS], "ELRS: Off");

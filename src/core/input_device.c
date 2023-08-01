@@ -98,7 +98,7 @@ void tune_channel(uint8_t action) {
 
     switch (action) {
     case DIAL_KEY_UP: // Tune up
-        if (channel == FREQ_NUM)
+        if (channel == 10)
             channel = 1;
         else
             channel++;
@@ -106,7 +106,7 @@ void tune_channel(uint8_t action) {
 
     case DIAL_KEY_DOWN: // Tune down
         if (channel == 1)
-            channel = FREQ_NUM;
+            channel = 10;
         else
             channel--;
         break;
