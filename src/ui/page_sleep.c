@@ -69,10 +69,8 @@ static void page_sleep_enter() {
 static void page_sleep_exit() {
     LOGI("page_sleep_exit");
     OLED_ON(1); // Turn on OLED
-    if (getHwRevision() >= HW_REV_2) {
-        DM5680_Power_AnalogModule(g_setting.power.power_ana);
-    }
-
+    Analog_Module_Power(1);
+    
     g_setting.fans.top_speed = fan_speed_save.top;
     g_setting.fans.left_speed = fan_speed_save.left;
     g_setting.fans.right_speed = fan_speed_save.right;
