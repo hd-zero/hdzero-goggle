@@ -22,7 +22,7 @@
 
 app_state_t g_app_state = APP_STATE_MAINMENU;
 
-extern int valid_channel_tb[FREQ_NUM];
+extern int valid_channel_tb[10];
 extern int user_select_index;
 
 void app_state_push(app_state_t state) {
