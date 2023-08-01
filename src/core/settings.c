@@ -185,6 +185,10 @@ const setting_t g_setting_defaults = {
         .logging = false,
         .selftest = false,
     },
+    .source = {
+        .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
+        .hdzero_band = SETTING_SOURCES_HDZERO_BAND_LOWBAND,
+    },
 };
 
 int settings_put_osd_element_shown(bool show, char *config_name) {
@@ -296,6 +300,7 @@ void settings_load(void) {
 
     // source
     g_setting.source.analog_format = ini_getl("source", "analog_format", g_setting_defaults.source.analog_format, SETTING_INI);
+    g_setting.source.hdzero_band = ini_getl("source", "hdzero_band", g_setting_defaults.source.hdzero_band, SETTING_INI);
 
     // autoscan
     g_setting.autoscan.status = ini_getl("autoscan", "status", g_setting_defaults.autoscan.status, SETTING_INI);

@@ -118,8 +118,8 @@ void app_switch_to_hdzero(bool is_default) {
     HDZero_open(0);
     ch &= 0x7f;
 
-    LOGI("switch to band %d, ch:%d, CAM_MODE=%d 4:3=%d", band, g_setting.scan.channel, CAM_MODE, cam_4_3);
-    DM6302_SetChannel(band, ch);
+    LOGI("switch to band %d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_band, g_setting.scan.channel, CAM_MODE, cam_4_3);
+    DM6302_SetChannel(g_setting.source.hdzero_band, ch);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();
     progress_bar.start = 0;

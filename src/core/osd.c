@@ -232,12 +232,12 @@ void osd_channel_show(bool bShow) {
     if (channel_osd_mode & 0x80) {
         ch = channel_osd_mode & 0x7F;
         color = lv_color_make(0xFF, 0x20, 0x20);
-        sprintf(buf, "  To %s?  ", channel2str(band, ch));
+        sprintf(buf, "  To %s?  ", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], LV_OPA_100, 0);
     } else {
         ch = g_setting.scan.channel & 0x7F;
         color = lv_color_make(0xFF, 0xFF, 0xFF);
-        sprintf(buf, "CH:%s", channel2str(band, ch));
+        sprintf(buf, "CH:%s", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], 0, 0);
     }
 

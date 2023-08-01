@@ -62,7 +62,6 @@ typedef struct {
 channel_t channel_tb[10];
 channel_status_t channel_status_tb[10];
 
-band_t band = LOW_BAND; // 0:race band 1:low band
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 int valid_channel_tb[10];
 int user_select_index = 0;
@@ -163,7 +162,7 @@ void page_scannow_set_channel_label(void) {
     uint8_t i;
 
     // set channel label
-    if (band == RACE_BAND) {
+    if (g_setting.source.hdzero_band == RACE_BAND) {
         for (i = 0; i < 8; i++) {
             lv_label_set_text(channel_tb[i].label, race_band_channel_str[i]);
         }
@@ -334,7 +333,7 @@ int8_t scan_now(void) {
 
         for (ch = 0; ch < CHANNEL_NUM; ch++) {
             if (!channel_status_tb[ch].is_valid) {
-                scan_channel(band, ch, &gain, &valid);
+                scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
                 if (valid) {
                     channel_status_tb[ch].is_valid = 1;
                     channel_status_tb[ch].gain = gain;

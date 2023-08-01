@@ -129,7 +129,7 @@ static void detect_motion(bool is_moving) {
             if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
                 uint8_t ch = g_setting.scan.channel - 1;
                 HDZero_open(0);
-                DM6302_SetChannel(band, ch & 0x7F);
+                DM6302_SetChannel(g_setting.source.hdzero_band, ch & 0x7F);
             }
             LOGI("OLED ON from protection.");
             OLED_Brightness(g_setting.image.oled);

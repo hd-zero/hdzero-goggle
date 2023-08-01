@@ -120,8 +120,7 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    LOGI("%d,%d", band, g_setting.scan.channel & 0x7F);
-    sprintf(buf, "RF: HDZero %s", channel2str(band, g_setting.scan.channel & 0x7F));
+    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
     lv_label_set_text(label[STS_SOURCE], buf);
 
     lv_label_set_text(label[STS_ELRS], "ELRS: Off");
@@ -189,7 +188,7 @@ void statubar_update(void) {
         memset(buf, 0, sizeof(buf));
         if (g_source_info.source == SOURCE_HDZERO) { // HDZero
             int ch = g_setting.scan.channel & 0x7F;
-            sprintf(buf, "RF: HDZero %s", channel2str(band, g_setting.scan.channel & 0x7F));
+            sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
         } else if (g_source_info.source == SOURCE_HDMI_IN)
             sprintf(buf, "HDMI In");
         else if (g_source_info.source == SOURCE_AV_IN)
