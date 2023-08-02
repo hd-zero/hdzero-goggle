@@ -294,7 +294,7 @@ void scan_channel(band_t band, uint8_t channel, uint8_t *gain_ret, bool *valid) 
 
     DM6302_SetChannel(band, channel);
 
-    usleep(60000);
+    usleep(100000);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();
 

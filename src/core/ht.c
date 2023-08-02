@@ -21,7 +21,6 @@
 #include "driver/hardware.h"
 #include "driver/oled.h"
 #include "ui/page_common.h"
-#include "ui/page_scannow.h"
 #include "util/math.h"
 
 // #define FAST_SIM

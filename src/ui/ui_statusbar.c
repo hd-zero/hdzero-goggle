@@ -11,11 +11,9 @@
 #include "driver/beep.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
-#include "ui/page_scannow.h"
 #include "ui/page_storage.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_style.h"
-#include <log/log.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // local
