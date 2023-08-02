@@ -16,6 +16,7 @@ typedef enum {
 int scan(void);
 int scan_reinit(void);
 void autoscan_exit(void);
+void page_scannow_set_channel_label(void);
 
 extern page_pack_t pp_scannow;
 #endif
