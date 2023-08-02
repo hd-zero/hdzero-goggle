@@ -171,7 +171,6 @@ void osd_clock_date_show(bool bShow) {
     rtc_get_clock_date_osd_str(buf, sizeof(buf));
     lv_label_set_text(g_osd_hdzero.clock_date[is_fhd], buf);
     lv_obj_set_style_text_color(g_osd_hdzero.clock_date[is_fhd], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_text_font(g_osd_hdzero.clock_date[is_fhd], &robotomono_26, 0);
     lv_obj_clear_flag(g_osd_hdzero.clock_date[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -185,7 +184,6 @@ void osd_clock_time_show(bool bShow) {
     rtc_get_clock_time_osd_str(buf, sizeof(buf));
     lv_label_set_text(g_osd_hdzero.clock_time[is_fhd], buf);
     lv_obj_set_style_text_color(g_osd_hdzero.clock_time[is_fhd], lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_text_font(g_osd_hdzero.clock_time[is_fhd], &robotomono_26, 0);
     lv_obj_clear_flag(g_osd_hdzero.clock_time[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 

@@ -107,13 +107,13 @@ const setting_t g_setting_defaults = {
             },
             // OSD_GOGGLE_CLOCK_DATE
             {
-                .show = true,
+                .show = false,
                 .position = {.mode_4_3 = {.x = 360, .y = 24}, .mode_16_9 = {.x = 200, .y = 24}},
             },
             // OSD_GOGGLE_CLOCK_TIME
             {
-                .show = true,
-                .position = {.mode_4_3 = {.x = 540, .y = 24}, .mode_16_9 = {.x = 380, .y = 24}},
+                .show = false,
+                .position = {.mode_4_3 = {.x = 570, .y = 24}, .mode_16_9 = {.x = 410, .y = 24}},
             },
             // OSD_GOGGLE_CHANNEL
             {
