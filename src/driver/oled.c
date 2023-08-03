@@ -51,7 +51,7 @@ void OLED_write(uint16_t addr, uint16_t wdat, uint8_t sel) {
     val = (sel << 4) | 0x01;
     I2C_Write(ADDR_AL, 0xa0, val);
 
-    usleep(250);
+    usleep(350);
 }
 
 uint16_t OLED_read(uint16_t addr, uint8_t sel) {
@@ -66,7 +66,7 @@ uint16_t OLED_read(uint16_t addr, uint8_t sel) {
     val = (sel << 4) | 0x02;
     I2C_Write(ADDR_AL, 0xa0, val);
 
-    usleep(250);
+    usleep(1000);
 
     val = I2C_Read(ADDR_AL, 0xa6);
     rdat = val;
@@ -74,7 +74,7 @@ uint16_t OLED_read(uint16_t addr, uint8_t sel) {
     val = I2C_Read(ADDR_AL, 0xa5);
     rdat |= val;
 
-    usleep(250);
+    usleep(500);
     return rdat;
 }
 
