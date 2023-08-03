@@ -1172,8 +1172,8 @@ void DM6302_Init14(uint8_t sel, uint8_t bw) {
     SPI_Write(sel, 0x3, 0xB4C, 0x10001000);
 
     if (bw) {
-        SPI_Write(sel, 0x3, 0x90C, 0x9EA3C008);
-        SPI_Write(sel, 0x3, 0xB0C, 0x9EA3C008);
+        SPI_Write(sel, 0x3, 0x90C, 0x9EA2C008);
+        SPI_Write(sel, 0x3, 0xB0C, 0x9EA2C008);
     } else {
         SPI_Write(sel, 0x3, 0x90C, 0x9E22E0F0);
         SPI_Write(sel, 0x3, 0xB0C, 0x9E22E0F0);
