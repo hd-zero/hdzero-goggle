@@ -103,7 +103,7 @@ static void detect_motion(bool is_moving) {
             beep();
 
             OLED_ON(0); // Turn off OLED
-            if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
+            if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
                 HDZero_Close(); // Turn off RF
             }
 
@@ -125,7 +125,7 @@ static void detect_motion(bool is_moving) {
         cnt++;
 
         if (cnt == 2) {
-            if (g_hw_stat.source_mode == HW_SRC_MODE_HDZERO) {
+            if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
                 uint8_t ch = g_setting.scan.channel - 1;
                 HDZero_open(0);
                 DM6302_SetChannel(g_setting.source.hdzero_band, ch & 0x7F);

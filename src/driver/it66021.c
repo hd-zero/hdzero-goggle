@@ -10,6 +10,7 @@
 #include "../core/common.hh"
 #include "defines.h"
 #include "dm5680.h"
+#include "hardware.h"
 #include "i2c.h"
 #include "oled.h"
 
@@ -260,14 +261,14 @@ int IT66021_Get_VTMG(int *freq_ref) {
     fps = fps * 1000000 / hmax / vmax;
 
     if (hact == 1920 && vact == 1080)
-        ret = 1;
+        ret = HDMIIN_VTMG_1080P;
     else if (hact == 1280 && vact == 720) {
         if (fps < 55)
-            ret = 2;
+            ret = HDMIIN_VTMG_720P50;
         else if (fps > 80)
-            ret = 4;
+            ret = HDMIIN_VTMG_720P100;
         else
-            ret = 3;
+            ret = HDMIIN_VTMG_720P60;
     }
 
     return ret;
