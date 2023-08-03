@@ -27,8 +27,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_T
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
-static btn_group_t btn_group0;
-static btn_group_t btn_group1;
+static btn_group_t btn_group0, btn_group1, btn_group2;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -66,14 +65,17 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Race", "Low", "", "", 5);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
+    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "27Mhz", "17Mhz", "", "", 6);
+    btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
+
     if (g_setting.storage.selftest) {
-        pp_source.p_arr.max = 8;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 6, 3);
-        create_label_item(cont, "< Back", 1, 7, 3);
+        pp_source.p_arr.max = 9;
+        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
+        create_label_item(cont, "< Back", 1, 8, 3);
     } else {
-        pp_source.p_arr.max = 7;
+        pp_source.p_arr.max = 8;
         label[4] = NULL;
-        create_label_item(cont, "< Back", 1, 6, 3);
+        create_label_item(cont, "< Back", 1, 7, 3);
     }
     return page;
 }
@@ -167,7 +169,13 @@ static void page_source_on_click(uint8_t key, int sel) {
         ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
         break;
 
-    case 6:
+    case 6: // HDZero bw format
+        btn_group_toggle_sel(&btn_group2);
+        g_setting.source.hdzero_bw = btn_group_get_sel(&btn_group2);
+        ini_putl("source", "hdzero_bw", g_setting.source.hdzero_bw, SETTING_INI);
+        break;
+
+    case 7:
         if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
@@ -198,7 +206,7 @@ static void page_source_exit() {
 page_pack_t pp_source = {
     .p_arr = {
         .cur = 0,
-        .max = 5,
+        .max = 6,
     },
 
     .name = "Source",
