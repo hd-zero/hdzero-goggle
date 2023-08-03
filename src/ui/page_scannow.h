@@ -1,12 +1,10 @@
 #ifndef _PAGE_SCANNOW_H
 #define _PAGE_SCANNOW_H
 
+#include "ui/ui_main_menu.h"
 #include <lvgl/lvgl.h>
 
-#include "ui/ui_main_menu.h"
-
-#define INC_17MHZ_MODE 1 // 0 or 1
-#define CHANNEL_NUM    (g_setting.source.hdzero_band == RACE_BAND ? 10 : 8)
+#define CHANNEL_NUM (g_setting.source.hdzero_band == RACE_BAND ? 10 : 8)
 
 typedef enum {
     RACE_BAND = 0,

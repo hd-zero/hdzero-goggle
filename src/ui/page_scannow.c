@@ -87,7 +87,7 @@ static void select_signal(channel_t *channel) {
     lv_img_set_src(channel->img0, &img_signal_status3);
 }
 
-static void set_signal(channel_t *channel, bool is_valid, int gain) {
+static void set_signal_bar(channel_t *channel, bool is_valid, int gain) {
     if (!is_valid) {
         lv_img_set_src(channel->img0, &img_signal_status);
 
@@ -222,7 +222,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(progressbar, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 1, 1);
 
-    lv_bar_set_range(progressbar, 0, 14 * (INC_17MHZ_MODE + 1));
+    lv_bar_set_range(progressbar, 0, 14);
 
     label = lv_label_create(cont1);
     lv_label_set_text(label, "Scan Ready");
@@ -311,7 +311,6 @@ void scan_channel(band_t band, uint8_t channel, uint8_t *gain_ret, bool *valid) 
 int8_t scan_now(void) {
     uint8_t ch, gain;
     bool valid;
-    uint8_t bw;
     uint8_t valid_index;
 
     lv_label_set_text(label, "Scanning...");
@@ -326,33 +325,28 @@ int8_t scan_now(void) {
         channel_status_tb[ch].is_valid = 0;
     }
 
-    for (bw = 0; bw < (INC_17MHZ_MODE + 1); bw++) {
-        HDZero_open(bw);
-        lv_bar_set_value(progressbar, bw * 14 + 4, LV_ANIM_OFF);
-        lv_timer_handler();
+    HDZero_open(0);
+    lv_bar_set_value(progressbar, 4, LV_ANIM_OFF);
+    lv_timer_handler();
 
-        for (ch = 0; ch < CHANNEL_NUM; ch++) {
-            if (!channel_status_tb[ch].is_valid) {
-                scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
-                if (valid) {
-                    channel_status_tb[ch].is_valid = 1;
-                    channel_status_tb[ch].gain = gain;
-                    channel_status_tb[ch].bw = bw;
-                    set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
-                }
-            }
-            lv_bar_set_value(progressbar, bw * 14 + ch + 5, LV_ANIM_OFF);
-            lv_timer_handler();
+    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+        scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
+        if (valid) {
+            channel_status_tb[ch].is_valid = 1;
+            channel_status_tb[ch].gain = gain;
+            set_signal_bar(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
         }
+        lv_bar_set_value(progressbar, ch + 5, LV_ANIM_OFF);
+        lv_timer_handler();
     }
-    lv_bar_set_value(progressbar, 14 * (INC_17MHZ_MODE + 1), LV_ANIM_OFF);
+    lv_bar_set_value(progressbar, 14, LV_ANIM_OFF);
 
     valid_index = 0;
     for (ch = 0; ch < CHANNEL_NUM; ch++) {
-        if (channel_status_tb[ch].is_valid)
-            valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw << 7);
+        if (channel_status_tb[ch].is_valid) {
+            valid_channel_tb[valid_index++] = ch;
+        }
 
-        // set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
         lv_timer_handler();
     }
 
