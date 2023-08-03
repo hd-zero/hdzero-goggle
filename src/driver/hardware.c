@@ -481,7 +481,7 @@ void HDMI_in_detect() {
     static int vtmg_last = -1;
     static int cs_last = -1;
     static int last_vld = 0;
-    int vtmg, cs;
+    int vtmg, cs, freq_ref;
 
     pthread_mutex_lock(&hardware_mutex);
 
@@ -492,7 +492,7 @@ void HDMI_in_detect() {
 
         if (g_hw_stat.source_mode == HW_SRC_MODE_HDMIIN) {
             if (g_hw_stat.hdmiin_valid) {
-                vtmg = IT66021_Get_VTMG();
+                vtmg = IT66021_Get_VTMG(&freq_ref);
                 if (vtmg_last != vtmg) {
                     vtmg_last = vtmg;
                     LOGI("IT66021: VTMG change: %d", vtmg);
@@ -500,7 +500,11 @@ void HDMI_in_detect() {
                     OLED_display(0);
                     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-                    if (vtmg == 1) {
+                    switch (vtmg) {
+                    case 0:
+                        break;
+
+                    case 1:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = HW_VDPO_1080P50;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
@@ -514,10 +518,28 @@ void HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         OLED_display(1);
                         g_hw_stat.hdmiin_vtmg = 1;
-                    } else if (vtmg == 2) {
-                        system_exec("dispw -s vdpo 720p30"); // 100fps actually
-                        g_hw_stat.vdpo_tmg = HW_VDPO_720P100;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                        break;
+
+                    case 2:
+                        system_exec("dispw -s vdpo 720p50");
+                        g_hw_stat.vdpo_tmg = HW_VDPO_720P50;
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x40);
+
+                        OLED_SetTMG(1);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = 2;
+                        break;
+
+                    case 3:
+                        system_exec("dispw -s vdpo 720p60");
+                        g_hw_stat.vdpo_tmg = HW_VDPO_720P60;
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
                         I2C_Write(ADDR_FPGA, 0x8e, 0x04);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
@@ -527,16 +549,31 @@ void HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         OLED_display(1);
-                        g_hw_stat.hdmiin_vtmg = 2;
+                        g_hw_stat.hdmiin_vtmg = 3;
+                        break;
+
+                    case 4:
+                        system_exec("dispw -s vdpo 720p30"); // 100fps actually
+                        g_hw_stat.vdpo_tmg = HW_VDPO_720P100;
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x80, 0xc0);
+
+                        OLED_SetTMG(1);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = 4;
+                        break;
                     }
                 }
 
-                cs = IT66021_Get_PCLKFREQ();
-                if (cs > 0) {
-                    if (cs < 63) // pclk_h
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-                    else // pclk_l
-                        I2C_Write(ADDR_FPGA, 0x8d, 0x04);
+                if (freq_ref < 63) {
+                    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+                } else { // pclk_l
+                    I2C_Write(ADDR_FPGA, 0x8d, 0x04);
                 }
 
                 cs = IT66021_Get_CS();
@@ -598,21 +635,21 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
 void Analog_Module_Power(bool ForceSet) {
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-    static bool Analog_Module_Power_State = 0;
-    static bool Analog_Module_Power_State_Last = 0;
+        static bool Analog_Module_Power_State = 0;
+        static bool Analog_Module_Power_State_Last = 0;
         if (g_setting.power.power_ana == 0) {
-        Analog_Module_Power_State = 0;
+            Analog_Module_Power_State = 0;
         } else {
             if (g_source_info.source != SOURCE_EXPANSION) {
-            Analog_Module_Power_State = 1;
+                Analog_Module_Power_State = 1;
             } else {
-            Analog_Module_Power_State = 0;
+                Analog_Module_Power_State = 0;
             }
-        }       
+        }
         if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
-        beep();                 
-        Analog_Module_Power_State_Last = Analog_Module_Power_State;
-        DM5680_Power_AnalogModule(Analog_Module_Power_State);
+            beep();
+            Analog_Module_Power_State_Last = Analog_Module_Power_State;
+            DM5680_Power_AnalogModule(Analog_Module_Power_State);
         }
     }
 }

@@ -33,7 +33,7 @@ typedef struct {
 
     // hdmi in
     int hdmiin_valid;
-    int hdmiin_vtmg; // 1=1080p,2=720p
+    int hdmiin_vtmg; // 1=1080p, 2=720p50, 3=720p60, 4=720p100
 
     int IS_TP2825_L;
 
