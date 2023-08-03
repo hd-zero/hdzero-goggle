@@ -5,7 +5,7 @@
 
 #include "ui/ui_main_menu.h"
 
-#define INC_17MHZ_MODE 0 // 0 or 1
+#define INC_17MHZ_MODE 1 // 0 or 1
 #define CHANNEL_NUM    (g_setting.source.hdzero_band == RACE_BAND ? 10 : 8)
 
 typedef enum {
