@@ -104,7 +104,7 @@ static void page_storage_close_status_box() {
  * The formatting routine.
  */
 static format_codes_t page_storage_format_sd() {
-    if (!sdcard_mounted()) {
+    if (!sdcard_inserted()) {
         return FMC_ERR_SDCARD_NOT_INSERTED;
     }
 
