@@ -325,7 +325,7 @@ int8_t scan_now(void) {
         channel_status_tb[ch].is_valid = 0;
     }
 
-    HDZero_open(0);
+    HDZero_open(g_setting.source.hdzero_bw);
     lv_bar_set_value(progressbar, 4, LV_ANIM_OFF);
     lv_timer_handler();
 

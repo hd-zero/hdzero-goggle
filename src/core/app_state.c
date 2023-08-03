@@ -114,10 +114,10 @@ void app_switch_to_hdzero(bool is_default) {
         ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
     }
 
-    HDZero_open(0);
+    HDZero_open(g_setting.source.hdzero_bw);
     ch &= 0x7f;
 
-    LOGI("switch to band %d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_band, g_setting.scan.channel, CAM_MODE, cam_4_3);
+    LOGI("switch to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, g_setting.scan.channel, CAM_MODE, cam_4_3);
     DM6302_SetChannel(g_setting.source.hdzero_band, ch);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();

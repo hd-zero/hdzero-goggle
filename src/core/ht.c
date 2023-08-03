@@ -127,7 +127,7 @@ static void detect_motion(bool is_moving) {
         if (cnt == 2) {
             if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
                 uint8_t ch = g_setting.scan.channel - 1;
-                HDZero_open(0);
+                HDZero_open(g_setting.source.hdzero_bw);
                 DM6302_SetChannel(g_setting.source.hdzero_band, ch & 0x7F);
             }
             LOGI("OLED ON from protection.");
