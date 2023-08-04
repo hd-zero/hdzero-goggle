@@ -202,8 +202,8 @@ typedef enum {
     SETTING_SOURCES_HDZERO_BAND_LOWBAND = 1
 } setting_sources_hdzero_band_t;
 typedef enum {
-    SETTING_SOURCES_HDZERO_BW_27MHZ = 0,
-    SETTING_SOURCES_HDZERO_BW_17MHZ = 1
+    SETTING_SOURCES_HDZERO_BW_WIDE = 0,
+    SETTING_SOURCES_HDZERO_BW_NARROW = 1
 } setting_sources_hdzero_bw_t;
 
 typedef struct {

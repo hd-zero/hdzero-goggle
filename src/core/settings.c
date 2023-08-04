@@ -188,7 +188,7 @@ const setting_t g_setting_defaults = {
     .source = {
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
-        .hdzero_bw = SETTING_SOURCES_HDZERO_BW_27MHZ,
+        .hdzero_bw = SETTING_SOURCES_HDZERO_BW_WIDE,
     },
 };
 

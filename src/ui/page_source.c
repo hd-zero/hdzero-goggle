@@ -21,7 +21,7 @@
 #include "ui/ui_style.h"
 
 // local
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {160, 160, 200, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static lv_obj_t *label[5];
@@ -62,10 +62,10 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 
-    create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Race", "Low", "", "", 5);
+    create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Raceband", "Lowband", "", "", 5);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
-    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "27Mhz", "17Mhz", "", "", 6);
+    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "Wide", "Narrow", "", "", 6);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
     if (g_setting.storage.selftest) {
