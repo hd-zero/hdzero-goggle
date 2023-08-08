@@ -22,6 +22,7 @@ typedef enum {
 } osd_resolution_t;
 
 typedef enum {
+    VR_UNKNOWN = -1,
     VR_720P50 = 0,
     VR_720P60 = 1,
     VR_720P30 = 2,
@@ -51,8 +52,7 @@ void clear_screen();
 void write_string(uint8_t ch, uint8_t *line_buf, uint8_t col);
 void update_osd(uint16_t *line_buf, uint8_t raw);
 
-void camTypeDetect(uint8_t rData);
-void fcTypeDetect(uint8_t *rData);
+void vtxImageDetect(uint8_t *rData);
 void lqDetect(uint8_t rData);
 void lqStatistics();
 void vtxTempDetect(uint8_t rData);

@@ -190,73 +190,81 @@ void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf) {
         parser_osd(index, rx_buf);
 }
 
-video_resolution_t cur_cam = VR_720P60;
-void camTypeDetect(uint8_t rData) {
-    static video_resolution_t last_cam = VR_720P50;
+static bool camTypeDetect(uint8_t rData) {
+    static video_resolution_t cur_cam = VR_UNKNOWN, last_cam = VR_UNKNOWN;
 
+    // Gather Camera Attributes
     switch (rData) {
     case 0xAA:
     case 0x99:
-        last_cam = cur_cam;
         cur_cam = VR_720P60;
         break;
 
     case 0x66:
-        last_cam = cur_cam;
         cur_cam = VR_720P50;
         break;
 
     case 0xCC:
-        last_cam = cur_cam;
         cur_cam = VR_720P30;
         break;
 
     case 0xEE:
-        last_cam = cur_cam;
         cur_cam = VR_540P90;
         break;
 
     case 0x55:
-        last_cam = cur_cam;
         cur_cam = VR_960x720P60;
         break;
 
     case 0x44:
-        last_cam = cur_cam;
         cur_cam = VR_540P90_CROP;
         break;
 
     case 0x33:
-        last_cam = cur_cam;
         cur_cam = VR_540P60;
         break;
 
     case 0x77:
-        last_cam = cur_cam;
         cur_cam = VR_1080P30;
         break;
     }
-    if (cur_cam == last_cam)
+
+    if (cur_cam != last_cam) {
+        LOGI("camTypeDetect: Mode changed: %d -> %d", last_cam, cur_cam);
+
         CAM_MODE = cur_cam;
-    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
-        // LOGI("Cam_mode changed:%d", cur_cam);
-        load_fc_osd_font(cur_cam == VR_1080P30);
+        last_cam = cur_cam;
+
+        return true;
     }
+
+    return false;
 }
 
-void fcTypeDetect(uint8_t *rData) {
-    uint8_t i;
-    char fc_variant_rcv[5] = "    ";
+static bool fcTypeDetect(uint8_t *rData) {
+    char fc_variant_rcv[sizeof(fc_variant)] = {0};
+    memcpy(fc_variant_rcv, rData, sizeof(fc_variant_rcv) - 1);
 
-    for (i = 0; i < 4; i++)
-        fc_variant_rcv[i] = rData[i];
-
+    // Gather Flight Controller Type
     if (strcmp(fc_variant_rcv, fc_variant)) {
-        for (i = 0; i < 4; i++)
-            fc_variant[i] = fc_variant_rcv[i];
+        LOGI("fcTypeDetect: Variant changed: %s -> %s", fc_variant, fc_variant_rcv);
 
-        // LOGI("fc_variant changed:%s", fc_variant_rcv);
-        load_fc_osd_font(cur_cam == VR_1080P30);
+        for (int i = 0; i < sizeof(fc_variant_rcv); i++) {
+            fc_variant[i] = fc_variant_rcv[i];
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void vtxImageDetect(uint8_t *rData) {
+    bool reload_font_via_cam = camTypeDetect(rData[1]);
+    bool reload_font_via_fc = fcTypeDetect(rData + 2);
+
+    if (reload_font_via_cam || reload_font_via_fc) {
+        load_fc_osd_font(CAM_MODE == VR_1080P30);
     }
 }
 
@@ -327,8 +335,7 @@ void vtxCamRatioDetect(uint8_t rData) {
 }
 
 void parser_config(uint8_t *rx_buf) {
-    camTypeDetect(rx_buf[1]);
-    fcTypeDetect(rx_buf + 2);
+    vtxImageDetect(rx_buf);
     lqDetect(rx_buf[6]);
     vtxTempDetect(rx_buf[7]);
     fontTypeDetect(rx_buf[8]);
