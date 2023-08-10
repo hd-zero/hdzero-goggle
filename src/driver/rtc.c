@@ -293,22 +293,3 @@ int rtc_get_clock_log_str(char *buffer, int size) {
                     rd.min,
                     rd.sec);
 }
-
-/**
- *  Formats buffer to an OSD date string.
- *  Returns the number of characters written.
- */
-int rtc_get_clock_date_osd_str(char *buffer, int size) {
-    struct rtc_date rd;
-    rtc_get_clock(&rd);
-    return rtc_date2str_date(&rd, buffer, size);
-}
-/**
- *  Formats buffer to an OSD time string.
- *  Returns the number of characters written.
- */
-int rtc_get_clock_time_osd_str(char *buffer, int size) {
-    struct rtc_date rd;
-    rtc_get_clock(&rd);
-    return rtc_date2str_time(&rd, buffer, size);
-}

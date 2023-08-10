@@ -196,10 +196,12 @@ static void page_clock_clear_datetime() {
  */
 static void page_clock_refresh_datetime() {
     char text[128];
+    struct rtc_date rd;
 
-    rtc_get_clock_date_osd_str(text, sizeof(text));
+    rtc_get_clock(&rd);
+    rtc_date2str_date(&rd, text, sizeof(text));
     lv_label_set_text(page_clock_datetime.date, text);
-    rtc_get_clock_time_osd_str(text, sizeof(text));
+    rtc_date2str_time(&rd, text, sizeof(text));
     lv_label_set_text(page_clock_datetime.time, text);
 }
 

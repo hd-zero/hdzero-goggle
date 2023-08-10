@@ -74,8 +74,8 @@ void rtc_get_clock(struct rtc_date *rd);
 int rtc_get_clock_log_str(char *buffer, int size);
 
 /**
- *  Formats buffer to an OSD pretty UTC string.
+ *  Formats buffer to an OSD string.
  *  Returns the number of characters written.
  */
-int rtc_get_clock_date_osd_str(char *buffer, int size);
-int rtc_get_clock_time_osd_str(char *buffer, int size);
+int rtc_date2str_date(const struct rtc_date *rd, char *buffer, int size);
+int rtc_date2str_time(const struct rtc_date *rd, char *buffer, int size);

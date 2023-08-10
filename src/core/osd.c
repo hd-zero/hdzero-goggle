@@ -161,27 +161,27 @@ void osd_battery_voltage_show(bool bShow) {
     lv_obj_clear_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
-void osd_clock_date_show(bool bShow) {
+void osd_clock_date_show(bool bShow, const struct rtc_date *rd) {
     if (!bShow || !g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].show) {
         lv_obj_add_flag(g_osd_hdzero.clock_date[is_fhd], LV_OBJ_FLAG_HIDDEN);
         return;
     }
 
     char buf[128];
-    rtc_get_clock_date_osd_str(buf, sizeof(buf));
+    rtc_date2str_date(rd, buf, sizeof(buf));
     lv_label_set_text(g_osd_hdzero.clock_date[is_fhd], buf);
     lv_obj_set_style_text_color(g_osd_hdzero.clock_date[is_fhd], lv_color_make(255, 255, 255), 0);
     lv_obj_clear_flag(g_osd_hdzero.clock_date[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
-void osd_clock_time_show(bool bShow) {
+void osd_clock_time_show(bool bShow, const struct rtc_date *rd) {
     if (!bShow || !g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].show) {
         lv_obj_add_flag(g_osd_hdzero.clock_time[is_fhd], LV_OBJ_FLAG_HIDDEN);
         return;
     }
 
     char buf[128];
-    rtc_get_clock_time_osd_str(buf, sizeof(buf));
+    rtc_date2str_time(rd, buf, sizeof(buf));
     lv_label_set_text(g_osd_hdzero.clock_time[is_fhd], buf);
     lv_obj_set_style_text_color(g_osd_hdzero.clock_time[is_fhd], lv_color_make(255, 255, 255), 0);
     lv_obj_clear_flag(g_osd_hdzero.clock_time[is_fhd], LV_OBJ_FLAG_HIDDEN);
@@ -516,8 +516,11 @@ void osd_hdzero_update(void) {
     if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         // show actual value so text length is correct, to make it easier to position
         osd_battery_voltage_show(true);
-        osd_clock_date_show(true);
-        osd_clock_time_show(true);
+
+        struct rtc_date rd;
+        rtc_get_clock(&rd);
+        osd_clock_date_show(true, &rd);
+        osd_clock_time_show(true, &rd);
 
         // some elements might not be visible, set dummy sources to show them
         osd_elements_set_dummy_sources();
@@ -531,8 +534,11 @@ void osd_hdzero_update(void) {
     osd_llock_show(g_setting.osd.is_visible);
     osd_topfan_show(g_setting.osd.is_visible);
     osd_battery_voltage_show(g_setting.osd.is_visible);
-    osd_clock_date_show(g_setting.osd.is_visible);
-    osd_clock_time_show(g_setting.osd.is_visible);
+
+    struct rtc_date rd;
+    rtc_get_clock(&rd);
+    osd_clock_date_show(g_setting.osd.is_visible, &rd);
+    osd_clock_time_show(g_setting.osd.is_visible, &rd);
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
