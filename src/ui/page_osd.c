@@ -90,7 +90,7 @@ static void open_element_pos_preview() {
     switch (g_source_info.source) {
     case SOURCE_HDZERO:
         progress_bar.start = 1;
-        HDZero_open(g_hw_stat.hdz_bw);
+        HDZero_open(g_setting.source.hdzero_bw);
         app_switch_to_hdzero(true);
         break;
 

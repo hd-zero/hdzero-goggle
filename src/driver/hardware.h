@@ -4,21 +4,33 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define HW_SRC_MODE_UI     0
-#define HW_SRC_MODE_HDZERO 1
-#define HW_SRC_MODE_AV     2
-#define HW_SRC_MODE_HDMIIN 3
+typedef enum {
+    SOURCE_MODE_UI = 0,
+    SOURCE_MODE_HDZERO = 1,
+    SOURCE_MODE_AV = 2,
+    SOURCE_MODE_HDMIIN = 3,
+} source_mode_t;
 
-#define HW_VDPO_720P50  0
-#define HW_VDPO_720P60  1
-#define HW_VDPO_720P90  2
-#define HW_VDPO_1080P50 3
-#define HW_VDPO_720P100 4
-#define HW_VDPO_1080P60 5
+typedef enum {
+    HDMIIN_VTMG_UNKNOW = 0,
+    HDMIIN_VTMG_1080P = 1,
+    HDMIIN_VTMG_720P50 = 2,
+    HDMIIN_VTMG_720P60 = 3,
+    HDMIIN_VTMG_720P100 = 4,
+} hdmiin_vtmg_t;
+
+typedef enum {
+    VDPO_TMG_720P50 = 0,
+    VDPO_TMG_720P60 = 1,
+    VDPO_TMG_720P90 = 2,
+    VDPO_TMG_1080P50 = 3,
+    VDPO_TMG_720P100 = 4,
+    VDPO_TMG_1080P60 = 5,
+} vdpo_tmg_t;
 
 typedef struct {
-    int source_mode; // 0=UI; 1=HDZERO; 2=AV_in/Module_bay; 3=HDMI in
-    int vdpo_tmg;    // 0=720p50; 1=720P60; 2=720P90; 3=1080P50;
+    source_mode_t source_mode;
+    vdpo_tmg_t vdpo_tmg;
 
     // hdzero
     int hdz_bw; // 0=27MHz; 1=17MHz
@@ -33,7 +45,7 @@ typedef struct {
 
     // hdmi in
     int hdmiin_valid;
-    int hdmiin_vtmg; // 1=1080p,2=720p
+    hdmiin_vtmg_t hdmiin_vtmg;
 
     int IS_TP2825_L;
 

@@ -22,7 +22,7 @@
 
 app_state_t g_app_state = APP_STATE_MAINMENU;
 
-extern int valid_channel_tb[11];
+extern int valid_channel_tb[10];
 extern int user_select_index;
 
 void app_state_push(app_state_t state) {
@@ -114,11 +114,11 @@ void app_switch_to_hdzero(bool is_default) {
         ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
     }
 
-    HDZero_open((ch >> 7) & 1);
-    ch &= 0xF;
+    HDZero_open(g_setting.source.hdzero_bw);
+    ch &= 0x7f;
 
-    LOGI("switch to ch:%x, CAM_MODE=%d 4:3=%d", g_setting.scan.channel, CAM_MODE, cam_4_3);
-    DM6302_SetChannel(ch);
+    LOGI("switch to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, g_setting.scan.channel, CAM_MODE, cam_4_3);
+    DM6302_SetChannel(g_setting.source.hdzero_band, ch);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();
     progress_bar.start = 0;

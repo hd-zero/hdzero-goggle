@@ -30,6 +30,7 @@
 #include "driver/nct75.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
+#include "ui/page_scannow.h"
 #include "ui/ui_image_setting.h"
 #include "ui/ui_porting.h"
 
@@ -210,16 +211,17 @@ void osd_vlq_show(bool bShow) {
 //  = 0x00 | Channel Show Time
 uint8_t channel_osd_mode;
 
-char *channel2str(uint8_t channel) // channel=1:10
+char *channel2str(uint8_t band, uint8_t channel) // channel=[1:18]
 {
-    static char *ChannelName[] = {
-        "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-        "F2", "F4", ""};
+    static char *ChannelName[2][10] = {
+        {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "F2", "F4"},
+        {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "  ", "  "},
+    };
 
-    if ((channel > 0) && (channel < 11))
-        return ChannelName[channel - 1];
+    if ((channel > 0) && (channel <= CHANNEL_NUM))
+        return ChannelName[band][channel - 1];
     else
-        return ChannelName[0];
+        return ChannelName[band][0];
 }
 
 void osd_channel_show(bool bShow) {
@@ -228,14 +230,14 @@ void osd_channel_show(bool bShow) {
     char buf[32];
 
     if (channel_osd_mode & 0x80) {
-        ch = channel_osd_mode & 0xF;
+        ch = channel_osd_mode & 0x7F;
         color = lv_color_make(0xFF, 0x20, 0x20);
-        sprintf(buf, "  To %s?  ", channel2str(ch));
+        sprintf(buf, "  To %s?  ", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], LV_OPA_100, 0);
     } else {
-        ch = g_setting.scan.channel & 0xF;
+        ch = g_setting.scan.channel & 0x7F;
         color = lv_color_make(0xFF, 0xFF, 0xFF);
-        sprintf(buf, "CH:%s", channel2str(ch));
+        sprintf(buf, "CH:%s", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], 0, 0);
     }
 

@@ -118,7 +118,7 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.scan.channel & 0xF));
+    sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
     lv_label_set_text(label[STS_SOURCE], buf);
 
     lv_label_set_text(label[STS_ELRS], "ELRS: Off");
@@ -181,15 +181,13 @@ void statubar_update(void) {
     }
 
     static int channel_last = 0;
-    static int source_last = 0;
-    if ((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source)) {
+    static source_t source_last = SOURCE_HDZERO;
+    static setting_sources_hdzero_band_t hdzero_band_last = SETTING_SOURCES_HDZERO_BAND_RACEBAND;
+    if ((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source) || (hdzero_band_last != g_setting.source.hdzero_band)) {
         memset(buf, 0, sizeof(buf));
         if (g_source_info.source == SOURCE_HDZERO) { // HDZero
-            int ch = g_setting.scan.channel & 0xF;
-            if (ch > 8)
-                sprintf(buf, "RF: HDZero F%d", (ch - 8) * 2);
-            else
-                sprintf(buf, "RF: HDZero R%d", ch);
+            int ch = g_setting.scan.channel & 0x7F;
+            sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
         } else if (g_source_info.source == SOURCE_HDMI_IN)
             sprintf(buf, "HDMI In");
         else if (g_source_info.source == SOURCE_AV_IN)
@@ -201,6 +199,7 @@ void statubar_update(void) {
     }
     channel_last = g_setting.scan.channel;
     source_last = g_source_info.source;
+    hdzero_band_last = g_setting.source.hdzero_band;
 
     if (page_storage_is_sd_repair_active()) {
         lv_img_set_src(img_sdc, &img_sdcard);

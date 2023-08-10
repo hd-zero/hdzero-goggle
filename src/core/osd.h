@@ -82,7 +82,7 @@ void osd_hdzero_update(void);
 void osd_rec_update(bool enable);
 void osd_show(bool show);
 void osd_update_element_positions();
-char *channel2str(uint8_t channel);
+char *channel2str(uint8_t band, uint8_t channel);
 void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);

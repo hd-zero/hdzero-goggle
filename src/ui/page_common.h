@@ -9,19 +9,19 @@
 #define AUDIO_SEL_SH        "/mnt/app/script/audio_sel.sh"
 #define SETTING_INI_VERSION 1
 #ifndef EMULATOR_BUILD
-#define SETTING_INI         "/mnt/app/setting.ini"
+#define SETTING_INI "/mnt/app/setting.ini"
 #else
-#define SETTING_INI         "setting.ini"
+#define SETTING_INI "setting.ini"
 #endif
-#define TEST_INI            "/mnt/extsd/test.ini"
-#define REC_START           "/mnt/app/app/record/gogglecmd -rec start"
-#define REC_STOP            "/mnt/app/app/record/gogglecmd -rec stop"
-#define REC_STOP_LIVE       "/mnt/app/app/record/gogglecmd -rec stopl"
-#define REC_CONF            "/mnt/app/app/record/confs/record.conf"
-#define WIFI_OFF            "/mnt/app/script/wlan_stop.sh"
-#define WIFI_AP_ON          "/tmp/wlan_start_ap.sh"
-#define WIFI_STA_ON         "/tmp/wlan_start_sta.sh"
-#define ROOT_PW_SET         "/tmp/root_pw_set.sh"
+#define TEST_INI      "/mnt/extsd/test.ini"
+#define REC_START     "/mnt/app/app/record/gogglecmd -rec start"
+#define REC_STOP      "/mnt/app/app/record/gogglecmd -rec stop"
+#define REC_STOP_LIVE "/mnt/app/app/record/gogglecmd -rec stopl"
+#define REC_CONF      "/mnt/app/app/record/confs/record.conf"
+#define WIFI_OFF      "/mnt/app/script/wlan_stop.sh"
+#define WIFI_AP_ON    "/tmp/wlan_start_ap.sh"
+#define WIFI_STA_ON   "/tmp/wlan_start_sta.sh"
+#define ROOT_PW_SET   "/tmp/root_pw_set.sh"
 
 #define FC_OSD_LOCAL_PATH  "/mnt/app/resource/OSD/FC/"
 #define FC_OSD_SDCARD_PATH "/mnt/extsd/resource/OSD/FC/"

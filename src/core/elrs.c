@@ -211,12 +211,18 @@ void msp_process_packet() {
     if (packet.type == MSP_PACKET_COMMAND) {
         switch (packet.function) {
         case MSP_GET_BAND_CHAN: {
-            uint8_t chan, ch;
-            ch = g_setting.scan.channel & 0xF;
-            if (ch <= 8) {
-                chan = ch - 1 + 4 * 8; // Map R1..8
-            } else {
-                chan = (ch - 9) * 2 + 3 * 8 + 1; // Map F2/4
+            uint8_t chan, ch, band;
+            ch = g_setting.scan.channel;
+            band = g_setting.source.hdzero_band;
+
+            if (band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
+                if (ch <= 8) {
+                    chan = ch - 1 + (4 * 8); // Map R1..8
+                } else {
+                    chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+                }
+            } else {                   // if (band == SETTING_SOURCES_HDZERO_BAND_LOWBAND)
+                chan = ch - 1 + 5 * 8; // Map L1..8
             }
             msp_send_packet(MSP_GET_BAND_CHAN, MSP_PACKET_RESPONSE, 1, &chan);
         } break;
@@ -399,15 +405,21 @@ bool elrs_headtracking_enabled() {
 }
 
 void msp_channel_update() {
-    // Channel 1...10 for R1...8, F2 and F4
+    // Channel 1...18 for R1...8, F2 and F4, L1...8
     uint8_t const ch = g_setting.scan.channel;
+    uint8_t const band = g_setting.source.hdzero_band;
     uint8_t chan;
-    if (ch == 0 || 10 < ch)
+
+    if (ch == 0 || ch > CHANNEL_NUM)
         return; // Invalid value -> ignore
-    if (ch <= 8) {
-        chan = ch - 1 + (4 * 8); // Map R1..8
-    } else {
-        chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+    if (band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
+        if (ch <= 8) {
+            chan = ch - 1 + (4 * 8); // Map R1..8
+        } else {
+            chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+        }
+    } else {                   // if (band == SETTING_SOURCES_HDZERO_BAND_LOWBAND)
+        chan = ch - 1 + 5 * 8; // Map L1..8
     }
     msp_send_packet(MSP_SET_BAND_CHAN, MSP_PACKET_COMMAND, sizeof(chan), &chan);
     LOGI("MSPv2 MSP_SET_BAND_CHAN %d sent", chan);

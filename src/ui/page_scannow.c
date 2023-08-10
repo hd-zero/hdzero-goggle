@@ -70,8 +70,8 @@ int user_select_index = 0;
 static int auto_scaned_cnt = 0;
 static lv_obj_t *progressbar;
 static lv_obj_t *label;
-static lv_coord_t col_dsc[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 80, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc1[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc1[] = {60, 60, 80, LV_GRID_TEMPLATE_LAST};
 
 static lv_coord_t col_dsc2[] = {120, 80, 80, 180, 100, 80, 80, 180, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc2[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -87,7 +87,7 @@ static void select_signal(channel_t *channel) {
     lv_img_set_src(channel->img0, &img_signal_status3);
 }
 
-static void set_signal(channel_t *channel, bool is_valid, int gain) {
+static void set_signal_bar(channel_t *channel, bool is_valid, int gain) {
     if (!is_valid) {
         lv_img_set_src(channel->img0, &img_signal_status);
 
@@ -131,7 +131,7 @@ static void set_signal(channel_t *channel, bool is_valid, int gain) {
     }
 }
 // gain, 0-60
-static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, channel_t *channel) {
+static void create_channel_switch(lv_obj_t *parent, int col, int row, channel_t *channel) {
 
     channel->img0 = lv_img_create(parent);
     lv_img_set_src(channel->img0, &img_signal_status);
@@ -140,7 +140,6 @@ static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, ch
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     channel->label = lv_label_create(parent);
-    lv_label_set_text(channel->label, name);
     lv_obj_set_style_text_font(channel->label, &lv_font_montserrat_40, 0);
     lv_obj_set_style_text_align(channel->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(channel->label, lv_color_make(255, 255, 255), 0);
@@ -156,6 +155,39 @@ static void draw_signal(lv_obj_t *parent, const char *name, int col, int row, ch
                          LV_GRID_ALIGN_CENTER, row, 1);
 }
 
+void page_scannow_set_channel_label(void) {
+    static const char *race_band_channel_str[] = {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"};
+    static const char *fatshark_band_channel_str[] = {"F2", "F4"};
+    static const char *low_band_channel_str[] = {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"};
+    uint8_t i;
+
+    // set channel label
+    if (g_setting.source.hdzero_band == RACE_BAND) {
+        for (i = 0; i < 8; i++) {
+            lv_label_set_text(channel_tb[i].label, race_band_channel_str[i]);
+        }
+        lv_label_set_text(channel_tb[8].label, fatshark_band_channel_str[0]);
+        lv_label_set_text(channel_tb[9].label, fatshark_band_channel_str[1]);
+
+        lv_obj_clear_flag(channel_tb[8].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[8].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[8].img1, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(channel_tb[9].img1, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        for (i = 0; i < 8; i++) {
+            lv_label_set_text(channel_tb[i].label, low_band_channel_str[i]);
+        }
+        lv_obj_add_flag(channel_tb[8].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[8].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[8].img1, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].img0, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(channel_tb[9].img1, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
 // 1920-500
 // 1420
 // 1420*0.18
@@ -169,16 +201,16 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(page, &style_scan, LV_PART_MAIN);
     lv_obj_set_style_pad_top(page, 60, 0);
 
-    lv_obj_t *cont = lv_obj_create(page);
-    lv_obj_set_size(cont, 1158, 250);
-    lv_obj_set_layout(cont, LV_LAYOUT_GRID);
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_style(cont, &style_scan, LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(cont, 0, 0);
-    lv_obj_set_style_grid_column_dsc_array(cont, col_dsc, 0);
-    lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
+    lv_obj_t *cont1 = lv_obj_create(page);
+    lv_obj_set_size(cont1, 1158, 250);
+    lv_obj_set_layout(cont1, LV_LAYOUT_GRID);
+    lv_obj_clear_flag(cont1, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_style(cont1, &style_scan, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(cont1, 0, 0);
+    lv_obj_set_style_grid_column_dsc_array(cont1, col_dsc1, 0);
+    lv_obj_set_style_grid_row_dsc_array(cont1, row_dsc1, 0);
 
-    progressbar = lv_bar_create(cont);
+    progressbar = lv_bar_create(cont1);
     lv_obj_set_size(progressbar, 500, 50);
     lv_obj_center(progressbar);
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
@@ -190,9 +222,9 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(progressbar, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 1, 1);
 
-    lv_bar_set_range(progressbar, 0, 14 * (INC_17MHZ_MODE + 1));
+    lv_bar_set_range(progressbar, 0, 14);
 
-    label = lv_label_create(cont);
+    label = lv_label_create(cont1);
     lv_label_set_text(label, "Scan Ready");
     lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
@@ -202,7 +234,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    lv_obj_t *label2 = lv_label_create(cont);
+    lv_obj_t *label2 = lv_label_create(cont1);
     lv_label_set_text(label2, "When scanning is complete,use the\n dial to select a channel and press\n the Enter button to choose");
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
@@ -221,16 +253,16 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_column_dsc_array(cont2, col_dsc2, 0);
     lv_obj_set_style_grid_row_dsc_array(cont2, row_dsc2, 0);
 
-    draw_signal(cont2, "R1", 1, 0, &channel_tb[0]);
-    draw_signal(cont2, "R2", 1, 1, &channel_tb[1]);
-    draw_signal(cont2, "R3", 1, 2, &channel_tb[2]);
-    draw_signal(cont2, "R4", 1, 3, &channel_tb[3]);
-    draw_signal(cont2, "R5", 1, 4, &channel_tb[4]);
-    draw_signal(cont2, "R6", 5, 0, &channel_tb[5]);
-    draw_signal(cont2, "R7", 5, 1, &channel_tb[6]);
-    draw_signal(cont2, "R8", 5, 2, &channel_tb[7]);
-    draw_signal(cont2, "F2", 5, 3, &channel_tb[8]);
-    draw_signal(cont2, "F4", 5, 4, &channel_tb[9]);
+    // create channel
+    uint8_t i;
+    for (int i = 0; i < 8; i++) {
+        create_channel_switch(cont2, ((i >> 2) << 2) + 1, i & 0x03, &channel_tb[i]);
+    }
+    for (int i = 0; i < 2; i++) {
+        create_channel_switch(cont2, (i << 2) + 1, 4, &channel_tb[8 + i]);
+    }
+    page_scannow_set_channel_label();
+
     return page;
 }
 
@@ -244,7 +276,6 @@ static void user_select_signal(void) {
 
 static void user_clear_signal(void) {
     user_select_index = 0;
-
     for (int i = 0; i < 10; i++) {
         lv_img_set_src(channel_tb[i].img0, &img_signal_status);
         lv_img_set_src(channel_tb[i].img1, &img_ant1);
@@ -257,11 +288,11 @@ uint8_t max4(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
     return (b1 > b2) ? b1 : b2;
 }
 
-void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid) {
+void scan_channel(band_t band, uint8_t channel, uint8_t *gain_ret, bool *valid) {
     uint8_t vld0, vld1;
     uint8_t gain[4];
 
-    DM6302_SetChannel(channel);
+    DM6302_SetChannel(band, channel);
 
     usleep(100000);
     DM5680_clear_vldflg();
@@ -274,13 +305,12 @@ void scan_channel(uint8_t channel, uint8_t *gain_ret, bool *valid) {
     vld1 = rx_status[1].rx_valid;
     *valid = vld0 | vld1;
 
-    LOGI("Scan channel%d: valid:%d, gain:%d", channel, *valid, *gain_ret);
+    LOGI("Scan band:%d, channel%d: valid:%d, gain:%d", band, channel, *valid, *gain_ret);
 }
 
 int8_t scan_now(void) {
     uint8_t ch, gain;
     bool valid;
-    uint8_t bw;
     uint8_t valid_index;
 
     lv_label_set_text(label, "Scanning...");
@@ -290,37 +320,33 @@ int8_t scan_now(void) {
     lv_timer_handler();
 
     // clear
-    for (ch = 0; ch < FREQ_NUM; ch++) {
+    for (ch = 0; ch < 10; ch++) {
         valid_channel_tb[ch] = -1;
         channel_status_tb[ch].is_valid = 0;
     }
 
-    for (bw = 0; bw < (INC_17MHZ_MODE + 1); bw++) {
-        HDZero_open(bw);
-        lv_bar_set_value(progressbar, bw * 14 + 4, LV_ANIM_OFF);
-        lv_timer_handler();
+    HDZero_open(g_setting.source.hdzero_bw);
+    lv_bar_set_value(progressbar, 4, LV_ANIM_OFF);
+    lv_timer_handler();
 
-        for (ch = 0; ch < FREQ_NUM; ch++) {
-            if (!channel_status_tb[ch].is_valid) {
-                scan_channel(ch, &gain, &valid);
-                if (valid) {
-                    channel_status_tb[ch].is_valid = 1;
-                    channel_status_tb[ch].gain = gain;
-                    channel_status_tb[ch].bw = bw;
-                    set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
-                }
-            }
-            lv_bar_set_value(progressbar, bw * 14 + ch + 5, LV_ANIM_OFF);
-            lv_timer_handler();
+    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+        scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
+        if (valid) {
+            channel_status_tb[ch].is_valid = 1;
+            channel_status_tb[ch].gain = gain;
+            set_signal_bar(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
         }
+        lv_bar_set_value(progressbar, ch + 5, LV_ANIM_OFF);
+        lv_timer_handler();
     }
+    lv_bar_set_value(progressbar, 14, LV_ANIM_OFF);
 
     valid_index = 0;
-    for (ch = 0; ch < FREQ_NUM; ch++) {
-        if (channel_status_tb[ch].is_valid)
-            valid_channel_tb[valid_index++] = ch | (channel_status_tb[ch].bw << 7);
+    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+        if (channel_status_tb[ch].is_valid) {
+            valid_channel_tb[valid_index++] = ch;
+        }
 
-        // set_signal(&channel_tb[ch], channel_status_tb[ch].is_valid, channel_status_tb[ch].gain);
         lv_timer_handler();
     }
 
@@ -390,7 +416,7 @@ static void page_scannow_on_roller(uint8_t key) {
         if (user_select_index > 0)
             user_select_index--;
     }
-    select_signal(&channel_tb[valid_channel_tb[user_select_index] & 0x0F]);
+    select_signal(&channel_tb[valid_channel_tb[user_select_index] & 0x07F]);
 }
 
 static void page_scannow_on_click(uint8_t key, int sel) {

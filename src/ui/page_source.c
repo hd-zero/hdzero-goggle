@@ -21,13 +21,13 @@
 #include "ui/ui_style.h"
 
 // local
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {160, 160, 200, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
-static btn_group_t btn_group0;
+static btn_group_t btn_group0, btn_group1, btn_group2;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -62,14 +62,20 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 
+    create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Raceband", "Lowband", "", "", 5);
+    btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
+
+    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "Wide", "Narrow", "", "", 6);
+    btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
+
     if (g_setting.storage.selftest) {
-        pp_source.p_arr.max = 7;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 5, 3);
-        create_label_item(cont, "< Back", 1, 6, 3);
+        pp_source.p_arr.max = 9;
+        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
+        create_label_item(cont, "< Back", 1, 8, 3);
     } else {
-        pp_source.p_arr.max = 6;
+        pp_source.p_arr.max = 8;
         label[4] = NULL;
-        create_label_item(cont, "< Back", 1, 5, 3);
+        create_label_item(cont, "< Back", 1, 7, 3);
     }
     return page;
 }
@@ -85,11 +91,19 @@ void source_status_timer() {
     if (!in_sourcepage)
         return;
 
-    ch = g_setting.scan.channel & 0xF;
-    if (ch > 8)
-        sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
-    else
-        sprintf(buf, "HDZero: R%d", ch);
+    ch = g_setting.scan.channel & 0x7F;
+    if (g_setting.source.hdzero_band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
+        if (ch <= 8) {
+            sprintf(buf, "HDZero: R%d", ch);
+        } else {
+            sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
+        }
+    } else {
+        if (ch > 8) {
+            g_setting.scan.channel = 1;
+        }
+        sprintf(buf, "HDZero: L%d", ch);
+    }
     lv_label_set_text(label[0], buf);
 
     sprintf(buf, "HDMI In: %s", state2string(g_source_info.hdmi_in_status));
@@ -148,7 +162,20 @@ static void page_source_on_click(uint8_t key, int sel) {
         ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
         break;
 
-    case 5:
+    case 5: // HDZero band format
+        btn_group_toggle_sel(&btn_group1);
+        g_setting.source.hdzero_band = btn_group_get_sel(&btn_group1);
+        page_scannow_set_channel_label();
+        ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
+        break;
+
+    case 6: // HDZero bw format
+        btn_group_toggle_sel(&btn_group2);
+        g_setting.source.hdzero_bw = btn_group_get_sel(&btn_group2);
+        ini_putl("source", "hdzero_bw", g_setting.source.hdzero_bw, SETTING_INI);
+        break;
+
+    case 7:
         if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
@@ -179,7 +206,7 @@ static void page_source_exit() {
 page_pack_t pp_source = {
     .p_arr = {
         .cur = 0,
-        .max = 4,
+        .max = 6,
     },
 
     .name = "Source",
