@@ -28,6 +28,7 @@
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
 #include "driver/nct75.h"
+#include "driver/rtc.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
 #include "ui/page_scannow.h"
@@ -37,12 +38,25 @@
 extern const lv_font_t conthrax_26;
 extern const lv_font_t robotomono_26;
 
+typedef enum {
+    FC_VARIANT_UNKNOWN = 0,
+    FC_VARIANT_ARDU,
+    FC_VARIANT_BTFL,
+    FC_VARIANT_INAV,
+    FC_VARIANT_QUIC
+} fc_variant_t;
+
 //////////////////////////////////////////////////////////////////
 // local
 static sem_t osd_semaphore;
 static osd_resource_t is_fhd;
+static fc_variant_t g_fc_variant_type = FC_VARIANT_UNKNOWN;
 
 static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
+static char clock_date[32] = {"2023/08/10"},
+            clock_time[32] = {"12:00:00"},
+            clock_format[8] = {"PM"};
+static setting_osd_goggle_element_position_t clock_format_offsets[2];
 
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
@@ -159,6 +173,42 @@ void osd_battery_voltage_show(bool bShow) {
         lv_obj_set_style_text_color(g_osd_hdzero.battery_voltage[is_fhd], lv_color_make(255, 255, 255), 0);
 
     lv_obj_clear_flag(g_osd_hdzero.battery_voltage[is_fhd], LV_OBJ_FLAG_HIDDEN);
+}
+
+void osd_clock_date_show(bool bShow) {
+    if (!bShow || !g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].show) {
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+
+    lv_label_set_text(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], clock_date);
+    lv_obj_set_style_text_color(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], lv_color_make(255, 255, 255), 0);
+    lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], LV_OBJ_FLAG_HIDDEN);
+}
+
+void osd_clock_time_show(bool bShow) {
+    if (!bShow || !g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].show) {
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+
+    lv_label_set_text(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], clock_time);
+    lv_label_set_text(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], clock_format);
+    lv_obj_set_style_text_color(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], lv_color_make(255, 255, 255), 0);
+    lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], LV_OBJ_FLAG_HIDDEN);
+}
+
+void osd_clock_show(bool bShow) {
+    // Update clock
+    rtc_get_clock_osd_str(clock_date, sizeof(clock_date),
+                          clock_time, sizeof(clock_time),
+                          clock_format, sizeof(clock_format));
+
+    osd_clock_date_show(bShow);
+    osd_clock_time_show(bShow);
 }
 
 void osd_topfan_show(bool bShow) {
@@ -290,14 +340,18 @@ static void osd_object_create_label(uint8_t fhd, lv_obj_t **obj, char *text, set
 
     lv_obj_set_style_text_color(*obj, lv_color_make(255, 255, 255), 0);
 
-    if (0 == strncmp(fc_variant, "ARDU", sizeof(fc_variant)) ||
-        0 == strncmp(fc_variant, "BTFL", sizeof(fc_variant)) ||
-        0 == strncmp(fc_variant, "INAV", sizeof(fc_variant))) {
+    switch (g_fc_variant_type) {
+    case FC_VARIANT_ARDU:
+    case FC_VARIANT_BTFL:
+    case FC_VARIANT_INAV:
         lv_obj_set_style_text_font(*obj, &conthrax_26, 0);
-    } else if (0 == strncmp(fc_variant, "QUIC", sizeof(fc_variant))) {
+        break;
+    case FC_VARIANT_QUIC:
         lv_obj_set_style_text_font(*obj, &robotomono_26, 0);
-    } else {
+        break;
+    default:
         lv_obj_set_style_text_font(*obj, &lv_font_montserrat_26, 0);
+        break;
     }
 }
 
@@ -351,6 +405,19 @@ bool fhd_change() {
 }
 
 void osd_show_all_elements() {
+    if (g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].show)
+        lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], LV_OBJ_FLAG_HIDDEN);
+
+    if (g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].show) {
+        lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], LV_OBJ_FLAG_HIDDEN);
+    }
+
     if (g_setting.osd.element[OSD_GOGGLE_TOPFAN_SPEED].show)
         lv_obj_clear_flag(g_osd_hdzero.topfan_speed[is_fhd], LV_OBJ_FLAG_HIDDEN);
     else
@@ -481,6 +548,8 @@ void osd_hdzero_update(void) {
     if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         // show actual value so text length is correct, to make it easier to position
         osd_battery_voltage_show(true);
+
+        osd_clock_show(g_setting.osd.is_visible);
 
         // some elements might not be visible, set dummy sources to show them
         osd_elements_set_dummy_sources();
@@ -617,6 +686,22 @@ static void embedded_osd_init(uint8_t fhd) {
     osd_resource_path(buf, "%s", is_fhd, LLOCK_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.latency_lock[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position, so);
 
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_DATE], "2023-07-30", &g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_DATE], lv_color_hex(0x010101), LV_PART_MAIN);
+
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_TIME], "14:50:23", &g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_TIME], lv_color_hex(0x010101), LV_PART_MAIN);
+
+    // Bind Clock Format Offset to Time
+
+    setting_osd_goggle_element_positions_t position = g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position;
+    position.mode_4_3.x += clock_format_offsets[is_fhd].x;
+    position.mode_4_3.y += clock_format_offsets[is_fhd].y;
+    position.mode_16_9.x += clock_format_offsets[is_fhd].x;
+    position.mode_16_9.y += clock_format_offsets[is_fhd].y;
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_FORMAT], "PM", &position, so);
+    lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_FORMAT], lv_color_hex(0x010101), LV_PART_MAIN);
+
     osd_object_create_label(fhd, &g_osd_hdzero.channel[fhd], "CH:-- ", &g_setting.osd.element[OSD_GOGGLE_CHANNEL].position, so);
     lv_obj_set_style_bg_color(g_osd_hdzero.channel[fhd], lv_color_hex(0x010101), LV_PART_MAIN);
     lv_obj_set_style_radius(g_osd_hdzero.channel[fhd], 50, 0);
@@ -650,6 +735,16 @@ void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.latency_lock[is_fhd], &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.sd_rec[is_fhd], &g_setting.osd.element[OSD_GOGGLE_SD_REC].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.vlq[is_fhd], &g_setting.osd.element[OSD_GOGGLE_VLQ].position);
+
+    osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], &g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].position);
+    osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], &g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position);
+    setting_osd_goggle_element_positions_t position = g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position;
+    position.mode_4_3.x += clock_format_offsets[is_fhd].x;
+    position.mode_4_3.y += clock_format_offsets[is_fhd].y;
+    position.mode_16_9.x += clock_format_offsets[is_fhd].x;
+    position.mode_16_9.y += clock_format_offsets[is_fhd].y;
+    osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], &position);
+
     osd_object_set_pos(is_fhd, g_osd_hdzero.channel[is_fhd], &g_setting.osd.element[OSD_GOGGLE_CHANNEL].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant0[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT0].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant1[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT1].position);
@@ -827,6 +922,37 @@ void load_fc_osd_font(uint8_t fhd) {
         sprintf(fp[0], "%s%s_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
         sprintf(fp[1], "%s%s_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
         sprintf(fp[2], "%sBTFL_000.bmp", FC_OSD_LOCAL_PATH);
+    }
+
+    // Optimized for runtime execution
+    if (0 == strncmp(fc_variant, "ARDU", sizeof(fc_variant))) {
+        g_fc_variant_type = FC_VARIANT_ARDU;
+    } else if (0 == strncmp(fc_variant, "BTFL", sizeof(fc_variant))) {
+        g_fc_variant_type = FC_VARIANT_BTFL;
+    } else if (0 == strncmp(fc_variant, "INAV", sizeof(fc_variant))) {
+        g_fc_variant_type = FC_VARIANT_INAV;
+    } else if (0 == strncmp(fc_variant, "QUIC", sizeof(fc_variant))) {
+        g_fc_variant_type = FC_VARIANT_QUIC;
+    } else {
+        g_fc_variant_type = FC_VARIANT_UNKNOWN;
+    }
+
+    // Bind Clock format to time OSD offsets
+    switch (g_fc_variant_type) {
+    case FC_VARIANT_ARDU:
+    case FC_VARIANT_BTFL:
+    case FC_VARIANT_INAV:
+        clock_format_offsets[0].x = 150;
+        clock_format_offsets[1].x = 100;
+        break;
+    case FC_VARIANT_QUIC:
+        clock_format_offsets[0].x = 140;
+        clock_format_offsets[1].x = 90;
+        break;
+    default:
+        clock_format_offsets[0].x = 124;
+        clock_format_offsets[1].x = 74;
+        break;
     }
 
     for (i = 0; i < 3; i++) {

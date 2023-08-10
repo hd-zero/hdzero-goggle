@@ -42,7 +42,6 @@ int rtc_has_battery();
  */
 void rtc_rd2tv(const struct rtc_date *rd, struct timeval *tv);
 void rtc_tv2rd(const struct timeval *tv, struct rtc_date *rd);
-int rtc_date2str(const struct rtc_date *rd, char *buffer, int size);
 
 /**
  *  Initialize RTC and OS Clock from file if detected,
@@ -77,4 +76,6 @@ int rtc_get_clock_log_str(char *buffer, int size);
  *  Formats buffer to an OSD pretty UTC string.
  *  Returns the number of characters written.
  */
-int rtc_get_clock_osd_str(char *buffer, int size);
+int rtc_get_clock_osd_str(char *date, int dsize,
+                          char *time, int tsize,
+                          char *format, int fsize);
