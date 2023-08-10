@@ -1,6 +1,7 @@
 #include "sdcard.h"
 
 #include <sys/stat.h>
+#include <unistd.h>
 
 bool sdcard_mounted() {
     struct stat mountpoint;
@@ -14,4 +15,8 @@ bool sdcard_mounted() {
     }
 
     return false;
+}
+
+bool sdcard_inserted() {
+    return access(SD_BLOCK_DEVICE, F_OK) == 0;
 }
