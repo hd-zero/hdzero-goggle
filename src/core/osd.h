@@ -18,7 +18,9 @@
 
 typedef enum {
     OSD_RESOURCE_720 = 0,
-    OSD_RESOURCE_1080
+    OSD_RESOURCE_1080,
+
+    OSD_RESOURCE_TOTAL
 } osd_resource_t;
 
 typedef enum {

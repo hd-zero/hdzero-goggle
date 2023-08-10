@@ -56,7 +56,7 @@ static uint16_t osd_buf_shadow[HD_VMAX][HD_HMAX];
 static char clock_date[32] = {"2023/08/10"},
             clock_time[32] = {"12:00:00"},
             clock_format[8] = {"PM"};
-static setting_osd_goggle_element_position_t clock_format_offsets[2];
+static int clock_format_offsets[OSD_RESOURCE_TOTAL];
 
 extern lv_style_t style_osd;
 extern pthread_mutex_t lvgl_mutex;
@@ -686,20 +686,17 @@ static void embedded_osd_init(uint8_t fhd) {
     osd_resource_path(buf, "%s", is_fhd, LLOCK_bmp);
     osd_object_create_img(fhd, &g_osd_hdzero.latency_lock[fhd], buf, &g_setting.osd.element[OSD_GOGGLE_LATENCY_LOCK].position, so);
 
-    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_DATE], "2023-07-30", &g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].position, so);
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_DATE], clock_date, &g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].position, so);
     lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_DATE], lv_color_hex(0x010101), LV_PART_MAIN);
 
-    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_TIME], "14:50:23", &g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position, so);
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_TIME], clock_time, &g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position, so);
     lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_TIME], lv_color_hex(0x010101), LV_PART_MAIN);
 
     // Bind Clock Format Offset to Time
-
     setting_osd_goggle_element_positions_t position = g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position;
-    position.mode_4_3.x += clock_format_offsets[is_fhd].x;
-    position.mode_4_3.y += clock_format_offsets[is_fhd].y;
-    position.mode_16_9.x += clock_format_offsets[is_fhd].x;
-    position.mode_16_9.y += clock_format_offsets[is_fhd].y;
-    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_FORMAT], "PM", &position, so);
+    position.mode_4_3.x += clock_format_offsets[is_fhd];
+    position.mode_16_9.x += clock_format_offsets[is_fhd];
+    osd_object_create_label(fhd, &g_osd_hdzero.clock[fhd][OSD_CLOCK_FORMAT], clock_format, &position, so);
     lv_obj_set_style_bg_color(g_osd_hdzero.clock[fhd][OSD_CLOCK_FORMAT], lv_color_hex(0x010101), LV_PART_MAIN);
 
     osd_object_create_label(fhd, &g_osd_hdzero.channel[fhd], "CH:-- ", &g_setting.osd.element[OSD_GOGGLE_CHANNEL].position, so);
@@ -739,10 +736,8 @@ void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_DATE], &g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_TIME], &g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position);
     setting_osd_goggle_element_positions_t position = g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME].position;
-    position.mode_4_3.x += clock_format_offsets[is_fhd].x;
-    position.mode_4_3.y += clock_format_offsets[is_fhd].y;
-    position.mode_16_9.x += clock_format_offsets[is_fhd].x;
-    position.mode_16_9.y += clock_format_offsets[is_fhd].y;
+    position.mode_4_3.x += clock_format_offsets[is_fhd];
+    position.mode_16_9.x += clock_format_offsets[is_fhd];
     osd_object_set_pos(is_fhd, g_osd_hdzero.clock[is_fhd][OSD_CLOCK_FORMAT], &position);
 
     osd_object_set_pos(is_fhd, g_osd_hdzero.channel[is_fhd], &g_setting.osd.element[OSD_GOGGLE_CHANNEL].position);
@@ -794,6 +789,12 @@ int osd_init(void) {
     const uint16_t OFFSET_Y = 40;
 
     is_fhd = 0;
+
+    // Update clock
+    rtc_get_clock_osd_str(clock_date, sizeof(clock_date),
+                          clock_time, sizeof(clock_time),
+                          clock_format, sizeof(clock_format));
+
     create_osd_scr();
 
     fc_osd_init(0, OFFSET_X, OFFSET_Y);
@@ -942,16 +943,16 @@ void load_fc_osd_font(uint8_t fhd) {
     case FC_VARIANT_ARDU:
     case FC_VARIANT_BTFL:
     case FC_VARIANT_INAV:
-        clock_format_offsets[0].x = 150;
-        clock_format_offsets[1].x = 100;
+        clock_format_offsets[OSD_RESOURCE_720] = 150;
+        clock_format_offsets[OSD_RESOURCE_1080] = 100;
         break;
     case FC_VARIANT_QUIC:
-        clock_format_offsets[0].x = 140;
-        clock_format_offsets[1].x = 90;
+        clock_format_offsets[OSD_RESOURCE_720] = 140;
+        clock_format_offsets[OSD_RESOURCE_1080] = 90;
         break;
     default:
-        clock_format_offsets[0].x = 124;
-        clock_format_offsets[1].x = 74;
+        clock_format_offsets[OSD_RESOURCE_720] = 124;
+        clock_format_offsets[OSD_RESOURCE_1080] = 74;
         break;
     }
 
