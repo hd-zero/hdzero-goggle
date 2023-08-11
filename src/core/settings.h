@@ -58,6 +58,7 @@ typedef struct {
     int cell_count;
     setting_power_osd_display_mode_t osd_display_mode;
     bool power_ana;
+    int calibration_offset;
 } setting_power_t;
 
 typedef enum {
