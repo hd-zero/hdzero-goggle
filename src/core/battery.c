@@ -35,7 +35,7 @@ bool battery_is_low() {
     if (g_battery.type == 0) {
         return true;
     }
-    int cell_volt = g_battery.voltage / g_battery.type;
+    int cell_volt = battery_get_millivolts(true);
     return cell_volt <= g_setting.power.voltage * 100;
 }
 
