@@ -549,7 +549,8 @@ void osd_hdzero_update(void) {
         // show actual value so text length is correct, to make it easier to position
         osd_battery_voltage_show(true);
 
-        osd_clock_show(g_setting.osd.is_visible);
+        // show actual date/time/format, to make it easier to position
+        osd_clock_show(true);
 
         // some elements might not be visible, set dummy sources to show them
         osd_elements_set_dummy_sources();
@@ -563,6 +564,7 @@ void osd_hdzero_update(void) {
     osd_llock_show(g_setting.osd.is_visible);
     osd_topfan_show(g_setting.osd.is_visible);
     osd_battery_voltage_show(g_setting.osd.is_visible);
+    osd_clock_show(g_setting.osd.is_visible);
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, VrxTemp7_gif);
