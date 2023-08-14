@@ -41,9 +41,9 @@ bool battery_is_low() {
 
 int battery_get_millivolts(bool per_cell) {
     if (per_cell && g_battery.type > 0) {
-        return (g_battery.voltage + g_battery.offset * 100.f) / g_battery.type;
+        return (g_battery.voltage + g_battery.offset * 100) / g_battery.type;
     }
-    return (g_battery.voltage + g_battery.offset * 100.f);
+    return g_battery.voltage + g_battery.offset * 100;
 }
 
 void battery_get_voltage_str(char *buf) {
