@@ -1,9 +1,9 @@
 #!/bin/sh
 
-version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
-version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; }
-version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
-version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
+version_gt() { test "$(echo "$@" | tr " " "\n" | sort -g | head -n 1)" != "$1"; }
+version_le() { test "$(echo "$@" | tr " " "\n" | sort -g | head -n 1)" == "$1"; }
+version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rg | head -n 1)" != "$1"; }
+version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rg | head -n 1)" == "$1"; }
 
 download() {
     dst_path="$1"
@@ -70,14 +70,6 @@ app_version_check() {
     fi
 }
 
-progress_indicator() {
-    if [ "$1" = "set" ]; then
-        touch /tmp/online_downloader.inprogress
-    elif [ "$1" = "clr" ]; then
-        rm -rf /tmp/online_downloader.inprogress
-    fi
-}
-
 online_goggle_fw_check() {
     fw_info="/tmp/hdz_goggle_fw.latest"
     echo "Checking Goggle Releases" && \
@@ -90,9 +82,7 @@ online_goggle_fw_check() {
     lversion="$(cat /mnt/app/version | cut -d "-" -f1)" && \
     app_version_check $rversion $lversion && \
     echo "Searching SD Card for latest release..." && \
-    progress_indicator "set" && \
     download "GOGGLE/$rversion" "$fw_link" "$fw_size" "$fw_note"
-    progress_indicator "clr"
 }
 
 online_vtx_fw_check() {
@@ -104,9 +94,7 @@ online_vtx_fw_check() {
     fw_sizes=$(cat $fw_info | grep 'size' | cut -d: -f2  | cut -d, -f1) && \
     rversion=$(cat $fw_info | grep 'tag_name' | cut -d\" -f4) && \
     echo "Searching SD Card for latest release..." && \
-    progress_indicator "set" && \
     download "VTX/$rversion" "$fw_links" "$fw_sizes" "$fw_notes"
-    progress_indicator "clr"
 }
 
 online_goggle_fw_check
