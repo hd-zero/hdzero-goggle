@@ -250,10 +250,7 @@ static void btn_click(void) // short press enter key
                g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED ||
                g_app_state == APP_STATE_WIFI ||
                g_app_state == PAGE_FAN_SLIDE ||
-               g_app_state == PAGE_ANGLE_SLIDE ||
-               g_app_state == PAGE_POWER_SLIDE_CELL_COUNT ||
-               g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE ||
-               g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
+               g_app_state == PAGE_ANGLE_SLIDE) {
         submenu_click();
     }
     pthread_mutex_unlock(&lvgl_mutex);
@@ -322,12 +319,6 @@ static void roller_up(void) {
         fans_speed_dec();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
         ht_angle_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-        power_cell_count_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE) {
-        power_warning_voltage_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
-        power_calibration_offset_dec();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -365,12 +356,6 @@ static void roller_down(void) {
         fans_speed_inc();
     } else if (g_app_state == PAGE_ANGLE_SLIDE) {
         ht_angle_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-        power_cell_count_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE) {
-        power_warning_voltage_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
-        power_calibration_offset_inc();
     }
 
     pthread_mutex_unlock(&lvgl_mutex);

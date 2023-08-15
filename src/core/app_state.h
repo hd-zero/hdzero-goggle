@@ -28,9 +28,6 @@ typedef enum {
     // instead of creating an app state. (use APP_STATE_SUBMENU_ITEM_FOCUSED)
     PAGE_FAN_SLIDE = 100,
     PAGE_ANGLE_SLIDE = 101,
-    PAGE_POWER_SLIDE_CELL_COUNT = 102,
-    PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE = 103,
-    PAGE_POWER_SLIDE_CALIBRATION_OFFSET = 104,
 } app_state_t;
 
 extern app_state_t g_app_state;
