@@ -23,10 +23,6 @@ typedef enum {
     APP_STATE_WIFI = 13,
 
     APP_STATE_USER_INPUT_DISABLED = 20,
-
-    // TODO pages should set the on_roller callback and handle the input themselves
-    // instead of creating an app state. (use APP_STATE_SUBMENU_ITEM_FOCUSED)
-    PAGE_ANGLE_SLIDE = 101,
 } app_state_t;
 
 extern app_state_t g_app_state;

@@ -2,6 +2,7 @@
 
 #include <minIni.h>
 
+#include "common.hh"
 #include "core/app_state.h"
 #include "core/settings.h"
 #include "ht.h"
@@ -18,6 +19,7 @@ static lv_obj_t *pan;
 static lv_obj_t *tilt;
 static lv_obj_t *roll;
 static slider_group_t slider_group;
+bool angle_slider_selected;
 
 static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -98,6 +100,61 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
+static void ht_angle_inc(void) {
+    int32_t value = 0;
+    char buf[5];
+
+    value = lv_slider_get_value(slider_group.slider);
+    if (value < 360)
+        value += 1;
+
+    lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
+
+    sprintf(buf, "%d", value);
+    lv_label_set_text(slider_group.label, buf);
+
+    ht_set_maxangle(value);
+
+    g_setting.ht.max_angle = value;
+}
+
+static void ht_angle_dec(void) {
+    int32_t value = 0;
+    char buf[5];
+
+    value = lv_slider_get_value(slider_group.slider);
+    if (value > 0)
+        value -= 1;
+
+    lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
+
+    sprintf(buf, "%d", value);
+    lv_label_set_text(slider_group.label, buf);
+
+    ht_set_maxangle(value);
+
+    g_setting.ht.max_angle = value;
+}
+
+static void page_headtracker_exit_slider() {
+    app_state_push(APP_STATE_SUBMENU);
+    lv_obj_add_style(slider_group.slider, &style_silder_main, LV_PART_MAIN);
+    ini_putl("ht", "max_angle", g_setting.ht.max_angle, SETTING_INI);
+    angle_slider_selected = false;
+}
+
+static void page_headtracker_on_roller(uint8_t key) {
+    if (angle_slider_selected == false) {
+        return;
+    }
+
+    if (key == DIAL_KEY_UP) {
+        ht_angle_dec();
+    } else if (key == DIAL_KEY_DOWN) {
+        ht_angle_inc();
+    }
+}
+
 static void page_headtracker_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group);
@@ -116,13 +173,12 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
     } else if (sel == 2) {
         ht_set_center_position();
     } else if (sel == 3) {
-        if (g_app_state == PAGE_ANGLE_SLIDE) {
-            app_state_push(APP_STATE_SUBMENU);
-            lv_obj_add_style(slider_group.slider, &style_silder_main, LV_PART_MAIN);
-            ini_putl("ht", "max_angle", g_setting.ht.max_angle, SETTING_INI);
+        if (angle_slider_selected) {
+            page_headtracker_exit_slider();
         } else {
-            app_state_push(PAGE_ANGLE_SLIDE);
+            app_state_push(APP_STATE_SUBMENU_ITEM_FOCUSED);
             lv_obj_add_style(slider_group.slider, &style_silder_select, LV_PART_MAIN);
+            angle_slider_selected = true;
         }
     }
 }
@@ -138,46 +194,12 @@ static void page_headtracker_enter() {
     lv_slider_set_value(slider_group.slider, g_setting.ht.max_angle, LV_ANIM_OFF);
     timer = lv_timer_create(page_headtracker_timer, 50, NULL);
     lv_timer_set_repeat_count(timer, -1);
+    angle_slider_selected = false;
 }
 
 static void page_headtracker_exit() {
+    page_headtracker_exit_slider();
     lv_timer_del(timer);
-}
-
-void ht_angle_inc(void) {
-    int32_t value = 0;
-    char buf[5];
-
-    value = lv_slider_get_value(slider_group.slider);
-    if (value < 360)
-        value += 1;
-
-    lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
-
-    sprintf(buf, "%d", value);
-    lv_label_set_text(slider_group.label, buf);
-
-    ht_set_maxangle(value);
-
-    g_setting.ht.max_angle = value;
-}
-
-void ht_angle_dec(void) {
-    int32_t value = 0;
-    char buf[5];
-
-    value = lv_slider_get_value(slider_group.slider);
-    if (value > 0)
-        value -= 1;
-
-    lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
-
-    sprintf(buf, "%d", value);
-    lv_label_set_text(slider_group.label, buf);
-
-    ht_set_maxangle(value);
-
-    g_setting.ht.max_angle = value;
 }
 
 page_pack_t pp_headtracker = {
@@ -189,7 +211,7 @@ page_pack_t pp_headtracker = {
     .create = page_headtracker_create,
     .enter = page_headtracker_enter,
     .exit = page_headtracker_exit,
-    .on_roller = NULL,
+    .on_roller = page_headtracker_on_roller,
     .on_click = page_headtracker_on_click,
     .on_right_button = NULL,
 };

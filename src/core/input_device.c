@@ -248,8 +248,7 @@ static void btn_click(void) // short press enter key
     } else if (g_app_state == APP_STATE_SUBMENU ||
                g_app_state == APP_STATE_PLAYBACK ||
                g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED ||
-               g_app_state == APP_STATE_WIFI ||
-               g_app_state == PAGE_ANGLE_SLIDE) {
+               g_app_state == APP_STATE_WIFI) {
         submenu_click();
     }
     pthread_mutex_unlock(&lvgl_mutex);
@@ -314,8 +313,6 @@ static void roller_up(void) {
         ims_key(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_UP);
-    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
-        ht_angle_dec();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -349,8 +346,6 @@ static void roller_down(void) {
         ims_key(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
-    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
-        ht_angle_inc();
     }
 
     pthread_mutex_unlock(&lvgl_mutex);
