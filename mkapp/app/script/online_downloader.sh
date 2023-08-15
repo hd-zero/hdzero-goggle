@@ -22,7 +22,7 @@ download() {
 
     # Check if we need to download?
     if test -f $dst_path/release.notes; then
-        echo "SD Card contains latest release!"
+        echo "Local storage contains latest release!"
         return 0
     fi
 
@@ -81,7 +81,7 @@ online_goggle_fw_check() {
     rversion="$(echo ${fw_file%%.bin} | cut -d "-" -f4)" && \
     lversion="$(cat /mnt/app/version | cut -d "-" -f1)" && \
     app_version_check $rversion $lversion && \
-    echo "Searching SD Card for latest release..." && \
+    echo "Searching local storage for latest release..." && \
     download "GOGGLE/$rversion" "$fw_link" "$fw_size" "$fw_note"
 }
 
@@ -93,7 +93,7 @@ online_vtx_fw_check() {
     fw_notes=$(cat $fw_info | grep 'body' | cut -d\" -f4) && \
     fw_sizes=$(cat $fw_info | grep 'size' | cut -d: -f2  | cut -d, -f1) && \
     rversion=$(cat $fw_info | grep 'tag_name' | cut -d\" -f4) && \
-    echo "Searching SD Card for latest release..." && \
+    echo "Searching local storage for latest release..." && \
     download "VTX/$rversion" "$fw_links" "$fw_sizes" "$fw_notes"
 }
 
