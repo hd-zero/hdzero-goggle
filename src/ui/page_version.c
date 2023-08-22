@@ -60,6 +60,7 @@ typedef struct {
     bool visible;
     int which;
     int count;
+    bool ready;
 } fw_select_t;
 
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
@@ -359,7 +360,21 @@ static int page_version_get_latest_fw_path(const char *device, char *path, size_
     }
 }
 
-static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *pattern) {
+static void page_version_fw_select_reset(fw_select_t *fw_select) {
+    if (fw_select->count) {
+        for (int i = 0; i < fw_select->count; ++i) {
+            free(fw_select->files[i]);
+            fw_select->files[i] = NULL;
+        }
+        free(fw_select->files);
+        fw_select->ready = false;
+        fw_select->files = NULL;
+        fw_select->count = 0;
+        fw_select->alt_title = NULL;
+    }
+}
+
+static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *pattern, bool has_release_notes) {
     DIR *dir = opendir(fw_select->path);
     if (dir) {
         struct dirent *entry = readdir(dir);
@@ -381,6 +396,8 @@ static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *
                         }
                         fw_select->files[fw_select->count++] = strdup(entry->d_name);
                     }
+                } else if (strstr(entry->d_name, "release.notes")) {
+                    fw_select->ready = true;
                 }
             }
 
@@ -388,25 +405,18 @@ static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *
         }
         closedir(dir);
 
-        if (fw_select->count > 1) {
-            str_qsort(&fw_select->files[0], fw_select->count);
+        if (has_release_notes) {
+            if (!fw_select->ready) {
+                page_version_fw_select_reset(fw_select);
+            } else if (fw_select->count > 1) {
+                str_qsort(&fw_select->files[0], fw_select->count);
+            }
+        } else if (fw_select->count == 1) {
+            fw_select->ready = true;
         }
     }
 
     return fw_select->count;
-}
-
-static void page_version_fw_select_reset(fw_select_t *fw_select) {
-    if (fw_select->count) {
-        for (int i = 0; i < fw_select->count; ++i) {
-            free(fw_select->files[i]);
-            fw_select->files[i] = NULL;
-        }
-        free(fw_select->files);
-        fw_select->files = NULL;
-        fw_select->count = 0;
-        fw_select->alt_title = NULL;
-    }
 }
 
 static void page_version_fw_scan_for_updates() {
@@ -416,7 +426,7 @@ static void page_version_fw_scan_for_updates() {
 
         page_version_fw_select_reset(&fw_select_goggle);
         snprintf(fw_select_goggle.path, sizeof(fw_select_goggle.path), "/mnt/extsd");
-        page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE");
+        page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE", false);
 
         if (fw_select_goggle.count == 1) {
             fw_select_goggle.alt_title = "SD Card";
@@ -424,7 +434,7 @@ static void page_version_fw_scan_for_updates() {
 
         page_version_fw_select_reset(&fw_select_vtx);
         snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
-        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX");
+        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
 
         if (fw_select_vtx.count == 1) {
             fw_select_vtx.alt_title = "SD Card";
@@ -434,13 +444,13 @@ static void page_version_fw_scan_for_updates() {
             if (!fw_select_goggle.alt_title && !fw_select_goggle.count) {
                 has_online_goggle_update =
                     0 < page_version_get_latest_fw_path("GOGGLE", fw_select_goggle.path, sizeof(fw_select_goggle.path)) &&
-                    0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin");
+                    0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
             }
 
             if (!fw_select_vtx.alt_title && !fw_select_vtx.count) {
                 has_online_vtx_update =
                     0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
-                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip");
+                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
             }
 
             if (has_online_goggle_update || has_online_vtx_update) {
@@ -587,9 +597,13 @@ static void page_version_fw_select_populate(fw_select_t *fw_select) {
 
 static void page_version_fw_select_show(const char *title, fw_select_t *fw_select) {
     static char text[1024];
-    snprintf(text, sizeof(text),
-             "%s %s", title,
-             fw_select->alt_title ? fw_select->alt_title : fs_basename(fw_select->path));
+    if (fw_select->ready) {
+        snprintf(text, sizeof(text),
+                 "%s %s", title,
+                 fw_select->alt_title ? fw_select->alt_title : fs_basename(fw_select->path));
+    } else {
+        snprintf(text, sizeof(text), "%s %s", title, "not found");
+    }
 
     page_version_fw_select_populate(fw_select);
     lv_label_set_text(lv_msgbox_get_title(fw_select->msgbox), text);
