@@ -320,16 +320,26 @@ void OLED_SetTMG(int mode) // mode: 0=1080P; 1=720P
 
     if (last_mode != mode) {
         last_mode = mode;
-        if (mode) {
-            I2C_Write(ADDR_AL, 0x33, 0x04);
-            OLED_write(0x8001, 0x0040, 2);
-            OLED_write(0x6900, 0x0002, 2);
-            LOGI("OLED: Set to 720P.");
-        } else {
+        switch(mode){
+        case 0:
             I2C_Write(ADDR_AL, 0x33, 0x04);
             OLED_write(0x8001, 0x00E0, 2);
             OLED_write(0x6900, 0x0000, 2);
             LOGI("OLED: Set to 1080P.");
+            break;
+        case 1:
+            I2C_Write(ADDR_AL, 0x33, 0x04);
+            OLED_write(0x8001, 0x0040, 2);
+            OLED_write(0x6900, 0x0002, 2);
+            LOGI("OLED: Set to 720P.");
+            break;
+        case 2:
+            I2C_Write(ADDR_AL, 0x33, 0x04);
+            I2C_Write(ADDR_AL, 0x16, 0x00);
+            OLED_write(0x8001, 0x0068, 2);
+            OLED_write(0x6900, 0x0001, 2);
+            LOGI("OLED: Set to 810P.");
+            break;
         }
     }
 }
@@ -444,16 +454,16 @@ void MFPGA_Set1080P30() {
     I2C_Write(ADDR_FPGA, 0x40, 0x80);
     I2C_Write(ADDR_FPGA, 0x41, 0x47);
     I2C_Write(ADDR_FPGA, 0x42, 0x38);
-    I2C_Write(ADDR_FPGA, 0x43, 0x98);
+    I2C_Write(ADDR_FPGA, 0x43, 0x9a);
     I2C_Write(ADDR_FPGA, 0x44, 0x88);
-    I2C_Write(ADDR_FPGA, 0x45, 0x65);
+    I2C_Write(ADDR_FPGA, 0x45, 0x64);
     I2C_Write(ADDR_FPGA, 0x46, 0x00);
     I2C_Write(ADDR_FPGA, 0x47, 0x00);
     I2C_Write(ADDR_FPGA, 0x48, 0x2c);
-    I2C_Write(ADDR_FPGA, 0x49, 0xa3);
+    I2C_Write(ADDR_FPGA, 0x49, 0xa5);
     I2C_Write(ADDR_FPGA, 0x4a, 0x00);
     I2C_Write(ADDR_FPGA, 0x4b, 0x05);
-    I2C_Write(ADDR_FPGA, 0x4c, 0x29);
+    I2C_Write(ADDR_FPGA, 0x4c, 0x28);
 
     I2C_Write(ADDR_FPGA, 0x4d, 0x98);
     I2C_Write(ADDR_FPGA, 0x4e, 0x08);
