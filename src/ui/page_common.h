@@ -18,6 +18,7 @@
 #define REC_STOP      "/mnt/app/app/record/gogglecmd -rec stop"
 #define REC_STOP_LIVE "/mnt/app/app/record/gogglecmd -rec stopl"
 #define REC_CONF      "/mnt/app/app/record/confs/record.conf"
+#define WIFI_DOWNLOAD "/mnt/app/script/online_downloader.sh"
 #define WIFI_OFF      "/mnt/app/script/wlan_stop.sh"
 #define WIFI_AP_ON    "/tmp/wlan_start_ap.sh"
 #define WIFI_STA_ON   "/tmp/wlan_start_sta.sh"
@@ -69,6 +70,7 @@
 #define DIAL_CLICK_IMG   "dial_click.png"
 #define DIAL_SCROLL_IMG  "dial_scroll.png"
 #define RIGHT_BUTTON_IMG "right_button.png"
+#define ALERT_IMG        "alert.png"
 
 #define MAX_PANELS 9
 

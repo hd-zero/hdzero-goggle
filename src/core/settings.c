@@ -9,7 +9,7 @@
 
 #include "core/self_test.h"
 #include "ui/page_common.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/system.h"
 
 #define SETTINGS_INI_VERSION_UNKNOWN 0
@@ -276,7 +276,7 @@ void settings_reset(void) {
 
 void settings_init(void) {
     // check if backup of old settings file exists after goggle update
-    if (file_exists("/mnt/UDISK/setting.ini")) {
+    if (fs_file_exists("/mnt/UDISK/setting.ini")) {
         char buf[256];
         sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
         system_exec(buf);
@@ -407,13 +407,13 @@ void settings_load(void) {
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
 
     //  no dial under video mode
-    g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
+    g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);
 
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
     // Check
-    if (file_exists(SELF_TEST_FILE)) {
+    if (fs_file_exists(SELF_TEST_FILE)) {
         unlink(SELF_TEST_FILE);
         if (log_file_open(SELF_TEST_FILE)) {
             g_setting.storage.logging = true;

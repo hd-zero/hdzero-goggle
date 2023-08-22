@@ -19,6 +19,7 @@
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
 #include "ui/ui_style.h"
+#include "util/filesystem.h"
 #include "util/system.h"
 
 /**
@@ -733,6 +734,27 @@ static void page_wifi_exit() {
 }
 
 /**
+ *  Invoked periodically.
+ */
+static void page_wifi_on_update(uint32_t delta_ms) {
+    uint32_t elapsed = 0;
+
+    // Check every 5 minutes for a new update
+    if (g_setting.wifi.enable && elapsed == 0 || (elapsed += delta_ms) > 300000) {
+        switch (g_setting.wifi.mode) {
+        case WIFI_MODE_STA:
+            if (page_wifi_get_real_address()) {
+                if (!fs_file_exists("/tmp/hdz_goggle_fw.latest") &&
+                    !fs_file_exists("/tmp/hdz_vtx_fw.latest")) {
+                    system_script(WIFI_DOWNLOAD);
+                }
+            }
+            break;
+        }
+    }
+}
+
+/**
  * Main navigation routine for this page.
  */
 static void page_wifi_on_roller(uint8_t key) {
@@ -1052,6 +1074,8 @@ page_pack_t pp_wifi = {
     .create = page_wifi_create,
     .enter = page_wifi_enter,
     .exit = page_wifi_exit,
+    .on_created = NULL,
+    .on_update = page_wifi_on_update,
     .on_roller = page_wifi_on_roller,
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,

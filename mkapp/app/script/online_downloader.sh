@@ -55,7 +55,7 @@ download() {
 
     # Having release notes identify a successful download.
     if [ $fw_total -eq $fw_counter ]; then
-        echo "$fw_notes" > $dst_path/release.notes && \
+        printf "$fw_notes" | tr -d '\r' > $dst_path/release.notes && \
         echo "Completed downloading latest release!"
     fi
 }

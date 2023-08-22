@@ -17,7 +17,7 @@
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
 
@@ -103,7 +103,7 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
     sprintf(fname, "%s/%s.jpg", TMP_DIR, label);
-    if (file_exists(fname))
+    if (fs_file_exists(fname))
         sprintf(fname, "A:%s/%s.jpg", TMP_DIR, label);
     else
         osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
@@ -184,7 +184,7 @@ static int walk_sdcard() {
         char fname[512];
         sprintf(fname, "%s/%s", MEDIA_FILES_DIR, in_file->d_name);
 
-        long size = file_get_size(fname);
+        long size = fs_filesize(fname);
         size >>= 20; // in MB
         if (size < 5) {
             // skip small files
@@ -425,6 +425,8 @@ page_pack_t pp_playback = {
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_playback_on_roller,
     .on_click = page_playback_on_click,
     .on_right_button = page_playback_on_right_button,
