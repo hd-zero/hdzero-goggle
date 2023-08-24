@@ -320,27 +320,25 @@ void OLED_SetTMG(int mode) // mode: 0=1080P; 1=720P
 
     if (last_mode != mode) {
         last_mode = mode;
-        switch(mode){
+        switch (mode) {
         case 0:
             I2C_Write(ADDR_AL, 0x33, 0x04);
             OLED_write(0x8001, 0x00E0, 2);
             OLED_write(0x6900, 0x0000, 2);
-            LOGI("OLED: Set to 1080P.");
             break;
         case 1:
             I2C_Write(ADDR_AL, 0x33, 0x04);
             OLED_write(0x8001, 0x0040, 2);
             OLED_write(0x6900, 0x0002, 2);
-            LOGI("OLED: Set to 720P.");
             break;
         case 2:
             I2C_Write(ADDR_AL, 0x33, 0x04);
             I2C_Write(ADDR_AL, 0x16, 0x00);
             OLED_write(0x8001, 0x0068, 2);
             OLED_write(0x6900, 0x0001, 2);
-            LOGI("OLED: Set to 810P.");
             break;
         }
+        LOGI("OLED: Set to mode %d.", mode);
     }
 }
 
