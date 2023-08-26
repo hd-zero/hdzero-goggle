@@ -182,6 +182,42 @@ static bool flash_elrs() {
     return ret;
 }
 
+static int flash_hdzero(const char *dst_path, const char *dst_file,
+                        const char *src_path, const char *src_file,
+                        const char *update_script, bool is_zipped) {
+    uint8_t ret = 2;
+    char cmd_buff[1024] = {0};
+
+    // Flush working directory
+    snprintf(cmd_buff,
+             sizeof(cmd_buff),
+             "rm -rf %s && mkdir -p %s",
+             dst_path, dst_path);
+
+    if (0 == system_exec(cmd_buff)) {
+        // Extract or copy files to working directory
+        if (is_zipped) {
+            snprintf(cmd_buff, sizeof(cmd_buff),
+                     "unzip %s/%s -d %s",
+                     src_path, src_file, dst_path);
+        } else {
+            snprintf(cmd_buff, sizeof(cmd_buff),
+                     "cp -a %s/%s %s/%s",
+                     src_path, src_file,
+                     dst_path, dst_file);
+        }
+        // Now begin flashing
+        if (0 == system_exec(cmd_buff)) {
+            snprintf(cmd_buff, sizeof(cmd_buff),
+                     "%s %s/%s",
+                     update_script, dst_path, dst_file);
+            ret = command_monitor(cmd_buff);
+        }
+    }
+
+    return ret;
+}
+
 static void flash_vtx() {
     uint8_t ret = 2;
     char cmd_buff[1024] = {0};
@@ -191,26 +227,12 @@ static void flash_vtx() {
     lv_timer_handler();
 
     is_need_update_progress = true;
-    // Flush working directory
-    snprintf(cmd_buff, sizeof(cmd_buff), "rm -rf /tmp/VTX && mkdir -p /tmp/VTX");
-    if (0 == system_exec(cmd_buff)) {
-        // Extract or copy files to working directory
-        if (fw_select_vtx.zipped) {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "unzip %s/%s -d /tmp/VTX",
-                     fw_select_vtx.path, fw_select_vtx.files[fw_select_vtx.which]);
-        } else {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "cp -a %s/%s /tmp/VTX/HDZERO_TX.bin",
-                     fw_select_vtx.path, fw_select_vtx.files[fw_select_vtx.which]);
-        }
-        // Now begin flashing
-        if (0 == system_exec(cmd_buff)) {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "/mnt/app/script/update_vtx.sh /tmp/VTX/HDZERO_TX.bin");
-            ret = command_monitor(cmd_buff);
-        }
-    }
+    ret = flash_hdzero("/tmp/VTX",
+                       "HDZERO_TX.bin",
+                       fw_select_vtx.path,
+                       fw_select_vtx.files[fw_select_vtx.which],
+                       "/mnt/app/script/update_vtx.sh",
+                       fw_select_vtx.zipped);
     is_need_update_progress = false;
 
     if (ret == 1) {
@@ -244,32 +266,12 @@ static void flash_goggle() {
     lv_timer_handler();
 
     is_need_update_progress = true;
-    // Flush working directory
-    snprintf(cmd_buff, sizeof(cmd_buff), "rm -rf /tmp/GOGGLE && mkdir -p /tmp/GOGGLE");
-    if (0 == system_exec(cmd_buff)) {
-        // Extract or copy files to working directory
-        if (fw_select_goggle.zipped) {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "unzip %s/%s -d /tmp/GOGGLE",
-                     fw_select_goggle.path, fw_select_goggle.files[fw_select_goggle.which]);
-        } else {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "cp -a %s/%s /tmp/GOGGLE/",
-                     fw_select_goggle.path, fw_select_goggle.files[fw_select_goggle.which]);
-        }
-        // Now begin flashing
-        if (0 == system_exec(cmd_buff)) {
-            snprintf(cmd_buff, sizeof(cmd_buff),
-                     "/mnt/app/script/update_goggle.sh /tmp/GOGGLE/%s",
-                     fw_select_goggle.files[fw_select_goggle.which]);
-            ret = command_monitor(cmd_buff);
-        }
-    }
-
-    snprintf(cmd_buff, sizeof(cmd_buff),
-             "/mnt/app/script/update_goggle.sh %s/%s",
-             fw_select_goggle.path, fw_select_goggle.files[fw_select_goggle.which]);
-    ret = command_monitor(cmd_buff);
+    ret = flash_hdzero("/tmp/GOGGLE",
+                       fw_select_goggle.files[fw_select_goggle.which],
+                       fw_select_goggle.path,
+                       fw_select_goggle.files[fw_select_goggle.which],
+                       "/mnt/app/script/update_goggle.sh",
+                       fw_select_goggle.zipped);
     is_need_update_progress = false;
 
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
