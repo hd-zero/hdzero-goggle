@@ -25,7 +25,8 @@
  *  Constants
  */
 #define RTC_LOG_FORMAT       "%04u-%02u-%02uT%02u_%02u_%02u"
-#define RTC_OSD_FORMAT       "%04u/%02u/%02u %02u:%02u:%02u"
+#define RTC_OSD_FORMAT_DATE  "%04u/%02u/%02u"
+#define RTC_OSD_FORMAT_TIME  "%02u:%02u:%02u"
 #define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
 
 static const char *RTC_DEV = "/dev/rtc";
@@ -128,15 +129,6 @@ void rtc_rt2rd(const struct rtc_time *rt, struct rtc_date *rd) {
     rd->hour = rt->tm_hour;
     rd->min = rt->tm_min;
     rd->sec = rt->tm_sec;
-}
-int rtc_date2str(const struct rtc_date *rd, char *buffer, int size) {
-    return snprintf(buffer, size, RTC_OSD_FORMAT,
-                    rd->year,
-                    rd->month,
-                    rd->day,
-                    rd->hour,
-                    rd->min,
-                    rd->sec);
 }
 
 /**
@@ -281,17 +273,36 @@ int rtc_get_clock_log_str(char *buffer, int size) {
 }
 
 /**
- *  Formats buffer to an OSD pretty UTC string.
- *  Returns the number of characters written.
+ *  Updates buffers (Date/Time/Format) for OSD.
+ *  Returns total characters written.
  */
-int rtc_get_clock_osd_str(char *buffer, int size) {
+int rtc_get_clock_osd_str(char *date, int dsize,
+                          char *time, int tsize,
+                          char *format, int fsize) {
+    int written = 0;
     struct rtc_date rd;
     rtc_get_clock(&rd);
-    return snprintf(buffer, size, RTC_OSD_FORMAT,
-                    rd.year,
-                    rd.month,
-                    rd.day,
-                    rd.hour,
-                    rd.min,
-                    rd.sec);
+
+    int hour = rd.hour;
+    if (g_setting.clock.format == 0) {
+        if (hour > 12) {
+            hour -= 12;
+        }
+        hour = hour == 0 ? 12 : hour;
+        written = snprintf(format, fsize, "%s", rd.hour > 11 ? "PM" : "AM");
+    } else {
+        written = snprintf(format, fsize, "%s", "");
+    }
+
+    written += snprintf(date, dsize, RTC_OSD_FORMAT_DATE,
+                        rd.year,
+                        rd.month,
+                        rd.day);
+
+    written += snprintf(time, tsize, RTC_OSD_FORMAT_TIME,
+                        hour,
+                        rd.min,
+                        rd.sec);
+
+    return written;
 }
