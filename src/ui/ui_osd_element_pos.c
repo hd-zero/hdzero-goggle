@@ -53,29 +53,6 @@ typedef enum {
     CONFIRMATION_TIMEOUT
 } ui_confirmation_t;
 
-// a list of all osd elements
-// must contain the same elements, in the same order, as osd_element_list[]
-typedef enum {
-    OSD_ELEMENT_TOP_FAN_SPEED = 0,
-    OSD_ELEMENT_LATENCY_LOCK,
-    OSD_ELEMENT_VTX_TEMP,
-    OSD_ELEMENT_VRX_TEMP,
-    OSD_ELEMENT_BATTERY_LOW,
-    OSD_ELEMENT_BATTERY_VOLTAGE,
-    OSD_ELEMENT_CHANNEL,
-    OSD_ELEMENT_SD_REC,
-    OSD_ELEMENT_VLQ,
-    OSD_ELEMENT_ANT0,
-    OSD_ELEMENT_ANT1,
-    OSD_ELEMENT_ANT2,
-    OSD_ELEMENT_ANT3,
-    OSD_ELEMENT_GOGGLE_TEMP_TOP,
-    OSD_ELEMENT_GOGGLE_TEMP_LEFT,
-    OSD_ELEMENT_GOGGLE_TEMP_RIGHT,
-
-    OSD_ELEMENTS_TOTAL
-} osd_elements_t;
-
 typedef struct {
     char *name;
     char *name_settings;
@@ -116,13 +93,15 @@ static setting_osd_t ui_osd_el_pos_unchanged_settings;
 
 // all elements with a display string and the corresponding setting name
 // this must contain the same elements, in the same order as osd_goggle_element_e in settings.h
-static osd_element_t osd_element_list[] = {
+static osd_element_t osd_element_list[OSD_GOGGLE_NUM] = {
     {"Top Fan Speed", "topfan_speed"},
     {"Latency Lock", "latency_lock"},
     {"VTX Temp", "vtx_temp"},
     {"VRX Temp", "vrx_temp"},
     {"Battery Low", "battery_low"},
     {"Battery Voltage", "battery_voltage"},
+    {"Clock Date", "clock_date"},
+    {"Clock Time", "clock_time"},
     {"Channel", "channel"},
     {"DVR", "sd_rec"},
     {"VLQ", "vlq"},
@@ -132,7 +111,8 @@ static osd_element_t osd_element_list[] = {
     {"Antenna 4", "ant3"},
     {"Goggle Temp Top", "goggle_temp_top"},
     {"Goggle Temp Left", "goggle_temp_left"},
-    {"Goggle Temp Right", "goggle_temp_right"}};
+    {"Goggle Temp Right", "goggle_temp_right"},
+};
 
 // string used for the dropdown menu
 static char osd_elements_str[512];
@@ -171,10 +151,10 @@ static setting_osd_goggle_element_t *get_osd_element_setting_entry(int element_i
 
 // creates the string used for the dropdown menu
 static void fill_osd_elements_str() {
-    int max_element = OSD_ELEMENT_ANT3;
+    int max_element = OSD_GOGGLE_ANT3;
 
     if (g_setting.storage.selftest) {
-        max_element = OSD_ELEMENT_GOGGLE_TEMP_RIGHT;
+        max_element = OSD_GOGGLE_TEMP_RIGHT;
     }
 
     osd_elements_str[0] = '\0';
@@ -195,7 +175,7 @@ static int persist_all_osd_element_settings(const setting_osd_t *settings_to_per
 
     res = ini_putl("osd", "embedded_mode", settings_to_persist->embedded_mode, SETTING_INI);
 
-    for (int i = 0; i < OSD_ELEMENTS_TOTAL; i++)
+    for (int i = 0; i < OSD_GOGGLE_NUM; i++)
         res &= settings_put_osd_element(&settings_to_persist->element[i], osd_element_list[i].name_settings);
 
     return res;
