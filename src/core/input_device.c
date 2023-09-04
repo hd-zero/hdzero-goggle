@@ -28,6 +28,7 @@
 #include "core/dvr.h"
 #include "core/elrs.h"
 #include "core/settings.h"
+#include "core/sleep_mode.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -194,9 +195,11 @@ static void btn_press(void) // long press left key
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_cancel_and_hide();
         app_switch_to_menu();
-    } else if (g_app_state == APP_STATE_PLAYBACK)
+    } else if (g_app_state == APP_STATE_PLAYBACK) {
         pb_key(DIAL_KEY_PRESS);
-    else { // Sub-menu  -> Main menu
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
+    } else { // Sub-menu  -> Main menu
         submenu_exit();
         app_state_push(APP_STATE_MAINMENU);
         main_menu_show(true);
@@ -255,6 +258,8 @@ static void btn_click(void) // short press enter key
                g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE ||
                g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
         submenu_click();
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -284,6 +289,9 @@ void rbtn_click(right_button_t click_type) {
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
             ht_set_center_position();
         }
+        break;
+    case APP_STATE_SLEEP:
+        wake_up();
         break;
     }
 }
@@ -328,6 +336,8 @@ static void roller_up(void) {
         power_warning_voltage_dec();
     } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
         power_calibration_offset_dec();
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -371,6 +381,8 @@ static void roller_down(void) {
         power_warning_voltage_inc();
     } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
         power_calibration_offset_inc();
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
 
     pthread_mutex_unlock(&lvgl_mutex);

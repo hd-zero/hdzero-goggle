@@ -24,6 +24,8 @@ typedef enum {
 
     APP_STATE_USER_INPUT_DISABLED = 20,
 
+    APP_STATE_SLEEP = 30,
+
     // TODO pages should set the on_roller callback and handle the input themselves
     // instead of creating an app state. (use APP_STATE_SUBMENU_ITEM_FOCUSED)
     PAGE_FAN_SLIDE = 100,
