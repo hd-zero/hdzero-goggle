@@ -9,6 +9,7 @@
 typedef struct {
     int type; // cell count
     int voltage;
+    int offset; // in 100mV
 } sys_battery_t;
 
 extern sys_battery_t g_battery;
