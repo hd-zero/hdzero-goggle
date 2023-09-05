@@ -70,7 +70,7 @@ static void page_sleep_exit() {
     LOGI("page_sleep_exit");
     OLED_ON(1); // Turn on OLED
     Analog_Module_Power(1);
-    
+
     g_setting.fans.top_speed = fan_speed_save.top;
     g_setting.fans.left_speed = fan_speed_save.left;
     g_setting.fans.right_speed = fan_speed_save.right;
@@ -96,6 +96,8 @@ page_pack_t pp_sleep = {
     .create = page_sleep_create,
     .enter = page_sleep_enter,
     .exit = page_sleep_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_sleep_roller,
     .on_click = page_sleep_click,
     .on_right_button = page_sleep_right_button,

@@ -113,8 +113,7 @@ static void elrs_status_timer(struct _lv_timer_t *timer) {
     }
 }
 
-static void request_uid()
-{
+static void request_uid() {
     msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
     lv_timer_t *timer = lv_timer_create(elrs_status_timer, 250, NULL);
     lv_timer_set_repeat_count(timer, 20);
@@ -170,25 +169,25 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             pthread_mutex_unlock(&lvgl_mutex);
             mspAwaitResposne_e response = msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000);
             pthread_mutex_lock(&lvgl_mutex);
-            switch(response) {
-                case AWAIT_SUCCESS:
-                    lv_label_set_text(label_bind_status, "#00FF00 Success#");
-                    request_uid();
-                    break;
-                case AWAIT_TIMEDOUT:
-                    lv_label_set_text(label_bind_status, "#FEBE00 Timeout#");
-                    break;
-                case AWAIT_FAILED:
-                    lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
-                    break;
-                case AWAIT_CANCELLED:
-                    lv_label_set_text(label_bind_status, "#FEBE00 Cancelled#");
-                    // repower the module and re-request binding info
-                    disable_esp32();
-                    if (g_setting.elrs.enable) {
-                        lv_timer_create(elrs_enable_timer, 100, NULL);
-                    }
-                    break;
+            switch (response) {
+            case AWAIT_SUCCESS:
+                lv_label_set_text(label_bind_status, "#00FF00 Success#");
+                request_uid();
+                break;
+            case AWAIT_TIMEDOUT:
+                lv_label_set_text(label_bind_status, "#FEBE00 Timeout#");
+                break;
+            case AWAIT_FAILED:
+                lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
+                break;
+            case AWAIT_CANCELLED:
+                lv_label_set_text(label_bind_status, "#FEBE00 Cancelled#");
+                // repower the module and re-request binding info
+                disable_esp32();
+                if (g_setting.elrs.enable) {
+                    lv_timer_create(elrs_enable_timer, 100, NULL);
+                }
+                break;
             }
             lv_obj_add_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
             binding = false;
@@ -196,8 +195,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
     }
 }
 
-static void page_elrs_on_rbtn(bool is_short)
-{
+static void page_elrs_on_rbtn(bool is_short) {
     if (binding && is_short) {
         msp_cancel_await();
     }
@@ -212,6 +210,8 @@ page_pack_t pp_elrs = {
     .create = page_elrs_create,
     .enter = page_elrs_enter,
     .exit = NULL,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_elrs_on_roller,
     .on_click = page_elrs_on_click,
     .on_right_button = page_elrs_on_rbtn,

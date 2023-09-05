@@ -14,16 +14,15 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
-#include "record/record_definitions.h"
 
-
-#define MEDIA_FILES_DIR     REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
+#define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -107,7 +106,7 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
     sprintf(fname, "%s/%s." REC_packJPG, TMP_DIR, label);
-    if (file_exists(fname))
+    if (fs_file_exists(fname))
         sprintf(fname, "A:%s/%s." REC_packJPG, TMP_DIR, label);
     else
         osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
@@ -189,7 +188,7 @@ static int walk_sdcard() {
 
         sprintf(fname, "%s%s", MEDIA_FILES_DIR, in_file->d_name);
 
-        long size = file_get_size(fname);
+        long size = fs_filesize(fname);
         size >>= 20; // in MB
         if (size < 5) {
             // skip small files
@@ -293,7 +292,7 @@ static void update_page() {
 }
 
 static void mark_video_file(int const seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         return;
     }
@@ -318,7 +317,7 @@ static void mark_video_file(int const seq) {
 }
 
 static void delete_video_file(int seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         LOGE("delete_video_file failed. (PNODE ERROR)");
         return;
@@ -431,6 +430,8 @@ page_pack_t pp_playback = {
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_playback_on_roller,
     .on_click = page_playback_on_click,
     .on_right_button = page_playback_on_right_button,

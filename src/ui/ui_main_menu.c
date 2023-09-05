@@ -125,11 +125,6 @@ void submenu_roller(uint8_t key) {
         return;
     }
 
-    if (pp->on_roller) {
-        // if your page as a roller event handler, call it
-        pp->on_roller(key);
-    }
-
     if (pp->p_arr.max) {
         // if we have selectable entries, move selection
         if (key == DIAL_KEY_UP) {
@@ -144,6 +139,12 @@ void submenu_roller(uint8_t key) {
                 pp->p_arr.cur = pp->p_arr.max - 1;
         }
         set_select_item(&pp->p_arr, pp->p_arr.cur);
+    }
+
+    // Allow roller to have latest item selected
+    if (pp->on_roller) {
+        // if your page as a roller event handler, call it
+        pp->on_roller(key);
     }
 }
 
@@ -257,16 +258,20 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
 
     lv_obj_t *cont = lv_menu_cont_create(section);
 
-    lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, pp->name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    pp->label = lv_label_create(cont);
+    lv_label_set_text(pp->label, pp->name);
+    lv_obj_set_style_text_font(pp->label, &lv_font_montserrat_26, 0);
+    lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     pp->icon = lv_img_create(cont);
     lv_img_set_src(pp->icon, &img_arrow);
 
     lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
     lv_menu_set_load_page_event(menu, cont, pp->page);
+
+    if (pp->on_created) {
+        pp->on_created();
+    }
 }
 
 void main_menu_init(void) {
@@ -314,6 +319,18 @@ void main_menu_init(void) {
 
     // Create Keyboard Object
     keyboard_init();
+}
+
+void main_menu_update() {
+    static uint32_t delta_ms = 0;
+    uint32_t now_ms = time_ms();
+    delta_ms = now_ms - delta_ms;
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+        if (page_packs[i]->on_update) {
+            page_packs[i]->on_update(delta_ms);
+        }
+    }
+    delta_ms = now_ms;
 }
 
 void progress_bar_update() {

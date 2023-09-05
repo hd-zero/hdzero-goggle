@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "core/defines.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 
 void gpio_init() {
     gpio_open(GPIO_BEEP);
@@ -31,14 +31,14 @@ void gpio_init() {
 }
 
 void gpio_open(int port_num) {
-    if (!file_printf("/sys/class/gpio/export", "%d", port_num)) {
+    if (!fs_printf("/sys/class/gpio/export", "%d", port_num)) {
         return;
     }
 
     char buf[64];
     sprintf(buf, "/sys/class/gpio/gpio%d/direction", port_num);
 
-    if (!file_printf(buf, "out")) {
+    if (!fs_printf(buf, "out")) {
         return;
     }
 }
@@ -46,5 +46,5 @@ void gpio_open(int port_num) {
 void gpio_set(int port_num, bool val) {
     char buf[64];
     sprintf(buf, "/sys/class/gpio/gpio%d/value", port_num);
-    file_printf(buf, "%d", val ? 1 : 0);
+    fs_printf(buf, "%d", val ? 1 : 0);
 }
