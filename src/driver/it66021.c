@@ -204,7 +204,6 @@ void IT66021_init() {
     IT66021_Mask_WR(1, 0x0f, 0x10, 0x00);
 
     usleep(1000);
-    IT66121_edid();
 }
 
 int IT66021_Sig_det() {

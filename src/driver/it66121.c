@@ -134,6 +134,8 @@ void IT66121_init() {
     I2C_R_Write(ADDR_IT66121, 0x98, 0x02);
     I2C_R_Write(ADDR_IT66121, 0x99, 0xd2);
     I2C_R_Write(ADDR_IT66121, 0x0f, 0x08);
+
+    IT66121_edid();
 }
 
 void IT66121_edid() {
