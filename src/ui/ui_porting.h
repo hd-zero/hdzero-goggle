@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
-int lvgl_init_porting(void);
-int lvgl_switch_to_720p(void);
-int lvgl_switch_to_1080p(void);
+int lvgl_init_porting();
+int lvgl_switch_to_720p();
+int lvgl_switch_to_1080p();
+void lvgl_screen_orbit(bool enable);
 
 #endif
