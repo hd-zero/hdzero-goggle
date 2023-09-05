@@ -273,7 +273,11 @@ void rbtn_click(right_button_t click_type) {
         } else if (click_type == RIGHT_LONG_PRESS) {
             step_topfan();
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
-            ht_set_center_position();
+            if (g_setting.ht.enable == true) {
+                ht_set_center_position();
+            } else {
+                go_sleep();
+            }
         }
         break;
     case APP_STATE_SLEEP:
