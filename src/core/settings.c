@@ -39,6 +39,7 @@ const setting_t g_setting_defaults = {
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
+        .calibration_offset = 0,
     },
     .record = {
         .mode_manual = false,
@@ -71,6 +72,7 @@ const setting_t g_setting_defaults = {
         .no_dial = 0,
     },
     .osd = {
+        .orbit = 2,
         .embedded_mode = EMBEDDED_4x3,
         .startup_visibility = SETTING_OSD_SHOW_AT_STARTUP_SHOW,
         .is_visible = true,
@@ -320,6 +322,7 @@ void settings_load(void) {
     g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", g_setting_defaults.autoscan.last_source, SETTING_INI);
 
     // osd
+    g_setting.osd.orbit = ini_getl("osd", "orbit", g_setting_defaults.osd.orbit, SETTING_INI);
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
     g_setting.osd.startup_visibility = ini_getl("osd", "startup_visibility", g_setting_defaults.osd.startup_visibility, SETTING_INI);
 
@@ -364,6 +367,7 @@ void settings_load(void) {
     g_setting.power.cell_count = ini_getl("power", "cell_count", g_setting_defaults.power.cell_count, SETTING_INI);
     g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
     g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
+    g_setting.power.calibration_offset = ini_getl("power", "calibration_offset", g_setting_defaults.power.calibration_offset, SETTING_INI);
 
     // record
     g_setting.record.mode_manual = settings_get_bool("record", "mode_manual", g_setting_defaults.record.mode_manual);

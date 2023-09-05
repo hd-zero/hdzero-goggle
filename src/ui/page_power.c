@@ -17,12 +17,15 @@
 
 #define WARNING_CELL_VOLTAGE_MIN 28
 #define WARNING_CELL_VOLTAGE_MAX 42
+#define CALIBRATION_OFFSET_MIN   -25
+#define CALIBRATION_OFFSET_MAX   25
 
 enum {
     ROW_BATT_C_LABEL = 0,
     ROW_CELL_COUNT_MODE,
     ROW_CELL_COUNT,
     ROW_WARNING_CELL_VOLTAGE,
+    ROW_CALIBRATION_OFFSET,
     ROW_OSD_DISPLAY_MODE,
     ROW_WARN_TYPE,
     ROW_POWER_ANA,
@@ -34,6 +37,7 @@ enum {
 static slider_group_t slider_group_cell_voltage;
 static btn_group_t btn_group_cell_count_mode;
 static slider_group_t slider_group_cell_count;
+static slider_group_t slider_group_calibration_offset;
 static btn_group_t btn_group_osd_display_mode;
 static btn_group_t btn_group_warn_type;
 static btn_group_t btn_group_power_ana;
@@ -60,24 +64,34 @@ static void page_power_update_cell_count() {
     lv_label_set_text(slider_group_cell_count.label, buf);
 }
 
+static void page_power_update_calibration_offset() {
+    g_battery.offset = g_setting.power.calibration_offset;
+    ini_putl("power", "calibration_offset", g_battery.offset, SETTING_INI);
+
+    lv_slider_set_value(slider_group_calibration_offset.slider, g_battery.offset, LV_ANIM_OFF);
+    char buf[6];
+    sprintf(buf, "%.1fV", g_battery.offset / 10.f);
+    lv_label_set_text(slider_group_calibration_offset.label, buf);
+}
+
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     // Update number of rows based on Batch 2 vs Batch 1 options
     pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, 1063, 980);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
     lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, 1063, 984);
 
     create_text(NULL, section, false, "Power:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, 970, 680);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -94,6 +108,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_cell_count_mode, cont, 2, "Cell Count Mode", "Auto", "Manual", "", "", ROW_CELL_COUNT_MODE);
     create_slider_item(&slider_group_cell_count, cont, "Cell Count", CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
     create_slider_item(&slider_group_cell_voltage, cont, "Warning Cell Voltage", WARNING_CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_WARNING_CELL_VOLTAGE);
+    create_slider_item(&slider_group_calibration_offset, cont, "Voltage Calibration", 0, g_setting.power.calibration_offset, ROW_CALIBRATION_OFFSET);
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
 
@@ -115,15 +130,21 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_slider_set_range(slider_group_cell_count.slider, CELL_MIN_COUNT, CELL_MAX_COUNT);
     lv_label_set_text(slider_group_cell_count.label, str);
 
+    sprintf(str, "%.1fV", g_setting.power.calibration_offset / 10.f);
+    lv_slider_set_range(slider_group_calibration_offset.slider, CALIBRATION_OFFSET_MIN, CALIBRATION_OFFSET_MAX);
+    lv_label_set_text(slider_group_calibration_offset.label, str);
+
     // set menu entry current values, loaded from stored settings
     btn_group_set_sel(&btn_group_cell_count_mode, g_setting.power.cell_count_mode);
     lv_slider_set_value(slider_group_cell_count.slider, g_setting.power.cell_count, LV_ANIM_OFF);
     lv_slider_set_value(slider_group_cell_voltage.slider, g_setting.power.voltage, LV_ANIM_OFF);
+    lv_slider_set_value(slider_group_calibration_offset.slider, g_setting.power.calibration_offset, LV_ANIM_OFF);
     btn_group_set_sel(&btn_group_osd_display_mode, g_setting.power.osd_display_mode);
     btn_group_set_sel(&btn_group_warn_type, g_setting.power.warning_type);
     btn_group_set_sel(&btn_group_power_ana, g_setting.power.power_ana);
 
     page_power_update_cell_count();
+    page_power_update_calibration_offset();
 
     lv_obj_t *label = lv_label_create(cont);
     lv_label_set_text(label, "*Cell count setting is disabled in auto mode");
@@ -197,6 +218,30 @@ void power_warning_voltage_dec(void) {
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 
+void power_calibration_offset_inc(void) {
+    int32_t value = 0;
+
+    value = lv_slider_get_value(slider_group_calibration_offset.slider);
+    if (value < CALIBRATION_OFFSET_MAX)
+        value += 1;
+
+    g_setting.power.calibration_offset = value;
+
+    page_power_update_calibration_offset();
+}
+
+void power_calibration_offset_dec(void) {
+    int32_t value = 0;
+
+    value = lv_slider_get_value(slider_group_calibration_offset.slider);
+    if (value > CALIBRATION_OFFSET_MIN)
+        value -= 1;
+
+    g_setting.power.calibration_offset = value;
+
+    page_power_update_calibration_offset();
+}
+
 static void page_power_on_click(uint8_t key, int sel) {
 
     switch (sel) {
@@ -228,6 +273,16 @@ static void page_power_on_click(uint8_t key, int sel) {
         } else {
             app_state_push(PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE);
             lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_select, LV_PART_MAIN);
+        }
+        break;
+
+    case ROW_CALIBRATION_OFFSET:
+        if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
+            app_state_push(APP_STATE_SUBMENU);
+            lv_obj_add_style(slider_group_calibration_offset.slider, &style_silder_main, LV_PART_MAIN);
+        } else {
+            app_state_push(PAGE_POWER_SLIDE_CALIBRATION_OFFSET);
+            lv_obj_add_style(slider_group_calibration_offset.slider, &style_silder_select, LV_PART_MAIN);
         }
         break;
 

@@ -14,16 +14,15 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
 #include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
-#include "record/record_definitions.h"
 
-
-#define MEDIA_FILES_DIR     REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
+#define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -293,7 +292,7 @@ static void update_page() {
 }
 
 static void mark_video_file(int const seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         return;
     }
@@ -318,7 +317,7 @@ static void mark_video_file(int const seq) {
 }
 
 static void delete_video_file(int seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         LOGE("delete_video_file failed. (PNODE ERROR)");
         return;
