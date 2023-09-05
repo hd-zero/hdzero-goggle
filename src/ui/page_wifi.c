@@ -737,10 +737,10 @@ static void page_wifi_exit() {
  *  Invoked periodically.
  */
 static void page_wifi_on_update(uint32_t delta_ms) {
-    uint32_t elapsed = 0;
+    static uint32_t elapsed = -1;
 
-    // Check every 5 minutes for a new update
-    if (g_setting.wifi.enable && elapsed == 0 || (elapsed += delta_ms) > 300000) {
+    // Check immediately after running, then every 5 minutes.
+    if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:
             if (page_wifi_get_real_address()) {
@@ -751,6 +751,8 @@ static void page_wifi_on_update(uint32_t delta_ms) {
             }
             break;
         }
+
+        elapsed = 0;
     }
 }
 
