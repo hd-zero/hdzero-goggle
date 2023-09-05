@@ -14,16 +14,15 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
 #include "util/file.h"
 #include "util/math.h"
 #include "util/system.h"
-#include "record/record_definitions.h"
 
-
-#define MEDIA_FILES_DIR     REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
+#define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -292,8 +291,18 @@ static void update_page() {
     }
 }
 
+void update_item(uint8_t cur_pos, uint8_t lst_pos) {
+    lv_obj_clear_flag(pb_ui[cur_pos]._arrow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_remove_style(pb_ui[cur_pos]._img, &style_pb_dark, LV_PART_MAIN);
+    lv_obj_add_style(pb_ui[cur_pos]._img, &style_pb, LV_PART_MAIN);
+
+    lv_obj_add_flag(pb_ui[lst_pos]._arrow, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_remove_style(pb_ui[lst_pos]._img, &style_pb, LV_PART_MAIN);
+    lv_obj_add_style(pb_ui[lst_pos]._img, &style_pb_dark, LV_PART_MAIN);
+}
+
 static void mark_video_file(int const seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         return;
     }
@@ -318,7 +327,7 @@ static void mark_video_file(int const seq) {
 }
 
 static void delete_video_file(int seq) {
-    media_file_node_t const * const pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         LOGE("delete_video_file failed. (PNODE ERROR)");
         return;
@@ -356,6 +365,8 @@ void pb_key(uint8_t const key) {
     static bool done = true;
     static uint8_t state = 0; // 0= select video files, 1=playback
     char fname[128];
+    uint32_t cur_page_num, lst_page_num;
+    uint8_t cur_pos, lst_pos;
 
     // LOGI("onkey:Key=%d,Count=%d",key,media_db.count);
 
@@ -374,21 +385,43 @@ void pb_key(uint8_t const key) {
     done = false;
     switch (key) {
     case DIAL_KEY_UP: // up
+        lst_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
+        lst_pos = media_db.cur_sel - lst_page_num * ITEMS_LAYOUT_CNT;
+
         if (media_db.cur_sel == (media_db.count - 1)) {
             media_db.cur_sel = 0;
         } else {
             media_db.cur_sel++;
         }
-        update_page();
+
+        cur_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
+        cur_pos = media_db.cur_sel - cur_page_num * ITEMS_LAYOUT_CNT;
+
+        if (lst_page_num == cur_page_num) {
+            update_item(cur_pos, lst_pos);
+        } else {
+            update_page();
+        }
         break;
 
     case DIAL_KEY_DOWN: // down
+        lst_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
+        lst_pos = media_db.cur_sel - lst_page_num * ITEMS_LAYOUT_CNT;
+
         if (media_db.cur_sel) {
             media_db.cur_sel--;
         } else {
             media_db.cur_sel = (media_db.count - 1);
         }
-        update_page();
+
+        cur_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
+        cur_pos = media_db.cur_sel - cur_page_num * ITEMS_LAYOUT_CNT;
+
+        if (lst_page_num == cur_page_num) {
+            update_item(cur_pos, lst_pos);
+        } else {
+            update_page();
+        }
         break;
 
     case DIAL_KEY_CLICK: // Enter
