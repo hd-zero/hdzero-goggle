@@ -65,8 +65,10 @@ void wake_up() {
     fans_left_setspeed(fan_speed_save.left);
     fans_right_setspeed(fan_speed_save.right);
 
+    app_state_push(previousState);
     if (previousState == APP_STATE_SUBMENU) {
-        app_state_push(previousState);
         submenu_exit();
+    } else if (previousState == APP_STATE_VIDEO) {
+        app_exit_menu();
     }
 }
