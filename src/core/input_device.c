@@ -171,21 +171,7 @@ static void btn_press(void) // long press left key
     g_autoscan_exit = true;
     if (g_app_state == APP_STATE_MAINMENU) // Main menu -> Video
     {
-        switch (g_source_info.source) {
-        case SOURCE_HDZERO:
-            progress_bar.start = 1;
-            app_switch_to_hdzero(true);
-            break;
-        case SOURCE_HDMI_IN:
-            app_switch_to_hdmi_in();
-            break;
-        case SOURCE_AV_IN:
-            app_switch_to_analog(0);
-            break;
-        case SOURCE_EXPANSION:
-            app_switch_to_analog(1);
-            break;
-        }
+        app_exit_menu();
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) { // video -> Main menu
         if (tune_timer && g_source_info.source == SOURCE_HDZERO)
