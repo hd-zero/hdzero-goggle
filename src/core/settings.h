@@ -58,6 +58,7 @@ typedef struct {
     int cell_count;
     setting_power_osd_display_mode_t osd_display_mode;
     bool power_ana;
+    int calibration_offset;
 } setting_power_t;
 
 typedef enum {
@@ -130,6 +131,8 @@ typedef enum {
     OSD_GOGGLE_VRX_TEMP,
     OSD_GOGGLE_BATTERY_LOW,
     OSD_GOGGLE_BATTERY_VOLTAGE,
+    OSD_GOGGLE_CLOCK_DATE,
+    OSD_GOGGLE_CLOCK_TIME,
     OSD_GOGGLE_CHANNEL,
     OSD_GOGGLE_SD_REC,
     OSD_GOGGLE_VLQ,
@@ -140,6 +143,7 @@ typedef enum {
     OSD_GOGGLE_TEMP_TOP,
     OSD_GOGGLE_TEMP_LEFT,
     OSD_GOGGLE_TEMP_RIGHT,
+
     OSD_GOGGLE_NUM,
 } osd_goggle_element_e;
 

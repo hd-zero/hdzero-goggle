@@ -349,8 +349,7 @@ int record_start(RecordContext_t* recCtx)
     }
 
     char sFile[256];
-    ZeroMemory(sFile, sizeof(sFile));
-    sprintf(sFile, "%s%s%03d.%s", recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
@@ -425,7 +424,7 @@ int record_start(RecordContext_t* recCtx)
     record_saveStatus(recCtx, REC_statusRun);
     recCtx->nbFileIndex++;
 
-    sprintf(sFile, "%s%s%03d.%s", recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
     ret = record_takePicture(recCtx, sFile);
 
     record_dumpViParams(&viParams);
@@ -477,8 +476,7 @@ bool record_pack(RecordContext_t* recCtx)
     VencSpspps_t veHeader = { NULL, 0 };
     int  nbFileIndex = recCtx->nbFileIndex;
     char sFile[256];
-    memset(sFile, 0, sizeof(sFile));
-    sprintf(sFile, "%s%s%03d.%s", recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
@@ -536,7 +534,7 @@ bool record_pack(RecordContext_t* recCtx)
 
     pthread_mutex_unlock(&recCtx->mutex);
 
-    sprintf(sFile, "%s%s%03d.%s", recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
     record_takePicture(recCtx, sFile);
 
     return true;

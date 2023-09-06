@@ -14,12 +14,15 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
 #include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
+
+#define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
 LV_IMG_DECLARE(img_arrow1);
 
@@ -102,9 +105,9 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_label_set_text(pb_ui[pos]._label, label);
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
-    sprintf(fname, "%s/%s.jpg", TMP_DIR, label);
+    sprintf(fname, "%s/%s." REC_packJPG, TMP_DIR, label);
     if (fs_file_exists(fname))
-        sprintf(fname, "A:%s/%s.jpg", TMP_DIR, label);
+        sprintf(fname, "A:%s/%s." REC_packJPG, TMP_DIR, label);
     else
         osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
     lv_img_set_src(pb_ui[pos]._img, fname);
@@ -139,13 +142,13 @@ static bool get_seleteced(int seq, char *fname) {
     media_file_node_t *pnode = get_list(seq);
     if (!pnode)
         return false;
-    sprintf(fname, "%s/%s", MEDIA_FILES_DIR, pnode->filename);
+    sprintf(fname, "%s%s", MEDIA_FILES_DIR, pnode->filename);
     return true;
 }
 
 int hot_alphasort(const struct dirent **a, const struct dirent **b) {
-    const bool a_hot = strncmp((*a)->d_name, "hot_", 4) == 0;
-    const bool b_hot = strncmp((*b)->d_name, "hot_", 4) == 0;
+    const bool a_hot = strncmp((*a)->d_name, REC_hotPREFIX, 4) == 0;
+    const bool b_hot = strncmp((*b)->d_name, REC_hotPREFIX, 4) == 0;
     if (a_hot && !b_hot) {
         return -1;
     }
@@ -156,6 +159,8 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
 }
 
 static int walk_sdcard() {
+    char fname[512];
+
     media_db.count = 0;
     media_db.cur_sel = 0;
 
@@ -177,12 +182,11 @@ static int walk_sdcard() {
             continue;
         }
 
-        if (strcasecmp(dot, ".ts") != 0 && strcasecmp(dot, ".mp4") != 0) {
+        if (strcasecmp(dot, "." REC_packTS) != 0 && strcasecmp(dot, "." REC_packMP4) != 0) {
             continue;
         }
 
-        char fname[512];
-        sprintf(fname, "%s/%s", MEDIA_FILES_DIR, in_file->d_name);
+        sprintf(fname, "%s%s", MEDIA_FILES_DIR, in_file->d_name);
 
         long size = fs_filesize(fname);
         size >>= 20; // in MB
@@ -213,14 +217,13 @@ static int walk_sdcard() {
     free(namelist);
 
     // copy all thumbnail files to /tmp
-    char fname[128];
-    sprintf(fname, "cp %s/*.jpg %s", MEDIA_FILES_DIR, TMP_DIR);
+    sprintf(fname, "cp %s*." REC_packJPG " %s", MEDIA_FILES_DIR, TMP_DIR);
     system_exec(fname);
 
     return media_db.count;
 }
 
-static int find_hot_index() {
+static int find_next_available_hot_index() {
     DIR *fd = opendir(MEDIA_FILES_DIR);
     if (!fd) {
         return 1;
@@ -229,7 +232,7 @@ static int find_hot_index() {
     int result = 0;
     struct dirent *in_file;
     while ((in_file = readdir(fd))) {
-        if (in_file->d_name[0] == '.' || strncmp(in_file->d_name, "hot_", 4) != 0) {
+        if (in_file->d_name[0] == '.' || strncmp(in_file->d_name, REC_hotPREFIX, 4) != 0) {
             continue;
         }
 
@@ -239,12 +242,12 @@ static int find_hot_index() {
             continue;
         }
 
-        if (strcasecmp(dot, ".ts") != 0 && strcasecmp(dot, ".mp4") != 0) {
+        if (strcasecmp(dot, "." REC_packTS) != 0 && strcasecmp(dot, "." REC_packMP4) != 0) {
             continue;
         }
 
         int index = 0;
-        if (sscanf(in_file->d_name, "hot_hdz_%d", &index) != 1) {
+        if (sscanf(in_file->d_name, REC_packHotPREFIX "%d", &index) != 1) {
             continue;
         }
 
@@ -258,9 +261,9 @@ static int find_hot_index() {
 }
 
 static void update_page() {
-    uint32_t page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
-    uint32_t end_pos = media_db.count - page_num * ITEMS_LAYOUT_CNT;
-    uint32_t cur_pos = media_db.cur_sel - page_num * ITEMS_LAYOUT_CNT;
+    uint32_t const page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
+    uint32_t const end_pos = media_db.count - page_num * ITEMS_LAYOUT_CNT;
+    uint32_t const cur_pos = media_db.cur_sel - page_num * ITEMS_LAYOUT_CNT;
 
     for (uint8_t i = 0; i < ITEMS_LAYOUT_CNT; i++) {
         uint32_t seq = i + page_num * ITEMS_LAYOUT_CNT;
@@ -288,22 +291,24 @@ static void update_page() {
     }
 }
 
-static void mark_video_file(int seq) {
-    media_file_node_t *pnode = get_list(seq);
+static void mark_video_file(int const seq) {
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         return;
     }
-    if (strncmp(pnode->filename, "hot_", 4) == 0) {
+    if (strncmp(pnode->filename, REC_hotPREFIX, 4) == 0) {
         // file already marked hot
         return;
     }
 
-    const int index = find_hot_index();
+    const int index = find_next_available_hot_index();
 
     char cmd[256];
-    sprintf(cmd, "mv  %s/%s %s/hot_hdz_%03d.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, index, pnode->ext);
+    int length = sprintf(cmd, "mv %s%s ", MEDIA_FILES_DIR, pnode->filename);
+    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, pnode->ext);
     system_exec(cmd);
-    sprintf(cmd, "mv %s/%s.jpg %s/hot_hdz_%03d.jpg", MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, index);
+    length = sprintf(cmd, "mv %s%s." REC_packJPG " ", MEDIA_FILES_DIR, pnode->label);
+    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, REC_packJPG);
     system_exec(cmd);
 
     walk_sdcard();
@@ -312,14 +317,14 @@ static void mark_video_file(int seq) {
 }
 
 static void delete_video_file(int seq) {
-    media_file_node_t *pnode = get_list(seq);
+    media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         LOGE("delete_video_file failed. (PNODE ERROR)");
         return;
     }
 
     char cmd[128];
-    sprintf(cmd, "rm %s/%s.*", MEDIA_FILES_DIR, pnode->label);
+    sprintf(cmd, "rm %s%s.*", MEDIA_FILES_DIR, pnode->label);
 
     if (system_exec(cmd) != -1) {
         walk_sdcard();
@@ -346,7 +351,7 @@ static void page_playback_enter() {
     }
 }
 
-void pb_key(uint8_t key) {
+void pb_key(uint8_t const key) {
     static bool done = true;
     static uint8_t state = 0; // 0= select video files, 1=playback
     char fname[128];

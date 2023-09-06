@@ -39,6 +39,7 @@ const setting_t g_setting_defaults = {
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
+        .calibration_offset = 0,
     },
     .record = {
         .mode_manual = false,
@@ -104,6 +105,16 @@ const setting_t g_setting_defaults = {
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 360, .y = 0}, .mode_16_9 = {.x = 200, .y = 0}},
+            },
+            // OSD_GOGGLE_CLOCK_DATE
+            {
+                .show = false,
+                .position = {.mode_4_3 = {.x = 360, .y = 24}, .mode_16_9 = {.x = 200, .y = 24}},
+            },
+            // OSD_GOGGLE_CLOCK_TIME
+            {
+                .show = false,
+                .position = {.mode_4_3 = {.x = 580, .y = 24}, .mode_16_9 = {.x = 420, .y = 24}},
             },
             // OSD_GOGGLE_CHANNEL
             {
@@ -334,6 +345,8 @@ void settings_load(void) {
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VRX_TEMP], "vrx_temp", &g_setting_defaults.osd.element[OSD_GOGGLE_VRX_TEMP]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_LOW], "battery_low", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_LOW]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE], "battery_voltage", &g_setting_defaults.osd.element[OSD_GOGGLE_BATTERY_VOLTAGE]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CLOCK_DATE], "clock_date", &g_setting_defaults.osd.element[OSD_GOGGLE_CLOCK_DATE]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CLOCK_TIME], "clock_time", &g_setting_defaults.osd.element[OSD_GOGGLE_CLOCK_TIME]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_CHANNEL], "channel", &g_setting_defaults.osd.element[OSD_GOGGLE_CHANNEL]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_SD_REC], "sd_rec", &g_setting_defaults.osd.element[OSD_GOGGLE_SD_REC]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_VLQ], "vlq", &g_setting_defaults.osd.element[OSD_GOGGLE_VLQ]);
@@ -352,6 +365,7 @@ void settings_load(void) {
     g_setting.power.cell_count = ini_getl("power", "cell_count", g_setting_defaults.power.cell_count, SETTING_INI);
     g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
     g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
+    g_setting.power.calibration_offset = ini_getl("power", "calibration_offset", g_setting_defaults.power.calibration_offset, SETTING_INI);
 
     // record
     g_setting.record.mode_manual = settings_get_bool("record", "mode_manual", g_setting_defaults.record.mode_manual);
