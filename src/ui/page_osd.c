@@ -12,11 +12,13 @@
 #include "driver/hardware.h"
 #include "page_common.h"
 #include "ui/ui_osd_element_pos.h"
+#include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 #include "util/math.h"
 
 enum {
-    ROW_OSD_MODE = 0,
+    ROW_OSD_ORBIT = 0,
+    ROW_OSD_MODE,
     ROW_OSD_STARTUP_VISIBILITY,
     ROW_ADJUST_OSD_ELEMENTS,
     ROW_BACK,
@@ -28,6 +30,7 @@ enum {
 static lv_coord_t col_dsc[] = {160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
+static btn_group_t btn_group_osd_orbit;
 static btn_group_t btn_group_osd_mode;
 static btn_group_t btn_group_osd_startup_visibility;
 
@@ -58,6 +61,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     // create menu entries
     create_label_item(cont, "Adjust OSD Elements", 1, ROW_ADJUST_OSD_ELEMENTS, 1);
+    create_btn_group_item(&btn_group_osd_orbit, cont, 3, "OSD Orbit", "Off", "Min", "Max", "", ROW_OSD_ORBIT);
     create_btn_group_item(&btn_group_osd_mode, cont, 2, "OSD Mode", "4x3", "16x9", "", "", ROW_OSD_MODE);
     create_btn_group_item(&btn_group_osd_startup_visibility, cont, 3, "At Startup", "Show", "Hide", "Last", "", ROW_OSD_STARTUP_VISIBILITY);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
@@ -73,8 +77,12 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_START, ROW_USER_HINT, 2);
 
     // set ui values from settings
+    btn_group_set_sel(&btn_group_osd_orbit, g_setting.osd.orbit);
     btn_group_set_sel(&btn_group_osd_mode, g_setting.osd.embedded_mode);
     btn_group_set_sel(&btn_group_osd_startup_visibility, g_setting.osd.startup_visibility);
+
+    // Set OSD orbit
+    lvgl_screen_orbit(g_setting.osd.orbit > 0);
 
     return page;
 }
@@ -129,6 +137,13 @@ static void on_click(uint8_t key, int sel) {
         g_setting.osd.embedded_mode = btn_group_get_sel(&btn_group_osd_mode);
         ini_putl("osd", "embedded_mode", g_setting.osd.embedded_mode, SETTING_INI);
         osd_update_element_positions();
+        break;
+
+    case ROW_OSD_ORBIT:
+        btn_group_toggle_sel(&btn_group_osd_orbit);
+        g_setting.osd.orbit = btn_group_get_sel(&btn_group_osd_orbit);
+        ini_putl("osd", "orbit", g_setting.osd.orbit, SETTING_INI);
+        lvgl_screen_orbit(g_setting.osd.orbit > 0);
         break;
 
     default:

@@ -13,6 +13,7 @@
 #include "ui/page_playback.h"
 #include "ui/page_storage.h"
 #include "ui/page_wifi.h"
+#include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ int statusbar_init(void) {
 
     /*Create a container with grid*/
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(cont, 1920, 96);
+    lv_obj_set_size(cont, DRAW_HOR_RES_FHD, 96);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);

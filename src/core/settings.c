@@ -72,6 +72,7 @@ const setting_t g_setting_defaults = {
         .no_dial = 0,
     },
     .osd = {
+        .orbit = 2,
         .embedded_mode = EMBEDDED_4x3,
         .startup_visibility = SETTING_OSD_SHOW_AT_STARTUP_SHOW,
         .is_visible = true,
@@ -321,6 +322,7 @@ void settings_load(void) {
     g_setting.autoscan.last_source = ini_getl("autoscan", "last_source", g_setting_defaults.autoscan.last_source, SETTING_INI);
 
     // osd
+    g_setting.osd.orbit = ini_getl("osd", "orbit", g_setting_defaults.osd.orbit, SETTING_INI);
     g_setting.osd.embedded_mode = ini_getl("osd", "embedded_mode", g_setting_defaults.osd.embedded_mode, SETTING_INI);
     g_setting.osd.startup_visibility = ini_getl("osd", "startup_visibility", g_setting_defaults.osd.startup_visibility, SETTING_INI);
 
