@@ -105,13 +105,15 @@ update_fpga()
 	rmmod /mnt/app/ko/w25q128.ko
 }
 
-# Always default to primary location if found for emergency restore
-if [ `ls /mnt/extsd/HDZERO_GOGGLE*.bin | grep bin | wc -l` -eq 1 ]
-then
-	GOGGLE_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
+# If firmware file was NOT supplied then default to primary location for emergency restore
+if [ -z "$GOGGLE_BIN" ]; then
+    if [ `ls /mnt/extsd/HDZERO_GOGGLE*.bin | grep bin | wc -l` -eq 1 ]
+    then
+        GOGGLE_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
+    fi
 fi
 
-if [ ! -z $GOGGLE_BIN ]
+if [ ! -z "$GOGGLE_BIN" ]
 then
 	echo "Flashing $GOGGLE_BIN"
 	echo "0" > /tmp/progress_goggle

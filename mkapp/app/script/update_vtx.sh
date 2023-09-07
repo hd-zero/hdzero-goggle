@@ -35,10 +35,12 @@ gpio_set_send()
         echo "0">/sys/class/gpio/gpio228/value
 }
 
-# Always default to primary location if found for emergency restore
-if [ `ls /mnt/extsd/HDZERO_TX.bin | grep bin | wc -l` -eq 1 ]
-then
-	VTX_BIN="/mnt/extsd/HDZERO_TX.bin"
+# If firmware file was NOT supplied then default to primary location for emergency restore
+if [ -z "$VTX_BIN" ]; then
+    if [ `ls /mnt/extsd/HDZERO_TX.bin | grep bin | wc -l` -eq 1 ]
+    then
+        VTX_BIN="/mnt/extsd/HDZERO_TX.bin"
+    fi
 fi
 
 if [ -e $VTX_BIN ]
