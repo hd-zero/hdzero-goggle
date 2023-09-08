@@ -93,8 +93,7 @@ static bool is_need_update_progress = false;
 static bool reboot_flag = false;
 static lv_obj_t *cur_ver_label;
 static int reset_all_settings_confirm = CONFIRMATION_UNCONFIRMED;
-static atomic_bool scan_filesystem = ATOMIC_VAR_INIT(true);
-static pthread_mutex_t scan_filesystem_mutex;
+static atomic_bool autoscan_filesystem = ATOMIC_VAR_INIT(true);
 
 #undef RETURN_ON_ERROR
 #define RETURN_ON_ERROR(m, x)              \
@@ -599,7 +598,6 @@ static void page_version_fw_select_toggle_panel(fw_select_t *fw_select) {
         pp_version.on_roller = page_version_on_roller;
         pp_version.on_click = page_version_on_click;
         pp_version.on_right_button = page_version_on_right_button;
-        scan_filesystem = true;
     }
 }
 
@@ -703,14 +701,9 @@ static void page_version_on_click_fw_select(uint8_t key, int sel) {
         break;
     case 1:
         if (fw_select_current->count) {
-            pthread_mutex_lock(&scan_filesystem_mutex);
-            scan_filesystem = false;
             page_version_fw_select_hide(fw_select_current);
             page_version_fw_select_toggle_panel(fw_select_current);
-            pthread_mutex_unlock(&scan_filesystem_mutex);
-
             fw_select_current->flash();
-            scan_filesystem = true;
         }
         break;
     case 2:
@@ -870,12 +863,10 @@ static void page_version_on_update(uint32_t delta_ms) {
     static uint32_t elapsed_ms = 0;
 
     if ((elapsed_ms += delta_ms) > 5000) {
-        pthread_mutex_lock(&scan_filesystem_mutex);
         elapsed_ms = 0;
-        if (scan_filesystem) {
+        if (autoscan_filesystem) {
             page_version_fw_scan_for_updates();
         }
-        pthread_mutex_unlock(&scan_filesystem_mutex);
     }
 }
 
@@ -929,6 +920,7 @@ static void reset_all_settings_reset_label_text() {
 }
 
 static void page_version_enter() {
+    autoscan_filesystem = false;
     version_update_title();
 
     lv_label_set_text(label_esp, "");
@@ -941,6 +933,7 @@ static void page_version_exit() {
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
     page_version_fw_select_hide(&fw_select_vtx);
     page_version_fw_select_hide(&fw_select_goggle);
+    autoscan_filesystem = true;
 }
 
 static void page_version_on_roller(uint8_t key) {
@@ -994,17 +987,11 @@ static void page_version_on_click(uint8_t key, int sel) {
                 reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
             }
         } else if (sel == ROW_UPDATE_VTX) {
-            pthread_mutex_lock(&scan_filesystem_mutex);
-            scan_filesystem = false;
             page_version_fw_scan_for_updates();
             page_version_fw_select_show("VTX Firmware", &fw_select_vtx);
-            pthread_mutex_unlock(&scan_filesystem_mutex);
         } else if ((sel == ROW_UPDATE_GOGGLE) && !reboot_flag) {
-            pthread_mutex_lock(&scan_filesystem_mutex);
-            scan_filesystem = false;
             page_version_fw_scan_for_updates();
             page_version_fw_select_show("Goggle Firmware", &fw_select_goggle);
-            pthread_mutex_unlock(&scan_filesystem_mutex);
         } else if (sel == ROW_UPDATE_ESP32) { // flash ESP via SD
             lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
