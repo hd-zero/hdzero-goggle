@@ -94,6 +94,7 @@ static bool reboot_flag = false;
 static lv_obj_t *cur_ver_label;
 static int reset_all_settings_confirm = CONFIRMATION_UNCONFIRMED;
 static atomic_bool scan_filesystem = ATOMIC_VAR_INIT(true);
+static pthread_mutex_t scan_filesystem_mutex;
 
 #undef RETURN_ON_ERROR
 #define RETURN_ON_ERROR(m, x)              \
@@ -460,49 +461,47 @@ static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *
 }
 
 static void page_version_fw_scan_for_updates() {
-    if (scan_filesystem) {
-        bool has_online_goggle_update = false;
-        bool has_online_vtx_update = false;
+    bool has_online_goggle_update = false;
+    bool has_online_vtx_update = false;
 
-        page_version_fw_select_reset(&fw_select_goggle);
-        snprintf(fw_select_goggle.path, sizeof(fw_select_goggle.path), "/mnt/extsd");
-        page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE", false);
+    page_version_fw_select_reset(&fw_select_goggle);
+    snprintf(fw_select_goggle.path, sizeof(fw_select_goggle.path), "/mnt/extsd");
+    page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE", false);
 
-        if (fw_select_goggle.ready) {
-            fw_select_goggle.alt_title = "SD Card";
+    if (fw_select_goggle.ready) {
+        fw_select_goggle.alt_title = "SD Card";
+    }
+
+    page_version_fw_select_reset(&fw_select_vtx);
+    snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
+    page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
+
+    if (fw_select_vtx.ready) {
+        fw_select_vtx.alt_title = "SD Card";
+    }
+
+    if (g_setting.wifi.enable) {
+        if (!fw_select_goggle.ready) {
+            has_online_goggle_update =
+                0 < page_version_get_latest_fw_path("GOGGLE", fw_select_goggle.path, sizeof(fw_select_goggle.path)) &&
+                0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
         }
 
-        page_version_fw_select_reset(&fw_select_vtx);
-        snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
-        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
-
-        if (fw_select_vtx.ready) {
-            fw_select_vtx.alt_title = "SD Card";
+        if (!fw_select_vtx.ready) {
+            has_online_vtx_update =
+                0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
+                0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
         }
 
-        if (g_setting.wifi.enable) {
-            if (!fw_select_goggle.ready) {
-                has_online_goggle_update =
-                    0 < page_version_get_latest_fw_path("GOGGLE", fw_select_goggle.path, sizeof(fw_select_goggle.path)) &&
-                    0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
-            }
-
-            if (!fw_select_vtx.ready) {
-                has_online_vtx_update =
-                    0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
-                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
-            }
-
-            if (has_online_goggle_update || has_online_vtx_update) {
-                lv_label_set_text(label_note, "To view release notes, select either Update VTX or Update Goggle\n"
-                                              "then press the Func button to display or hide the release notes.");
-            } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
-                lv_label_set_text(label_note, "Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\n"
-                                              "SD Card in order to install the latest online downloaded firmware files.");
-            }
-        } else {
-            lv_label_set_text(label_note, "");
+        if (has_online_goggle_update || has_online_vtx_update) {
+            lv_label_set_text(label_note, "To view release notes, select either Update VTX or Update Goggle\n"
+                                          "then press the Func button to display or hide the release notes.");
+        } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
+            lv_label_set_text(label_note, "Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\n"
+                                          "SD Card in order to install the latest online downloaded firmware files.");
         }
+    } else {
+        lv_label_set_text(label_note, "");
     }
 }
 
@@ -600,9 +599,8 @@ static void page_version_fw_select_toggle_panel(fw_select_t *fw_select) {
         pp_version.on_roller = page_version_on_roller;
         pp_version.on_click = page_version_on_click;
         pp_version.on_right_button = page_version_on_right_button;
+        scan_filesystem = true;
     }
-
-    scan_filesystem = !fw_select_current->visible;
 }
 
 static void page_version_fw_select_populate(fw_select_t *fw_select) {
@@ -705,9 +703,12 @@ static void page_version_on_click_fw_select(uint8_t key, int sel) {
         break;
     case 1:
         if (fw_select_current->count) {
+            pthread_mutex_lock(&scan_filesystem_mutex);
+            scan_filesystem = false;
             page_version_fw_select_hide(fw_select_current);
             page_version_fw_select_toggle_panel(fw_select_current);
-            scan_filesystem = false;
+            pthread_mutex_unlock(&scan_filesystem_mutex);
+
             fw_select_current->flash();
             scan_filesystem = true;
         }
@@ -869,8 +870,12 @@ static void page_version_on_update(uint32_t delta_ms) {
     static uint32_t elapsed_ms = 0;
 
     if ((elapsed_ms += delta_ms) > 5000) {
+        pthread_mutex_lock(&scan_filesystem_mutex);
         elapsed_ms = 0;
-        page_version_fw_scan_for_updates();
+        if (scan_filesystem) {
+            page_version_fw_scan_for_updates();
+        }
+        pthread_mutex_unlock(&scan_filesystem_mutex);
     }
 }
 
@@ -989,9 +994,17 @@ static void page_version_on_click(uint8_t key, int sel) {
                 reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
             }
         } else if (sel == ROW_UPDATE_VTX) {
+            pthread_mutex_lock(&scan_filesystem_mutex);
+            scan_filesystem = false;
+            page_version_fw_scan_for_updates();
             page_version_fw_select_show("VTX Firmware", &fw_select_vtx);
+            pthread_mutex_unlock(&scan_filesystem_mutex);
         } else if ((sel == ROW_UPDATE_GOGGLE) && !reboot_flag) {
+            pthread_mutex_lock(&scan_filesystem_mutex);
+            scan_filesystem = false;
+            page_version_fw_scan_for_updates();
             page_version_fw_select_show("Goggle Firmware", &fw_select_goggle);
+            pthread_mutex_unlock(&scan_filesystem_mutex);
         } else if (sel == ROW_UPDATE_ESP32) { // flash ESP via SD
             lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
