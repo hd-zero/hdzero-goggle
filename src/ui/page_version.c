@@ -419,8 +419,6 @@ static void page_version_on_click(uint8_t key, int sel) {
                 lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
             reboot_flag = true;
             lv_timer_handler();
-            while (1)
-                ; // dead loop
         } else if (ret == 2) {
             lv_label_set_text(btn_goggle, "#FFFF00 No firmware found.#");
         } else if (ret == 3) {
