@@ -3,8 +3,9 @@
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/dvr.h"
-
 #include "core/settings.h"
+
+#include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/fans.h"
 #include "driver/hardware.h"
@@ -16,6 +17,9 @@
 static app_state_t previousState;
 static int fans_auto_mode_save;
 static fan_speed_t fan_speed_save;
+
+static bool isSleeping = false;
+static uint16_t beepCnt = 0;
 
 void go_sleep() {
     LOGI("Entering sleep mode");
@@ -49,10 +53,13 @@ void go_sleep() {
     fans_top_setspeed(MIN_FAN_TOP);
     fans_left_setspeed(MIN_FAN_SIDE);
     fans_right_setspeed(MIN_FAN_SIDE);
+    isSleeping = true;
+    beepCnt = 0;
 }
 
 void wake_up() {
     LOGI("Exiting sleep mode");
+    isSleeping = false;
 
     OLED_ON(1); // Turn on OLED
     Analog_Module_Power(1);
@@ -70,5 +77,18 @@ void wake_up() {
         submenu_exit();
     } else if (previousState == APP_STATE_VIDEO) {
         app_exit_menu();
+    }
+}
+
+void sleep_reminder()
+{
+    if (isSleeping == false) {
+        return;
+    }
+
+#define BEEP_INTERVAL 400
+    if (++beepCnt == BEEP_INTERVAL) {
+        beep();
+        beepCnt = 0;
     }
 }
