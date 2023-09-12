@@ -14,6 +14,7 @@
 #include "ui/page_storage.h"
 #include "ui/page_wifi.h"
 #include "ui/ui_style.h"
+#include "util/sdcard.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // local
@@ -222,8 +223,13 @@ void statubar_update(void) {
                     sprintf(buf, "%.2fGB available", gb);
             }
         } else {
-            sprintf(buf, "No SD card");
             lv_img_set_src(img_sdc, &img_noSdcard);
+
+            if (sdcard_inserted()) {
+                sprintf(buf, "Format SD Card");
+            } else {
+                sprintf(buf, "No SD Card");
+            }
         }
 
         lv_label_set_text(label[STS_SDCARD], buf);
