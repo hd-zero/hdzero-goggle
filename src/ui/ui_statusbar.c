@@ -226,7 +226,7 @@ void statubar_update(void) {
             lv_img_set_src(img_sdc, &img_noSdcard);
 
             if (sdcard_inserted()) {
-                sprintf(buf, "Format SD Card");
+                sprintf(buf, "Unsupported");
             } else {
                 sprintf(buf, "No SD Card");
             }
