@@ -16,6 +16,7 @@
 
 #include "bmi270/accel_gyro.h"
 #include "core/settings.h"
+#include "core/sleep_mode.h"
 #include "driver/beep.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
@@ -146,7 +147,7 @@ static void detect_motion(bool is_moving) {
 }
 
 void ht_detect_motion() {
-    if (has_motion_data) {
+    if (!isSleeping && has_motion_data) {
         detect_motion(is_moving);
         has_motion_data = false;
     }

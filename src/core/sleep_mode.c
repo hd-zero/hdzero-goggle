@@ -18,8 +18,9 @@ static app_state_t previousState;
 static int fans_auto_mode_save;
 static fan_speed_t fan_speed_save;
 
-static bool isSleeping = false;
 static uint16_t beepCnt = 0;
+
+bool isSleeping = false;
 
 void go_sleep() {
     LOGI("Entering sleep mode");
