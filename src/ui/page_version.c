@@ -286,17 +286,13 @@ static void flash_goggle() {
         beep();
         reboot_flag = true;
         lv_timer_handler();
-
-        while (1) {
-            // User must powercycle, but lets not kill CPU
-            sleep(1);
-        }
     } else if (ret == 2) {
         lv_label_set_text(btn_goggle, "#FFFF00 No firmware found.#");
     } else if (ret == 3) {
         lv_label_set_text(btn_goggle, "#FFFF00 Multiple versions been found. Keep only one.#");
-    } else
+    } else {
         lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
+    }
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 }
 

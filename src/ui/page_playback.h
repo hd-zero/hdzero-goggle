@@ -20,7 +20,7 @@
 #define ITEM_STATE_HIGHLIGHT 1
 #define ITEM_STATE_NORMAL    2
 
-#define MAX_VIDEO_FILES 200
+#define MAX_VIDEO_FILES 999
 
 typedef struct {
     char filename[64];

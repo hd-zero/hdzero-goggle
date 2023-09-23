@@ -778,9 +778,9 @@ static void create_osd_scr(void) {
         lv_obj_clear_flag(scr_main, LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_clear_flag(scr_osd[i], LV_OBJ_FLAG_SCROLLABLE);
         if (i)
-            lv_obj_set_size(scr_osd[i], 1920, 1080);
+            lv_obj_set_size(scr_osd[i], DRAW_HOR_RES_FHD, DRAW_VER_RES_FHD);
         else
-            lv_obj_set_size(scr_osd[i], 1280, 720);
+            lv_obj_set_size(scr_osd[i], DRAW_HOR_RES_HD, DRAW_VER_RES_HD);
         lv_obj_add_flag(scr_osd[i], LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_style(scr_osd[i], &style_osd, 0);
     }

@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "core/osd.h"
+#include "core/settings.h"
+#include "ui/ui_porting.h"
 
 static lv_obj_t *focus_chart_img;
 
@@ -32,7 +34,7 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_flag(focus_chart_img, LV_OBJ_FLAG_FLOATING);
     lv_obj_clear_flag(focus_chart_img, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_pos(focus_chart_img, 0, 0);
-    lv_obj_set_size(focus_chart_img, 1920, 1080);
+    lv_obj_set_size(focus_chart_img, DRAW_HOR_RES_FHD, DRAW_VER_RES_FHD);
 
     char filename[128];
     osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
@@ -48,10 +50,12 @@ static void page_focus_chart_exit() {
 static void page_focus_chart_enter() {
     lv_obj_move_foreground(focus_chart_img);
     lv_obj_clear_flag(focus_chart_img, LV_OBJ_FLAG_HIDDEN);
+    lvgl_screen_orbit(false);
 }
 
 static void page_focus_chart_on_click(uint8_t key, int sel) {
     lv_obj_add_flag(focus_chart_img, LV_OBJ_FLAG_HIDDEN);
+    lvgl_screen_orbit(g_setting.osd.orbit > 0);
     submenu_exit();
 }
 
