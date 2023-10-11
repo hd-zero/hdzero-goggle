@@ -13,10 +13,12 @@ typedef enum {
 
 typedef enum {
     HDMIIN_VTMG_UNKNOW = 0,
-    HDMIIN_VTMG_1080P = 1,
-    HDMIIN_VTMG_720P50 = 2,
-    HDMIIN_VTMG_720P60 = 3,
-    HDMIIN_VTMG_720P100 = 4,
+    HDMIIN_VTMG_1080P60 = 1,
+    HDMIIN_VTMG_1080P50 = 2,
+    HDMIIN_VTMG_1080Pother = 3,
+    HDMIIN_VTMG_720P50 = 4,
+    HDMIIN_VTMG_720P60 = 5,
+    HDMIIN_VTMG_720P100 = 6,
 } hdmiin_vtmg_t;
 
 typedef enum {
