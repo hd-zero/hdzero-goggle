@@ -24,7 +24,7 @@ typedef enum {
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 140, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
-fans_mode_t fans_mode = FANS_MODE_TOP;
+static fans_mode_t fans_mode = FANS_MODE_NO_FAN;
 
 static btn_group_t btn_group_fans;
 

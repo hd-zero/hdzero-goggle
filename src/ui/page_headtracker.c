@@ -198,7 +198,9 @@ static void page_headtracker_enter() {
 }
 
 static void page_headtracker_exit() {
-    page_headtracker_exit_slider();
+    if (angle_slider_selected) {
+        page_headtracker_exit_slider();
+    }
     lv_timer_del(timer);
 }
 
