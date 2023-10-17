@@ -42,6 +42,8 @@ static btn_group_t btn_group_osd_display_mode;
 static btn_group_t btn_group_warn_type;
 static btn_group_t btn_group_power_ana;
 
+static slider_group_t* selected_slider_group = NULL;
+
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 lv_obj_t *label_cell_count;
@@ -160,7 +162,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-void power_cell_count_inc(void) {
+static void power_cell_count_inc(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_cell_count.slider);
@@ -171,7 +173,7 @@ void power_cell_count_inc(void) {
     page_power_update_cell_count();
 }
 
-void power_cell_count_dec(void) {
+static void power_cell_count_dec(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_cell_count.slider);
@@ -183,7 +185,7 @@ void power_cell_count_dec(void) {
     page_power_update_cell_count();
 }
 
-void power_warning_voltage_inc(void) {
+static void power_warning_voltage_inc(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_cell_voltage.slider);
@@ -201,7 +203,7 @@ void power_warning_voltage_inc(void) {
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 
-void power_warning_voltage_dec(void) {
+static void power_warning_voltage_dec(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_cell_voltage.slider);
@@ -218,7 +220,7 @@ void power_warning_voltage_dec(void) {
     ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
 }
 
-void power_calibration_offset_inc(void) {
+static void power_calibration_offset_inc(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_calibration_offset.slider);
@@ -230,7 +232,7 @@ void power_calibration_offset_inc(void) {
     page_power_update_calibration_offset();
 }
 
-void power_calibration_offset_dec(void) {
+static void power_calibration_offset_dec(void) {
     int32_t value = 0;
 
     value = lv_slider_get_value(slider_group_calibration_offset.slider);
@@ -242,7 +244,48 @@ void power_calibration_offset_dec(void) {
     page_power_update_calibration_offset();
 }
 
+static void page_power_exit_slider() {
+    lv_obj_add_style(selected_slider_group->slider, &style_silder_main, LV_PART_MAIN);
+    app_state_push(APP_STATE_SUBMENU);
+    selected_slider_group = NULL;
+}
+
+static void page_power_exit() {
+    if (selected_slider_group != NULL) {
+        page_power_exit_slider();
+    }
+}
+
+static void page_power_on_roller(uint8_t key) {
+    if (selected_slider_group == NULL) {
+        return;
+    }
+
+    if (key == DIAL_KEY_UP) {
+        if (selected_slider_group == &slider_group_cell_voltage) {
+            power_warning_voltage_dec();
+        } else if (selected_slider_group == &slider_group_cell_count) {
+            power_cell_count_dec();
+        } else if (selected_slider_group == &slider_group_calibration_offset) {
+            power_calibration_offset_dec();
+        }
+    } else if (key == DIAL_KEY_DOWN) {
+        if (selected_slider_group == &slider_group_cell_voltage) {
+            power_warning_voltage_inc();
+        } else if (selected_slider_group == &slider_group_cell_count) {
+            power_cell_count_inc();
+        } else if (selected_slider_group == &slider_group_calibration_offset) {
+            power_calibration_offset_inc();
+        }
+    }
+}
+
 static void page_power_on_click(uint8_t key, int sel) {
+
+    if (selected_slider_group != NULL) {
+        page_power_exit_slider();
+        return;
+    }
 
     switch (sel) {
 
@@ -256,34 +299,22 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_CELL_COUNT:
         if (g_setting.power.cell_count_mode == SETTING_POWER_CELL_COUNT_MODE_AUTO)
-            ;
-        else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-            app_state_push(APP_STATE_SUBMENU);
-            lv_obj_add_style(slider_group_cell_count.slider, &style_silder_main, LV_PART_MAIN);
-        } else {
-            app_state_push(PAGE_POWER_SLIDE_CELL_COUNT);
-            lv_obj_add_style(slider_group_cell_count.slider, &style_silder_select, LV_PART_MAIN);
-        }
+            break;
+        app_state_push(APP_STATE_SUBMENU_ITEM_FOCUSED);
+        lv_obj_add_style(slider_group_cell_count.slider, &style_silder_select, LV_PART_MAIN);
+        selected_slider_group = &slider_group_cell_count;
         break;
 
     case ROW_WARNING_CELL_VOLTAGE:
-        if (g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE) {
-            app_state_push(APP_STATE_SUBMENU);
-            lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_main, LV_PART_MAIN);
-        } else {
-            app_state_push(PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE);
-            lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_select, LV_PART_MAIN);
-        }
+        app_state_push(APP_STATE_SUBMENU_ITEM_FOCUSED);
+        lv_obj_add_style(slider_group_cell_voltage.slider, &style_silder_select, LV_PART_MAIN);
+        selected_slider_group = &slider_group_cell_voltage;
         break;
 
     case ROW_CALIBRATION_OFFSET:
-        if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
-            app_state_push(APP_STATE_SUBMENU);
-            lv_obj_add_style(slider_group_calibration_offset.slider, &style_silder_main, LV_PART_MAIN);
-        } else {
-            app_state_push(PAGE_POWER_SLIDE_CALIBRATION_OFFSET);
-            lv_obj_add_style(slider_group_calibration_offset.slider, &style_silder_select, LV_PART_MAIN);
-        }
+        app_state_push(APP_STATE_SUBMENU_ITEM_FOCUSED);
+        lv_obj_add_style(slider_group_calibration_offset.slider, &style_silder_select, LV_PART_MAIN);
+        selected_slider_group = &slider_group_calibration_offset;
         break;
 
     case ROW_OSD_DISPLAY_MODE:
@@ -321,10 +352,10 @@ page_pack_t pp_power = {
     .name = "Power",
     .create = page_power_create,
     .enter = NULL,
-    .exit = NULL,
+    .exit = page_power_exit,
     .on_created = NULL,
     .on_update = NULL,
-    .on_roller = NULL,
+    .on_roller = page_power_on_roller,
     .on_click = page_power_on_click,
     .on_right_button = NULL,
 };
