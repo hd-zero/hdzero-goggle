@@ -20,8 +20,6 @@
 
 extern page_pack_t pp_fans;
 
-void fans_speed_dec(void);
-void fans_speed_inc(void);
 void step_topfan();
 void fans_auto_ctrl();
 

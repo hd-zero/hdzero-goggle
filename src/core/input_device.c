@@ -237,12 +237,7 @@ static void btn_click(void) // short press enter key
     } else if (g_app_state == APP_STATE_SUBMENU ||
                g_app_state == APP_STATE_PLAYBACK ||
                g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED ||
-               g_app_state == APP_STATE_WIFI ||
-               g_app_state == PAGE_FAN_SLIDE ||
-               g_app_state == PAGE_ANGLE_SLIDE ||
-               g_app_state == PAGE_POWER_SLIDE_CELL_COUNT ||
-               g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE ||
-               g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
+               g_app_state == APP_STATE_WIFI) {
         submenu_click();
     } else if (g_app_state == APP_STATE_SLEEP) {
         wake_up();
@@ -316,16 +311,6 @@ static void roller_up(void) {
         ims_key(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_UP);
-    } else if (g_app_state == PAGE_FAN_SLIDE) {
-        fans_speed_dec();
-    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
-        ht_angle_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-        power_cell_count_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE) {
-        power_warning_voltage_dec();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
-        power_calibration_offset_dec();
     } else if (g_app_state == APP_STATE_SLEEP) {
         wake_up();
     }
@@ -361,20 +346,9 @@ static void roller_down(void) {
         ims_key(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
-    } else if (g_app_state == PAGE_FAN_SLIDE) {
-        fans_speed_inc();
-    } else if (g_app_state == PAGE_ANGLE_SLIDE) {
-        ht_angle_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CELL_COUNT) {
-        power_cell_count_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_WARNING_CELL_VOLTAGE) {
-        power_warning_voltage_inc();
-    } else if (g_app_state == PAGE_POWER_SLIDE_CALIBRATION_OFFSET) {
-        power_calibration_offset_inc();
     } else if (g_app_state == APP_STATE_SLEEP) {
         wake_up();
     }
-
     pthread_mutex_unlock(&lvgl_mutex);
 }
 

@@ -80,8 +80,8 @@ void Display_UI_init() {
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
     Display_VO_SWITCH(0);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
@@ -108,7 +108,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     system_exec("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
@@ -133,8 +133,8 @@ void Display_720P90_t(int mode) {
 
     system_exec("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P90;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
@@ -156,15 +156,15 @@ void Display_1080P30_t(int mode) {
 
     system_exec("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
 
     DM5680_SetFPS(mode);
     MFPGA_Set1080P30();
-    OLED_SetTMG(1);
+    OLED_SetTMG(2);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
@@ -261,7 +261,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
     I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
     I2C_Write(ADDR_FPGA, 0x89, 0x01);
@@ -283,8 +283,8 @@ void Source_HDMI_in() {
     OLED_display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x04);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
     HDZero_Close();
@@ -504,29 +504,61 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_UNKNOW:
                         break;
 
-                    case HDMIIN_VTMG_1080P:
+                    case HDMIIN_VTMG_1080P60:
+                        system_exec("dispw -s vdpo 1080p60");
+                        g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x00);
+
+                        OLED_SetTMG(2);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P60;
+                        break;
+
+                    case HDMIIN_VTMG_1080P50:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
                         // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
-                        I2C_Write(ADDR_FPGA, 0x80, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x20);
 
                         OLED_SetTMG(0);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         OLED_display(1);
-                        g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P;
+                        g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
+                        break;    
+
+                    case HDMIIN_VTMG_1080Pother:
+                        system_exec("dispw -s vdpo 1080p50");
+                        g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
+                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x40);
+
+                        OLED_SetTMG(0);
+
+                        I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+                        I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+                        OLED_display(1);
+                        g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080Pother;
                         break;
 
                     case HDMIIN_VTMG_720P50:
                         system_exec("dispw -s vdpo 720p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
-                        I2C_Write(ADDR_FPGA, 0x80, 0x40);
+                        I2C_Write(ADDR_FPGA, 0x80, 0x60);
 
                         OLED_SetTMG(1);
 
@@ -539,8 +571,8 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P60:
                         system_exec("dispw -s vdpo 720p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
@@ -555,10 +587,10 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P100:
                         system_exec("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x04);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x04);
+                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
+                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
                         I2C_Write(ADDR_AL, 0x14, 0x00);
-                        I2C_Write(ADDR_FPGA, 0x80, 0xc0);
+                        I2C_Write(ADDR_FPGA, 0x80, 0xA0);
 
                         OLED_SetTMG(1);
 
