@@ -275,7 +275,9 @@ void rbtn_click(right_button_t click_type) {
         if (click_type == RIGHT_CLICK) {
             dvr_cmd(DVR_TOGGLE);
         } else if (click_type == RIGHT_LONG_PRESS) {
+            pthread_mutex_lock(&lvgl_mutex);
             step_topfan();
+            pthread_mutex_unlock(&lvgl_mutex);
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
             ht_set_center_position();
         }
