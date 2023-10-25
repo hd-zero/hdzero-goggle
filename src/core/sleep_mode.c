@@ -87,7 +87,7 @@ void sleep_reminder()
         return;
     }
 
-#define BEEP_INTERVAL 400
+#define BEEP_INTERVAL 4000
     if (++beepCnt == BEEP_INTERVAL) {
         beep();
         beepCnt = 0;
