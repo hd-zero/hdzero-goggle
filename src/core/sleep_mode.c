@@ -77,6 +77,8 @@ void wake_up() {
     if (previousState == APP_STATE_SUBMENU) {
         submenu_exit();
     } else if (previousState == APP_STATE_VIDEO) {
+        app_switch_to_menu(); // Necessary to display the progress bar
+        app_state_push(previousState); // Because app_switch_to_menu() pushes main menu state
         app_exit_menu();
     }
 }
