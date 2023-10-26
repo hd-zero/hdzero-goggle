@@ -1,5 +1,6 @@
 #pragma once
 
+#define BEEP_VERY_SHORT 1
 #define BEEP_SHORT 50
 #define BEEP_LONG 200
 
