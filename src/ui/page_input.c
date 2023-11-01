@@ -6,6 +6,7 @@
 #include "core/ht.h"
 #include "core/input_device.h"
 #include "core/sleep_mode.h"
+#include "core/osd.h"
 
 #include "ui/page_fans.h"
 #include "ui/ui_image_setting.h"
@@ -15,6 +16,9 @@
  */
 typedef enum page_input_rows {
     ROLLER,
+
+    LEFT_SHORT,
+    LEFT_LONG,
 
     RIGHT_SHORT,
     RIGHT_LONG,
@@ -28,11 +32,11 @@ typedef enum page_input_rows {
  * Compile-unit local variables, constants and fields
  */
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
-const char *btnOptions[] = {"Toggle DVR", "Center HT", "Go Sleep!", "Toggle fan speed"};
-void (* const btnFunctionPointers[])() = {&dvr_toggle, &ht_set_center_position, &go_sleep, &step_topfan};
-const uint16_t defaultOptions[] = {0, 3, 1};
+const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Go Sleep!", "Toggle fan speed"};
+void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &go_sleep, &step_topfan};
+const uint16_t defaultOptions[] = {0, 1, 2, 5, 3};
 
 const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
 void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
@@ -71,12 +75,19 @@ static void reset_dropdown_styles() {
  */
 static void accept_dropdown(lv_obj_t *obj) {
     const uint16_t selectedOption = lv_dropdown_get_selected(obj);
+
     if (selectedRow == ROLLER) {
         roller_callback = rollerFunctionPointers[selectedOption];
     } else {
         void (* const funcPointer)() = btnFunctionPointers[selectedOption];
 
         switch (selectedRow) {
+        case LEFT_SHORT:
+            btn_click_callback = funcPointer;
+            break;
+        case LEFT_LONG:
+            btn_press_callback = funcPointer;
+            break;
         case RIGHT_SHORT:
             rbtn_click_callback = funcPointer;
             break;
@@ -105,6 +116,9 @@ static void cancel_dropdown(lv_obj_t *obj) {
     accept_dropdown(obj);
 }
 
+/**
+ * Check if any dropdown is currently opened
+ */
 static bool is_any_dropdown_open() {
     return selectedRow < BACK_BTN;
 }
@@ -155,17 +169,25 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[ROLLER], rollerDefaultOption);
 
+    create_label_item(content, "Left short:", 1, LEFT_SHORT, 1);
+    pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    lv_dropdown_set_selected(pageItems[LEFT_SHORT], defaultOptions[LEFT_SHORT - LEFT_SHORT]);
+
+    create_label_item(content, "Left long:", 1, LEFT_LONG, 1);
+    pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    lv_dropdown_set_selected(pageItems[LEFT_LONG], defaultOptions[LEFT_LONG - LEFT_SHORT]);
+
     create_label_item(content, "Right short:", 1, RIGHT_SHORT, 1);
     pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], defaultOptions[RIGHT_SHORT - RIGHT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], defaultOptions[RIGHT_SHORT - LEFT_SHORT]);
 
     create_label_item(content, "Right long:", 1, RIGHT_LONG, 1);
     pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_LONG], defaultOptions[RIGHT_LONG - RIGHT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_LONG], defaultOptions[RIGHT_LONG - LEFT_SHORT]);
 
     create_label_item(content, "Right double:", 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], defaultOptions[RIGHT_DOUBLE - RIGHT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], defaultOptions[RIGHT_DOUBLE - LEFT_SHORT]);
 
     pageItems[BACK_BTN] = create_label_item(content, "< Back", 1, BACK_BTN, 1);
 
