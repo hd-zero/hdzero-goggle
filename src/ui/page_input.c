@@ -1,5 +1,7 @@
 #include "page_input.h"
 
+#include <minIni.h>
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/dvr.h"
@@ -36,7 +38,6 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_
 
 const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Go Sleep!", "Toggle fan speed"};
 void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &go_sleep, &step_topfan};
-const uint16_t defaultOptions[] = {0, 1, 2, 5, 3};
 
 const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
 void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
@@ -70,6 +71,18 @@ static void reset_dropdown_styles() {
 }
 
 /**
+ * Pick the associated function pointers for the globally configured actions
+ */
+static void update_inputs() {
+    roller_callback = rollerFunctionPointers[g_setting.inputs.roller];
+    btn_click_callback = btnFunctionPointers[g_setting.inputs.left_click];
+    btn_press_callback = btnFunctionPointers[g_setting.inputs.left_press];
+    rbtn_click_callback = btnFunctionPointers[g_setting.inputs.right_click];
+    rbtn_press_callback = btnFunctionPointers[g_setting.inputs.right_press];
+    rbtn_double_click_callback = btnFunctionPointers[g_setting.inputs.right_double_click];
+}
+
+/**
  * Accept the current selection and write the associated function pointer to
  * the global target variable.
  */
@@ -77,31 +90,36 @@ static void accept_dropdown(lv_obj_t *obj) {
     const uint16_t selectedOption = lv_dropdown_get_selected(obj);
 
     if (selectedRow == ROLLER) {
-        roller_callback = rollerFunctionPointers[selectedOption];
+        g_setting.inputs.roller = selectedOption;
+        ini_putl("inputs", "roller", g_setting.inputs.roller, SETTING_INI);
     } else {
-        void (* const funcPointer)() = btnFunctionPointers[selectedOption];
-
         switch (selectedRow) {
         case LEFT_SHORT:
-            btn_click_callback = funcPointer;
+            g_setting.inputs.left_click = selectedOption;
+            ini_putl("inputs", "left_click", g_setting.inputs.left_click, SETTING_INI);
             break;
         case LEFT_LONG:
-            btn_press_callback = funcPointer;
+            g_setting.inputs.left_press = selectedOption;
+            ini_putl("inputs", "left_press", g_setting.inputs.left_press, SETTING_INI);
             break;
         case RIGHT_SHORT:
-            rbtn_click_callback = funcPointer;
+            g_setting.inputs.right_click = selectedOption;
+            ini_putl("inputs", "right_click", g_setting.inputs.right_click, SETTING_INI);
             break;
         case RIGHT_LONG:
-            rbtn_press_callback = funcPointer;
+            g_setting.inputs.right_press = selectedOption;
+            ini_putl("inputs", "right_press", g_setting.inputs.right_press, SETTING_INI);
             break;
         case RIGHT_DOUBLE:
-            rbtn_double_click_callback = funcPointer;
+            g_setting.inputs.right_double_click = selectedOption;
+            ini_putl("inputs", "right_double_click", g_setting.inputs.right_double_click, SETTING_INI);
             break;
         default:
             break;
         }
     }
 
+    update_inputs();
     lv_event_send(obj, LV_EVENT_RELEASED, NULL);
     lv_dropdown_close(obj);
     selectedRow = ROW_COUNT;
@@ -171,25 +189,27 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_label_item(content, "Left short:", 1, LEFT_SHORT, 1);
     pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_SHORT], defaultOptions[LEFT_SHORT - LEFT_SHORT]);
+    lv_dropdown_set_selected(pageItems[LEFT_SHORT], g_setting.inputs.left_click);
 
     create_label_item(content, "Left long:", 1, LEFT_LONG, 1);
     pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_LONG], defaultOptions[LEFT_LONG - LEFT_SHORT]);
+    lv_dropdown_set_selected(pageItems[LEFT_LONG], g_setting.inputs.left_press);
 
     create_label_item(content, "Right short:", 1, RIGHT_SHORT, 1);
     pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], defaultOptions[RIGHT_SHORT - LEFT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], g_setting.inputs.right_click);
 
     create_label_item(content, "Right long:", 1, RIGHT_LONG, 1);
     pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_LONG], defaultOptions[RIGHT_LONG - LEFT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_LONG], g_setting.inputs.right_press);
 
     create_label_item(content, "Right double:", 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], defaultOptions[RIGHT_DOUBLE - LEFT_SHORT]);
+    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], g_setting.inputs.right_double_click);
 
     pageItems[BACK_BTN] = create_label_item(content, "< Back", 1, BACK_BTN, 1);
+
+    update_inputs();
 
     return page;
 }

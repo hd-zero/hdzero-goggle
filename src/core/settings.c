@@ -178,6 +178,15 @@ const setting_t g_setting_defaults = {
         .sec = 30,
         .format = 0,
     },
+    // Refer to `page_input.c`'s arrays `rollerFunctionPointers` and `btnFunctionPointers`
+    .inputs = {
+        .roller = 0,
+        .left_click = 0,
+        .left_press = 1,
+        .right_click = 2,
+        .right_press = 5,
+        .right_double_click = 3,
+    },
     .wifi = {
         .enable = false,
         .mode = 0,
@@ -404,6 +413,14 @@ void settings_load(void) {
     g_setting.clock.min = ini_getl("clock", "min", g_setting_defaults.clock.min, SETTING_INI);
     g_setting.clock.sec = ini_getl("clock", "sec", g_setting_defaults.clock.sec, SETTING_INI);
     g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
+
+    // inputs
+    g_setting.inputs.roller = ini_getl("inputs", "roller", g_setting_defaults.inputs.roller, SETTING_INI);
+    g_setting.inputs.left_click = ini_getl("inputs", "left_click", g_setting_defaults.inputs.left_click, SETTING_INI);
+    g_setting.inputs.left_press = ini_getl("inputs", "left_press", g_setting_defaults.inputs.left_press, SETTING_INI);
+    g_setting.inputs.right_click = ini_getl("inputs", "right_click", g_setting_defaults.inputs.right_click, SETTING_INI);
+    g_setting.inputs.right_press = ini_getl("inputs", "right_press", g_setting_defaults.inputs.right_press, SETTING_INI);
+    g_setting.inputs.right_double_click = ini_getl("inputs", "right_double_click", g_setting_defaults.inputs.right_double_click, SETTING_INI);
 
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
