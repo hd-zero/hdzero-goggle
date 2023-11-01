@@ -157,6 +157,10 @@ void tune_channel_timer() {
 static int roller_up_acc = 0;
 static int roller_down_acc = 0;
 
+void (*rbtn_click_callback)() = &dvr_toggle;
+void (*rbtn_press_callback)() = &step_topfan;
+void (*rbtn_double_click_callback)() = &ht_set_center_position;
+
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
@@ -264,17 +268,11 @@ void rbtn_click(right_button_t click_type) {
         break;
     case APP_STATE_VIDEO:
         if (click_type == RIGHT_CLICK) {
-            dvr_cmd(DVR_TOGGLE);
+            (*rbtn_click_callback)();
         } else if (click_type == RIGHT_LONG_PRESS) {
-            pthread_mutex_lock(&lvgl_mutex);
-            step_topfan();
-            pthread_mutex_unlock(&lvgl_mutex);
+            (*rbtn_press_callback)();
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
-            if (g_setting.ht.enable == true) {
-                ht_set_center_position();
-            } else {
-                go_sleep();
-            }
+            (*rbtn_double_click_callback)();
         }
         break;
     case APP_STATE_SLEEP:

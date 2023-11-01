@@ -17,6 +17,10 @@ void tune_channel_timer();
 void exit_tune_channel();
 void rbtn_click(right_button_t click_type);
 
+extern void (*rbtn_click_callback)();
+extern void (*rbtn_press_callback)();
+extern void (*rbtn_double_click_callback)();
+
 #ifdef __cplusplus
 }
 #endif
