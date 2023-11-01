@@ -161,6 +161,8 @@ void (*rbtn_click_callback)() = &dvr_toggle;
 void (*rbtn_press_callback)() = &step_topfan;
 void (*rbtn_double_click_callback)() = &ht_set_center_position;
 
+void (*roller_callback)(uint8_t key) = &tune_channel;
+
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
@@ -305,8 +307,7 @@ static void roller_up(void) {
     } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
         submenu_roller_no_selection_change(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
-        if (g_source_info.source == SOURCE_HDZERO)
-            tune_channel(DIAL_KEY_UP);
+        (*roller_callback)(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
@@ -340,8 +341,7 @@ static void roller_down(void) {
     } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
         submenu_roller_no_selection_change(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
-        if (g_source_info.source == SOURCE_HDZERO)
-            tune_channel(DIAL_KEY_DOWN);
+        (*roller_callback)(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
