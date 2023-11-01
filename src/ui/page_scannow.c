@@ -235,7 +235,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lv_obj_t *label2 = lv_label_create(cont1);
-    lv_label_set_text(label2, "When scanning is complete,use the\n dial to select a channel and press\n the Enter button to choose");
+    lv_label_set_text(label2, "When scanning is complete, use the\n dial to select a channel and press\n the Enter button to choose");
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
