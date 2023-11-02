@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 void iic_init();
@@ -49,3 +53,7 @@ int8_t i2c_write_n(int port, uint8_t slave_address, uint8_t addr, uint8_t *val, 
 
 #define I2C_L_Write(s, a, d) i2c_write(3, s, a, d)
 #define I2C_L_Read(s, a)     i2c_read(3, s, a)
+
+#ifdef __cplusplus
+}
+#endif

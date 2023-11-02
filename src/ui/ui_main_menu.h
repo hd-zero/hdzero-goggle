@@ -1,6 +1,10 @@
 #ifndef __MAIN_MENU_H__
 #define __MAIN_MENU_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -48,5 +52,9 @@ void submenu_roller_no_selection_change(uint8_t key);
 void submenu_click(void);
 void submenu_right_button(bool is_short);
 void progress_bar_update();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

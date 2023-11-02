@@ -13,6 +13,10 @@
 #ifndef MadgwickAHRS_h
 #define MadgwickAHRS_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define AHRS_UPDATE_FREQUENCY   100
 
 //---------------------------------------------------------------------------------------------------
@@ -22,6 +26,10 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 float getRoll();
 float getPitch();
 float getYaw();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 //=====================================================================================================

@@ -1,6 +1,10 @@
 #ifndef _PAGE_PLAYBACK_H
 #define _PAGE_PLAYBACK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <lvgl/lvgl.h>
 
 #include "ui/ui_main_menu.h"
@@ -50,5 +54,9 @@ void pb_key(uint8_t key);
 
 int get_videofile_cnt();
 void clear_videofile_cnt();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

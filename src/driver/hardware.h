@@ -1,6 +1,10 @@
 #ifndef _HARDWARE_H
 #define _HARDWARE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -87,5 +91,9 @@ void HDMI_in_detect();
 
 int Get_VideoLatancy_status(); // ret: 0=unlocked, 1=locked
 int Get_HAN_status();          // ret: 0=error; 1=ok
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

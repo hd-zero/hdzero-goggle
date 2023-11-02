@@ -17,6 +17,10 @@
 #ifndef _AVSHARE_H_
 #define _AVSHARE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -55,5 +59,9 @@ int  avshare_connect(MediaType_e streamType);
 int  avshare_disconnect(MediaType_e streamType);
 bool avshare_connected(MediaType_e streamType);
 void avshare_reset(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

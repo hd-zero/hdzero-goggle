@@ -1,6 +1,10 @@
 #ifndef _PORTING_H
 #define _PORTING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 #define DISP_OVERSCAN    8
@@ -17,5 +21,9 @@ int lvgl_init_porting();
 int lvgl_switch_to_720p();
 int lvgl_switch_to_1080p();
 void lvgl_screen_orbit(bool enable);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

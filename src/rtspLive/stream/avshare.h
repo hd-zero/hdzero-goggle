@@ -17,6 +17,10 @@
 #ifndef _AVSHARE_H_
 #define _AVSHARE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -57,5 +61,9 @@ int  avshare_readPipe(uint8_t* sFrameBuf, int nLen);
 
 bool avshare_start(void);
 void avshare_stop(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

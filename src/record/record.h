@@ -2,6 +2,10 @@
 #ifndef __RECORD_H_
 #define __RECORD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "vi2venc.h"
 #include "ai2aenc.h"
 #include "ai2ao.h"
@@ -95,5 +99,9 @@ typedef struct
     uint64_t ptsBaseLive;
     VencSpspps_t spspps;
 } RecordContext_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __RECORD_H_ */

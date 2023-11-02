@@ -1,6 +1,10 @@
 #ifndef _PAGE_VERSION_H
 #define _PAGE_VERSION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <lvgl/lvgl.h>
 
 #include "ui/ui_main_menu.h"
@@ -29,4 +33,9 @@ int generate_current_version(sys_version_t *sys_ver);
 
 void *thread_version(void *ptr);
 uint8_t command_monitor(char *cmd);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

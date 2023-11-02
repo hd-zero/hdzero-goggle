@@ -1,6 +1,10 @@
 #ifndef __AI2AO_H_
 #define __AI2AO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <plat_type.h>
 #include <mm_common.h>
@@ -46,6 +50,10 @@ void ai2ao_deinitSys(Ai2Ao_t* aa);
 ERRORTYPE ai2ao_start(Ai2Ao_t* aa, AiParams_t* aiParams);
 ERRORTYPE ai2ao_stop(Ai2Ao_t* aa, bool disableDev);
 bool      ai2ao_playing(Ai2Ao_t* aa);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __AI2AENC_H_ */
 

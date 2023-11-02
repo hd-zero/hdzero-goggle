@@ -1,6 +1,10 @@
 #ifndef RECORD_DEFINITIONS_H_
 #define RECORD_DEFINITIONS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_pathLEN         128
 
 #define LOCKFILE "/tmp/record.pid"
@@ -89,5 +93,9 @@
     sprintf((BUFF), "%s%s%03d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RECORD_DEFINITIONS_H_ */

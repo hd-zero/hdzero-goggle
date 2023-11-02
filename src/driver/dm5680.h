@@ -1,6 +1,10 @@
 #ifndef _DM5680_H
 #define _DM5680_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "dm6302.h"
 #include <pthread.h>
 #include <stdatomic.h>
@@ -56,4 +60,9 @@ void DM5680_get_vldflg(uint8_t sel, uint8_t *payload);
 void DM5680_get_regval(uint8_t sel, uint8_t *payload);
 
 void DM5680_OSD_parse(uint8_t *buf, uint8_t len);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

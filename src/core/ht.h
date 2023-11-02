@@ -1,6 +1,10 @@
 #ifndef __HT_C__
 #define __HT_C__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DEG_TO_RAD 0.017453295199
 #define RAD_TO_DEG 57.29577951308
 
@@ -54,5 +58,9 @@ void ht_calibrate();
 void ht_set_maxangle(int angle);
 void ht_set_center_position();
 int16_t *ht_get_channels();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__HT_C__

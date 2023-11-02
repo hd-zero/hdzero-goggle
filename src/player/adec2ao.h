@@ -1,6 +1,10 @@
 #ifndef __ADEC2AO_H_
 #define __ADEC2AO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef EMULATOR_BUILD
 #include <ClockCompPortIndex.h>
 #endif
@@ -64,5 +68,9 @@ ERRORTYPE adec2ao_pause(Adec2AoContext_t *aa);
 ERRORTYPE adec2ao_checkEof(Adec2AoContext_t *aa);
 ERRORTYPE adec2ao_setAdecEof(Adec2AoContext_t *aa);
 bool adec2ao_isEOF(Adec2AoContext_t *aa);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __AI2AENC_H_ */

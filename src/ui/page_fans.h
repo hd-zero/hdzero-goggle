@@ -1,6 +1,10 @@
 #ifndef _PAGE_FANS_H
 #define _PAGE_FANS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MIN_FAN_TOP  1
 #define MAX_FAN_TOP  5
 #define MIN_FAN_SIDE 2
@@ -22,5 +26,9 @@ extern page_pack_t pp_fans;
 
 void step_topfan();
 void fans_auto_ctrl();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

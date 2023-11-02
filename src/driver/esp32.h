@@ -1,6 +1,10 @@
 #ifndef __ESP32_H__
 #define __ESP32_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "esp_loader.h"
 #include <stdint.h>
 
@@ -14,5 +18,9 @@ void esp32_rx();
 void esp32_handler_set_uart(uint32_t fd_uart);
 bool esp32_handler_process_byte(uint8_t byte);
 void esp32_handler_timeout(); // handle a character read timeout
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__ESP32_H__

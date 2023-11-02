@@ -1,6 +1,10 @@
 #ifndef __IMAGESETTING_H__
 #define __IMAGESETTING_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -41,5 +45,9 @@ void ims_init(void);
 uint8_t ims_key(uint8_t key);
 void ims_update();
 void ims_save();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

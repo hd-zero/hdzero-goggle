@@ -1,6 +1,10 @@
 #ifndef __COMMON_HH__
 #define __COMMON_HH__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdbool.h>
@@ -30,5 +34,9 @@ hw_revision_t getHwRevision();
 extern atomic_int g_key;
 extern atomic_int g_init_done;
 extern pthread_mutex_t lvgl_mutex;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__COMMON_HH__

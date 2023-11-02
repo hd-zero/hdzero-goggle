@@ -1,6 +1,10 @@
 #ifndef _FANS_H
 #define _FANS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 typedef struct {
@@ -14,5 +18,9 @@ void fans_left_setspeed(uint8_t speed);
 void fans_right_setspeed(uint8_t speed);
 
 extern fan_speed_t fan_speed;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

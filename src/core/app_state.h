@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 typedef enum {
@@ -36,3 +40,7 @@ void app_exit_menu();
 void app_switch_to_analog(bool is_bay);
 void app_switch_to_hdmi_in();
 void app_switch_to_hdzero(bool is_default);
+
+#ifdef __cplusplus
+}
+#endif

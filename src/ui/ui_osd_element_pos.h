@@ -1,6 +1,10 @@
 #ifndef __OSDELEMENTPOS_H__
 #define __OSDELEMENTPOS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -11,5 +15,9 @@ void ui_osd_element_pos_update();
 void ui_osd_element_pos_on_enter();
 void ui_osd_element_pos_cancel_and_hide();
 int ui_osd_element_pos_handle_input(int key);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
