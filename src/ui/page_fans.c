@@ -232,6 +232,10 @@ void step_topfan() {
 
     fans_top_setspeed(g_setting.fans.top_speed);
     ini_putl("fans", "top_speed", g_setting.fans.top_speed, SETTING_INI);
+
+    lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
+    sprintf(str, "%d", g_setting.fans.top_speed);
+    lv_label_set_text(slider_group[0].label, str);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

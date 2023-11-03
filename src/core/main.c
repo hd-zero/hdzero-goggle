@@ -20,6 +20,7 @@
 #include "core/osd.h"
 #include "core/self_test.h"
 #include "core/settings.h"
+#include "core/sleep_mode.h"
 #include "core/thread.h"
 #include "driver/TP2825.h"
 #include "driver/beep.h"
@@ -195,6 +196,7 @@ int main(int argc, char *argv[]) {
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
         main_menu_update();
+        sleep_reminder();
         statubar_update();
         osd_hdzero_update();
         ims_update();

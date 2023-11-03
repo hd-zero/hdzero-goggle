@@ -3,5 +3,4 @@
 
 void IT66121_close();
 void IT66121_init();
-void IT66121_edid();
 #endif

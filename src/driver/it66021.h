@@ -9,4 +9,5 @@ int IT66021_Get_VTMG(int *freq_ref);
 int IT66021_Get_CS();
 void IT66021_Set_CSMatrix(int cs);
 int IT66021_Get_PCLKFREQ();
+void IT66021_edid();
 #endif

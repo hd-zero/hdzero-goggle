@@ -23,6 +23,8 @@ typedef enum {
     APP_STATE_WIFI = 13,
 
     APP_STATE_USER_INPUT_DISABLED = 20,
+
+    APP_STATE_SLEEP = 30,
 } app_state_t;
 
 extern app_state_t g_app_state;
@@ -30,6 +32,7 @@ extern app_state_t g_app_state;
 void app_state_push(app_state_t state);
 
 void app_switch_to_menu();
+void app_exit_menu();
 void app_switch_to_analog(bool is_bay);
 void app_switch_to_hdmi_in();
 void app_switch_to_hdzero(bool is_default);

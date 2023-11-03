@@ -28,6 +28,7 @@
 #include "core/dvr.h"
 #include "core/elrs.h"
 #include "core/settings.h"
+#include "core/sleep_mode.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -170,21 +171,7 @@ static void btn_press(void) // long press left key
     g_autoscan_exit = true;
     if (g_app_state == APP_STATE_MAINMENU) // Main menu -> Video
     {
-        switch (g_source_info.source) {
-        case SOURCE_HDZERO:
-            progress_bar.start = 1;
-            app_switch_to_hdzero(true);
-            break;
-        case SOURCE_HDMI_IN:
-            app_switch_to_hdmi_in();
-            break;
-        case SOURCE_AV_IN:
-            app_switch_to_analog(0);
-            break;
-        case SOURCE_EXPANSION:
-            app_switch_to_analog(1);
-            break;
-        }
+        app_exit_menu();
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) { // video -> Main menu
         if (tune_timer && g_source_info.source == SOURCE_HDZERO)
@@ -194,9 +181,11 @@ static void btn_press(void) // long press left key
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_cancel_and_hide();
         app_switch_to_menu();
-    } else if (g_app_state == APP_STATE_PLAYBACK)
+    } else if (g_app_state == APP_STATE_PLAYBACK) {
         pb_key(DIAL_KEY_PRESS);
-    else { // Sub-menu  -> Main menu
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
+    } else { // Sub-menu  -> Main menu
         submenu_exit();
         app_state_push(APP_STATE_MAINMENU);
         main_menu_show(true);
@@ -250,6 +239,8 @@ static void btn_click(void) // short press enter key
                g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED ||
                g_app_state == APP_STATE_WIFI) {
         submenu_click();
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -275,10 +266,19 @@ void rbtn_click(right_button_t click_type) {
         if (click_type == RIGHT_CLICK) {
             dvr_cmd(DVR_TOGGLE);
         } else if (click_type == RIGHT_LONG_PRESS) {
+            pthread_mutex_lock(&lvgl_mutex);
             step_topfan();
+            pthread_mutex_unlock(&lvgl_mutex);
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
-            ht_set_center_position();
+            if (g_setting.ht.enable == true) {
+                ht_set_center_position();
+            } else {
+                go_sleep();
+            }
         }
+        break;
+    case APP_STATE_SLEEP:
+        wake_up();
         break;
     }
 }
@@ -313,6 +313,8 @@ static void roller_up(void) {
         ims_key(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_UP);
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
     pthread_mutex_unlock(&lvgl_mutex);
 }
@@ -346,8 +348,9 @@ static void roller_down(void) {
         ims_key(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_handle_input(DIAL_KEY_DOWN);
+    } else if (g_app_state == APP_STATE_SLEEP) {
+        wake_up();
     }
-
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
