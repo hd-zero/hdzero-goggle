@@ -184,7 +184,7 @@ const setting_t g_setting_defaults = {
         .left_click = 0,
         .left_press = 1,
         .right_click = 2,
-        .right_press = 5,
+        .right_press = 6,
         .right_double_click = 3,
     },
     .wifi = {
