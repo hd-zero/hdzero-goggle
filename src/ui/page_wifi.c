@@ -190,10 +190,10 @@ static void page_wifi_update_services() {
         fprintf(fp, "start\t%d.%d.%d.100\n", ip[3], ip[2], ip[1]);
         fprintf(fp, "end\t%d.%d.%d.254\n", ip[3], ip[2], ip[1]);
         fprintf(fp, "interface\twlan0\n");
-        fprintf(fp, "opt\tdns\t%s\n", g_setting.wifi.dns);
+        fprintf(fp, "opt\tdns\t0.0.0.0\n");
         fprintf(fp, "option\tsubnet\t%s\n", g_setting.wifi.netmask);
         fprintf(fp, "opt\trouter\t%s\n", g_setting.wifi.gateway);
-        fprintf(fp, "opt\twins\t%s\n", g_setting.wifi.dns);
+        fprintf(fp, "opt\twins\t0.0.0.0\n");
         fprintf(fp, "option\tdomain\tlocal\n");
         fprintf(fp, "option\tlease\t864000\n");
 
