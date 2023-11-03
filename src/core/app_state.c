@@ -55,6 +55,24 @@ void app_switch_to_menu() {
     system_script(REC_STOP_LIVE);
 }
 
+void app_exit_menu() {
+    switch (g_source_info.source) {
+    case SOURCE_HDZERO:
+        progress_bar.start = 1;
+        app_switch_to_hdzero(true);
+        break;
+    case SOURCE_HDMI_IN:
+        app_switch_to_hdmi_in();
+        break;
+    case SOURCE_AV_IN:
+        app_switch_to_analog(0);
+        break;
+    case SOURCE_EXPANSION:
+        app_switch_to_analog(1);
+        break;
+    }
+}
+
 void app_switch_to_analog(bool is_bay) {
     Source_AV(is_bay);
 
