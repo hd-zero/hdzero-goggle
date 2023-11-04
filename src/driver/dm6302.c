@@ -14,7 +14,7 @@
 #include "i2c.h"
 #include "uart.h"
 
-#define WAIT(ms) usleep((ms)*1000)
+#define WAIT(ms) usleep((ms) * 1000)
 
 // DM6302: RF receiver
 /*  �����ź�:
@@ -135,7 +135,8 @@ void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat) {
 }
 
 // ����Ƶ��
-uint32_t tab[3][18] = {
+uint32_t tab[3][20] = {
+    // 0x120
     {
         // race band
         0x3741,
@@ -146,9 +147,15 @@ uint32_t tab[3][18] = {
         0x390F,
         0x396C,
         0x39C8,
-        // fatshark band
-        0x3840,
-        0x38A4,
+
+        // e band
+        0x38DF, // E1
+
+        //  fatshark band
+        0x3938, // F1
+        0x3840, // F2
+        0x38A4, // F4
+
         // low band
         0x3574,
         0x35D2,
@@ -159,6 +166,7 @@ uint32_t tab[3][18] = {
         0x37AA,
         0x3809,
     },
+    // 0x104
     {
         // race band
         0x93,
@@ -169,9 +177,15 @@ uint32_t tab[3][18] = {
         0x98,
         0x99,
         0x9A,
+
+        // e band
+        0x94, // E1
+
         // fatshark band
-        0x96,
-        0x97,
+        0x95, // F1
+        0x96, // F2
+        0x97, // F4
+
         // low band
         0x8B,
         0x8C,
@@ -182,6 +196,7 @@ uint32_t tab[3][18] = {
         0x91,
         0x92,
     },
+    // 0x108
     {
         // race band
         0xB00000,
@@ -192,9 +207,15 @@ uint32_t tab[3][18] = {
         0x52AAAB,
         0x400000,
         0x2D5555,
+
+        // e band
+        0X122AAAB, // E1
+
         // fatshark band
-        0x000000,
-        0x155555,
+        0XF55555, // F1
+        0x000000, // F2
+        0x155555, // F4
+
         // low band
         0x1455555,
         0x132AAAB,
@@ -208,28 +229,31 @@ uint32_t tab[3][18] = {
 };
 
 void DM6302_SetChannel(uint8_t band, uint8_t ch) {
+    // band
+    // 1: lowband
+    // 0: race band
     if (band == 1)
-        ch = ch + 10;
+        ch = ch + 12;
     SPI_Write(0, 0x6, 0xFF0, 0x00000018);
     SPI_Write(0, 0x3, 0x130, 0x00000013);
     SPI_Write(0, 0x3, 0x134, 0x00000013);
     SPI_Write(0, 0x3, 0x138, 0x00000370);
     SPI_Write(0, 0x3, 0x13C, 0x00000410);
     SPI_Write(0, 0x3, 0x140, 0x00000000);
-    if (band == 1) {
+    if (band == 1 || ch == 8 || ch == 9) {
         SPI_Write(0, 0x3, 0x144, 0x15240735);
     } else {
         SPI_Write(0, 0x3, 0x144, 0x0D640735);
     }
 
     SPI_Write(0, 0x3, 0x148, 0x01017F03);
-    if (band == 1) {
+    if (band == 1 || ch == 8 || ch == 9) {
         SPI_Write(0, 0x3, 0x14C, 0x021288A2);
     } else {
         SPI_Write(0, 0x3, 0x14C, 0x022288A2);
     }
     SPI_Write(0, 0x3, 0x150, 0x00FFCF33);
-    if (band == 1) {
+    if (band == 1 || ch == 8 || ch == 9) {
         SPI_Write(0, 0x3, 0x154, 0x1F2C3840);
         SPI_Write(0, 0x3, 0x128, 0x00008031);
     } else {
@@ -241,7 +265,7 @@ void DM6302_SetChannel(uint8_t band, uint8_t ch) {
     SPI_Write(0, 0x3, 0x11C, 0x00000002);
     SPI_Write(0, 0x3, 0x118, 0x00000001);
     SPI_Write(0, 0x3, 0x118, 0x00000000);
-    if (band == 1) {
+    if (band == 1 || ch == 8 || ch == 9) {
         SPI_Write(0, 0x3, 0x128, 0x00008031);
     } else {
         SPI_Write(0, 0x3, 0x128, 0x00008030);
@@ -256,7 +280,7 @@ void DM6302_SetChannel(uint8_t band, uint8_t ch) {
     SPI_Write(0, 0x3, 0x100, 0x00000000);
     SPI_Write(0, 0x3, 0x100, 0x00000003);
     SPI_Write(0, 0x3, 0x150, 0x000333B3);
-    if (band == 1) {
+    if (band == 1 || ch == 8 || ch == 9) {
         SPI_Write(0, 0x3, 0x140, 0x07070002);
     } else {
         SPI_Write(0, 0x3, 0x140, 0x07070000);

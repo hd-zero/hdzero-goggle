@@ -6,7 +6,6 @@
 
 // #define _DEBUG_DM6300
 
-#define FREQ_NUM 18
 typedef enum {
     DM5680_L = 0,
     DM5680_R,
