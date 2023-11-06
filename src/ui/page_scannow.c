@@ -59,12 +59,11 @@ typedef struct {
     lv_obj_t *img1;
 } channel_t;
 
-#define SCAN_CH_NUM 12
-channel_t channel_tb[SCAN_CH_NUM];
-channel_status_t channel_status_tb[SCAN_CH_NUM];
+channel_t channel_tb[BASE_CH_NUM];
+channel_status_t channel_status_tb[BASE_CH_NUM];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-int valid_channel_tb[SCAN_CH_NUM];
+int valid_channel_tb[BASE_CH_NUM];
 int user_select_index = 0;
 
 // local
@@ -78,7 +77,7 @@ static lv_coord_t col_dsc2[] = {120, 80, 80, 180, 100, 80, 80, 180, LV_GRID_TEMP
 static lv_coord_t row_dsc2[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 static void select_signal(channel_t *channel) {
-    for (int i = 0; i < SCAN_CH_NUM; i++) {
+    for (int i = 0; i < BASE_CH_NUM; i++) {
         if (channel_status_tb[i].is_valid) {
             lv_img_set_src(channel_tb[i].img0, &img_signal_status2);
         } else {
@@ -164,11 +163,11 @@ void page_scannow_set_channel_label(void) {
     // set channel label
     if (g_setting.source.hdzero_band == RACE_BAND) {
         // race band
-        for (i = 0; i < SCAN_CH_NUM; i++) {
+        for (i = 0; i < BASE_CH_NUM; i++) {
             lv_label_set_text(channel_tb[i].label, race_band_channel_str[i]);
         }
 
-        for (i = 8; i < SCAN_CH_NUM; i++) {
+        for (i = 8; i < BASE_CH_NUM; i++) {
             lv_obj_clear_flag(channel_tb[i].img0, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(channel_tb[i].label, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(channel_tb[i].img1, LV_OBJ_FLAG_HIDDEN);
@@ -178,7 +177,7 @@ void page_scannow_set_channel_label(void) {
         for (i = 0; i < 8; i++) {
             lv_label_set_text(channel_tb[i].label, low_band_channel_str[i]);
         }
-        for (i = 8; i < SCAN_CH_NUM; i++) {
+        for (i = 8; i < BASE_CH_NUM; i++) {
             lv_obj_add_flag(channel_tb[i].img0, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(channel_tb[i].label, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(channel_tb[i].img1, LV_OBJ_FLAG_HIDDEN);
@@ -278,7 +277,7 @@ static void user_select_signal(void) {
 
 static void user_clear_signal(void) {
     user_select_index = 0;
-    for (int i = 0; i < SCAN_CH_NUM; i++) {
+    for (int i = 0; i < BASE_CH_NUM; i++) {
         lv_img_set_src(channel_tb[i].img0, &img_signal_status);
         lv_img_set_src(channel_tb[i].img1, &img_ant1);
     }
@@ -322,7 +321,7 @@ int8_t scan_now(void) {
     lv_timer_handler();
 
     // clear
-    for (ch = 0; ch < SCAN_CH_NUM; ch++) {
+    for (ch = 0; ch < BASE_CH_NUM; ch++) {
         valid_channel_tb[ch] = -1;
         channel_status_tb[ch].is_valid = 0;
     }

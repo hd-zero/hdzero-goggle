@@ -14,7 +14,7 @@
 #include "i2c.h"
 #include "uart.h"
 
-#define WAIT(ms) usleep((ms) * 1000)
+#define WAIT(ms) usleep((ms)*1000)
 
 // DM6302: RF receiver
 /*  �����ź�:
@@ -233,7 +233,7 @@ void DM6302_SetChannel(uint8_t band, uint8_t ch) {
     // 1: lowband
     // 0: race band
     if (band == 1)
-        ch = ch + 12;
+        ch = ch + BASE_CH_NUM;
     SPI_Write(0, 0x6, 0xFF0, 0x00000018);
     SPI_Write(0, 0x3, 0x130, 0x00000013);
     SPI_Write(0, 0x3, 0x134, 0x00000013);
