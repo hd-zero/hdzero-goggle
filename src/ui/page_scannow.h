@@ -4,7 +4,7 @@
 #include "ui/ui_main_menu.h"
 #include <lvgl/lvgl.h>
 
-#define CHANNEL_NUM (g_setting.source.hdzero_band == RACE_BAND ? 10 : 8)
+#define CHANNEL_NUM (g_setting.source.hdzero_band == RACE_BAND ? 12 : 8)
 
 typedef enum {
     RACE_BAND = 0,

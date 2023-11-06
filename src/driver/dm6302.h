@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 // #define _DEBUG_DM6300
+#define BASE_CH_NUM 12
 
-#define FREQ_NUM 18
 typedef enum {
     DM5680_L = 0,
     DM5680_R,

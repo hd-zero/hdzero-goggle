@@ -263,9 +263,9 @@ uint8_t channel_osd_mode;
 
 char *channel2str(uint8_t band, uint8_t channel) // channel=[1:18]
 {
-    static char *ChannelName[2][10] = {
-        {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "F2", "F4"},
-        {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "  ", "  "},
+    static char *ChannelName[2][BASE_CH_NUM] = {
+        {"R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "E1", "F1", "F2", "F4"},
+        {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "  ", "  ", "  ", "  "},
     };
 
     if ((channel > 0) && (channel <= CHANNEL_NUM))
