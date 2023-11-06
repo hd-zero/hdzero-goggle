@@ -74,28 +74,13 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
-static void hide_all_icons(void) {
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
-        lv_obj_add_flag(page_packs[i]->icon, LV_OBJ_FLAG_HIDDEN);
-    }
-}
-
-static void menu_event_handler(lv_event_t *e) {
-    hide_all_icons();
-
-    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (pp) {
-        lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
-    }
-}
-
 void submenu_enter(void) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (!pp) {
         return;
     }
 
-    hide_all_icons();
+    lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
 
     if (pp->p_arr.max) {
@@ -178,7 +163,7 @@ void submenu_exit() {
     // LV_OPA_20 is the default for pressed menu
     // see lv_theme_default.c styles->menu_pressed
     lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
-    menu_event_handler(NULL); // Restores the arrow icon
+    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 
     if (pp->exit) {
         // if your page as a exit event handler, call it
@@ -272,6 +257,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
 
     pp->icon = lv_img_create(cont);
     lv_img_set_src(pp->icon, &img_arrow);
+    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 
     lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
     lv_menu_set_load_page_event(menu, cont, pp->page);
@@ -293,7 +279,6 @@ void main_menu_init(void) {
 
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_event_cb(menu, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);
