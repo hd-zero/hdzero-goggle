@@ -74,18 +74,18 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
-static void clear_all_icon(void) {
+static void hide_all_icons(void) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
-        lv_img_set_src(page_packs[i]->icon, LV_SYMBOL_DUMMY);
+        lv_obj_add_flag(page_packs[i]->icon, LV_OBJ_FLAG_HIDDEN);
     }
 }
 
 static void menu_event_handler(lv_event_t *e) {
-    clear_all_icon();
+    hide_all_icons();
 
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (pp) {
-        lv_img_set_src(pp->icon, &img_arrow);
+        lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
     }
 }
 
