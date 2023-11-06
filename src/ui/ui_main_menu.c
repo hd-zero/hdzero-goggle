@@ -95,6 +95,9 @@ void submenu_enter(void) {
         return;
     }
 
+    hide_all_icons();
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first one
         pp->p_arr.cur = 0;
@@ -171,6 +174,11 @@ void submenu_exit() {
     if (!pp) {
         return;
     }
+
+    // LV_OPA_20 is the default for pressed menu
+    // see lv_theme_default.c styles->menu_pressed
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+    menu_event_handler(NULL); // Restores the arrow icon
 
     if (pp->exit) {
         // if your page as a exit event handler, call it
