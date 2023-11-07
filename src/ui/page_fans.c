@@ -224,7 +224,6 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
 
 void step_topfan() {
     char str[10];
-    pthread_mutex_lock(&lvgl_mutex);
 
     if (g_setting.fans.top_speed == MAX_FAN_TOP)
         g_setting.fans.top_speed = MIN_FAN_TOP;
@@ -237,8 +236,6 @@ void step_topfan() {
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
     sprintf(str, "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, str);
-
-    pthread_mutex_unlock(&lvgl_mutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
