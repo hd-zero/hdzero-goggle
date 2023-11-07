@@ -71,6 +71,8 @@
 
 #define MAX_PANELS 9
 
+#define FLAG_SELECTABLE LV_OBJ_FLAG_USER_1
+
 typedef enum {
     SOURCE_HDZERO = 0,
     SOURCE_HDMI_IN = 1,

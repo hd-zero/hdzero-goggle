@@ -56,6 +56,7 @@ void create_select_item(panel_arr_t *arr, lv_obj_t *parent) {
         arr->panel[i] = lv_obj_create(parent);
         lv_obj_clear_flag(arr->panel[i], LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_add_flag(arr->panel[i], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(arr->panel[i], FLAG_SELECTABLE);
         lv_obj_add_style(arr->panel[i], &style_select, LV_PART_MAIN);
         lv_obj_set_grid_cell(arr->panel[i], LV_GRID_ALIGN_STRETCH, 0, 6,
                              LV_GRID_ALIGN_STRETCH, i, 1);
