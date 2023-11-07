@@ -223,6 +223,10 @@ static void menu_reinit(void) {
         scan_reinit();
     }
 
+    if (pp == &pp_imagesettings || pp == &pp_osd) {
+        submenu_exit();
+    }
+
     if (pp->p_arr.max) {
         // if we have selectable icons, reset the selector
         pp->p_arr.cur = 0;
