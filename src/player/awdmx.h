@@ -1,5 +1,4 @@
-#ifndef __AWDMX_H_
-#define __AWDMX_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,5 +53,3 @@ bool awdmx_isEOF(AwdmxContext_t *dmxCtx);
 #ifdef __cplusplus
 }
 #endif /* End of #ifdef __cplusplus */
-
-#endif //__AWDMX_H_

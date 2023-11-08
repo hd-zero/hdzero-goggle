@@ -1,5 +1,4 @@
-#ifndef __ESP32_FLASH_H__
-#define __ESP32_FLASH_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,5 +13,3 @@ void loader_port_close();
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__ESP32_FLASH_H__

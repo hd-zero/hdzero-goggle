@@ -1,5 +1,4 @@
-#ifndef _PORTING_H
-#define _PORTING_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +23,4 @@ void lvgl_screen_orbit(bool enable);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

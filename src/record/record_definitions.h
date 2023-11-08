@@ -1,5 +1,4 @@
-#ifndef RECORD_DEFINITIONS_H_
-#define RECORD_DEFINITIONS_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,5 +96,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* RECORD_DEFINITIONS_H_ */

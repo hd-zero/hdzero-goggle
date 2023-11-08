@@ -1,5 +1,4 @@
-#ifndef __HT_C__
-#define __HT_C__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,5 +61,3 @@ int16_t *ht_get_channels();
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__HT_C__

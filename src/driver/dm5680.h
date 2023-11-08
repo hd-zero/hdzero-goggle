@@ -1,5 +1,4 @@
-#ifndef _DM5680_H
-#define _DM5680_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,6 +62,4 @@ void DM5680_OSD_parse(uint8_t *buf, uint8_t len);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

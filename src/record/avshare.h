@@ -14,8 +14,7 @@
     Modification: Created file
 
 ******************************************************************************/
-#ifndef _AVSHARE_H_
-#define _AVSHARE_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +61,4 @@ void avshare_reset(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,5 +1,4 @@
-#ifndef __UART_H_
-#define __UART_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,5 +18,3 @@ int uart_write(int fd, uint8_t *data, int len);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __UART_H_

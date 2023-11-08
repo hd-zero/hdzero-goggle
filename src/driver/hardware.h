@@ -1,5 +1,4 @@
-#ifndef _HARDWARE_H
-#define _HARDWARE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,6 +93,4 @@ int Get_HAN_status();          // ret: 0=error; 1=ok
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

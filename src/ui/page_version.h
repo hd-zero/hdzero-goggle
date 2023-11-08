@@ -1,5 +1,4 @@
-#ifndef _PAGE_VERSION_H
-#define _PAGE_VERSION_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +35,4 @@ uint8_t command_monitor(char *cmd);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

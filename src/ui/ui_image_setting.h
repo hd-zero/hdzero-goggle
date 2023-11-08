@@ -1,5 +1,4 @@
-#ifndef __IMAGESETTING_H__
-#define __IMAGESETTING_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +47,4 @@ void ims_save();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

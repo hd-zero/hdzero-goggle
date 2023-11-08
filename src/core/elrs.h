@@ -1,5 +1,4 @@
-#ifndef __ELRS_H__
-#define __ELRS_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,5 +88,3 @@ void msp_channel_update();
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__ELRS_H__

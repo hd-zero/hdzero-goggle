@@ -1,5 +1,4 @@
-#ifndef __DM6302_H_
-#define __DM6302_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,5 +42,3 @@ void SPI_Read(uint8_t page, uint16_t addr, uint32_t *dat0, uint32_t *dat1);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __DM6302_H_

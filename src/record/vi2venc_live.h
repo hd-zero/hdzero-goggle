@@ -1,5 +1,4 @@
-#ifndef __VI2VENC_LIVE_H_
-#define __VI2VENC_LIVE_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,6 +13,3 @@ bool       vi2live_started(Vi2Venc_t* vv);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  /* __VI2VENC_LIVE_H_ */
-

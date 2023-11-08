@@ -1,5 +1,4 @@
-#ifndef _TP2825_H
-#define _TP2825_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +16,4 @@ void TP2825_Set_Clamp(int);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

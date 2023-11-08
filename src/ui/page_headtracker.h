@@ -1,5 +1,4 @@
-#ifndef _PAGE_HEADTRACKER_H
-#define _PAGE_HEADTRACKER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,4 @@ extern page_pack_t pp_headtracker;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

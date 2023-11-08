@@ -1,5 +1,4 @@
-#ifndef _OSD_H
-#define _OSD_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,6 +103,4 @@ void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_t
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

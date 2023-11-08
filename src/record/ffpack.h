@@ -1,5 +1,4 @@
-#ifndef __FFPACK_H_
-#define __FFPACK_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,5 +71,3 @@ int  ffpack_setExtradata(FFPack_t* ff, int streamIndex, void* extradata, int ext
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__FFPACK_H_

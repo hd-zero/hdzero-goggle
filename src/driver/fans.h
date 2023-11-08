@@ -1,5 +1,4 @@
-#ifndef _FANS_H
-#define _FANS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +20,4 @@ extern fan_speed_t fan_speed;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

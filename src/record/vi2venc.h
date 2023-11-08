@@ -1,5 +1,4 @@
-#ifndef __VI2VENC_H_
-#define __VI2VENC_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -231,6 +230,3 @@ char*     vi2venc_getProfileName(VencProfile_e profile, bool h265);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  /* __VI2VENC_H_ */
-

@@ -1,5 +1,4 @@
-#ifndef _PAGE_COMMON_H
-#define _PAGE_COMMON_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,6 +175,4 @@ void btn_group_show(btn_group_t *btn_group, bool visible);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

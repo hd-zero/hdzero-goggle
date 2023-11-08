@@ -1,5 +1,4 @@
-#ifndef _PAGE_SOURCE_H
-#define _PAGE_SOURCE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +14,4 @@ void source_status_timer();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

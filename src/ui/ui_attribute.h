@@ -1,5 +1,4 @@
-#ifndef _UI_ATTRIBUTE_H
-#define _UI_ATTRIBUTE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -212,6 +211,4 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

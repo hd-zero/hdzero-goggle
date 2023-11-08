@@ -1,5 +1,4 @@
-#ifndef _PAGE_IMAGESETTINGS_H
-#define _PAGE_IMAGESETTINGS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +14,4 @@ void set_slider_value();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

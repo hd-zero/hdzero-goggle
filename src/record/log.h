@@ -1,7 +1,6 @@
 /** log.h **/
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,5 +45,3 @@ void log_close(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __LOG_H__ */

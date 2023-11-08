@@ -1,5 +1,4 @@
-#ifndef _OLED_H
-#define _OLED_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +28,4 @@ void MFPGA_SetRatio(int ratio);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

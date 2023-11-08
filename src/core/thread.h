@@ -1,5 +1,4 @@
-#ifndef _THREAD_H
-#define _THREAD_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +21,4 @@ int create_threads();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,5 +1,4 @@
-#ifndef _PAGE_FANS_H
-#define _PAGE_FANS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +28,4 @@ void fans_auto_ctrl();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

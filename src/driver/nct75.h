@@ -1,5 +1,4 @@
-#ifndef _NCT75_H
-#define _NCT75_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +24,4 @@ int nct_read_temperature(nct_type_t type);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,5 +1,4 @@
-#ifndef _PAGE_PLAYBACK_H
-#define _PAGE_PLAYBACK_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +56,4 @@ void clear_videofile_cnt();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

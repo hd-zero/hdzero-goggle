@@ -1,5 +1,4 @@
-#ifndef __UTIL_MATH_H__
-#define __UTIL_MATH_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,5 +17,3 @@ void safe_update_value(int min, int max, int *val, int delta);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __UTIL_MATH_H__

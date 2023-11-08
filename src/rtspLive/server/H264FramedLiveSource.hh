@@ -1,5 +1,4 @@
-#ifndef _H264FRAMEDLIVESOURCE_HH
-#define _H264FRAMEDLIVESOURCE_HH
+#pragma once
 
 #include <FramedSource.hh>
 
@@ -21,5 +20,3 @@ protected:
 	FILE *_fileTest;
 #endif
 };
-
-#endif

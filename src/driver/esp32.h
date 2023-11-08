@@ -1,5 +1,4 @@
-#ifndef __ESP32_H__
-#define __ESP32_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,5 +21,3 @@ void esp32_handler_timeout(); // handle a character read timeout
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__ESP32_H__

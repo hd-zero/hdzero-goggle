@@ -1,5 +1,4 @@
-#ifndef _PAGE_RECORD_H
-#define _PAGE_RECORD_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,4 @@ extern page_pack_t pp_record;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

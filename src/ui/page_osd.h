@@ -1,5 +1,4 @@
-#ifndef _PAGE_OSD_H
-#define _PAGE_OSD_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +11,4 @@ void page_osd_update_ui_elements();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

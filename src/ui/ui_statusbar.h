@@ -1,5 +1,4 @@
-#ifndef __STATUSBAR_H__
-#define __STATUSBAR_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,6 +9,4 @@ void statubar_update(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

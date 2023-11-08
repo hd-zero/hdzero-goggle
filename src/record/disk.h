@@ -1,5 +1,4 @@
-#ifndef __DISK_H_
-#define __DISK_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,5 +30,3 @@ bool     disk_sdstat(uint32_t mbFull, SdcardStatus_t* sds);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __DISK_H_

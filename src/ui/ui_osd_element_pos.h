@@ -1,5 +1,4 @@
-#ifndef __OSDELEMENTPOS_H__
-#define __OSDELEMENTPOS_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,6 +17,4 @@ int ui_osd_element_pos_handle_input(int key);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

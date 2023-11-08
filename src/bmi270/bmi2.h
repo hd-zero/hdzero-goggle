@@ -46,8 +46,7 @@
  * @brief Sensor driver for BMI2 sensor
  */
 
-#ifndef BMI2_H_
-#define BMI2_H_
+#pragma once
 
 /*! CPP guard */
 #ifdef __cplusplus
@@ -1481,5 +1480,3 @@ int8_t bmi2_get_feat_config(uint8_t sw_page, uint8_t *feat_config, struct bmi2_d
 #ifdef __cplusplus
 }
 #endif /* End of CPP guard */
-
-#endif /* BMI2_H_ */

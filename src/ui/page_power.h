@@ -1,5 +1,4 @@
-#ifndef _PAGE_POWER_H
-#define _PAGE_POWER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,6 +10,4 @@ extern page_pack_t pp_power;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

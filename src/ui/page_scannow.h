@@ -1,5 +1,4 @@
-#ifndef _PAGE_SCANNOW_H
-#define _PAGE_SCANNOW_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +23,4 @@ extern page_pack_t pp_scannow;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

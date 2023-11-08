@@ -1,6 +1,4 @@
-
-#ifndef __RECORD_H_
-#define __RECORD_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,5 +101,3 @@ typedef struct
 #ifdef __cplusplus
 }
 #endif
-
-#endif  /* __RECORD_H_ */

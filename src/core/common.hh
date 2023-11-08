@@ -1,5 +1,4 @@
-#ifndef __COMMON_HH__
-#define __COMMON_HH__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,5 +37,3 @@ extern pthread_mutex_t lvgl_mutex;
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__COMMON_HH__

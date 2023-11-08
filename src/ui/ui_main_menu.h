@@ -1,5 +1,4 @@
-#ifndef __MAIN_MENU_H__
-#define __MAIN_MENU_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +54,4 @@ void progress_bar_update();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

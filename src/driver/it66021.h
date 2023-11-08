@@ -1,5 +1,4 @@
-#ifndef _IT66021_H
-#define _IT66021_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +16,4 @@ void IT66021_edid();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

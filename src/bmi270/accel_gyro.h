@@ -1,5 +1,4 @@
-#ifndef _ACCEL_GYRO_H
-#define _ACCEL_GYRO_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,5 +23,3 @@ float gyr_to_dps(int16_t gyr);
 #ifdef __cplusplus
 }
 #endif
-
-#endif //_ACCEL_GYRO_H

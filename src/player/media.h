@@ -1,5 +1,4 @@
-#ifndef _MEDIA_H
-#define _MEDIA_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +42,4 @@ void media_control(media_t *media, player_cmd_t *cmd);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

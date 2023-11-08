@@ -1,5 +1,4 @@
-#ifndef __AI2AO_H_
-#define __AI2AO_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +53,3 @@ bool      ai2ao_playing(Ai2Ao_t* aa);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  /* __AI2AENC_H_ */
-

@@ -1,5 +1,4 @@
-#ifndef __MSP_DISPLAYPORT_H
-#define __MSP_DISPLAYPORT_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +81,4 @@ extern uint16_t last_rcv_seconds1;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

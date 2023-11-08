@@ -1,5 +1,4 @@
-#ifndef __JPEGENC_H_
-#define __JPEGENC_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,5 +50,3 @@ int jpegenc_takePicture(JpegEncIO_t* io, JpegEncConfig_t* config, int32_t s32Mil
 #ifdef __cplusplus
 }
 #endif
-
-#endif  /* __JPEGENC_H_ */

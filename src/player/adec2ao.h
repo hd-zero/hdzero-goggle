@@ -1,5 +1,4 @@
-#ifndef __ADEC2AO_H_
-#define __ADEC2AO_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,5 +71,3 @@ bool adec2ao_isEOF(Adec2AoContext_t *aa);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __AI2AENC_H_ */

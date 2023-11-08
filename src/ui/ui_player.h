@@ -1,5 +1,4 @@
-#ifndef __MPLAYER_H__
-#define __MPLAYER_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +44,4 @@ void mplayer_file(char *fname);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
