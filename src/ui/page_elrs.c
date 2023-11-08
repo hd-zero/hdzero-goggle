@@ -41,6 +41,34 @@ static lv_obj_t *btn_vtx_send;
 static btn_group_t elrs_group;
 static bool binding = false;
 
+static void update_visibility() {
+    const bool backpackIsActive = elrs_group.current == 0;
+
+    if (backpackIsActive) {
+        lv_obj_clear_flag(btn_wifi, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(btn_bind, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(label_bind_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(btn_vtx_send, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_add_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_elrs.p_arr.panel[3], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_flag(btn_wifi, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(btn_bind, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(label_bind_status, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(btn_vtx_send, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[3], FLAG_SELECTABLE);
+    }
+}
+
 static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -84,6 +112,8 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_pad_top(cancel_label, 12, 0);
     lv_label_set_long_mode(cancel_label, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(cancel_label, LV_GRID_ALIGN_START, 1, 3, LV_GRID_ALIGN_START, POS_MAX, 2);
+
+    update_visibility();
 
     return page;
 }
@@ -130,7 +160,11 @@ static void elrs_enable_timer(struct _lv_timer_t *timer) {
 static void page_elrs_enter() {
     lv_label_set_text(label_wifi_status, "Click to start");
     lv_label_set_text(label_bind_status, "Click to start");
-    request_uid();
+    if (elrs_group.current == 0) {
+        request_uid();
+    } else {
+        pp_elrs.p_arr.cur = 1;
+    }
 }
 
 static void page_elrs_on_click(uint8_t key, int sel) {
@@ -143,6 +177,8 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             enable_esp32();
         else
             disable_esp32();
+
+        update_visibility();
     } else if (sel == POS_VTX) // Send VTX freq
     {
         msp_channel_update();
