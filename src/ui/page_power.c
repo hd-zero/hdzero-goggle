@@ -64,6 +64,14 @@ static void page_power_update_cell_count() {
     char buf[5];
     sprintf(buf, "%d", g_battery.type);
     lv_label_set_text(slider_group_cell_count.label, buf);
+
+    const bool isAutoCellCount = btn_group_cell_count_mode.current == 0;
+    slider_show(&slider_group_cell_count, !isAutoCellCount);
+    if (isAutoCellCount) {
+        lv_obj_clear_flag(pp_power.p_arr.panel[2], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_flag(pp_power.p_arr.panel[2], FLAG_SELECTABLE);
+    }
 }
 
 static void page_power_update_calibration_offset() {
