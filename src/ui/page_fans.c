@@ -31,7 +31,7 @@ static btn_group_t btn_group_fans;
 static slider_group_t slider_group[2];
 
 static void update_visibility() {
-    slider_show(&slider_group[1], btn_group_fans.current != 0);
+    slider_enable(&slider_group[1], btn_group_fans.current != 0);
 
     if (btn_group_fans.current == 0) {
         lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);

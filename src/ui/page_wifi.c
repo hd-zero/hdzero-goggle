@@ -458,35 +458,56 @@ static void page_wifi_update_current_page(int which) {
         break;
     case 1:
         pp_wifi.p_arr.max = page_wifi.page_2.row_count;
-        if (page_wifi.page_1.mode.button.current == WIFI_MODE_STA) {
-            btn_group_show(&page_wifi.page_2.dhcp.button, true);
-        } else {
+        btn_group_show(&page_wifi.page_2.dhcp.button, true);
+        btn_group_enable(&page_wifi.page_2.dhcp.button, page_wifi.page_1.mode.button.current == WIFI_MODE_STA);
+        if (page_wifi.page_1.mode.button.current != WIFI_MODE_STA) {
             lv_obj_clear_flag(pp_wifi.p_arr.panel[1], FLAG_SELECTABLE);
         }
+
+        lv_obj_clear_flag(page_wifi.page_2.ip_addr.label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.ip_addr.input, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.netmask.label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.netmask.input, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.gateway.label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
+
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
                 (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
                 page_wifi.page_2.dhcp.button.current == 1)) {
-            lv_obj_clear_flag(page_wifi.page_2.ip_addr.label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.ip_addr.input, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.netmask.label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.netmask.input, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.gateway.label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_state(page_wifi.page_2.ip_addr.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.ip_addr.input, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.gateway.input, STATE_DISABLED);
         } else {
+            lv_obj_add_state(page_wifi.page_2.ip_addr.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.ip_addr.input, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.gateway.input, STATE_DISABLED);
             lv_obj_clear_flag(pp_wifi.p_arr.panel[2], FLAG_SELECTABLE);
             lv_obj_clear_flag(pp_wifi.p_arr.panel[3], FLAG_SELECTABLE);
             lv_obj_clear_flag(pp_wifi.p_arr.panel[4], FLAG_SELECTABLE);
         }
+
+        lv_obj_clear_flag(page_wifi.page_2.dns.label, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(page_wifi.page_2.dns.input, LV_OBJ_FLAG_HIDDEN);
+
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
             page_wifi.page_2.dhcp.button.current == 1) {
-            lv_obj_clear_flag(page_wifi.page_2.dns.label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(page_wifi.page_2.dns.input, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_state(page_wifi.page_2.dns.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.dns.input, STATE_DISABLED);
         } else {
+            lv_obj_add_state(page_wifi.page_2.dns.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.dns.input, STATE_DISABLED);
             lv_obj_clear_flag(pp_wifi.p_arr.panel[5], FLAG_SELECTABLE);
         }
-        if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP) {
-            slider_show(&page_wifi.page_2.rf_channel.input, true);
-        } else {
+
+        slider_show(&page_wifi.page_2.rf_channel.input, true);
+        slider_enable(&page_wifi.page_2.rf_channel.input, page_wifi.page_1.mode.button.current == WIFI_MODE_AP);
+        if (page_wifi.page_1.mode.button.current != WIFI_MODE_AP) {
             lv_obj_clear_flag(pp_wifi.p_arr.panel[6], FLAG_SELECTABLE);
         }
         break;

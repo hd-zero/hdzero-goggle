@@ -45,23 +45,23 @@ static void update_visibility() {
     const bool backpackIsActive = elrs_group.current == 0;
 
     if (backpackIsActive) {
-        lv_obj_clear_flag(btn_wifi, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(btn_bind, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(label_bind_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(btn_vtx_send, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_state(btn_wifi, STATE_DISABLED);
+        lv_obj_clear_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_clear_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_clear_state(btn_bind, STATE_DISABLED);
+        lv_obj_clear_state(label_bind_status, STATE_DISABLED);
+        lv_obj_clear_state(btn_vtx_send, STATE_DISABLED);
 
         lv_obj_add_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
         lv_obj_add_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
         lv_obj_add_flag(pp_elrs.p_arr.panel[3], FLAG_SELECTABLE);
     } else {
-        lv_obj_add_flag(btn_wifi, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(label_wifi_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(btn_bind, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(label_bind_status, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(btn_vtx_send, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(btn_wifi, STATE_DISABLED);
+        lv_obj_add_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_add_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_add_state(btn_bind, STATE_DISABLED);
+        lv_obj_add_state(label_bind_status, STATE_DISABLED);
+        lv_obj_add_state(btn_vtx_send, STATE_DISABLED);
 
         lv_obj_clear_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
         lv_obj_clear_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
