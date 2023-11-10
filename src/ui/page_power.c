@@ -111,6 +111,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
+    lv_obj_clear_flag(pp_power.p_arr.panel[0], FLAG_SELECTABLE);
 
     // create menu entries
     create_label_item(cont, "Battery", 1, ROW_BATT_C_LABEL, 1);
