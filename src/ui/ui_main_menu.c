@@ -97,8 +97,7 @@ void submenu_enter(void) {
 
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first selectable one
-        pp->p_arr.cur = -1;
-        while (!lv_obj_has_flag(pp->p_arr.panel[++pp->p_arr.cur], FLAG_SELECTABLE));
+        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
