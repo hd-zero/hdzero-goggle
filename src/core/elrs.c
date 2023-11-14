@@ -56,16 +56,17 @@ static void handle_osd(uint8_t *payload, uint8_t size);
 
 static const uint16_t freq_table[] = {
     5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917, // R1-8
-    5760, 5800                                      // F2/4
+    5705,                                           // E1
+    5740, 5760, 5800                                // F1/2/4
 };
 
 static const uint8_t channel_map[] = {
-    0, 0, 0, 0, 0, 0, 0, 0,  // A
-    0, 0, 0, 0, 0, 0, 0, 0,  // B
-    0, 0, 0, 0, 0, 0, 0, 0,  // E
-    0, 9, 0, 10, 0, 0, 0, 0, // F
-    1, 2, 3, 4, 5, 6, 7, 8,  // R
-    0, 0, 0, 0, 0, 0, 0, 0,  // L
+    0, 0, 0, 0, 0, 0, 0, 0,    // A
+    0, 0, 0, 0, 0, 0, 0, 0,    // B
+    9, 0, 0, 0, 0, 0, 0, 0,    // E
+    10, 11, 0, 12, 0, 0, 0, 0, // F
+    1, 2, 3, 4, 5, 6, 7, 8,    // R
+    0, 0, 0, 0, 0, 0, 0, 0,    // L
 };
 
 void elrs_init() {
@@ -218,10 +219,16 @@ void msp_process_packet() {
             if (band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
                 if (ch <= 8) {
                     chan = ch - 1 + (4 * 8); // Map R1..8
-                } else {
-                    chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+                } else if (ch == 9) {
+                    chan = 2 * 8; // Map E1
+                } else if (ch == 10) {
+                    chan = 3 * 8; // Map F1
+                } else if (ch == 11) {
+                    chan = 3 * 8 + 1; // Map F2
+                } else if (ch == 12) {
+                    chan = 3 * 8 + 3; // Map F4
                 }
-            } else {                   // if (band == SETTING_SOURCES_HDZERO_BAND_LOWBAND)
+            } else {
                 chan = ch - 1 + 5 * 8; // Map L1..8
             }
             msp_send_packet(MSP_GET_BAND_CHAN, MSP_PACKET_RESPONSE, 1, &chan);
@@ -252,9 +259,9 @@ void msp_process_packet() {
             uint16_t freq = packet.payload[0] | (uint16_t)packet.payload[1] << 8;
             uint8_t ch = g_setting.scan.channel & 0xF;
             if (g_source_info.source == SOURCE_HDZERO) { // HDZero mode
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < BASE_CH_NUM; i++) {
                     int chan = i + 1;
-                    if (freq == freq_table[i] && (ch != chan || g_app_state != APP_STATE_VIDEO) && chan > 0 && chan < 11) {
+                    if (freq == freq_table[i] && (ch != chan || g_app_state != APP_STATE_VIDEO) && chan > 0 && chan < (BASE_CH_NUM + 1)) {
                         g_setting.scan.channel = chan;
                         beep();
                         pthread_mutex_lock(&lvgl_mutex);
@@ -405,7 +412,7 @@ bool elrs_headtracking_enabled() {
 }
 
 void msp_channel_update() {
-    // Channel 1...18 for R1...8, F2 and F4, L1...8
+    // Channel 1...20 for R1...8, E1, F1, F2 and F4, L1...8
     uint8_t const ch = g_setting.scan.channel;
     uint8_t const band = g_setting.source.hdzero_band;
     uint8_t chan;
@@ -415,10 +422,16 @@ void msp_channel_update() {
     if (band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
         if (ch <= 8) {
             chan = ch - 1 + (4 * 8); // Map R1..8
-        } else {
-            chan = ((ch - 9) * 2) + (3 * 8) + 1; // Map F2/4
+        } else if (ch == 9) {
+            chan = 2 * 8; // Map E1
+        } else if (ch == 10) {
+            chan = 3 * 8; // Map F1
+        } else if (ch == 11) {
+            chan = 3 * 8 + 1; // Map F2
+        } else if (ch == 12) {
+            chan = 3 * 8 + 3; // Map F4
         }
-    } else {                   // if (band == SETTING_SOURCES_HDZERO_BAND_LOWBAND)
+    } else {
         chan = ch - 1 + 5 * 8; // Map L1..8
     }
     msp_send_packet(MSP_SET_BAND_CHAN, MSP_PACKET_COMMAND, sizeof(chan), &chan);
