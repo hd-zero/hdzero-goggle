@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "log/log.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 
 int system_exec(const char *command) {
     LOGI("System Execute: %s", command);
@@ -17,7 +17,7 @@ int system_script(const char *command) {
     LOGI("System Script: %s", command);
 
     // basename may edit argument
-    const char *script = file_get_name(command);
+    const char *script = fs_basename(command);
 
     // Modify command to log std out and error to a temporary file
     char buffer[256];

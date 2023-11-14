@@ -14,10 +14,13 @@ typedef struct {
 
     lv_obj_t *page;
     lv_obj_t *icon;
+    lv_obj_t *label;
 
     lv_obj_t *(*create)(lv_obj_t *parent, panel_arr_t *arr);
     void (*enter)();
     void (*exit)();
+    void (*on_created)();
+    void (*on_update)(uint32_t delta_ms);
     void (*on_roller)(uint8_t key);
     void (*on_click)(uint8_t key, int sel);
     void (*on_right_button)(bool is_short);
@@ -32,6 +35,7 @@ typedef struct {
 extern progress_bar_t progress_bar;
 
 void main_menu_init();
+void main_menu_update();
 void main_menu_show(bool is_show);
 bool main_menu_is_shown(void);
 

@@ -9,7 +9,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "ui/page_playback.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/sdcard.h"
 #include "util/system.h"
 
@@ -125,7 +125,7 @@ static format_codes_t page_storage_format_sd() {
     system_exec(shell_command);
 
     int timeout_interval = 0;
-    while (!file_exists(log_file) && ++timeout_interval < 5) {
+    while (!fs_file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
@@ -133,7 +133,7 @@ static format_codes_t page_storage_format_sd() {
         status = FMC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
-        while (!file_exists(results_file) && ++timeout_interval < 60) {
+        while (!fs_file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
@@ -197,7 +197,7 @@ static repair_codes_t page_storage_repair_sd() {
     system_exec(shell_command);
 
     int timeout_interval = 0;
-    while (!file_exists(log_file) && ++timeout_interval < 5) {
+    while (!fs_file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
@@ -205,7 +205,7 @@ static repair_codes_t page_storage_repair_sd() {
         status = RPC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
-        while (!file_exists(results_file) && ++timeout_interval < 60) {
+        while (!fs_file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
@@ -373,7 +373,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled.");
         page_storage.disable_controls = true;
     } else {
-        if (file_exists(DEVELOP_SCRIPT) || file_exists(APP_BIN_FILE)) {
+        if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
             char text[256];
             snprintf(text, sizeof(text), "Detected files being accessed by SD Card, All storage options are disabled.\n"
                                          "Remove the following files from the SD Card and try again:\n" DEVELOP_SCRIPT "\n" APP_BIN_FILE);
@@ -492,6 +492,8 @@ page_pack_t pp_storage = {
     .create = page_storage_create,
     .enter = page_storage_enter,
     .exit = page_storage_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_storage_on_roller,
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,

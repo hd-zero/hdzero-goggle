@@ -38,7 +38,6 @@ static fan_speed_t fan_speed_save;
 
 static void page_sleep_enter() {
     LOGI("page_sleep_enter");
-
     go_sleep();
 }
 
@@ -46,6 +45,8 @@ page_pack_t pp_sleep = {
     .create = page_sleep_create,
     .enter = page_sleep_enter,
     .exit = NULL,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = NULL,
     .on_click = NULL,
     .on_right_button = NULL,

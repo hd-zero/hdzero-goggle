@@ -23,6 +23,7 @@
 #include "core/sleep_mode.h"
 #include "core/thread.h"
 #include "driver/TP2825.h"
+#include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
@@ -34,7 +35,6 @@
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
 #include "driver/rtc.h"
-#include "driver/beep.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -44,7 +44,6 @@
 #include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
-#include "util/file.h"
 
 int gif_cnt = 0;
 
@@ -188,14 +187,15 @@ int main(int argc, char *argv[]) {
 
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
-    
+
     // 8.1 set initial analog module power state
     Analog_Module_Power(0);
-    
+
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
+        main_menu_update();
         sleep_reminder();
         statubar_update();
         osd_hdzero_update();
