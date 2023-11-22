@@ -1,5 +1,8 @@
-#ifndef _INPUT_DEVICE_H
-#define _INPUT_DEVICE_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 
@@ -14,4 +17,6 @@ void tune_channel_timer();
 void exit_tune_channel();
 void rbtn_click(right_button_t click_type);
 
+#ifdef __cplusplus
+}
 #endif

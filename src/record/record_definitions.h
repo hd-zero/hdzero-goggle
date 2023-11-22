@@ -1,5 +1,8 @@
-#ifndef RECORD_DEFINITIONS_H_
-#define RECORD_DEFINITIONS_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MAX_pathLEN         128
 
@@ -90,4 +93,6 @@
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 
-#endif /* RECORD_DEFINITIONS_H_ */
+#ifdef __cplusplus
+}
+#endif

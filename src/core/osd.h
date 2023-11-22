@@ -1,5 +1,8 @@
-#ifndef _OSD_H
-#define _OSD_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 
@@ -98,4 +101,6 @@ void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 
+#ifdef __cplusplus
+}
 #endif

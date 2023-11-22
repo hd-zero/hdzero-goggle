@@ -1,5 +1,8 @@
-#ifndef _PAGE_COMMON_H
-#define _PAGE_COMMON_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "defines.h"
 #include "ui/ui_style.h"
@@ -170,4 +173,6 @@ void set_select_item(const panel_arr_t *arr, int row);
 void slider_show(slider_group_t *slider_group, bool visible);
 void btn_group_show(btn_group_t *btn_group, bool visible);
 
+#ifdef __cplusplus
+}
 #endif

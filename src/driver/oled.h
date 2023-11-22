@@ -1,5 +1,9 @@
-#ifndef _OLED_H
-#define _OLED_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "defines.h"
 #include <stdint.h>
 
@@ -22,4 +26,6 @@ void MFPGA_Set540P60();
 void MFPGA_Set1080P30();
 void MFPGA_SetRatio(int ratio);
 
+#ifdef __cplusplus
+}
 #endif

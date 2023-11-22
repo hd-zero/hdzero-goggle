@@ -1,5 +1,5 @@
-#ifndef _H264_LIVE_VIDEO_SERVER_MEDIA_SUBSESSION_HH
-#define _H264_LIVE_VIDEO_SERVER_MEDIA_SUBSESSION_HH
+#pragma once
+
 #include "H264VideoFileServerMediaSubsession.hh"
 
 class H264LiveVideoServerMediaSubssion : public H264VideoFileServerMediaSubsession {
@@ -14,5 +14,3 @@ protected:
 protected:
 	FramedSource* createNewStreamSource(unsigned clientSessionId, unsigned& estBitrate);
 };
-
-#endif

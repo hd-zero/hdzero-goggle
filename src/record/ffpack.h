@@ -1,5 +1,8 @@
-#ifndef __FFPACK_H_
-#define __FFPACK_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include "ffmpeg.h"
@@ -65,4 +68,6 @@ int  ffpack_inputStream(FFPack_t* ff, int streamIndex, void* stream, void* pkt);
 void ffpack_setParams(FFPack_t* ff, int streamIndex, void* param);
 int  ffpack_setExtradata(FFPack_t* ff, int streamIndex, void* extradata, int extradataSize);
 
-#endif //__FFPACK_H_
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,8 @@
-#ifndef __JPEGENC_H_
-#define __JPEGENC_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <mpi_venc.h>
 
@@ -44,4 +47,6 @@ typedef struct JpegEncIO
 int jpegenc_encodeFrame(VIDEO_FRAME_INFO_S* frame, JpegEncConfig_t* config, CB_onJpegFrame cbOnFrame, void* context);
 int jpegenc_takePicture(JpegEncIO_t* io, JpegEncConfig_t* config, int32_t s32Millisec);
 
-#endif  /* __JPEGENC_H_ */
+#ifdef __cplusplus
+}
+#endif

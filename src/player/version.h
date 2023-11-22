@@ -1,5 +1,4 @@
-#ifndef __VERSION_H_
-#define __VERSION_H_
+#pragma once
 
 #if defined(__cplusplus)
 extern "C" {
@@ -13,5 +12,3 @@ extern "C" {
 #if defined(__cplusplus)
 }
 #endif
-
-#endif //__APPMSG_H_

@@ -1,5 +1,8 @@
-#ifndef __UTIL_MATH_H__
-#define __UTIL_MATH_H__
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define constrain(value, min, max) \
     (value < min ? min : (value > max ? max : value))
@@ -11,4 +14,6 @@ float normalize(float value, float start, float end);
 void rotate(float pn[3], const float rot[3]);
 void safe_update_value(int min, int max, int *val, int delta);
 
-#endif // __UTIL_MATH_H__
+#ifdef __cplusplus
+}
+#endif

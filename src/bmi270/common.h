@@ -1,5 +1,8 @@
-#ifndef _COMMON_H
-#define _COMMON_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 #include "bmi2.h"
@@ -103,4 +106,6 @@ void bmi2_error_codes_print_result(int8_t rslt);
  *  @return void.
  */
 
-#endif /* _COMMON_H */
+#ifdef __cplusplus
+}
+#endif

@@ -1,6 +1,4 @@
-
-#ifndef __LIVE_CONTEXT_H_
-#define __LIVE_CONTEXT_H_
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -54,5 +52,3 @@ typedef struct
     bool  isSSM;
     char  ipMulticast[16];
 } LiveContext_t;
-
-#endif  /* __LIVE_CONTEXT_H_ */

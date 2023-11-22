@@ -1,5 +1,8 @@
-#ifndef _NCT75_H
-#define _NCT75_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
     NCT_RIGHT = 0,
@@ -19,4 +22,6 @@ extern sys_temperature_t g_temperature;
 
 int nct_read_temperature(nct_type_t type);
 
+#ifdef __cplusplus
+}
 #endif

@@ -1,5 +1,8 @@
-#ifndef _UI_ATTRIBUTE_H
-#define _UI_ATTRIBUTE_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // #define TEST_STATUSBAR
 // #define TEST_SCANNOW
@@ -205,4 +208,7 @@
 /*menu->cont_version->cont*/
 #define CONT_VERSION_WIDTH        (PAGE_VERSION_WIDTH)
 #define CONT_VERSION_HEIGHT       PAGE_VERSION_HEIGHT
+
+#ifdef __cplusplus
+}
 #endif

@@ -1,5 +1,8 @@
-#ifndef __MPLAYER_H__
-#define __MPLAYER_H__
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -39,4 +42,6 @@ uint8_t mplayer_on_key(uint8_t key);
 void mplayer_set_time(uint32_t now, uint32_t duration);
 void mplayer_file(char *fname);
 
+#ifdef __cplusplus
+}
 #endif

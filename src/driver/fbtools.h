@@ -4,6 +4,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <linux/fb.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -24,3 +28,7 @@ int fb_close(PFBDEV pFbdev);
 int get_display_depth(PFBDEV pFbdev);
 void fb_memset(void *addr, int c, size_t len);
 void fb_sync(PFBDEV pFbdev);
+
+#ifdef __cplusplus
+}
+#endif
