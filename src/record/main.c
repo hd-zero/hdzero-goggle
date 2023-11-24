@@ -136,6 +136,7 @@ void record_dumpParams(RecordParams_t* params)
     LOGD("full: %d MB", params->minDiskSize);
     LOGD("duration: %d minutes", params->packDuration/(60*1000));
     LOGD("audio   : %s", params->enableAudio ? "yes" : "no");
+    LOGD("naming  : %s", params->fileNaming == NAMING_DATE ? "Date" : "Contiguous");
 }
 
 void record_dumpVeParams(VencParams_t* params)
