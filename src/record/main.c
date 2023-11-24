@@ -358,7 +358,7 @@ int record_start(RecordContext_t* recCtx)
     case NAMING_DATE: {
         const time_t t = time(0);
         const struct tm* date = localtime(&t);
-        sprintf(dateString, "%04d-%02d-%02dT%02d_%02d_%02d", date->tm_year + 1900, date->tm_mon, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        sprintf(dateString, "%04d-%02d-%02dT%02d_%02d_%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
         sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
         break;
     }
