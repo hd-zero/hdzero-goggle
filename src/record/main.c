@@ -349,8 +349,20 @@ int record_start(RecordContext_t* recCtx)
         LOGE("get sps failed: %x", ret);
     }
 
+    char dateString[20];
     char sFile[256];
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+        break;
+    case NAMING_DATE: {
+        const time_t t = time(0);
+        const struct tm* date = localtime(&t);
+        sprintf(dateString, "%04d-%02d-%02dT%02d_%02d_%02d", date->tm_year + 1900, date->tm_mon, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
+        break;
+    }
+    }
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
@@ -425,7 +437,14 @@ int record_start(RecordContext_t* recCtx)
     record_saveStatus(recCtx, REC_statusRun);
     recCtx->nbFileIndex++;
 
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+        break;
+    case NAMING_DATE:
+        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, REC_packSnapTYPE);
+        break;
+    }
     ret = record_takePicture(recCtx, sFile);
 
     record_dumpViParams(&viParams);
