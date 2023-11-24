@@ -6,6 +6,7 @@
 
 #include "../core/common.hh"
 #include "core/settings.h"
+#include "driver/rtc.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 
@@ -98,9 +99,11 @@ static void page_record_on_click(uint8_t key, int sel) {
         g_setting.record.audio_source = btn_group_get_sel(&btn_group_audio_source);
         ini_putl("record", "audio_source", g_setting.record.audio_source, SETTING_INI);
     } else if (sel == 5) {
-        btn_group_toggle_sel(&btn_group_file_naming);
-        g_setting.record.naming = btn_group_get_sel(&btn_group_file_naming);
-        ini_putl("record", "naming", g_setting.record.naming, SETTING_INI);
+        if (rtc_has_battery() == 0) {
+            btn_group_toggle_sel(&btn_group_file_naming);
+            g_setting.record.naming = btn_group_get_sel(&btn_group_file_naming);
+            ini_putl("record", "naming", g_setting.record.naming, SETTING_INI);
+        }
     }
 }
 
