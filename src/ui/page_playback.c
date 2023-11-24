@@ -206,6 +206,9 @@ static int walk_sdcard() {
         }
 
         media_file_node_t *pnode = &media_db.list[media_db.count];
+        ZeroMemory(pnode->filename, sizeof(pnode->filename));
+        ZeroMemory(pnode->label, sizeof(pnode->label));
+        ZeroMemory(pnode->ext, sizeof(pnode->ext));
         strcpy(pnode->filename, in_file->d_name);
         strncpy(pnode->label, in_file->d_name, dot - in_file->d_name);
         strcpy(pnode->ext, dot + 1);
