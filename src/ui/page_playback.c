@@ -322,11 +322,12 @@ static void mark_video_file(int const seq) {
     const int index = find_next_available_hot_index();
 
     char cmd[256];
-    int length = sprintf(cmd, "mv %s%s ", MEDIA_FILES_DIR, pnode->filename);
-    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, pnode->ext);
+    char newLabel[68];
+    sprintf(newLabel, "%s%s", REC_hotPREFIX, pnode->label);
+
+    sprintf(cmd, "mv %s%s %s%s.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
-    length = sprintf(cmd, "mv %s%s." REC_packJPG " ", MEDIA_FILES_DIR, pnode->label);
-    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, REC_packJPG);
+    sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
     system_exec(cmd);
 
     walk_sdcard();
