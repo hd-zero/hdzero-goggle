@@ -105,6 +105,11 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_label_set_text(pb_ui[pos]._label, label);
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
+    const lv_coord_t labelPosX = pb_ui[pos].x + (ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &lv_font_montserrat_26, 0, 0)) / 2;
+    const lv_coord_t labelPosY = pb_ui[pos].y + ITEM_PREVIEW_H + 10;
+    lv_obj_set_pos(pb_ui[pos]._label, labelPosX, labelPosY);
+    lv_obj_set_pos(pb_ui[pos]._arrow, labelPosX - lv_obj_get_width(pb_ui[pos]._arrow) - 5, labelPosY);
+
     sprintf(fname, "%s/%s." REC_packJPG, TMP_DIR, label);
     if (fs_file_exists(fname))
         sprintf(fname, "A:%s/%s." REC_packJPG, TMP_DIR, label);
