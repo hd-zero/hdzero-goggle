@@ -14,6 +14,7 @@ static btn_group_t btn_group_format;
 static btn_group_t btn_group_record_osd;
 static btn_group_t btn_group_record_audio;
 static btn_group_t btn_group_audio_source;
+static btn_group_t btn_group_file_naming;
 
 static lv_coord_t col_dsc[] = {160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -48,13 +49,15 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_record_osd, cont, 2, "Record OSD", "Yes", "No", "", "", 2);
     create_btn_group_item(&btn_group_record_audio, cont, 2, "Record Audio", "Yes", "No", "", "", 3);
     create_btn_group_item(&btn_group_audio_source, cont, 3, "Audio Source", "Mic", "Line In", "A/V In", "", 4);
-    create_label_item(cont, "< Back", 1, 5, 1);
+    create_btn_group_item(&btn_group_file_naming, cont, 2, "Naming Scheme", "Digits", "Date", "", "", 5);
+    create_label_item(cont, "< Back", 1, 6, 1);
 
     btn_group_set_sel(&btn_group_record_mode, g_setting.record.mode_manual ? 1 : 0);
     btn_group_set_sel(&btn_group_format, g_setting.record.format_ts ? 1 : 0);
     btn_group_set_sel(&btn_group_record_osd, g_setting.record.osd ? 0 : 1);
     btn_group_set_sel(&btn_group_record_audio, g_setting.record.audio ? 0 : 1);
     btn_group_set_sel(&btn_group_audio_source, g_setting.record.audio_source);
+    btn_group_set_sel(&btn_group_file_naming, g_setting.record.naming);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, "MP4 format requires properly closing files or the files will be corrupt. \nTS format is highly recommended.");
@@ -64,7 +67,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_pad_top(label2, 12, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-                         LV_GRID_ALIGN_START, 6, 3);
+                         LV_GRID_ALIGN_START, 7, 3);
 
     return page;
 }
@@ -94,13 +97,17 @@ static void page_record_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_audio_source);
         g_setting.record.audio_source = btn_group_get_sel(&btn_group_audio_source);
         ini_putl("record", "audio_source", g_setting.record.audio_source, SETTING_INI);
+    } else if (sel == 5) {
+        btn_group_toggle_sel(&btn_group_file_naming);
+        g_setting.record.naming = btn_group_get_sel(&btn_group_file_naming);
+        ini_putl("record", "naming", g_setting.record.naming, SETTING_INI);
     }
 }
 
 page_pack_t pp_record = {
     .p_arr = {
         .cur = 0,
-        .max = 6,
+        .max = 7,
     },
     .name = "Record Option",
     .create = page_record_create,

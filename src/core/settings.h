@@ -71,12 +71,18 @@ typedef enum {
     SETTING_RECORD_AUDIO_SOURCE_AV_IN = 2
 } setting_record_audio_source_t;
 
+typedef enum {
+    SETTING_NAMING_CONTIGUOUS,
+    SETTING_NAMING_DATE
+} setting_record_naming_t;
+
 typedef struct {
     bool mode_manual;
     bool format_ts;
     bool osd;
     bool audio;
     setting_record_audio_source_t audio_source;
+    setting_record_naming_t naming;
 } setting_record_t;
 
 typedef struct {
