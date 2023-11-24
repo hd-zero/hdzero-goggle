@@ -18,8 +18,10 @@
 #include <unistd.h>
 
 #include <log/log.h>
+#include <minIni.h>
 
 #include "core/settings.h"
+#include "ui/page_common.h"
 
 /**
  *  Constants
@@ -173,18 +175,23 @@ void rtc_tv2rd(const struct timeval *tv, struct rtc_date *rd) {
 }
 
 /**
- *  Initialize both the hardware ans system clocks.
+ *  Initialize both the hardware and system clocks.
  */
 void rtc_init() {
     struct rtc_date rd;
     rtc_get_clock(&rd);
 
-    // Has time has accumulated since the
-    // the installation of the battery?
+    // Has time accumulated since the
+    // installation of the battery?
     g_rtc_has_battery = rd.year > 1970;
 
     LOGI("rtc_init %s detected a battery",
          (g_rtc_has_battery ? "has" : "has NOT"));
+
+    if (!g_rtc_has_battery) {
+        g_setting.record.naming = SETTING_NAMING_CONTIGUOUS;
+        ini_putl("record", "naming", g_setting.record.naming, SETTING_INI);
+    }
 
     if (rd.year == 1970) {
         LOGI("rtc_init updating both clocks via settings");
