@@ -130,6 +130,7 @@ static void dvr_update_record_conf() {
 
     ini_putl("record", "audio", g_setting.record.audio, REC_CONF);
     dvr_select_audio_source(g_setting.record.audio_source);
+    ini_putl("record", "naming", g_setting.record.naming, REC_CONF);
 }
 
 void dvr_cmd(osd_dvr_cmd_t cmd) {
