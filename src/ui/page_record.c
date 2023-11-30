@@ -28,6 +28,14 @@ static void update_visibility() {
     } else {
         lv_obj_clear_flag(pp_record.p_arr.panel[4], FLAG_SELECTABLE);
     }
+
+    btn_group_enable(&btn_group_file_naming, rtc_has_battery() == 0);
+
+    if (rtc_has_battery() == 0) {
+        lv_obj_add_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
+    } else {
+        lv_obj_clear_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
+    }
 }
 
 static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
