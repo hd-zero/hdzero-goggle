@@ -203,6 +203,25 @@ void ims_save() {
     osd_update_element_positions();
 }
 
+void change_oled_brightness(uint8_t key) {
+    if (key == DIAL_KEY_UP) {
+        if (g_setting.image.oled != MAX_OLED_BRIGHTNESS) {
+            g_setting.image.oled += 1;
+        } else {
+            return;
+        }
+    } else if (key == DIAL_KEY_DOWN) {
+        if (g_setting.image.oled != MIN_OLED_BRIGHTNESS) {
+            g_setting.image.oled -= 1;
+        } else {
+            return;
+        }
+    }
+
+    ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
+    OLED_Brightness(g_setting.image.oled);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // key:
 //   1 = dial up

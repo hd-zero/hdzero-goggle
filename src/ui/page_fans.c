@@ -389,6 +389,14 @@ void fans_auto_ctrl() {
     }
 }
 
+void change_topfan(uint8_t key) {
+    if (key == DIAL_KEY_UP) {
+        fans_top_speed_inc();
+    } else if (key == DIAL_KEY_DOWN) {
+        fans_top_speed_dec();
+    }
+}
+
 page_pack_t pp_fans = {
     .p_arr = {
         .cur = 0,

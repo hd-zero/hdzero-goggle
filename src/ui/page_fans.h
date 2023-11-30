@@ -25,6 +25,7 @@ extern page_pack_t pp_fans;
 
 void step_topfan();
 void fans_auto_ctrl();
+void change_topfan(uint8_t key);
 
 #ifdef __cplusplus
 }

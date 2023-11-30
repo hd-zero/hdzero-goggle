@@ -7,6 +7,9 @@ extern "C" {
 #include "defines.h"
 #include <stdint.h>
 
+#define MIN_OLED_BRIGHTNESS 0
+#define MAX_OLED_BRIGHTNESS 12
+
 void OLED_write(uint16_t addr, uint16_t wdat, uint8_t sel);
 uint16_t OLED_read(uint16_t addr, uint8_t sel);
 

@@ -30,6 +30,8 @@ hw_revision_t getHwRevision();
 #define RIGHT_KEY_CLICK 5
 #define RIGHT_KEY_PRESS 6
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
 extern atomic_int g_key;
 extern atomic_int g_init_done;
 extern pthread_mutex_t lvgl_mutex;
