@@ -74,14 +74,25 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
+static void select_menu_tab(page_pack_t* pp) {
+    lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+}
+
+static void deselect_menu_tab(page_pack_t* pp) {
+    // LV_OPA_20 is the default for pressed menu
+    // see lv_theme_default.c styles->menu_pressed
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
+}
+
 void submenu_enter(void) {
     page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
     if (!pp) {
         return;
     }
 
-    lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+    select_menu_tab(pp);
 
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first one
@@ -160,10 +171,7 @@ void submenu_exit() {
         return;
     }
 
-    // LV_OPA_20 is the default for pressed menu
-    // see lv_theme_default.c styles->menu_pressed
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
-    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
+    deselect_menu_tab(pp);
 
     if (pp->exit) {
         // if your page as a exit event handler, call it
