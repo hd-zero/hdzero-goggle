@@ -70,6 +70,28 @@ static page_options_t page_storage;
 static lv_timer_t *page_storage_format_sd_timer = NULL;
 static lv_timer_t *page_storage_repair_sd_timer = NULL;
 
+static void disable_controls() {
+    page_storage.disable_controls = true;
+
+    for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
+        lv_obj_clear_flag(pp_storage.p_arr.panel[i], FLAG_SELECTABLE);
+    }
+    btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
+    lv_obj_add_state(page_storage.format_sd, STATE_DISABLED);
+    lv_obj_add_state(page_storage.repair_sd, STATE_DISABLED);
+}
+
+static void enable_controls() {
+    page_storage.disable_controls = false;
+
+    for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
+        lv_obj_add_flag(pp_storage.p_arr.panel[i], FLAG_SELECTABLE);
+    }
+    btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
+    lv_obj_clear_state(page_storage.format_sd, STATE_DISABLED);
+    lv_obj_clear_state(page_storage.repair_sd, STATE_DISABLED);
+}
+
 /**
  * Cancel operation.
  */
@@ -371,14 +393,14 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     if (g_setting.storage.selftest) {
         lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled.");
-        page_storage.disable_controls = true;
+        disable_controls();
     } else {
         if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
             char text[256];
             snprintf(text, sizeof(text), "Detected files being accessed by SD Card, All storage options are disabled.\n"
                                          "Remove the following files from the SD Card and try again:\n" DEVELOP_SCRIPT "\n" APP_BIN_FILE);
             lv_label_set_text(page_storage.note, text);
-            page_storage.disable_controls = true;
+            disable_controls();
         }
     }
 
@@ -505,10 +527,10 @@ page_pack_t pp_storage = {
 static void *page_storage_repair_thread(void *arg) {
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
-        page_storage.disable_controls = true;
+        disable_controls();
         lv_label_set_text(page_storage.note, "SD Card integrity check is active, controls are disabled until process has completed.");
         page_storage_repair_sd();
-        page_storage.disable_controls = false;
+        enable_controls();
         lv_label_set_text(page_storage.note, "");
         page_storage.is_auto_sd_repair_active = false;
     }
