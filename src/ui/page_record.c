@@ -20,6 +20,16 @@ static btn_group_t btn_group_file_naming;
 static lv_coord_t col_dsc[] = {160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
+static void update_visibility() {
+    btn_group_enable(&btn_group_audio_source, btn_group_record_audio.current == 0);
+
+    if (btn_group_record_audio.current == 0) {
+        lv_obj_add_flag(pp_record.p_arr.panel[4], FLAG_SELECTABLE);
+    } else {
+        lv_obj_clear_flag(pp_record.p_arr.panel[4], FLAG_SELECTABLE);
+    }
+}
+
 static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -70,6 +80,8 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
                          LV_GRID_ALIGN_START, 7, 3);
 
+    update_visibility();
+
     return page;
 }
 
@@ -94,6 +106,7 @@ static void page_record_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_record_audio);
         g_setting.record.audio = !btn_group_get_sel(&btn_group_record_audio);
         settings_put_bool("record", "audio", g_setting.record.audio);
+        update_visibility();
     } else if (sel == 4) {
         btn_group_toggle_sel(&btn_group_audio_source);
         g_setting.record.audio_source = btn_group_get_sel(&btn_group_audio_source);

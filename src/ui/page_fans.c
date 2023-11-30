@@ -30,6 +30,16 @@ static btn_group_t btn_group_fans;
 
 static slider_group_t slider_group[2];
 
+static void update_visibility() {
+    slider_enable(&slider_group[1], btn_group_fans.current != 0);
+
+    if (btn_group_fans.current == 0) {
+        lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+    }
+}
+
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -73,6 +83,8 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(slider_group[0].label, buf);
     sprintf(buf, "%d", g_setting.fans.left_speed);
     lv_label_set_text(slider_group[1].label, buf);
+
+    update_visibility();
 
     return page;
 }
@@ -203,6 +215,7 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_fans);
         g_setting.fans.auto_mode = btn_group_get_sel(&btn_group_fans) == 0;
         settings_put_bool("fans", "auto", g_setting.fans.auto_mode);
+        update_visibility();
         return;
     } else if (sel == 1) {
         slider = slider_group[0].slider;
@@ -386,6 +399,14 @@ void fans_auto_ctrl() {
             fans_top_setspeed(g_setting.fans.top_speed);
             speed.top = g_setting.fans.top_speed;
         }
+    }
+}
+
+void change_topfan(uint8_t key) {
+    if (key == DIAL_KEY_UP) {
+        fans_top_speed_inc();
+    } else if (key == DIAL_KEY_DOWN) {
+        fans_top_speed_dec();
     }
 }
 

@@ -76,6 +76,10 @@ extern "C" {
 
 #define MAX_PANELS 9
 
+#define FLAG_SELECTABLE LV_OBJ_FLAG_USER_1
+#define STATE_DISABLED LV_STATE_USER_1
+#define COLOR_DISABLED (lv_color_darken(lv_color_white(), 127))
+
 typedef enum {
     SOURCE_HDZERO = 0,
     SOURCE_HDMI_IN = 1,
@@ -171,7 +175,9 @@ void create_select_item(panel_arr_t *arr, lv_obj_t *parent);
 void set_select_item(const panel_arr_t *arr, int row);
 
 void slider_show(slider_group_t *slider_group, bool visible);
+void slider_enable(slider_group_t *slider_group, bool enable);
 void btn_group_show(btn_group_t *btn_group, bool visible);
+void btn_group_enable(btn_group_t *btn_group, bool enable);
 
 #ifdef __cplusplus
 }

@@ -228,6 +228,15 @@ typedef struct {
 } setting_sources_t;
 
 typedef struct {
+    uint16_t roller;
+    uint16_t left_click;
+    uint16_t left_press;
+    uint16_t right_click;
+    uint16_t right_press;
+    uint16_t right_double_click;
+} setting_inputs_t;
+
+typedef struct {
     bool logging;
     bool selftest;
 } setting_storage_t;
@@ -245,6 +254,7 @@ typedef struct {
     wifi_t wifi;
     setting_osd_t osd;
     setting_clock_t clock;
+    setting_inputs_t inputs;
     ease_use_t ease;
     setting_storage_t storage;
 } setting_t;

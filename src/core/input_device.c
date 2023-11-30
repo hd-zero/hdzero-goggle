@@ -85,12 +85,6 @@ void tune_channel(uint8_t action) {
             tune_timer = TUNER_TIMER_LEN;
             tune_state = 2;
             channel = g_setting.scan.channel;
-        } else if (action == DIAL_KEY_CLICK) {
-            g_setting.osd.is_visible = !g_setting.osd.is_visible;
-            if (g_setting.osd.is_visible)
-                channel_osd_mode = CHANNEL_SHOWTIME;
-
-            settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
         }
     }
 
@@ -136,6 +130,12 @@ void tune_channel(uint8_t action) {
     tune_timer = TUNER_TIMER_LEN;
 }
 
+void tune_channel_confirm() {
+    if (g_source_info.source == SOURCE_HDZERO) {
+        tune_channel(DIAL_KEY_CLICK);
+    }
+}
+
 void tune_channel_timer() {
     if (tune_state == 2) {
         if (!tune_timer)
@@ -157,6 +157,15 @@ void tune_channel_timer() {
 static int roller_up_acc = 0;
 static int roller_down_acc = 0;
 
+void (*btn_click_callback)() = &osd_toggle;
+void (*btn_press_callback)() = &app_switch_to_menu;
+
+void (*rbtn_click_callback)() = &dvr_toggle;
+void (*rbtn_press_callback)() = &step_topfan;
+void (*rbtn_double_click_callback)() = &ht_set_center_position;
+
+void (*roller_callback)(uint8_t key) = &tune_channel;
+
 static void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
@@ -177,7 +186,7 @@ static void btn_press(void) // long press left key
         if (tune_timer && g_source_info.source == SOURCE_HDZERO)
             tune_channel(DIAL_KEY_PRESS);
         else
-            app_switch_to_menu();
+            (*btn_press_callback)();
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
         ui_osd_element_pos_cancel_and_hide();
         app_switch_to_menu();
@@ -204,7 +213,11 @@ static void btn_click(void) // short press enter key
 
     if (g_app_state == APP_STATE_VIDEO) {
         pthread_mutex_lock(&lvgl_mutex);
-        tune_channel(DIAL_KEY_CLICK);
+        if (tune_state == 2) {
+            tune_channel_confirm();
+        } else {
+            (*btn_click_callback)();
+        }
         pthread_mutex_unlock(&lvgl_mutex);
         return;
     } else if (g_app_state == APP_STATE_IMS) {
@@ -263,19 +276,15 @@ void rbtn_click(right_button_t click_type) {
         pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_VIDEO:
+        pthread_mutex_lock(&lvgl_mutex);
         if (click_type == RIGHT_CLICK) {
-            dvr_cmd(DVR_TOGGLE);
+            (*rbtn_click_callback)();
         } else if (click_type == RIGHT_LONG_PRESS) {
-            pthread_mutex_lock(&lvgl_mutex);
-            step_topfan();
-            pthread_mutex_unlock(&lvgl_mutex);
+            (*rbtn_press_callback)();
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
-            if (g_setting.ht.enable == true) {
-                ht_set_center_position();
-            } else {
-                go_sleep();
-            }
+            (*rbtn_double_click_callback)();
         }
+        pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_SLEEP:
         wake_up();
@@ -307,8 +316,7 @@ static void roller_up(void) {
     } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
         submenu_roller_no_selection_change(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_VIDEO) {
-        if (g_source_info.source == SOURCE_HDZERO)
-            tune_channel(DIAL_KEY_UP);
+        (*roller_callback)(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_UP);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {
@@ -342,8 +350,7 @@ static void roller_down(void) {
     } else if ((g_app_state == APP_STATE_SUBMENU_ITEM_FOCUSED)) {
         submenu_roller_no_selection_change(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_VIDEO) {
-        if (g_source_info.source == SOURCE_HDZERO)
-            tune_channel(DIAL_KEY_DOWN);
+        (*roller_callback)(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_IMS) {
         ims_key(DIAL_KEY_DOWN);
     } else if (g_app_state == APP_STATE_OSD_ELEMENT_PREV) {

@@ -18,6 +18,7 @@
 #include "ui/page_focus_chart.h"
 #include "ui/page_headtracker.h"
 #include "ui/page_imagesettings.h"
+#include "ui/page_input.h"
 #include "ui/page_osd.h"
 #include "ui/page_playback.h"
 #include "ui/page_power.h"
@@ -60,6 +61,7 @@ static page_pack_t *page_packs[] = {
     &pp_version,
     &pp_focus_chart,
     &pp_clock,
+    &pp_input,
     &pp_sleep,
 };
 
@@ -74,19 +76,16 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
-static void clear_all_icon(void) {
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
-        lv_img_set_src(page_packs[i]->icon, LV_SYMBOL_DUMMY);
-    }
+static void select_menu_tab(page_pack_t* pp) {
+    lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
 }
 
-static void menu_event_handler(lv_event_t *e) {
-    clear_all_icon();
-
-    page_pack_t *pp = find_pp(lv_menu_get_cur_main_page(menu));
-    if (pp) {
-        lv_img_set_src(pp->icon, &img_arrow);
-    }
+static void deselect_menu_tab(page_pack_t* pp) {
+    // LV_OPA_20 is the default for pressed menu
+    // see lv_theme_default.c styles->menu_pressed
+    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 }
 
 void submenu_enter(void) {
@@ -95,9 +94,11 @@ void submenu_enter(void) {
         return;
     }
 
+    select_menu_tab(pp);
+
     if (pp->p_arr.max) {
-        // if we have selectable entries, select the first one
-        pp->p_arr.cur = 0;
+        // if we have selectable entries, select the first selectable one
+        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
@@ -128,15 +129,19 @@ void submenu_roller(uint8_t key) {
     if (pp->p_arr.max) {
         // if we have selectable entries, move selection
         if (key == DIAL_KEY_UP) {
-            if (pp->p_arr.cur < pp->p_arr.max - 1)
-                pp->p_arr.cur++;
-            else
-                pp->p_arr.cur = 0;
+            do {
+                if (pp->p_arr.cur < pp->p_arr.max - 1)
+                    pp->p_arr.cur++;
+                else
+                    pp->p_arr.cur = 0;
+            } while (!lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE));
         } else if (key == DIAL_KEY_DOWN) {
-            if (pp->p_arr.cur > 0)
-                pp->p_arr.cur--;
-            else
-                pp->p_arr.cur = pp->p_arr.max - 1;
+            do {
+                if (pp->p_arr.cur > 0)
+                    pp->p_arr.cur--;
+                else
+                    pp->p_arr.cur = pp->p_arr.max - 1;
+            } while (!lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE));
         }
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
@@ -172,6 +177,8 @@ void submenu_exit() {
     if (!pp) {
         return;
     }
+
+    deselect_menu_tab(pp);
 
     if (pp->exit) {
         // if your page as a exit event handler, call it
@@ -231,6 +238,8 @@ static void menu_reinit(void) {
         scan_reinit();
     }
 
+    deselect_menu_tab(pp);
+
     if (pp->p_arr.max) {
         // if we have selectable icons, reset the selector
         pp->p_arr.cur = 0;
@@ -265,6 +274,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
 
     pp->icon = lv_img_create(cont);
     lv_img_set_src(pp->icon, &img_arrow);
+    lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 
     lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
     lv_menu_set_load_page_event(menu, cont, pp->page);
@@ -290,7 +300,6 @@ void main_menu_init(void) {
 
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_event_cb(menu, menu_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);

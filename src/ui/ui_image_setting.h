@@ -45,6 +45,8 @@ uint8_t ims_key(uint8_t key);
 void ims_update();
 void ims_save();
 
+void change_oled_brightness(uint8_t key);
+
 #ifdef __cplusplus
 }
 #endif
