@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#include "libavutil/avutil.h"
 //#include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
@@ -11,4 +15,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #define  Sleep(x)			usleep(x * 1000)
+#endif
+
+#ifdef __cplusplus
+}
 #endif

@@ -1,5 +1,8 @@
-#ifndef __DISK_H_
-#define __DISK_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -24,4 +27,6 @@ void     disk_sdstat_create(char* sPath, bool bThread);
 void     disk_sdstat_delete(void);
 bool     disk_sdstat(uint32_t mbFull, SdcardStatus_t* sds);
 
-#endif // __DISK_H_
+#ifdef __cplusplus
+}
+#endif

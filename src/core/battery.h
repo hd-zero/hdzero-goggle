@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -20,3 +24,7 @@ void battery_update();
 bool battery_is_low();
 int battery_get_millivolts(bool per_cell);
 void battery_get_voltage_str(char* buf);
+
+#ifdef __cplusplus
+}
+#endif

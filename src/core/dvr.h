@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -18,3 +22,8 @@ void dvr_select_audio_source(uint8_t audio_source);
 void dvr_enable_line_out(bool enable);
 void dvr_cmd(osd_dvr_cmd_t cmd);
 void dvr_update_vi_conf(video_resolution_t fmt);
+void dvr_toggle();
+
+#ifdef __cplusplus
+}
+#endif

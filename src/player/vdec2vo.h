@@ -1,5 +1,4 @@
-#ifndef __VDEC2VO_H_
-#define __VDEC2VO_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,5 +76,3 @@ bool vdec2vo_isEOF(Vdec2VoContext_t *vvCtx);
 #ifdef __cplusplus
 }
 #endif /* End of #ifdef __cplusplus */
-
-#endif //__VDEC2VO_H_

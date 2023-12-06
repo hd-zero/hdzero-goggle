@@ -1,5 +1,9 @@
-#ifndef _ACCEL_GYRO_H
-#define _ACCEL_GYRO_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "bmi2_defs.h"
 
 void init_bmi270();
@@ -16,4 +20,6 @@ float acc_to_g(int16_t val);
 
 float gyr_to_dps(int16_t gyr);
 
-#endif //_ACCEL_GYRO_H
+#ifdef __cplusplus
+}
+#endif

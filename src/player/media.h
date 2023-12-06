@@ -1,5 +1,8 @@
-#ifndef _MEDIA_H
-#define _MEDIA_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <pthread.h>
 #include <stdbool.h>
@@ -36,4 +39,7 @@ typedef struct {
 media_t *media_instantiate(char *filename, notify_cb_t notify);
 void media_exit(media_t *media);
 void media_control(media_t *media, player_cmd_t *cmd);
+
+#ifdef __cplusplus
+}
 #endif

@@ -1,5 +1,8 @@
-#ifndef __IMAGESETTING_H__
-#define __IMAGESETTING_H__
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -42,4 +45,8 @@ uint8_t ims_key(uint8_t key);
 void ims_update();
 void ims_save();
 
+void change_oled_brightness(uint8_t key);
+
+#ifdef __cplusplus
+}
 #endif

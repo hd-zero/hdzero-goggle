@@ -1,5 +1,8 @@
-#ifndef __ELRS_H__
-#define __ELRS_H__
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -82,4 +85,6 @@ void msp_cancel_await();
 void msp_ht_update(uint16_t pan, uint16_t tilt, uint16_t roll);
 void msp_channel_update();
 
-#endif //__ELRS_H__
+#ifdef __cplusplus
+}
+#endif

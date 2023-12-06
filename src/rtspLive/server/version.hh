@@ -17,9 +17,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Version information for the LIVE555 Media Server application
 // Header file
 
-#ifndef _MEDIA_SERVER_VERSION_HH
-#define _MEDIA_SERVER_VERSION_HH
+#pragma once
 
 #define MEDIA_SERVER_VERSION_STRING "1.10"
-
-#endif

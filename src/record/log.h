@@ -1,7 +1,10 @@
 /** log.h **/
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -39,4 +42,6 @@ int  log_write(LOGLEVEL loglevel,char *fromat, ...);
 uint32_t log_period(void);
 void log_close(void);
 
-#endif /* __LOG_H__ */
+#ifdef __cplusplus
+}
+#endif

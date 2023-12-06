@@ -14,12 +14,33 @@ static btn_group_t btn_group;
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 40, 40, 40, 60, LV_GRID_TEMPLATE_LAST};
 static lv_obj_t *label_cali;
+static lv_obj_t *label_center;
 static lv_timer_t *timer;
 static lv_obj_t *pan;
 static lv_obj_t *tilt;
 static lv_obj_t *roll;
 static slider_group_t slider_group;
 bool angle_slider_selected;
+
+static void update_visibility() {
+    slider_enable(&slider_group, g_setting.ht.enable);
+
+    if (g_setting.ht.enable) {
+        lv_obj_clear_state(label_cali, STATE_DISABLED);
+        lv_obj_clear_state(label_center, STATE_DISABLED);
+
+        lv_obj_add_flag(pp_headtracker.p_arr.panel[1], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_headtracker.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_headtracker.p_arr.panel[3], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_state(label_cali, STATE_DISABLED);
+        lv_obj_add_state(label_center, STATE_DISABLED);
+
+        lv_obj_clear_flag(pp_headtracker.p_arr.panel[1], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_headtracker.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_headtracker.p_arr.panel[3], FLAG_SELECTABLE);
+    }
+}
 
 static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -50,7 +71,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label_cali = create_label_item(cont, "Calibrate", 1, 1, 1);
 
-    create_label_item(cont, "Set Center", 1, 2, 1);
+    label_center = create_label_item(cont, "Set Center", 1, 2, 1);
 
     create_slider_item(&slider_group, cont, "Max Angle", 360, g_setting.ht.max_angle, 3);
     lv_slider_set_range(slider_group.slider, 0, 360);
@@ -97,6 +118,8 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_radius(roll, 0, LV_PART_INDICATOR);
     lv_obj_set_grid_cell(roll, LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_CENTER, 8, 1);
+
+    update_visibility();
     return page;
 }
 
@@ -164,6 +187,8 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
             ht_enable();
         else
             ht_disable();
+
+        update_visibility();
     } else if (sel == 1) {
         lv_label_set_text(label_cali, "Calibrating...");
         lv_timer_handler();

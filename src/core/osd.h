@@ -1,5 +1,8 @@
-#ifndef _OSD_H
-#define _OSD_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 
@@ -97,5 +100,8 @@ char *channel2str(uint8_t band, uint8_t channel);
 void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
+void osd_toggle();
 
+#ifdef __cplusplus
+}
 #endif

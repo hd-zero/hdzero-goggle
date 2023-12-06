@@ -1,5 +1,8 @@
-#ifndef __VI2VENC_H_
-#define __VI2VENC_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <plat_type.h>
 #include <tsemaphore.h>
@@ -224,5 +227,6 @@ ERRORTYPE vi2venc_requestIFrame(Vi2Venc_t* vv);
 char*     vi2venc_getRcModeName(VencRateControlMode_e rcMode);
 char*     vi2venc_getProfileName(VencProfile_e profile, bool h265);
 
-#endif  /* __VI2VENC_H_ */
-
+#ifdef __cplusplus
+}
+#endif

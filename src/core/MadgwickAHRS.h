@@ -10,8 +10,11 @@
 // 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
 //
 //=====================================================================================================
-#ifndef MadgwickAHRS_h
-#define MadgwickAHRS_h
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define AHRS_UPDATE_FREQUENCY   100
 
@@ -23,7 +26,10 @@ float getRoll();
 float getPitch();
 float getYaw();
 
+#ifdef __cplusplus
+}
 #endif
+
 //=====================================================================================================
 // End of file
 //=====================================================================================================

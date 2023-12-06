@@ -94,6 +94,15 @@ void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_t
     buf[1] = ':';
 }
 
+void osd_toggle() {
+    g_setting.osd.is_visible = !g_setting.osd.is_visible;
+    if (g_setting.osd.is_visible) {
+        channel_osd_mode = CHANNEL_SHOWTIME;
+    }
+
+    settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // these are local for OSD controlling
 static osd_hdzero_t g_osd_hdzero;

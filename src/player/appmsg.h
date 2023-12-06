@@ -1,5 +1,4 @@
-#ifndef __APPMSG_H_
-#define __APPMSG_H_
+#pragma once
 
 #if defined (__cplusplus)
 extern "C" {
@@ -54,6 +53,3 @@ typedef struct
 #if defined (__cplusplus)
 }
 #endif
-
-#endif //__APPMSG_H_
-
