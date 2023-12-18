@@ -261,14 +261,14 @@ int IT66021_Get_VTMG(int *freq_ref) {
     fps = fps * 1000000 / hmax / vmax;
 
     if (hact == 1920 && vact == 1080) {
-        if (fps < 45 || fps >= 65)
+        if (fps < 45 || fps >= 70)
             ret = HDMIIN_VTMG_1080Pother;
-        else if (fps < 55)
+        else if (fps < 57)
             ret = HDMIIN_VTMG_1080P50;
         else
             ret = HDMIIN_VTMG_1080P60;
     } else if (hact == 1280 && vact == 720) {
-        if (fps < 55)
+        if (fps < 57)
             ret = HDMIIN_VTMG_720P50;
         else if (fps > 80)
             ret = HDMIIN_VTMG_720P100;
