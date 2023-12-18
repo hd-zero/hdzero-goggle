@@ -42,6 +42,7 @@ typedef enum {
     FC_VARIANT_UNKNOWN = 0,
     FC_VARIANT_ARDU,
     FC_VARIANT_BTFL,
+    FC_VARIANT_EMUF,
     FC_VARIANT_INAV,
     FC_VARIANT_QUIC
 } fc_variant_t;
@@ -352,6 +353,7 @@ static void osd_object_create_label(uint8_t fhd, lv_obj_t **obj, char *text, set
     switch (g_fc_variant_type) {
     case FC_VARIANT_ARDU:
     case FC_VARIANT_BTFL:
+    case FC_VARIANT_EMUF:
     case FC_VARIANT_INAV:
         lv_obj_set_style_text_font(*obj, &conthrax_26, 0);
         break;
@@ -941,6 +943,8 @@ void load_fc_osd_font(uint8_t fhd) {
         g_fc_variant_type = FC_VARIANT_ARDU;
     } else if (0 == strncmp(fc_variant, "BTFL", sizeof(fc_variant))) {
         g_fc_variant_type = FC_VARIANT_BTFL;
+    } else if (0 == strncmp(fc_variant, "EMUF", sizeof(fc_variant))) {
+        g_fc_variant_type = FC_VARIANT_EMUF;
     } else if (0 == strncmp(fc_variant, "INAV", sizeof(fc_variant))) {
         g_fc_variant_type = FC_VARIANT_INAV;
     } else if (0 == strncmp(fc_variant, "QUIC", sizeof(fc_variant))) {
@@ -953,6 +957,7 @@ void load_fc_osd_font(uint8_t fhd) {
     switch (g_fc_variant_type) {
     case FC_VARIANT_ARDU:
     case FC_VARIANT_BTFL:
+    case FC_VARIANT_EMUF:
     case FC_VARIANT_INAV:
         clock_format_offsets[OSD_RESOURCE_720] = 150;
         clock_format_offsets[OSD_RESOURCE_1080] = 100;
