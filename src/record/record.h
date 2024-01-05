@@ -41,6 +41,11 @@ typedef enum
     REC_statusBut,
 } RecordStatus_e;
 
+typedef enum {
+    NAMING_CONTIGUOUS,
+    NAMING_DATE
+} FileNaming_t;
+
 typedef struct
 {
     char        diskPath[MAX_pathLEN/2];
@@ -50,6 +55,7 @@ typedef struct
     uint32_t    minDiskSize;
     uint64_t    packSize;
     bool        enableAudio;
+    FileNaming_t fileNaming;
 } RecordParams_t;
 
 typedef struct
