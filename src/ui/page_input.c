@@ -185,7 +185,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_label_item(content, "Roller:", 1, ROLLER, 1);
     pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[ROLLER], rollerDefaultOption);
+    lv_dropdown_set_selected(pageItems[ROLLER], g_setting.inputs.roller);
 
     create_label_item(content, "Left short:", 1, LEFT_SHORT, 1);
     pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
