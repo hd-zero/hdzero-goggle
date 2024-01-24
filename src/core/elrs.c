@@ -278,6 +278,7 @@ void msp_process_packet() {
             msp_send_packet(MSP_GET_REC_STATE, MSP_PACKET_RESPONSE, 1, &buf);
         } break;
         case MSP_SET_REC_STATE: {
+            g_setting.ht.alarm_on_arm = packet.payload[0];
             if (g_app_state == APP_STATE_VIDEO) {
                 record_state = packet.payload[0] == 0 ? 1 : 2;
                 uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;

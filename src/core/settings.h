@@ -54,6 +54,18 @@ typedef enum {
     SETTING_POWER_WARNING_TYPE_BOTH = 2
 } setting_power_warning_type_t;
 
+typedef enum {
+    SETTING_HT_ALARM_STATE_OFF = 0,
+    SETTING_HT_ALARM_STATE_VIDEO = 1,
+    SETTING_HT_ALARM_STATE_ARM = 2,
+} setting_ht_alarm_state_t;
+
+typedef enum {
+    SETTING_HT_ALARM_PATTERN_1SHORT = 0,
+    SETTING_HT_ALARM_PATTERN_2SHORT = 1,
+    SETTING_HT_ALARM_PATTERN_1LONG = 2
+} setting_ht_alarm_pattern_t;
+
 typedef struct {
     int voltage;
     bool display_voltage;
@@ -102,6 +114,12 @@ typedef struct {
     int32_t gyr_x;
     int32_t gyr_y;
     int32_t gyr_z;
+    setting_ht_alarm_state_t alarm_state;
+    int alarm_angle;
+    uint16_t alarm_delay;
+    setting_ht_alarm_pattern_t alarm_pattern;
+    bool alarm_on_arm;
+    bool alarm_on_video;
 } setting_head_tracker_t;
 
 typedef struct {

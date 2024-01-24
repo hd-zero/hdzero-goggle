@@ -49,7 +49,10 @@ static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500;
 static const int ppmCenter = 1500;
 
+static pthread_t head_alarm_handle;
+
 static void calculate_orientation();
+static void *head_alarm_thread(void *arg);
 
 ///////////////////////////////////////////////////////////////////////////////
 // no motion to disable OLED display
@@ -239,6 +242,11 @@ void ht_set_maxangle(int angle) {
     ht_data.panFactor = 1000.0 / angle;
 }
 
+void ht_set_alarm_angle() {
+    g_setting.ht.alarm_angle = ht_data.tiltAngle;
+    ini_putl("ht", "alarm_angle", g_setting.ht.alarm_angle, SETTING_INI);
+}
+
 static void calc_gyr(float *gyrAngle) // in degree
 {
     // convert gyro readings to degrees/sec (with calibration offsets)
@@ -355,4 +363,34 @@ void ht_disable() {
 
 int16_t *ht_get_channels() {
     return ht_data.htChannels;
+}
+
+void head_alarm_init() {
+    pthread_create(&head_alarm_handle, NULL, head_alarm_thread, NULL);
+}
+
+void *head_alarm_thread(void *arg) {
+    while (1) {
+        if (ht_data.enable && (g_setting.ht.alarm_state != SETTING_HT_ALARM_STATE_OFF)) {                                                                                                             // user settings
+            if ((g_setting.ht.alarm_on_arm && g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_ARM) || (g_setting.ht.alarm_on_video && g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_VIDEO)) { // system enabling alarm (when armed or has video signal)
+
+                LOGD("g_setting.ht.alarm_on_arm: %d", g_setting.ht.alarm_on_arm);
+                LOGD("g_setting.ht.alarm_on_video: %d", g_setting.ht.alarm_on_video);
+                LOGD("g_setting.ht.alarm_state: %d", g_setting.ht.alarm_state);
+
+                if (ht_data.tiltAngle < g_setting.ht.alarm_angle) {
+                    beep();
+                    usleep(100000);
+                    beep();
+                    sleep(3);
+                }
+                usleep(5000);
+            } else {
+                sleep(5); // prevent resource occupation
+            }
+        } else {
+            sleep(5); // prevent resource occupation
+        }
+    }
+    pthread_exit(NULL);
 }

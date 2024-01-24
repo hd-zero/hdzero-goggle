@@ -65,6 +65,12 @@ const setting_t g_setting_defaults = {
         .gyr_x = 0,
         .gyr_y = 0,
         .gyr_z = 0,
+        .alarm_state = SETTING_HT_ALARM_STATE_OFF,
+        .alarm_angle = 1300,
+        .alarm_delay = 5,
+        .alarm_pattern = SETTING_HT_ALARM_PATTERN_2SHORT,
+        .alarm_on_arm = false,
+        .alarm_on_video = false,
     },
     .elrs = {
         .enable = false,
@@ -403,6 +409,8 @@ void settings_load(void) {
     g_setting.ht.gyr_x = ini_getl("ht", "gyr_x", g_setting_defaults.ht.gyr_x, SETTING_INI);
     g_setting.ht.gyr_y = ini_getl("ht", "gyr_y", g_setting_defaults.ht.gyr_y, SETTING_INI);
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
+    g_setting.ht.alarm_state = ini_getl("ht", "alarm_state", g_setting_defaults.ht.alarm_state, SETTING_INI);
+    g_setting.ht.alarm_angle = ini_getl("ht", "alarm_angle", g_setting_defaults.ht.alarm_angle, SETTING_INI);
 
     // elrs
     g_setting.elrs.enable = settings_get_bool("elrs", "enable", g_setting_defaults.elrs.enable);
