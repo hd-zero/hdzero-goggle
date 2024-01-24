@@ -18,6 +18,9 @@ bool dvr_is_recording = false;
 
 static pthread_mutex_t dvr_mutex;
 
+int walk_sdcard();
+void mark_video_file(int const seq);
+
 ///////////////////////////////////////////////////////////////////
 //-1=error;
 // 0=idle,1=recording,2=stopped,3=No SD card,4=recorf file path error,
@@ -180,4 +183,19 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
     }
 
     pthread_mutex_unlock(&dvr_mutex);
+}
+
+void live_mark_video_file() {
+    bool dvr_was_recording = dvr_is_recording;
+    if (dvr_is_recording) {
+        dvr_cmd(DVR_STOP);
+    }
+    int cnt = walk_sdcard();
+    LOGI("dvr_was_recording=%d, count=%d", dvr_was_recording, cnt);
+    if (cnt > 0) {
+        mark_video_file(0);
+    }
+    if (dvr_was_recording) {
+        dvr_cmd(DVR_START);
+    }
 }

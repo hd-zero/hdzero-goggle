@@ -163,7 +163,9 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
     return strcoll((*a)->d_name, (*b)->d_name);
 }
 
-static int walk_sdcard() {
+// ToDo: This used to be static - did it need to be?
+// static int walk_sdcard() {
+int walk_sdcard() {
     char fname[512];
 
     media_db.count = 0;
@@ -309,7 +311,9 @@ static void update_item(uint8_t cur_pos, uint8_t lst_pos) {
     lv_obj_add_style(pb_ui[lst_pos]._img, &style_pb_dark, LV_PART_MAIN);
 }
 
-static void mark_video_file(int const seq) {
+// ToDo: Used to be static - does it need to be?
+// static void mark_video_file(int const seq) {
+void mark_video_file(int const seq) {
     media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
         return;

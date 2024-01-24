@@ -53,6 +53,8 @@ void pb_key(uint8_t key);
 
 int get_videofile_cnt();
 void clear_videofile_cnt();
+int walk_sdcard();
+void mark_video_file(int const seq);
 
 #ifdef __cplusplus
 }
