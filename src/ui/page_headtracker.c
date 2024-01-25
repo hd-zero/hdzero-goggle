@@ -119,8 +119,10 @@ static void update_visibility(uint8_t page) {
 
 static void page_headtracker_set_alarm_reset() {
     lv_label_set_text(label_alarm_angle, "Set Alarm Angle");
-    lv_timer_del(set_alarm_angle_timer);
-    set_alarm_angle_timer = NULL;
+    if (set_alarm_angle_timer != NULL) {
+        lv_timer_del(set_alarm_angle_timer);
+        set_alarm_angle_timer = NULL;
+    }
 }
 
 static void page_headtracker_set_alarm_angle_timer_cb(struct _lv_timer_t *timer) {
@@ -340,7 +342,6 @@ static void page_headtracker_on_click(uint8_t key, int sel) {
         }
         update_visibility(curr_page);
     }
-
     switch (curr_page) {
     case PAGE1:
         page_headtracker_on_click_page1(key, sel);
@@ -368,11 +369,15 @@ static void page_headtracker_enter() {
 }
 
 static void page_headtracker_exit() {
+    LOGD("page_headtracker_exit");
     if (angle_slider_selected) {
         page_headtracker_exit_slider();
     }
+    LOGD("page_headtracker_exit 2");
     lv_timer_del(timer);
+    LOGD("page_headtracker_exit 3");
     page_headtracker_set_alarm_reset();
+    LOGD("page_headtracker_exit 4");
 }
 
 page_pack_t pp_headtracker = {
