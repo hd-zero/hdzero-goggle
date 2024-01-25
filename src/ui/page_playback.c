@@ -163,9 +163,7 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
     return strcoll((*a)->d_name, (*b)->d_name);
 }
 
-// ToDo: This used to be static - did it need to be?
-// static int walk_sdcard() {
-int walk_sdcard() {
+static int walk_sdcard() {
     char fname[512];
 
     media_db.count = 0;
@@ -233,43 +231,6 @@ int walk_sdcard() {
     return media_db.count;
 }
 
-static int find_next_available_hot_index() {
-    DIR *fd = opendir(MEDIA_FILES_DIR);
-    if (!fd) {
-        return 1;
-    }
-
-    int result = 0;
-    struct dirent *in_file;
-    while ((in_file = readdir(fd))) {
-        if (in_file->d_name[0] == '.' || strncmp(in_file->d_name, REC_hotPREFIX, 4) != 0) {
-            continue;
-        }
-
-        const char *dot = strrchr(in_file->d_name, '.');
-        if (dot == NULL) {
-            // '.' not found
-            continue;
-        }
-
-        if (strcasecmp(dot, "." REC_packTS) != 0 && strcasecmp(dot, "." REC_packMP4) != 0) {
-            continue;
-        }
-
-        int index = 0;
-        if (sscanf(in_file->d_name, REC_packHotPREFIX "%d", &index) != 1) {
-            continue;
-        }
-
-        if (index > result) {
-            result = index;
-        }
-    }
-    closedir(fd);
-
-    return result + 1;
-}
-
 static void update_page() {
     uint32_t const page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
     uint32_t const end_pos = media_db.count - page_num * ITEMS_LAYOUT_CNT;
@@ -311,20 +272,23 @@ static void update_item(uint8_t cur_pos, uint8_t lst_pos) {
     lv_obj_add_style(pb_ui[lst_pos]._img, &style_pb_dark, LV_PART_MAIN);
 }
 
-// ToDo: Used to be static - does it need to be?
-// static void mark_video_file(int const seq) {
-void mark_video_file(int const seq) {
+static void mark_video_file(int const seq) {
+    if (rename_hot_clip(seq)) {
+        walk_sdcard();
+        media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
+        update_page();
+    }
+}
+
+bool rename_hot_clip(int const seq) {
     media_file_node_t const *const pnode = get_list(seq);
     if (!pnode) {
-        return;
+        return false;
     }
     if (strncmp(pnode->filename, REC_hotPREFIX, 4) == 0) {
         // file already marked hot
-        return;
+        return false;
     }
-
-    const int index = find_next_available_hot_index();
-
     char cmd[256];
     char newLabel[68];
     sprintf(newLabel, "%s%s", REC_hotPREFIX, pnode->label);
@@ -333,10 +297,7 @@ void mark_video_file(int const seq) {
     system_exec(cmd);
     sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
     system_exec(cmd);
-
-    walk_sdcard();
-    media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
-    update_page();
+    return true;
 }
 
 static void delete_video_file(int seq) {
