@@ -33,7 +33,7 @@ static lv_obj_t *roll;
 
 static btn_group_t alarm_state;
 static lv_obj_t *label_alarm_angle;
-static uint8_t set_alarm_angle_confirm = 0;
+static uint8_t set_alarm_wait_for_timer = 0;
 static lv_timer_t *set_alarm_angle_timer = NULL;
 
 bool angle_slider_selected;
@@ -119,7 +119,8 @@ static void update_visibility(uint8_t page) {
 
 static void page_headtracker_set_alarm_reset() {
     lv_label_set_text(label_alarm_angle, "Set Alarm Angle");
-    set_alarm_angle_confirm = 0;
+    lv_timer_del(set_alarm_angle_timer);
+    set_alarm_angle_timer = NULL;
 }
 
 static void page_headtracker_set_alarm_angle_timer_cb(struct _lv_timer_t *timer) {
@@ -270,12 +271,9 @@ static void page_headtracker_exit_slider() {
 static void page_headtracker_on_roller(uint8_t key) {
 
     // Ignore commands until timer has expired before allowing user to proceed.
-    if (set_alarm_angle_confirm == 2) {
+    if (set_alarm_angle_timer != NULL) {
         return;
     }
-
-    // If a click was not previous pressed to confirm, then update is canceled.
-    page_headtracker_set_alarm_reset();
 
     if (angle_slider_selected == false) {
         return;
@@ -324,19 +322,12 @@ static void page_headtracker_on_click_page2(uint8_t key, int sel) {
         g_setting.ht.alarm_state = btn_group_get_sel(&alarm_state);
         ini_putl("ht", "alarm_state", g_setting.ht.alarm_state, SETTING_INI);
     } else if (sel == 2) {
-        if (set_alarm_angle_confirm) {
-            lv_label_set_text(label_alarm_angle, "#FF0000 Updating Angle...#");
-            set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
-            lv_timer_set_repeat_count(set_alarm_angle_timer, 1);
-            set_alarm_angle_confirm = 2;
-            ht_set_alarm_angle();
-        } else {
-            lv_label_set_text(label_alarm_angle, "#FFFF00 Click to confirm or Scroll to cancel...#");
-            set_alarm_angle_confirm = 1;
-        }
+        lv_label_set_text(label_alarm_angle, "Updating Angle...");
+        set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
+        lv_timer_set_repeat_count(set_alarm_angle_timer, 1);
+        ht_set_alarm_angle();
     }
 }
-
 static void page_headtracker_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&page_select);
@@ -382,7 +373,6 @@ static void page_headtracker_exit() {
     }
     lv_timer_del(timer);
     page_headtracker_set_alarm_reset();
-    set_alarm_angle_confirm = 0;
 }
 
 page_pack_t pp_headtracker = {
