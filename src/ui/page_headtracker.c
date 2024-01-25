@@ -33,13 +33,12 @@ static lv_obj_t *roll;
 
 static btn_group_t alarm_state;
 static lv_obj_t *label_alarm_angle;
+static uint8_t set_alarm_angle_confirm = 0;
+static lv_timer_t *set_alarm_angle_timer = NULL;
 
 bool angle_slider_selected;
 
 static void update_visibility(uint8_t page) {
-    LOGD("update_visibility: %d", page);
-    LOGD("g_setting.ht.enable: %d", g_setting.ht.enable);
-    LOGD("g_setting.ht.alarm_state: %d", g_setting.ht.alarm_state);
 
     // enable/disable elements
     if (g_setting.ht.enable && page == PAGE1) {
@@ -118,6 +117,16 @@ static void update_visibility(uint8_t page) {
     }
 }
 
+static void page_headtracker_set_alarm_reset() {
+    lv_label_set_text(label_alarm_angle, "Set Alarm Angle");
+    set_alarm_angle_confirm = 0;
+}
+
+static void page_headtracker_set_alarm_angle_timer_cb(struct _lv_timer_t *timer) {
+    page_headtracker_set_alarm_reset();
+    // code to execute when the timer elapses and the angle has to be set?
+}
+
 static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -148,7 +157,8 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     // page 2 items
     create_btn_group_item(&alarm_state, cont, 3, "Alarm", "Off", "Video", "Arm", "", 1);
 
-    label_alarm_angle = create_label_item(cont, "Set Alarm Trigger Angle", 1, 2, 1);
+    label_alarm_angle = create_label_item(cont, "Set Alarm Angle", 1, 2, 1);
+    lv_obj_clear_flag(label_alarm_angle, LV_OBJ_FLAG_SCROLLABLE);
 
     // preload page 2 items
     btn_group_enable(&alarm_state, false);
@@ -258,6 +268,15 @@ static void page_headtracker_exit_slider() {
 }
 
 static void page_headtracker_on_roller(uint8_t key) {
+
+    // Ignore commands until timer has expired before allowing user to proceed.
+    if (set_alarm_angle_confirm == 2) {
+        return;
+    }
+
+    // If a click was not previous pressed to confirm, then update is canceled.
+    page_headtracker_set_alarm_reset();
+
     if (angle_slider_selected == false) {
         return;
     }
@@ -305,7 +324,16 @@ static void page_headtracker_on_click_page2(uint8_t key, int sel) {
         g_setting.ht.alarm_state = btn_group_get_sel(&alarm_state);
         ini_putl("ht", "alarm_state", g_setting.ht.alarm_state, SETTING_INI);
     } else if (sel == 2) {
-        ht_set_alarm_angle();
+        if (set_alarm_angle_confirm) {
+            lv_label_set_text(label_alarm_angle, "#FF0000 Updating Angle...#");
+            set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
+            lv_timer_set_repeat_count(set_alarm_angle_timer, 1);
+            set_alarm_angle_confirm = 2;
+            ht_set_alarm_angle();
+        } else {
+            lv_label_set_text(label_alarm_angle, "#FFFF00 Click to confirm or Scroll to cancel...#");
+            set_alarm_angle_confirm = 1;
+        }
     }
 }
 
@@ -353,6 +381,8 @@ static void page_headtracker_exit() {
         page_headtracker_exit_slider();
     }
     lv_timer_del(timer);
+    page_headtracker_set_alarm_reset();
+    set_alarm_angle_confirm = 0;
 }
 
 page_pack_t pp_headtracker = {
