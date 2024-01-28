@@ -11,6 +11,12 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#ifdef EMULATOR_BUILD
+#include "SDLaccess.h"
+#include <SDL2/SDL.h>
+SDL_mutex *global_sdl_mutex;
+#endif
+
 #include "bmi270/accel_gyro.h"
 #include "core/app_state.h"
 #include "core/common.hh"
@@ -23,6 +29,7 @@
 #include "core/sleep_mode.h"
 #include "core/thread.h"
 #include "driver/TP2825.h"
+#include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
@@ -34,7 +41,6 @@
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
 #include "driver/rtc.h"
-#include "driver/beep.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -141,6 +147,13 @@ void lvgl_init() {
 int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
 
+#ifdef EMULATOR_BUILD
+    global_sdl_mutex = SDL_CreateMutex();
+    if (global_sdl_mutex == NULL) {
+        // Handle error: SDL_CreateMutex failed
+    }
+#endif
+
     // 1. Recall configuration
     settings_init();
     settings_load();
@@ -188,10 +201,10 @@ int main(int argc, char *argv[]) {
 
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
-    
+
     // 8.1 set initial analog module power state
     Analog_Module_Power(0);
-    
+
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
