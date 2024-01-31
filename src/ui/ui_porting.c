@@ -11,7 +11,6 @@
 
 #ifdef EMULATOR_BUILD
 #include "SDLaccess.h"
-#include <SDL2/SDL.h>
 static void *fb1, *fb2;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -132,6 +131,8 @@ int lvgl_init_porting() {
 #else
     if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
         SDL_InitSubSystem(SDL_INIT_VIDEO);
+    } else {
+        LOGI("SDL already initialised.");
     }
 
     SDL_LockMutex(global_sdl_mutex);

@@ -13,7 +13,6 @@
 
 #ifdef EMULATOR_BUILD
 #include "SDLaccess.h"
-#include <SDL2/SDL.h>
 SDL_mutex *global_sdl_mutex;
 #endif
 
@@ -150,7 +149,7 @@ int main(int argc, char *argv[]) {
 #ifdef EMULATOR_BUILD
     global_sdl_mutex = SDL_CreateMutex();
     if (global_sdl_mutex == NULL) {
-        // Handle error: SDL_CreateMutex failed
+        LOGE("Failed to create an SDL mutex!");
     }
 #endif
 

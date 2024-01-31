@@ -15,7 +15,6 @@
 
 #ifdef EMULATOR_BUILD
 #include "SDLaccess.h"
-#include <SDL2/SDL.h>
 #endif
 
 #include "defines.h"
