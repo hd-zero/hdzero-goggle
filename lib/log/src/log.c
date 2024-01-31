@@ -6,6 +6,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #define get_filename(file) (strrchr(file, '/') ? strrchr(file, '/') + 1 : file)
@@ -78,10 +79,19 @@ int log_printf(const char *file, const char *func, int line, const int level, co
     va_end(args2);
     static char buffer[1024];
 
-    int bytes =
+    // Timestamp
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    int milli = now.tv_usec / 1000;
+    char timestamp[sizeof "YYYY-MM-DD HH:MM:SS.sss"];
+    int bytes = strftime(timestamp, sizeof timestamp, "%F %T.", gmtime(&now.tv_sec));
+    snprintf(&timestamp[bytes], sizeof(timestamp) - bytes, "%03d", milli);
+
+    bytes =
         snprintf(buffer,
                  sizeof(buffer),
-                 "[%s][%s:%s:%d] %s\r\n",
+                 "%s [%s][%s:%s:%d] %s\r\n",
+                 timestamp,
                  log_level_names[level + 2],
                  get_filename(file),
                  func,
