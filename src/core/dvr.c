@@ -102,14 +102,14 @@ void dvr_like() {
             if (ferror(now_recording_file) == 0)
             {
                 current_dvr_file[read_count] = '\0';
-                strcat(current_dvr_file, ".like");
+                strcat(current_dvr_file, ".like.txt");
                 FILE* like_file = fopen(current_dvr_file, "a");
                 if(like_file)
                 {
                     unsigned recording_duration_s = time(NULL) - dvr_recording_start;
                     unsigned minutes = recording_duration_s / 60;
                     unsigned seconds = recording_duration_s % 60;
-                    fprintf(like_file, "%u:%02u like!\n", minutes, seconds);
+                    fprintf(like_file, "%u:%02u like!2\n", minutes, seconds);
                     fclose(like_file);
                 }
             }
@@ -197,10 +197,9 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         if (!dvr_is_recording && g_sdcard_size >= 103) {
             dvr_update_record_conf();
             dvr_is_recording = true;
-            LOGI("hello brave new world from qvasic");
             system_script(REC_START);
-            sleep(2); // wait for record process
             dvr_recording_start = time(NULL);
+            sleep(2); // wait for record process
         }
     } else {
         if (dvr_is_recording) {
