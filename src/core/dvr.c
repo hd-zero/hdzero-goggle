@@ -15,6 +15,7 @@
 #include "util/system.h"
 
 bool dvr_is_recording = false;
+time_t dvr_recording_start = 0;
 
 static pthread_mutex_t dvr_mutex;
 
@@ -89,6 +90,34 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
 
 void dvr_toggle() {
     dvr_cmd(DVR_TOGGLE);
+}
+
+void dvr_like() {
+    pthread_mutex_lock(&dvr_mutex);
+    if (dvr_is_recording) {
+        char current_dvr_file[256] = "";
+        FILE* now_recording_file = fopen("/mnt/extsd/movies/now_recording", "r");
+        if(now_recording_file) {
+            size_t read_count = fread(current_dvr_file, 1, 255, now_recording_file);
+            if (ferror(now_recording_file) == 0)
+            {
+                current_dvr_file[read_count] = '\0';
+                strcat(current_dvr_file, ".like");
+                FILE* like_file = fopen(current_dvr_file, "a");
+                if(like_file)
+                {
+                    unsigned recording_duration_s = time(NULL) - dvr_recording_start;
+                    unsigned minutes = recording_duration_s / 60;
+                    unsigned seconds = recording_duration_s % 60;
+                    fprintf(like_file, "%u:%02u like!\n", minutes, seconds);
+                    fclose(like_file);
+                }
+            }
+            fclose(now_recording_file);
+        }
+    }
+    pthread_mutex_unlock(&dvr_mutex);
+
 }
 
 static void dvr_update_record_conf() {
@@ -168,8 +197,10 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         if (!dvr_is_recording && g_sdcard_size >= 103) {
             dvr_update_record_conf();
             dvr_is_recording = true;
+            LOGI("hello brave new world from qvasic");
             system_script(REC_START);
             sleep(2); // wait for record process
+            dvr_recording_start = time(NULL);
         }
     } else {
         if (dvr_is_recording) {
