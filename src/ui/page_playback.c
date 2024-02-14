@@ -24,6 +24,7 @@
 
 #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
+LV_IMG_DECLARE(img_arrow0);
 LV_IMG_DECLARE(img_arrow1);
 
 static lv_coord_t col_dsc[] = {320, 320, 320, LV_GRID_TEMPLATE_LAST};
@@ -60,6 +61,10 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_img_set_src(pb_ui[pos]._arrow, &img_arrow1);
         lv_obj_add_flag(pb_ui[pos]._arrow, LV_OBJ_FLAG_HIDDEN);
 
+        pb_ui[pos]._heart = lv_img_create(cont);
+        lv_img_set_src(pb_ui[pos]._heart, &img_arrow0);
+        lv_obj_add_flag(pb_ui[pos]._heart, LV_OBJ_FLAG_HIDDEN);
+
         pb_ui[pos]._label = lv_label_create(cont);
         lv_obj_set_style_text_font(pb_ui[pos]._label, &lv_font_montserrat_26, 0);
         lv_label_set_long_mode(pb_ui[pos]._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -78,6 +83,8 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_pos(pb_ui[pos]._arrow, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) - 10,
                        pb_ui[pos].y + ITEM_PREVIEW_H + 10);
 
+        lv_obj_set_pos(pb_ui[pos]._heart, pb_ui[pos].x, pb_ui[pos].y);
+
         lv_obj_set_pos(pb_ui[pos]._label, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) + ITEM_GAP_W,
                        pb_ui[pos].y + ITEM_PREVIEW_H + 10);
     }
@@ -93,12 +100,13 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
-static void show_pb_item(uint8_t pos, char *label) {
+static void show_pb_item(uint8_t pos, char *label, bool like) {
     char fname[256];
     if (pb_ui[pos].state == ITEM_STATE_INVISIBLE) {
         lv_obj_add_flag(pb_ui[pos]._img, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(pb_ui[pos]._arrow, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(pb_ui[pos]._heart, LV_OBJ_FLAG_HIDDEN);
         return;
     }
 
@@ -126,6 +134,13 @@ static void show_pb_item(uint8_t pos, char *label) {
         lv_obj_add_style(pb_ui[pos]._img, &style_pb_dark, LV_PART_MAIN);
         lv_obj_add_flag(pb_ui[pos]._arrow, LV_OBJ_FLAG_HIDDEN);
     }
+
+    if (like) {
+        lv_obj_clear_flag(pb_ui[pos]._heart, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(pb_ui[pos]._heart, LV_OBJ_FLAG_HIDDEN);
+    }
+
     lv_obj_clear_flag(pb_ui[pos]._img, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -161,6 +176,15 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
         return 1;
     }
     return strcoll((*a)->d_name, (*b)->d_name);
+}
+
+static bool dvr_has_likes(const char* filename)
+{
+    char temp_buffer[256] = "";
+    int count = snprintf(temp_buffer, 255, "%s.like.txt", filename);
+    temp_buffer[count] = 0;
+
+    return fs_file_exists(temp_buffer);
 }
 
 static int walk_sdcard() {
@@ -212,6 +236,8 @@ static int walk_sdcard() {
         strcpy(pnode->filename, in_file->d_name);
         strncpy(pnode->label, in_file->d_name, dot - in_file->d_name);
         strcpy(pnode->ext, dot + 1);
+        pnode->like = dvr_has_likes(fname);
+
         pnode->size = size;
 
         LOGI("%d: %s-%dMB", media_db.count, pnode->filename, size);
@@ -291,10 +317,10 @@ static void update_page() {
             else
                 pb_ui[i].state = ITEM_STATE_INVISIBLE;
 
-            show_pb_item(i, pnode->label);
+            show_pb_item(i, pnode->label, pnode->like);
         } else {
             pb_ui[i].state = ITEM_STATE_INVISIBLE;
-            show_pb_item(i, NULL);
+            show_pb_item(i, NULL, false);
         }
     }
 }
