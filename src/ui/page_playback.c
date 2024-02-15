@@ -24,7 +24,7 @@
 
 #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 
-LV_IMG_DECLARE(img_arrow0);
+LV_IMG_DECLARE(img_heart);
 LV_IMG_DECLARE(img_arrow1);
 
 static lv_coord_t col_dsc[] = {320, 320, 320, LV_GRID_TEMPLATE_LAST};
@@ -62,7 +62,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_add_flag(pb_ui[pos]._arrow, LV_OBJ_FLAG_HIDDEN);
 
         pb_ui[pos]._heart = lv_img_create(cont);
-        lv_img_set_src(pb_ui[pos]._heart, &img_arrow0);
+        lv_img_set_src(pb_ui[pos]._heart, &img_heart);
         lv_obj_add_flag(pb_ui[pos]._heart, LV_OBJ_FLAG_HIDDEN);
 
         pb_ui[pos]._label = lv_label_create(cont);
