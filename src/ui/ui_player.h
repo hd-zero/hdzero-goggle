@@ -25,10 +25,14 @@ extern "C" {
         { b, g, r, a }               \
     }
 
+#define MAX_LIKES 1
+
 typedef struct {
     lv_obj_t *_btn;
     lv_obj_t *_slider;
     lv_obj_t *_label; // text format as "mm:ss(playing)/mm:ss(total)"
+    // lv_obj_t *_heart[MAX_LIKES];
+    lv_obj_t *_heart;
     bool is_playing;
     int32_t value;
     int32_t range;
