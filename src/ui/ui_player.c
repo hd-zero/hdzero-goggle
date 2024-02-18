@@ -60,12 +60,11 @@ static void update_time_label(bool mediaOK) {
         lv_slider_set_value(controller._slider, percent, LV_ANIM_OFF);
 
 
-        // for (size_t i = 0; i < likes_count; i++)
-        // {
-        //     int like_percent = likes_timestamps_s[i] * 1000 * 100 / duration;
-        //     lv_obj_set_pos(controller._heart[i], MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * like_percent / 100, 0);
-        // }
-        lv_obj_set_pos(controller._heart, MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * percent / 100, 0);
+        for (size_t i = 0; i < likes_count; i++)
+        {
+            // int like_percent = likes_timestamps_s[i] * 1000 * 100 / duration;
+            lv_obj_set_pos(controller._hearts[i], MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * percent / 100 + i * 10, 0);
+        }
 
     } else {
         lv_label_set_text(controller._label, "Bad file");
@@ -116,15 +115,12 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     lv_obj_set_size(controller._label, 160, MPLAYER_BTN_HEIGHT);
 
 
-    // for (size_t i = 0; i < likes_count; i++)
-    // {
-    //     controller._heart[i] = lv_img_create(parent);
-    //     lv_img_set_src(controller._heart[i], &img_heart);
-    //     lv_obj_set_pos(controller._heart[i], x, y + 20);
-    // }
-    controller._heart = lv_img_create(parent);
-    lv_img_set_src(controller._heart, &img_heart);
-    lv_obj_set_pos(controller._heart, x, y + 20);
+    for (size_t i = 0; i < likes_count; i++)
+    {
+        controller._hearts[i] = lv_img_create(parent);
+        lv_img_set_src(controller._hearts[i], &img_heart);
+        lv_obj_set_pos(controller._hearts[i], x, y + 20);
+    }
 }
 
 static void init_mplayer() {
@@ -178,11 +174,10 @@ static void free_mplayer() {
     lv_obj_del(controller._btn);
     lv_obj_del(controller._label);
     lv_obj_del(controller._slider);
-    // for (size_t i = 0; i < likes_count; i++)
-    // {
-    //     lv_obj_del(controller._heart[i]);
-    // }
-    lv_obj_del(controller._heart);
+    for (size_t i = 0; i < likes_count; i++)
+    {
+        lv_obj_del(controller._hearts[i]);
+    }
     lv_obj_del(controller.bar);
     lv_obj_del(controller.bg);
 }
@@ -267,7 +262,7 @@ static void notify_cb(media_info_t *info) {
 void load_likes(char *fname)
 {
     likes_position_on_timeline_set = false;
-    
+
     LOGI("load likes for %s", fname);
     char likes_filename[100] = "";
     snprintf(likes_filename, 100, "%s%s", fname, ".like.txt");
@@ -296,7 +291,6 @@ void load_likes(char *fname)
 }
 
 void media_init(char *fname) {
-    load_likes(fname);
     media = media_instantiate(fname, notify_cb);
     if (!media) {
         perror("media_instantiate failed.");
@@ -353,6 +347,7 @@ void media_seek(uint32_t seekto) {
 // interface func
 void mplayer_file(char *fname) {
     LOGI("mplayer %s", fname);
+    load_likes(fname);
     init_mplayer();
     media_init(fname);
     media_start();
