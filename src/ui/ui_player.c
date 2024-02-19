@@ -62,8 +62,12 @@ static void update_time_label(bool mediaOK) {
 
         for (size_t i = 0; i < likes_count; i++)
         {
-            // int like_percent = likes_timestamps_s[i] * 1000 * 100 / duration;
-            lv_obj_set_pos(controller._hearts[i], MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * percent / 100 + i * 10, 0);
+            int like_percent = likes_timestamps_s[i] * 1000 * 100 / (duration * 1.0);
+
+            LOGI("like #%d %d percent", (int)i, (int)like_percent);
+
+            lv_obj_set_pos(controller._hearts[i],
+                MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * like_percent / 100 - 16, -10);
         }
 
     } else {
