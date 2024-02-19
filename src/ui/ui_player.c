@@ -24,7 +24,7 @@ LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
 LV_IMG_DECLARE(img_heart);
 
-bool likes_position_on_timeline_set = false;
+bool likes_position_on_timeline = false;
 size_t likes_count = 0;
 size_t likes_timestamps_s[MAX_LIKES] = {0,};
 
@@ -56,19 +56,23 @@ static void update_time_label(bool mediaOK) {
 
         time2str(now, duration, s);
         lv_label_set_text(controller._label, s);
-        percent = (int)(now * 100 / (duration * 1.0));
+        percent = duration ? (now * 100 / duration) : 0;
         lv_slider_set_value(controller._slider, percent, LV_ANIM_OFF);
 
 
-        for (size_t i = 0; i < likes_count; i++)
-        {
-            int like_percent = likes_timestamps_s[i] * 1000 * 100 / (duration * 1.0);
+        if (!likes_position_on_timeline) {
+            for (size_t i = 0; i < likes_count; i++) {
+                int like_percent = duration ? (likes_timestamps_s[i] * 1000 * 100 / duration) : 0;
 
-            LOGI("like #%d %d percent", (int)i, (int)like_percent);
-
-            lv_obj_set_pos(controller._hearts[i],
-                MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * like_percent / 100 - 16, -10);
+                lv_obj_set_pos(controller._hearts[i],
+                    MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * like_percent / 100 - 16, -10);
+            }
+            if (duration) {
+                likes_position_on_timeline = true;
+            }
         }
+
+
 
     } else {
         lv_label_set_text(controller._label, "Bad file");
@@ -265,9 +269,7 @@ static void notify_cb(media_info_t *info) {
 
 void load_likes(char *fname)
 {
-    likes_position_on_timeline_set = false;
-
-    LOGI("load likes for %s", fname);
+    likes_position_on_timeline = false;
     char likes_filename[100] = "";
     snprintf(likes_filename, 100, "%s%s", fname, ".like.txt");
 
@@ -276,13 +278,11 @@ void load_likes(char *fname)
 
     if (likes_file)
     {
-        LOGI("likes file found");
         unsigned mins = 0;
         unsigned secs = 0;
         while (fscanf(likes_file, "%u:%u like!2\n", &mins, &secs) == 2)
         {
             likes_timestamps_s[likes_count] = mins * 60 + secs;
-            LOGI("like #%d : %d:%d", (int)likes_count, (int)mins, (int)secs);
             likes_count++;
 
             if (likes_count == MAX_LIKES)
