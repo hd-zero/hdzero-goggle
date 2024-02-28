@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -21,13 +21,13 @@ jobs:
         run: echo "firmware_name=$(basename out/*bin)" >> $GITHUB_ENV
 
       - name: Upload Firmware Package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.firmware_name }}
           path: out/${{ env.firmware_name }}
 
       - name: Upload Firmware Binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: HDZGOGGLE
           path: out/HDZGOGGLE
