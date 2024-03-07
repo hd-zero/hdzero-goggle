@@ -14,7 +14,7 @@
 #include <minIni.h>
 
 #ifdef EMULATOR_BUILD
-#include <SDL2/SDL.h>
+#include "SDLaccess.h"
 #endif
 
 #include "defines.h"
@@ -489,7 +489,9 @@ static void *thread_input_device(void *ptr) {
 
     while (true) {
         SDL_Event event;
-        while (SDL_WaitEvent(&event)) {
+        SDL_LockMutex(global_sdl_mutex);
+        while (SDL_PollEvent(&event)) {
+            SDL_UnlockMutex(global_sdl_mutex);
             switch (event.type) {
             case SDL_QUIT:
                 exit(0);
@@ -546,7 +548,10 @@ static void *thread_input_device(void *ptr) {
                 }
                 break;
             }
+            SDL_LockMutex(global_sdl_mutex);
         }
+        SDL_UnlockMutex(global_sdl_mutex);
+        usleep(50000); // Sorry, this will break windows, but it's not like it is working now anyway :-(
     }
 #endif
 }
@@ -568,5 +573,8 @@ void input_device_init() {
     }
     app_state_push(APP_STATE_MAINMENU);
 #endif
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        printf("Error initializing SDL: %s\n", SDL_GetError());
+    }
     pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
 }
