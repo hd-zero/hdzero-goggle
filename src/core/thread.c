@@ -78,6 +78,17 @@ static void check_hdzero_signal(int vtmg_change) {
         tune_channel_timer();
     }
 
+    if (g_source_info.source == SOURCE_AV_IN)
+        is_valid = g_source_info.av_in_status;
+    else if (g_source_info.source == SOURCE_EXPANSION)
+        is_valid = g_source_info.av_bay_status;
+    else
+        is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
+
+    if (g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_VIDEO) {
+        g_setting.ht.alarm_on_video = is_valid;
+    }
+
     // exit if no SD card or not in video mode
     if (g_setting.record.mode_manual || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
         return;
@@ -103,19 +114,13 @@ static void check_hdzero_signal(int vtmg_change) {
         cnt = 0;
     }
 
-    if (g_source_info.source == SOURCE_AV_IN)
-        is_valid = g_source_info.av_in_status;
-    else if (g_source_info.source == SOURCE_EXPANSION)
-        is_valid = g_source_info.av_bay_status;
-    else
-        is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
-
     if (dvr_is_recording) { // in-recording
         if (!is_valid) {
             cnt++;
             if (cnt >= SIGNAL_LOSS_DURATION_THR) {
                 cnt = 0;
                 LOGI("Signal lost");
+                g_setting.ht.alarm_on_video = false;
                 dvr_cmd(DVR_STOP);
             }
         } else
