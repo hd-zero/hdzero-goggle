@@ -22,6 +22,13 @@ player_cmd_t cmd;
 
 LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
+LV_IMG_DECLARE(img_heart);
+
+bool likes_position_on_timeline = false;
+size_t likes_count = 0;
+size_t likes_timestamps_s[MAX_LIKES] = {0,};
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 static void time2str(uint32_t t1, uint32_t t2, char *s) {
@@ -49,8 +56,24 @@ static void update_time_label(bool mediaOK) {
 
         time2str(now, duration, s);
         lv_label_set_text(controller._label, s);
-        percent = (int)(now * 100 / (duration * 1.0));
+        percent = duration ? (now * 100 / duration) : 0;
         lv_slider_set_value(controller._slider, percent, LV_ANIM_OFF);
+
+
+        if (!likes_position_on_timeline) {
+            for (size_t i = 0; i < likes_count; i++) {
+                int like_percent = duration ? (likes_timestamps_s[i] * 1000 * 100 / duration) : 0;
+
+                lv_obj_set_pos(controller._hearts[i],
+                    MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * like_percent / 100 - 16, -10);
+            }
+            if (duration) {
+                likes_position_on_timeline = true;
+            }
+        }
+
+
+
     } else {
         lv_label_set_text(controller._label, "Bad file");
         lv_slider_set_value(controller._slider, 0, LV_ANIM_OFF);
@@ -98,6 +121,14 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     lv_obj_set_style_text_color(controller._label, lv_color_hex(0xC0C0C0), 0);
     lv_obj_set_pos(controller._label, x + MPLAYER_SLD_WIDTH + MPLAYER_BTN_GAP, y);
     lv_obj_set_size(controller._label, 160, MPLAYER_BTN_HEIGHT);
+
+
+    for (size_t i = 0; i < likes_count; i++)
+    {
+        controller._hearts[i] = lv_img_create(parent);
+        lv_img_set_src(controller._hearts[i], &img_heart);
+        lv_obj_set_pos(controller._hearts[i], x, y + 20);
+    }
 }
 
 static void init_mplayer() {
@@ -151,6 +182,10 @@ static void free_mplayer() {
     lv_obj_del(controller._btn);
     lv_obj_del(controller._label);
     lv_obj_del(controller._slider);
+    for (size_t i = 0; i < likes_count; i++)
+    {
+        lv_obj_del(controller._hearts[i]);
+    }
     lv_obj_del(controller.bar);
     lv_obj_del(controller.bg);
 }
@@ -232,6 +267,33 @@ static void notify_cb(media_info_t *info) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
+void load_likes(char *fname)
+{
+    likes_position_on_timeline = false;
+    char likes_filename[100] = "";
+    snprintf(likes_filename, 100, "%s%s", fname, ".like.txt");
+
+    likes_count = 0;
+    FILE* likes_file = fopen(likes_filename, "r");
+
+    if (likes_file)
+    {
+        unsigned mins = 0;
+        unsigned secs = 0;
+        while (fscanf(likes_file, "%u:%u like!2\n", &mins, &secs) == 2)
+        {
+            likes_timestamps_s[likes_count] = mins * 60 + secs;
+            likes_count++;
+
+            if (likes_count == MAX_LIKES)
+            {
+                break;
+            }
+        }
+        fclose(likes_file);
+    }
+}
+
 void media_init(char *fname) {
     media = media_instantiate(fname, notify_cb);
     if (!media) {
@@ -289,6 +351,7 @@ void media_seek(uint32_t seekto) {
 // interface func
 void mplayer_file(char *fname) {
     LOGI("mplayer %s", fname);
+    load_likes(fname);
     init_mplayer();
     media_init(fname);
     media_start();
