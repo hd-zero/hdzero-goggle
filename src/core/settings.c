@@ -1,5 +1,6 @@
 #include "settings.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -208,6 +209,7 @@ const setting_t g_setting_defaults = {
         .rf_channel = 6,
         .root_pw = "divimath",
         .ssh = false,
+        .macRandom = true,
     },
     .storage = {
         .logging = false,
@@ -448,6 +450,7 @@ void settings_load(void) {
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
     ini_gets("wifi", "root_pw", g_setting_defaults.wifi.root_pw, g_setting.wifi.root_pw, WIFI_PASSWD_MAX, SETTING_INI);
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
+    g_setting.wifi.macRandom = settings_get_bool("wifi", "macRandom", g_setting_defaults.wifi.macRandom);
 
     //  no dial under video mode
     g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);

@@ -220,6 +220,7 @@ typedef struct {
     uint8_t rf_channel;
     char root_pw[WIFI_SSID_MAX];
     bool ssh;
+    bool macRandom;
 } wifi_t;
 
 typedef struct {

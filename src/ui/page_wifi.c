@@ -92,6 +92,7 @@ typedef struct {
     root_pw_t root_pw;
     button_t ssh;
     lv_obj_t *note;
+    button_t macRandom;
     int row_count;
 } page_3_t;
 
@@ -104,6 +105,11 @@ typedef struct {
     int confirm_settings;
     bool dirty;
 } page_options_t;
+
+typedef struct {
+    char ipAddress[16];
+    char macAddress[18];
+} wifi_info;
 
 /**
  *  Constants
@@ -145,6 +151,10 @@ static void page_wifi_update_services() {
         fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_core.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_wlan.ko\n");
+        if (!g_setting.wifi.macRandom) {
+            // fprintf(fp, "ifconfig wlan0 hw ether 00:28:C7:0A:42:A2");
+        }
+
         fprintf(fp, "ifconfig wlan0 up\n");
 
         if (g_setting.wifi.dhcp) {
@@ -267,6 +277,7 @@ static void page_wifi_update_settings() {
     g_setting.wifi.mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
     g_setting.wifi.dhcp = btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0;
     g_setting.wifi.ssh = btn_group_get_sel(&page_wifi.page_3.ssh.button) == 0;
+    g_setting.wifi.macRandom = btn_group_get_sel(&page_wifi.page_3.macRandom.button) == 0;
 
     snprintf(g_setting.wifi.ssid[g_setting.wifi.mode], WIFI_SSID_MAX, "%s", page_wifi.page_1.ssid.text[g_setting.wifi.mode]);
     snprintf(g_setting.wifi.passwd[g_setting.wifi.mode], WIFI_PASSWD_MAX, "%s", page_wifi.page_1.passwd.text[g_setting.wifi.mode]);
@@ -297,6 +308,7 @@ static void page_wifi_update_settings() {
     ini_putl("wifi", "rf_channel", g_setting.wifi.rf_channel, SETTING_INI);
     ini_puts("wifi", "root_pw", g_setting.wifi.root_pw, SETTING_INI);
     settings_put_bool("wifi", "ssh", g_setting.wifi.ssh);
+    settings_put_bool("wifi", "macRandom", g_setting.wifi.macRandom);
 
     // Prepare WiFi interfaces
     system_script(WIFI_OFF);
@@ -316,9 +328,12 @@ static void page_wifi_update_settings() {
 /**
  * Acquire the actual address in use.
  */
-static const char *page_wifi_get_real_address() {
-    const char *address = NULL;
+static wifi_info *page_wifi_get_real_address() {
+    wifi_info *info;
     int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    strcpy(info->ipAddress, "");
+    strcpy(info->macAddress, "");
 
     if (fd >= 0) {
         struct ifreq ifr;
@@ -326,25 +341,35 @@ static const char *page_wifi_get_real_address() {
 
         // Try to derive the real ip address
         if (0 == ioctl(fd, SIOCGIFADDR, &ifr)) {
-            address = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+            strcpy(info->ipAddress, inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
         }
+        /*
+        if (0 == ioctl(fd, SIOCGIFHWADDR, &ifr)) {
+            sprintf(info->macAddress, "%02x:%02x:%02x:%02x:%02x:%02x",
+                    (unsigned char)ifr.ifr_addr.sa_data[0],
+                    (unsigned char)ifr.ifr_addr.sa_data[1],
+                    (unsigned char)ifr.ifr_addr.sa_data[2],
+                    (unsigned char)ifr.ifr_addr.sa_data[3],
+                    (unsigned char)ifr.ifr_addr.sa_data[4],
+                    (unsigned char)ifr.ifr_addr.sa_data[5]);
+        }*/
 
         close(fd);
     }
 
-    return address;
+    return info;
 }
 
 /**
  * Updates the all notes on every page.
  */
 static void page_wifi_update_page_1_notes() {
-    const char *address = page_wifi_get_real_address();
+    wifi_info *info = page_wifi_get_real_address();
 
     if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
         btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0 &&
-        address == NULL) {
-        address = "x.x.x.x";
+        strcmp(info->ipAddress, "")) {
+        strcpy(info->ipAddress, "x.x.x.x");
     }
 
     static char buffer[1024];
@@ -356,17 +381,22 @@ static void page_wifi_update_page_1_notes() {
              "    1.  Connect to the WiFi network identified above.\n"
              "    2. Use VLC Player to open a Network Stream:\n\n"
              "           rtsp://%s:8554/hdzero\n\n",
-             address ? address : page_wifi.page_2.ip_addr.text);
+             strcmp(info->ipAddress, "") ? info->ipAddress : page_wifi.page_2.ip_addr.text);
 
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
 
 static void page_wifi_update_page_3_notes() {
+    wifi_info *info = page_wifi_get_real_address();
+
     static char buffer[1024];
     snprintf(buffer,
              sizeof(buffer),
              "Password Requirements:\n"
-             "    Minimum 8 characters, maximum 64 characters.\n\n");
+             "    Minimum 8 characters, maximum 64 characters.\n\n"
+             "MAC-Address:\n"
+             "    %s\n\n",
+             info->macAddress);
 
     lv_label_set_text(page_wifi.page_3.note, buffer);
 }
@@ -440,6 +470,7 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
     btn_group_show(&page_wifi.page_3.ssh.button, false);
+    btn_group_show(&page_wifi.page_3.macRandom.button, false);
     lv_obj_add_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
 
     switch (which) {
@@ -473,8 +504,8 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
 
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
-                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
-                page_wifi.page_2.dhcp.button.current == 1)) {
+            (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+             page_wifi.page_2.dhcp.button.current == 1)) {
             lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
@@ -513,6 +544,7 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
         btn_group_show(&page_wifi.page_3.ssh.button, true);
+        btn_group_show(&page_wifi.page_3.macRandom.button, true);
         lv_obj_clear_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
         page_wifi_update_page_3_notes();
         break;
@@ -543,7 +575,8 @@ static void page_wifi_dirty_flag_reset() {
                                         page_wifi.page_2.dns.dirty =
                                             page_wifi.page_2.rf_channel.dirty =
                                                 page_wifi.page_3.root_pw.dirty =
-                                                    page_wifi.page_3.ssh.dirty = false;
+                                                    page_wifi.page_3.ssh.dirty =
+                                                        page_wifi.page_3.macRandom.dirty = false;
 }
 
 /**
@@ -600,7 +633,8 @@ static void page_wifi_update_dirty_flag() {
         page_wifi.page_2.dns.dirty ||
         page_wifi.page_2.rf_channel.dirty ||
         page_wifi.page_3.root_pw.dirty ||
-        page_wifi.page_3.ssh.dirty;
+        page_wifi.page_3.ssh.dirty ||
+        page_wifi.page_3.macRandom.dirty;
 
     if (page_wifi.dirty) {
         if (!page_wifi_apply_settings_pending_timer) {
@@ -681,6 +715,9 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", "On", "Off", "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
+    create_btn_group_item(&page_wifi.page_3.macRandom.button, parent, 2, "MAC", "Random", "Fixed", "", "", 3);
+    btn_group_set_sel(&page_wifi.page_3.macRandom.button, !g_setting.wifi.macRandom);
+
     page_wifi.page_3.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_3.note, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(page_wifi.page_3.note, LV_TEXT_ALIGN_LEFT, 0);
@@ -690,7 +727,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     lv_obj_set_grid_cell(page_wifi.page_3.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     page_wifi_update_page_3_notes();
 
-    page_wifi.page_3.row_count = 3;
+    page_wifi.page_3.row_count = 4;
 }
 
 /**
@@ -784,7 +821,7 @@ static void page_wifi_on_update(uint32_t delta_ms) {
     if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:
-            if (page_wifi_get_real_address()) {
+            if (!strcmp(page_wifi_get_real_address()->ipAddress, "")) {
                 if (!fs_file_exists("/tmp/hdz_goggle_fw.latest") &&
                     !fs_file_exists("/tmp/hdz_vtx_fw.latest")) {
                     system_script(WIFI_DOWNLOAD);
@@ -911,6 +948,11 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             } else {
                 keyboard_press();
             }
+            break;
+        case 2:
+            btn_group_toggle_sel(&page_wifi.page_3.macRandom.button);
+            page_wifi.page_3.macRandom.dirty =
+                (btn_group_get_sel(&page_wifi.page_3.macRandom.button) != !g_setting.wifi.macRandom);
             break;
         }
         break;
@@ -1135,7 +1177,7 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
             snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
             break;
         case WIFI_MODE_STA:
-            if (page_wifi_get_real_address()) {
+            if (!strcmp(page_wifi_get_real_address()->ipAddress, "")) {
                 snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
             } else {
                 snprintf(buffer, size, "WiFi: Searching");
