@@ -503,7 +503,7 @@ void settings_load(void) {
 
 static bool is_valid_mac_address(const char mac_address[]) {
     for (int i = 0; i < 17; i++) {
-        // first byte has to be even to be a valid broadcast address
+        // first byte has to be even to be a valid MAC address for our usecase
         if (i == 1 && (mac_address[i] != '0' && mac_address[i] != '2' && mac_address[i] != '4' && mac_address[i] != '6' && mac_address[i] != '8' && mac_address[i] != 'a' && mac_address[i] != 'A' && mac_address[i] != 'c' && mac_address[i] != 'C' && mac_address[i] != 'e' && mac_address[i] != 'E')) {
             return false;
         }
