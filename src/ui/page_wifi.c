@@ -15,6 +15,7 @@
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "lvgl/src/core/lv_obj.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
@@ -106,11 +107,6 @@ typedef struct {
     bool dirty;
 } page_options_t;
 
-typedef struct {
-    char ipAddress[16];
-    char macAddress[18];
-} wifi_info;
-
 /**
  *  Constants
  */
@@ -149,10 +145,11 @@ static void page_wifi_update_services() {
     if ((fp = fopen(WIFI_STA_ON, "w"))) {
         fprintf(fp, "#!/bin/sh\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
+        fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_core.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_wlan.ko\n");
         if (!g_setting.wifi.macRandom) {
-            // fprintf(fp, "ifconfig wlan0 hw ether 00:28:C7:0A:42:A2");
+            fprintf(fp, "ifconfig wlan0 hw ether %s\n", g_setting.wifi.mac);
         }
 
         fprintf(fp, "ifconfig wlan0 up\n");
@@ -326,14 +323,11 @@ static void page_wifi_update_settings() {
 }
 
 /**
- * Acquire the actual address in use.
+ * Acquire the actual IP address in use.
  */
-static wifi_info *page_wifi_get_real_address() {
-    wifi_info *info;
+static const char *page_wifi_get_real_address() {
+    const char *address = NULL;
     int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-
-    strcpy(info->ipAddress, "");
-    strcpy(info->macAddress, "");
 
     if (fd >= 0) {
         struct ifreq ifr;
@@ -341,35 +335,55 @@ static wifi_info *page_wifi_get_real_address() {
 
         // Try to derive the real ip address
         if (0 == ioctl(fd, SIOCGIFADDR, &ifr)) {
-            strcpy(info->ipAddress, inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+            address = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
         }
-        /*
+
+        close(fd);
+    }
+
+    return address;
+}
+
+/**
+ * Acquire the MAC address in use.
+ */
+static const char *page_wifi_get_real_mac_address() {
+    const char *address = NULL;
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    if (fd >= 0) {
+        struct ifreq ifr;
+        strcpy(ifr.ifr_name, "wlan0");
+
+        char mac[18];
+
         if (0 == ioctl(fd, SIOCGIFHWADDR, &ifr)) {
-            sprintf(info->macAddress, "%02x:%02x:%02x:%02x:%02x:%02x",
+            sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
                     (unsigned char)ifr.ifr_addr.sa_data[0],
                     (unsigned char)ifr.ifr_addr.sa_data[1],
                     (unsigned char)ifr.ifr_addr.sa_data[2],
                     (unsigned char)ifr.ifr_addr.sa_data[3],
                     (unsigned char)ifr.ifr_addr.sa_data[4],
                     (unsigned char)ifr.ifr_addr.sa_data[5]);
-        }*/
+        }
+        address = mac;
 
         close(fd);
     }
 
-    return info;
+    return address;
 }
 
 /**
- * Updates the all notes on every page.
+ * Updates the notes on page 1.
  */
 static void page_wifi_update_page_1_notes() {
-    wifi_info *info = page_wifi_get_real_address();
+    const char *address = page_wifi_get_real_address();
 
     if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
         btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0 &&
-        strcmp(info->ipAddress, "")) {
-        strcpy(info->ipAddress, "x.x.x.x");
+        address == NULL) {
+        address = "x.x.x.x";
     }
 
     static char buffer[1024];
@@ -381,22 +395,28 @@ static void page_wifi_update_page_1_notes() {
              "    1.  Connect to the WiFi network identified above.\n"
              "    2. Use VLC Player to open a Network Stream:\n\n"
              "           rtsp://%s:8554/hdzero\n\n",
-             strcmp(info->ipAddress, "") ? info->ipAddress : page_wifi.page_2.ip_addr.text);
+             address ? address : page_wifi.page_2.ip_addr.text);
 
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
 
+/**
+ * Updates the notes on page 3.
+ */
 static void page_wifi_update_page_3_notes() {
-    wifi_info *info = page_wifi_get_real_address();
+    const char *mac = page_wifi_get_real_mac_address();
 
     static char buffer[1024];
     snprintf(buffer,
              sizeof(buffer),
              "Password Requirements:\n"
              "    Minimum 8 characters, maximum 64 characters.\n\n"
-             "MAC-Address:\n"
-             "    %s\n\n",
-             info->macAddress);
+             "MAC-address:\n"
+             "    %s\n\n"
+             "You can override the fixed MAC in client mode by creating the file macaddr.txt\n"
+             "with the new MAC inside on the SD card. Make sure there are no spaces!\n"
+             "Valid mac addresses start with an even byte.\n\n",
+             mac);
 
     lv_label_set_text(page_wifi.page_3.note, buffer);
 }
@@ -543,6 +563,12 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_3.root_pw.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
+        if (page_wifi.page_1.mode.button.current == WIFI_MODE_STA) {
+            lv_obj_clear_state(page_wifi.page_3.macRandom.button.label, STATE_DISABLED);
+        } else {
+            lv_obj_add_state(page_wifi.page_3.macRandom.button.label, STATE_DISABLED);
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[3], FLAG_SELECTABLE);
+        }
         btn_group_show(&page_wifi.page_3.ssh.button, true);
         btn_group_show(&page_wifi.page_3.macRandom.button, true);
         lv_obj_clear_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
@@ -821,7 +847,7 @@ static void page_wifi_on_update(uint32_t delta_ms) {
     if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:
-            if (!strcmp(page_wifi_get_real_address()->ipAddress, "")) {
+            if (page_wifi_get_real_address()) {
                 if (!fs_file_exists("/tmp/hdz_goggle_fw.latest") &&
                     !fs_file_exists("/tmp/hdz_vtx_fw.latest")) {
                     system_script(WIFI_DOWNLOAD);
@@ -950,6 +976,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             }
             break;
         case 2:
+
             btn_group_toggle_sel(&page_wifi.page_3.macRandom.button);
             page_wifi.page_3.macRandom.dirty =
                 (btn_group_get_sel(&page_wifi.page_3.macRandom.button) != !g_setting.wifi.macRandom);
@@ -1177,7 +1204,7 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
             snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
             break;
         case WIFI_MODE_STA:
-            if (!strcmp(page_wifi_get_real_address()->ipAddress, "")) {
+            if (page_wifi_get_real_address()) {
                 snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
             } else {
                 snprintf(buffer, size, "WiFi: Searching");
