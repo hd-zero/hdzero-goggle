@@ -33,6 +33,21 @@ typedef enum {
     VDPO_TMG_1080P60 = 5,
 } vdpo_tmg_t;
 
+typedef enum {
+    VIDEO_SOURCE_MENU_UI = 0,
+    VIDEO_SOURCE_HDZERO_IN_720P60_50 = 1,
+    VIDEO_SOURCE_HDZERO_IN_720P90 = 2,
+    VIDEO_SOURCE_HDZERO_IN_1080P30 = 3,
+    VIDEO_SOURCE_AV_IN = 4,
+    VIDEO_SOURCE_HDMI_IN_1080P50 = 5,
+    VIDEO_SOURCE_HDMI_IN_1080P60 = 6,
+    VIDEO_SOURCE_HDMI_IN_1080POTHER = 7,
+    VIDEO_SOURCE_HDMI_IN_720P50 = 8,
+    VIDEO_SOURCE_HDMI_IN_720P60 = 9,
+    VIDEO_SOURCE_HDMI_IN_720P100 = 10,
+    VIDEO_SOURCE_NUM = 11,
+} video_source_t;
+
 typedef struct {
     source_mode_t source_mode;
     vdpo_tmg_t vdpo_tmg;
@@ -55,6 +70,13 @@ typedef struct {
     int IS_TP2825_L;
 
 } hw_status_t;
+
+typedef struct {
+    uint8_t reg_fpga_8d_val0;
+    uint8_t reg_fpga_8e_val;
+    uint8_t reg_al_14_val;
+    uint8_t reg_fpga_8d_val1;
+} vclk_phase_t;
 
 extern hw_status_t g_hw_stat;
 extern int fhd_req;

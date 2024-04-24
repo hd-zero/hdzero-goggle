@@ -31,9 +31,34 @@
 // global
 hw_status_t g_hw_stat;
 int fhd_req = 0;
+vclk_phase_t vclk_phase[VIDEO_SOURCE_NUM] = {
+    // 8d_0, 8e,   14, 8d_1
+    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_MENU_UI
+    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_720P60_50
+    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_720P90
+    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_1080P30
+    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_AV_IN
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080P50
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080P60
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080PPOTHER
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P50
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P60
+    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P100
+};
 
 // local
 pthread_mutex_t hardware_mutex;
+
+void set_vclk_phase(video_source_t vs, uint8_t reg_8d_sel) {
+
+    if (reg_8d_sel)
+        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs][3]);
+    else
+        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs][0]);
+
+    I2C_Write(ADDR_FPGA, 0x8e, vclk_phase[vs][1]);
+    I2C_Write(ADDR_AL, 0x14, vclk_phase[vs][2]);
+}
 
 void hw_stat_init() {
     g_hw_stat.source_mode = SOURCE_MODE_UI;
@@ -80,9 +105,7 @@ void Display_UI_init() {
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
     Display_VO_SWITCH(0);
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
+    set_vclk_phase(VIDEO_SOURCE_MENU_UI, 0);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
@@ -107,9 +130,8 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 
     system_exec("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
+    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_720P60_50, 0);
+
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
     DM5680_SetFPS(mode);
@@ -133,9 +155,7 @@ void Display_720P90_t(int mode) {
 
     system_exec("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P90;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
+    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_720P90, 0);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
     DM5680_SetFPS(mode);
@@ -156,9 +176,8 @@ void Display_1080P30_t(int mode) {
 
     system_exec("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
+    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
+
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
 
@@ -217,87 +236,6 @@ void HDZero_Close() {
     g_hw_stat.m0_open = 0;
 
     LOGI("HDZero: close");
-}
-
-void AV_Mode_Switch_fpga(int is_pal) {
-    if (is_pal) {
-        system_exec("dispw -s vdpo 720p50");
-        g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
-        I2C_Write(ADDR_FPGA, 0x80, 0x10);
-    } else {
-        system_exec("dispw -s vdpo 720p60");
-        g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-        I2C_Write(ADDR_FPGA, 0x80, 0x00);
-    }
-    I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
-}
-
-void AV_Mode_Switch(int is_pal) {
-    int tmg = is_pal ? VDPO_TMG_720P50 : VDPO_TMG_720P60;
-
-    if (g_hw_stat.vdpo_tmg != tmg) {
-        OLED_display(0);
-        AV_Mode_Switch_fpga(is_pal);
-        OLED_display(1);
-    }
-}
-
-void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
-{
-    pthread_mutex_lock(&hardware_mutex);
-    OLED_display(0);
-    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
-
-    g_hw_stat.av_chid = sel ? 1 : 0;
-
-    // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    TP2825_Switch_Mode(g_setting.source.analog_format);
-    TP2825_Switch_CH(g_hw_stat.av_chid);
-
-    // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
-    AV_Mode_Switch_fpga(g_setting.source.analog_format);
-    g_hw_stat.av_pal_w = g_setting.source.analog_format;
-
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
-
-    I2C_Write(ADDR_FPGA, 0x89, 0x01);
-
-    HDZero_Close();
-    OLED_SetTMG(1);
-
-    I2C_Write(ADDR_FPGA, 0x8C, 0x02);
-
-    g_hw_stat.source_mode = SOURCE_MODE_AV;
-    Display_VO_SWITCH(1);
-    OLED_display(1);
-
-    pthread_mutex_unlock(&hardware_mutex);
-}
-
-void Source_HDMI_in() {
-    pthread_mutex_lock(&hardware_mutex);
-    OLED_display(0);
-    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
-
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-    I2C_Write(ADDR_AL, 0x14, 0x00);
-
-    HDZero_Close();
-    // OLED_SetTMG(0);
-
-    I2C_Write(ADDR_FPGA, 0x8C, 0x04);
-    I2C_Write(ADDR_FPGA, 0x84, 0x00);
-
-    g_hw_stat.source_mode = SOURCE_MODE_HDMIIN;
-    Display_VO_SWITCH(1);
-    // OLED_display(1);
-
-    pthread_mutex_unlock(&hardware_mutex);
 }
 
 int HDZERO_detect() // return = 1: vtmg to V536 changed
@@ -359,6 +297,63 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
     }
     pthread_mutex_unlock(&hardware_mutex);
     return ret;
+}
+
+void AV_Mode_Switch_fpga(int is_pal) {
+    if (is_pal) {
+        system_exec("dispw -s vdpo 720p50");
+        g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
+        I2C_Write(ADDR_FPGA, 0x80, 0x10);
+    } else {
+        system_exec("dispw -s vdpo 720p60");
+        g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
+        I2C_Write(ADDR_FPGA, 0x80, 0x00);
+    }
+    I2C_Write(ADDR_FPGA, 0x06, 0x0F);
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+}
+
+void AV_Mode_Switch(int is_pal) {
+    int tmg = is_pal ? VDPO_TMG_720P50 : VDPO_TMG_720P60;
+
+    if (g_hw_stat.vdpo_tmg != tmg) {
+        OLED_display(0);
+        AV_Mode_Switch_fpga(is_pal);
+        OLED_display(1);
+    }
+}
+
+void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
+{
+    pthread_mutex_lock(&hardware_mutex);
+    OLED_display(0);
+    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
+
+    g_hw_stat.av_chid = sel ? 1 : 0;
+
+    // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    TP2825_Switch_Mode(g_setting.source.analog_format);
+    TP2825_Switch_CH(g_hw_stat.av_chid);
+
+    // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
+    // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
+    AV_Mode_Switch_fpga(g_setting.source.analog_format);
+    g_hw_stat.av_pal_w = g_setting.source.analog_format;
+
+    set_vclk_phase(VIDEO_SOURCE_AV_IN, 0);
+
+    I2C_Write(ADDR_FPGA, 0x89, 0x01);
+
+    HDZero_Close();
+    OLED_SetTMG(1);
+
+    I2C_Write(ADDR_FPGA, 0x8C, 0x02);
+
+    g_hw_stat.source_mode = SOURCE_MODE_AV;
+    Display_VO_SWITCH(1);
+    OLED_display(1);
+
+    pthread_mutex_unlock(&hardware_mutex);
 }
 
 #define AV_DET_SWITCH_CNT 1
@@ -477,6 +472,24 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
     return ret;
 }
 
+void Source_HDMI_in() {
+    pthread_mutex_lock(&hardware_mutex);
+    OLED_display(0);
+    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
+
+    HDZero_Close();
+    // OLED_SetTMG(0);
+
+    I2C_Write(ADDR_FPGA, 0x8C, 0x04);
+    I2C_Write(ADDR_FPGA, 0x84, 0x00);
+
+    g_hw_stat.source_mode = SOURCE_MODE_HDMIIN;
+    Display_VO_SWITCH(1);
+    // OLED_display(1);
+
+    pthread_mutex_unlock(&hardware_mutex);
+}
+
 void HDMI_in_detect() {
     static int vtmg_last = -1;
     static int cs_last = -1;
@@ -507,9 +520,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_1080P60:
                         system_exec("dispw -s vdpo 1080p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080P60, (freq_ref < 63));
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
                         OLED_SetTMG(2);
@@ -523,9 +534,8 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_1080P50:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080P50, (freq_ref < 63));
+
                         I2C_Write(ADDR_FPGA, 0x80, 0x20);
 
                         OLED_SetTMG(0);
@@ -534,14 +544,13 @@ void HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         OLED_display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
-                        break;    
+                        break;
 
                     case HDMIIN_VTMG_1080Pother:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080POTHER, (freq_ref < 63));
+
                         I2C_Write(ADDR_FPGA, 0x80, 0x40);
 
                         OLED_SetTMG(0);
@@ -555,9 +564,8 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P50:
                         system_exec("dispw -s vdpo 720p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P50, (freq_ref < 63));
+
                         I2C_Write(ADDR_FPGA, 0x80, 0x60);
 
                         OLED_SetTMG(1);
@@ -571,9 +579,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P60:
                         system_exec("dispw -s vdpo 720p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P60, (freq_ref < 63));
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
                         OLED_SetTMG(1);
@@ -587,9 +593,8 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P100:
                         system_exec("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
-                        // I2C_Write(ADDR_FPGA, 0x8d, 0x10);
-                        I2C_Write(ADDR_FPGA, 0x8e, 0x84);
-                        I2C_Write(ADDR_AL, 0x14, 0x00);
+                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P100, (freq_ref < 63));
+
                         I2C_Write(ADDR_FPGA, 0x80, 0xA0);
 
                         OLED_SetTMG(1);
@@ -600,12 +605,6 @@ void HDMI_in_detect() {
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P100;
                         break;
                     }
-                }
-
-                if (freq_ref < 63) {
-                    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-                } else { // pclk_l
-                    I2C_Write(ADDR_FPGA, 0x8d, 0x04);
                 }
 
                 cs = IT66021_Get_CS();
