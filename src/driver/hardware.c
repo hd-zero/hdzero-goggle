@@ -52,12 +52,12 @@ pthread_mutex_t hardware_mutex;
 void set_vclk_phase(video_source_t vs, uint8_t reg_8d_sel) {
 
     if (reg_8d_sel)
-        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs][3]);
+        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs].reg_fpga_8d_val1);
     else
-        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs][0]);
+        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs].reg_fpga_8d_val0);
 
-    I2C_Write(ADDR_FPGA, 0x8e, vclk_phase[vs][1]);
-    I2C_Write(ADDR_AL, 0x14, vclk_phase[vs][2]);
+    I2C_Write(ADDR_FPGA, 0x8e, vclk_phase[vs].reg_fpga_8e_val);
+    I2C_Write(ADDR_AL, 0x14, vclk_phase[vs].reg_al_14_val);
 }
 
 void hw_stat_init() {
