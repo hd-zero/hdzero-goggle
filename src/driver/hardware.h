@@ -34,18 +34,19 @@ typedef enum {
 } vdpo_tmg_t;
 
 typedef enum {
-    VIDEO_SOURCE_MENU_UI = 0,
-    VIDEO_SOURCE_HDZERO_IN_720P60_50 = 1,
-    VIDEO_SOURCE_HDZERO_IN_720P90 = 2,
-    VIDEO_SOURCE_HDZERO_IN_1080P30 = 3,
-    VIDEO_SOURCE_AV_IN = 4,
-    VIDEO_SOURCE_HDMI_IN_1080P50 = 5,
-    VIDEO_SOURCE_HDMI_IN_1080P60 = 6,
-    VIDEO_SOURCE_HDMI_IN_1080POTHER = 7,
-    VIDEO_SOURCE_HDMI_IN_720P50 = 8,
-    VIDEO_SOURCE_HDMI_IN_720P60 = 9,
-    VIDEO_SOURCE_HDMI_IN_720P100 = 10,
-    VIDEO_SOURCE_NUM = 11,
+    VIDEO_SOURCE_VERSION = 0,
+    VIDEO_SOURCE_MENU_UI = 1,
+    VIDEO_SOURCE_HDZERO_IN_720P60_50 = 2,
+    VIDEO_SOURCE_HDZERO_IN_720P90 = 3,
+    VIDEO_SOURCE_HDZERO_IN_1080P30 = 4,
+    VIDEO_SOURCE_AV_IN = 5,
+    VIDEO_SOURCE_HDMI_IN_1080P50 = 6,
+    VIDEO_SOURCE_HDMI_IN_1080P60 = 7,
+    VIDEO_SOURCE_HDMI_IN_1080POTHER = 8,
+    VIDEO_SOURCE_HDMI_IN_720P50 = 9,
+    VIDEO_SOURCE_HDMI_IN_720P60 = 10,
+    VIDEO_SOURCE_HDMI_IN_720P100 = 11,
+    VIDEO_SOURCE_NUM = 12,
 } video_source_t;
 
 typedef struct {
@@ -105,6 +106,8 @@ void HDMI_in_detect();
 
 int Get_VideoLatancy_status(); // ret: 0=unlocked, 1=locked
 int Get_HAN_status();          // ret: 0=error; 1=ok
+
+void vclk_phase_init();
 
 #ifdef __cplusplus
 }
