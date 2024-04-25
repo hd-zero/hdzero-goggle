@@ -71,13 +71,6 @@ typedef struct {
 
 } hw_status_t;
 
-typedef struct {
-    uint8_t reg_fpga_8d_val0;
-    uint8_t reg_fpga_8e_val;
-    uint8_t reg_al_14_val;
-    uint8_t reg_fpga_8d_val1;
-} vclk_phase_t;
-
 extern hw_status_t g_hw_stat;
 extern int fhd_req;
 

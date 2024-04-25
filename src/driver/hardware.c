@@ -31,33 +31,45 @@
 // global
 hw_status_t g_hw_stat;
 int fhd_req = 0;
-vclk_phase_t vclk_phase[VIDEO_SOURCE_NUM] = {
-    // 8d_0, 8e,   14, 8d_1
-    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_MENU_UI
-    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_720P60_50
-    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_720P90
-    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_HDZERO_IN_1080P30
-    {0x14, 0x84, 0x00, 0x00}, // VIDEO_SOURCE_AV_IN
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080P50
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080P60
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_1080PPOTHER
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P50
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P60
-    {0x14, 0x84, 0x00, 0x04}, // VIDEO_SOURCE_HDMI_IN_720P100
-};
-
 // local
 pthread_mutex_t hardware_mutex;
 
-void set_vclk_phase(video_source_t vs, uint8_t reg_8d_sel) {
+uint32_t vclk_phase[VIDEO_SOURCE_NUM] = {
+    // 0x8d_0,  0x8e,  0x14,  0x8d_1
+    0x14840000, // VIDEO_SOURCE_MENU_UI
+    0x14840000, // VIDEO_SOURCE_HDZERO_IN_720P60_50
+    0x14840000, // VIDEO_SOURCE_HDZERO_IN_720P90
+    0x14840000, // VIDEO_SOURCE_HDZERO_IN_1080P30
+    0x14840000, // VIDEO_SOURCE_AV_IN
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_1080P50
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_1080P60
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_1080PPOTHER
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_720P50
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_720P60
+    0x14840004, // VIDEO_SOURCE_HDMI_IN_720P100
+};
+
+void vclk_phase_load_from_file() {
+    // TODO
+}
+
+void vclk_phase_init(uint32_t *phase_map) {
+    uint8_t i = 0;
+
+    for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+        vclk_phase[i] = phase_map[i];
+    }
+}
+
+void vclk_phase_set(video_source_t vs, uint8_t reg_8d_sel) {
 
     if (reg_8d_sel)
-        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs].reg_fpga_8d_val1);
+        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[vs] >> 0) & 0xff);
     else
-        I2C_Write(ADDR_FPGA, 0x8d, vclk_phase[vs].reg_fpga_8d_val0);
+        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[vs] >> 24) & 0xff);
 
-    I2C_Write(ADDR_FPGA, 0x8e, vclk_phase[vs].reg_fpga_8e_val);
-    I2C_Write(ADDR_AL, 0x14, vclk_phase[vs].reg_al_14_val);
+    I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[vs] >> 16) & 0xff);
+    I2C_Write(ADDR_AL, 0x14, (vclk_phase[vs] >> 8) & 0xff);
 }
 
 void hw_stat_init() {
@@ -105,7 +117,7 @@ void Display_UI_init() {
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
     Display_VO_SWITCH(0);
 
-    set_vclk_phase(VIDEO_SOURCE_MENU_UI, 0);
+    vclk_phase_set(VIDEO_SOURCE_MENU_UI, 0);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
@@ -130,7 +142,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 
     system_exec("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_720P60_50, 0);
+    vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P60_50, 0);
 
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
@@ -155,7 +167,7 @@ void Display_720P90_t(int mode) {
 
     system_exec("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P90;
-    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_720P90, 0);
+    vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90, 0);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
     DM5680_SetFPS(mode);
@@ -176,7 +188,7 @@ void Display_1080P30_t(int mode) {
 
     system_exec("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
-    set_vclk_phase(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
+    vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
 
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
@@ -340,7 +352,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     AV_Mode_Switch_fpga(g_setting.source.analog_format);
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
-    set_vclk_phase(VIDEO_SOURCE_AV_IN, 0);
+    vclk_phase_set(VIDEO_SOURCE_AV_IN, 0);
 
     I2C_Write(ADDR_FPGA, 0x89, 0x01);
 
@@ -520,7 +532,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_1080P60:
                         system_exec("dispw -s vdpo 1080p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080P60, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60, (freq_ref < 63));
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
                         OLED_SetTMG(2);
@@ -534,7 +546,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_1080P50:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080P50, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50, (freq_ref < 63));
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x20);
 
@@ -549,7 +561,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_1080Pother:
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_1080POTHER, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080POTHER, (freq_ref < 63));
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x40);
 
@@ -564,7 +576,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P50:
                         system_exec("dispw -s vdpo 720p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P50, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P50, (freq_ref < 63));
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x60);
 
@@ -579,7 +591,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P60:
                         system_exec("dispw -s vdpo 720p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P60, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60, (freq_ref < 63));
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
                         OLED_SetTMG(1);
@@ -593,7 +605,7 @@ void HDMI_in_detect() {
                     case HDMIIN_VTMG_720P100:
                         system_exec("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
-                        set_vclk_phase(VIDEO_SOURCE_HDMI_IN_720P100, (freq_ref < 63));
+                        vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P100, (freq_ref < 63));
 
                         I2C_Write(ADDR_FPGA, 0x80, 0xA0);
 
