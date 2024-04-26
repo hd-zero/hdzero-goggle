@@ -1,7 +1,6 @@
 #include "page_wifi.h"
 
 #include <arpa/inet.h>
-#include <errno.h>
 #include <linux/if.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -17,7 +16,6 @@
 #include "core/settings.h"
 #include "lvgl/src/core/lv_obj.h"
 #include "ui/page_common.h"
-#include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
 #include "ui/ui_style.h"
 #include "util/filesystem.h"

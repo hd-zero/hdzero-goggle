@@ -1,16 +1,11 @@
 #include "settings.h"
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <log/log.h>
 #include <minIni.h>
 
-#include "core/self_test.h"
 #include "ui/page_common.h"
 #include "util/filesystem.h"
 #include "util/system.h"
