@@ -55,43 +55,54 @@ uint8_t vclk_phase_read_cfg_file(char *file_path) {
     FILE *file;
     char line[256];
     char type_str[128];
+    char value_str[16];
+    char *endptr;
     uint32_t value;
     uint8_t i = 0;
+
+    LOGI("vclk_phase_read_cfg_file: %s", file_path);
     for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
         vclk_phase_load[i] = 0xffffffff;
     }
 
     file = fopen(file_path, "r");
     if (file == NULL) {
+        LOGI("%s open failed", file_path);
         return 1;
     } else {
         while (fgets(line, sizeof(line), file)) {
-            if (sscanf(line, "%s 0x%x", type_str, value) == 2) {
-                if (strcmp(type_str, "VIDEO_SOURCE_VERSION") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_VERSION] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_MENU_UI") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_MENU_UI] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P60_50") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P60_50] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P90") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P90] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_1080P30") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_1080P30] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_AV_IN") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_AV_IN] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P50") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P50] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P60") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P60] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080POTHER") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080POTHER] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P50") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P50] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P60") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P60] = value;
-                else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P100") == 0)
-                    vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P100] = value;
+            sscanf(line, "%s %s", type_str, value_str);
+            value = strtoul(value_str, &endptr, 0);
+            if (*endptr != '\0') {
+                LOGI("vclk parse error: %s, %s", type_str, value_str);
+                break;
             }
+            LOGI("%s    0x%08x", type_str, value);
+
+            if (strcmp(type_str, "VIDEO_SOURCE_VERSION") == 0)
+                vclk_phase_load[VIDEO_SOURCE_VERSION] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_MENU_UI") == 0)
+                vclk_phase_load[VIDEO_SOURCE_MENU_UI] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P60_50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P60_50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P90") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P90] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_1080P30") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_1080P30] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_AV_IN") == 0)
+                vclk_phase_load[VIDEO_SOURCE_AV_IN] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P60") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080POTHER") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080POTHER] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P60") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P100") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P100] = value;
         }
     }
 
@@ -102,21 +113,25 @@ uint8_t vclk_phase_read_cfg_file(char *file_path) {
 uint8_t vclk_phase_write_cfg_file(char *file_path) {
     FILE *file;
 
-    file = fopen(file_path, "w");
-    if (file == NULL)
-        return 1;
+    LOGI("vclk_phase_write_cfg_file %s", file_path);
 
-    fprintf(file, "VIDEO_SOURCE_VERSION 0x%x\r\n", vclk_phase[VIDEO_SOURCE_VERSION]);
-    fprintf(file, "VIDEO_SOURCE_MENU_UI 0x%x\r\n", vclk_phase[VIDEO_SOURCE_MENU_UI]);
-    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P60_50 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_720P60_50]);
-    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P90 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_720P90]);
-    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_1080P30 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_1080P30]);
-    fprintf(file, "VIDEO_SOURCE_AV_IN 0x%x\r\n", vclk_phase[VIDEO_SOURCE_AV_IN]);
-    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P50 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_1080P50]);
-    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P60 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_1080P60]);
-    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P50 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P50]);
-    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P60 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P60]);
-    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P100 0x%x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P100]);
+    file = fopen(file_path, "w");
+    if (file == NULL) {
+        LOGI("%s open failed", file_path);
+        return 1;
+    }
+
+    fprintf(file, "VIDEO_SOURCE_VERSION 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_VERSION]);
+    fprintf(file, "VIDEO_SOURCE_MENU_UI 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_MENU_UI]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P60_50 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_720P60_50]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P90 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_720P90]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_1080P30 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDZERO_IN_1080P30]);
+    fprintf(file, "VIDEO_SOURCE_AV_IN 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_AV_IN]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P50 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_1080P50]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P60 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_1080P60]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P50 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P50]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P60 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P60]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P100 0x%08x\r\n", vclk_phase[VIDEO_SOURCE_HDMI_IN_720P100]);
 
     fclose(file);
 }
@@ -148,6 +163,8 @@ void vclk_phase_load_sdcard_cfg() {
 
     vclk_phase_update_cfg();
     vclk_phase_write_cfg_file("/mnt/app/vclk_phase.cfg");
+
+    system_exec("rm /mnt/extsd/vclk_phase.cfg");
 }
 
 void vclk_phase_dump_cfg() {
@@ -166,6 +183,20 @@ void vclk_phase_init() {
     vclk_phase_load_system_cfg();
     vclk_phase_load_sdcard_cfg();
     vclk_phase_dump_cfg();
+
+    LOGI("vclk phase:");
+    LOGI("VIDEO_SOURCE_VERSION             0x%08x", vclk_phase[0]);
+    LOGI("VIDEO_SOURCE_MENU_UI             0x%08x", vclk_phase[1]);
+    LOGI("VIDEO_SOURCE_HDZERO_IN_720P60_50 0x%08x", vclk_phase[2]);
+    LOGI("VIDEO_SOURCE_HDZERO_IN_720P90    0x%08x", vclk_phase[3]);
+    LOGI("VIDEO_SOURCE_HDZERO_IN_1080P30   0x%08x", vclk_phase[4]);
+    LOGI("VIDEO_SOURCE_AV_IN               0x%08x", vclk_phase[5]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_1080P50     0x%08x", vclk_phase[6]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_1080P60     0x%08x", vclk_phase[7]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_1080POTHER  0x%08x", vclk_phase[8]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_720P50      0x%08x", vclk_phase[9]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_720P60      0x%08x", vclk_phase[10]);
+    LOGI("VIDEO_SOURCE_HDMI_IN_720P100     0x%08x", vclk_phase[11]);
 }
 
 void vclk_phase_set(video_source_t vs, uint8_t reg_8d_sel) {
