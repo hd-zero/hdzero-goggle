@@ -200,7 +200,6 @@ const setting_t g_setting_defaults = {
     .wifi = {
         .enable = false,
         .mode = 0,
-        .clientid = {""},
         .ssid = {"HDZero", "MySSID"},
         .passwd = {"divimath", "MyPassword"},
         .dhcp = true,
@@ -211,7 +210,6 @@ const setting_t g_setting_defaults = {
         .rf_channel = 6,
         .root_pw = "divimath",
         .ssh = false,
-        .macRandom = true,
     },
     .storage = {
         .logging = false,
@@ -439,7 +437,6 @@ void settings_load(void) {
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
     g_setting.wifi.mode = ini_getl("wifi", "mode", g_setting_defaults.wifi.mode, SETTING_INI);
-    ini_gets("wifi", "clientid", g_setting_defaults.wifi.clientid, g_setting.wifi.clientid, WIFI_CLIENTID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_ssid", g_setting_defaults.wifi.ssid[0], g_setting.wifi.ssid[0], WIFI_SSID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_passwd", g_setting_defaults.wifi.passwd[0], g_setting.wifi.passwd[0], WIFI_PASSWD_MAX, SETTING_INI);
     ini_gets("wifi", "sta_ssid", g_setting_defaults.wifi.ssid[1], g_setting.wifi.ssid[1], WIFI_SSID_MAX, SETTING_INI);
@@ -452,35 +449,7 @@ void settings_load(void) {
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
     ini_gets("wifi", "root_pw", g_setting_defaults.wifi.root_pw, g_setting.wifi.root_pw, WIFI_PASSWD_MAX, SETTING_INI);
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
-    g_setting.wifi.macRandom = settings_get_bool("wifi", "macRandom", g_setting_defaults.wifi.macRandom);
-
     ini_gets("wifi", "mac", "", g_setting.wifi.mac, 18, SETTING_INI);
-
-    // Check for override file and apply if it exists.
-    if (fs_file_exists(MAC_OVERRIDE_FILE)) {
-        FILE *file = fopen(MAC_OVERRIDE_FILE, "r");
-        char new_mac[18];
-        if (fgets(new_mac, 18, file) != NULL) {
-            if (is_valid_mac_address(new_mac)) {
-                strcpy(g_setting.wifi.mac, new_mac);
-                ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
-            }
-        }
-        fclose(file);
-    }
-
-    // Generate one random MAC for fixed MAC mode if no one is found in either settings or override file
-    if (!is_valid_mac_address(g_setting.wifi.mac)) {
-        srandom(time(NULL));
-        sprintf(g_setting.wifi.mac, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx",
-                random() & 254, // First byte must be even.
-                random() & 255,
-                random() & 255,
-                random() & 255,
-                random() & 255,
-                random() & 255);
-        ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
-    }
 
     //  no dial under video mode
     g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);
@@ -499,26 +468,4 @@ void settings_load(void) {
         unlink(APP_LOG_FILE);
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
-}
-
-static bool is_valid_mac_address(const char mac_address[]) {
-    for (int i = 0; i < 17; i++) {
-        // first byte has to be even to be a valid MAC address for our usecase
-        if (i == 1 && (mac_address[i] != '0' && mac_address[i] != '2' && mac_address[i] != '4' && mac_address[i] != '6' && mac_address[i] != '8' && mac_address[i] != 'a' && mac_address[i] != 'A' && mac_address[i] != 'c' && mac_address[i] != 'C' && mac_address[i] != 'e' && mac_address[i] != 'E')) {
-            return false;
-        }
-        if (i % 3 == 2) {
-            if (mac_address[i] != ':') {
-                return false;
-            }
-        } else {
-            if (!(
-                    mac_address[i] >= '0' && mac_address[i] <= '9' ||
-                    mac_address[i] >= 'A' && mac_address[i] <= 'F' ||
-                    mac_address[i] >= 'a' && mac_address[i] <= 'f')) {
-                return false;
-            }
-        }
-    }
-    return true;
 }

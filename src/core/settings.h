@@ -209,7 +209,6 @@ enum {
 typedef struct {
     bool enable;
     uint8_t mode; // 0 == WIFI_MODE_AP, 1 == WIFI_MODE_STA
-    char clientid[WIFI_CLIENTID_MAX];
     char ssid[WIFI_MODE_COUNT][WIFI_SSID_MAX];
     char passwd[WIFI_MODE_COUNT][WIFI_PASSWD_MAX];
     bool dhcp;
@@ -220,7 +219,6 @@ typedef struct {
     uint8_t rf_channel;
     char root_pw[WIFI_SSID_MAX];
     bool ssh;
-    bool macRandom;
     char mac[18];
 } wifi_t;
 

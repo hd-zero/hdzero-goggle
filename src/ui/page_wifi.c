@@ -93,7 +93,6 @@ typedef struct {
     root_pw_t root_pw;
     button_t ssh;
     lv_obj_t *note;
-    button_t macRandom;
     int row_count;
 } page_3_t;
 
@@ -148,9 +147,7 @@ static void page_wifi_update_services() {
         fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_core.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_wlan.ko\n");
-        if (!g_setting.wifi.macRandom) {
-            fprintf(fp, "ifconfig wlan0 hw ether %s\n", g_setting.wifi.mac);
-        }
+        fprintf(fp, "ifconfig wlan0 hw ether %s\n", g_setting.wifi.mac);
 
         fprintf(fp, "ifconfig wlan0 up\n");
 
@@ -158,7 +155,7 @@ static void page_wifi_update_services() {
             fprintf(fp,
                     "udhcpc -x hostname:%s -x 0x3d:%s -r %s -i wlan0 -b&\n",
                     g_setting.wifi.ssid[WIFI_MODE_AP],
-                    g_setting.wifi.clientid,
+                    g_setting.wifi.mac,
                     g_setting.wifi.ip_addr);
         }
 
@@ -266,6 +263,50 @@ static void page_wifi_mask_password(lv_obj_t *obj, int size) {
     lv_label_set_text(obj, buffer);
 }
 
+static bool page_wifi_is_valid_mac_address(const char mac_address[]) {
+    for (int i = 0; i < 17; i++) {
+        // first byte has to be even to be a valid broadcast address
+        if (i == 1 && (mac_address[i] != '0' && mac_address[i] != '2' && mac_address[i] != '4' && mac_address[i] != '6' && mac_address[i] != '8' && mac_address[i] != 'a' && mac_address[i] != 'A' && mac_address[i] != 'c' && mac_address[i] != 'C' && mac_address[i] != 'e' && mac_address[i] != 'E')) {
+            return false;
+        }
+        if (i % 3 == 2) {
+            if (mac_address[i] != ':') {
+                return false;
+            }
+        } else {
+            if (!(
+                    mac_address[i] >= '0' && mac_address[i] <= '9' ||
+                    mac_address[i] >= 'A' && mac_address[i] <= 'F' ||
+                    mac_address[i] >= 'a' && mac_address[i] <= 'f')) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static void page_wifi_generate_mac_address(char *mac_address) {
+    srandom(time(NULL));
+    sprintf(mac_address, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx",
+            random() & 254, // First byte must be even.
+            random() & 255,
+            random() & 255,
+            random() & 255,
+            random() & 255,
+            random() & 255);
+}
+
+static void page_wifi_read_mac_file(char *mac_address) {
+    FILE *file = fopen(MAC_OVERRIDE_FILE, "r");
+    char read_mac[18];
+    if (fgets(read_mac, 18, file) != NULL) {
+        if (page_wifi_is_valid_mac_address(read_mac)) {
+            strcpy(mac_address, read_mac);
+        }
+    }
+    fclose(file);
+}
+
 /**
  * Update settings and apply them.
  */
@@ -274,7 +315,6 @@ static void page_wifi_update_settings() {
     g_setting.wifi.mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
     g_setting.wifi.dhcp = btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0;
     g_setting.wifi.ssh = btn_group_get_sel(&page_wifi.page_3.ssh.button) == 0;
-    g_setting.wifi.macRandom = btn_group_get_sel(&page_wifi.page_3.macRandom.button) == 0;
 
     snprintf(g_setting.wifi.ssid[g_setting.wifi.mode], WIFI_SSID_MAX, "%s", page_wifi.page_1.ssid.text[g_setting.wifi.mode]);
     snprintf(g_setting.wifi.passwd[g_setting.wifi.mode], WIFI_PASSWD_MAX, "%s", page_wifi.page_1.passwd.text[g_setting.wifi.mode]);
@@ -286,9 +326,16 @@ static void page_wifi_update_settings() {
 
     snprintf(g_setting.wifi.root_pw, WIFI_PASSWD_MAX, "%s", page_wifi.page_3.root_pw.text);
 
-    if (0 == strlen(g_setting.wifi.clientid)) {
-        page_wifi_generate_clientid(g_setting.wifi.clientid, WIFI_CLIENTID_MAX);
-        ini_puts("wifi", "clientid", g_setting.wifi.clientid, SETTING_INI);
+    // Generate one random MAC if none is set or if it is invalid.
+    if (0 == strlen(g_setting.wifi.mac) || !page_wifi_is_valid_mac_address(g_setting.wifi.mac)) {
+        page_wifi_generate_mac_address(g_setting.wifi.mac);
+        ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
+    }
+
+    // Check for override file and apply if it exists.
+    if (fs_file_exists(MAC_OVERRIDE_FILE)) {
+        page_wifi_read_mac_file(g_setting.wifi.mac);
+        ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
     }
 
     settings_put_bool("wifi", "enable", g_setting.wifi.enable);
@@ -305,7 +352,6 @@ static void page_wifi_update_settings() {
     ini_putl("wifi", "rf_channel", g_setting.wifi.rf_channel, SETTING_INI);
     ini_puts("wifi", "root_pw", g_setting.wifi.root_pw, SETTING_INI);
     settings_put_bool("wifi", "ssh", g_setting.wifi.ssh);
-    settings_put_bool("wifi", "macRandom", g_setting.wifi.macRandom);
 
     // Prepare WiFi interfaces
     system_script(WIFI_OFF);
@@ -490,7 +536,6 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
     btn_group_show(&page_wifi.page_3.ssh.button, false);
-    btn_group_show(&page_wifi.page_3.macRandom.button, false);
     lv_obj_add_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
 
     switch (which) {
@@ -563,14 +608,7 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_3.root_pw.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
-        if (page_wifi.page_1.mode.button.current == WIFI_MODE_STA) {
-            lv_obj_clear_state(page_wifi.page_3.macRandom.button.label, STATE_DISABLED);
-        } else {
-            lv_obj_add_state(page_wifi.page_3.macRandom.button.label, STATE_DISABLED);
-            lv_obj_clear_flag(pp_wifi.p_arr.panel[3], FLAG_SELECTABLE);
-        }
         btn_group_show(&page_wifi.page_3.ssh.button, true);
-        btn_group_show(&page_wifi.page_3.macRandom.button, true);
         lv_obj_clear_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
         page_wifi_update_page_3_notes();
         break;
@@ -601,8 +639,7 @@ static void page_wifi_dirty_flag_reset() {
                                         page_wifi.page_2.dns.dirty =
                                             page_wifi.page_2.rf_channel.dirty =
                                                 page_wifi.page_3.root_pw.dirty =
-                                                    page_wifi.page_3.ssh.dirty =
-                                                        page_wifi.page_3.macRandom.dirty = false;
+                                                    page_wifi.page_3.ssh.dirty = false;
 }
 
 /**
@@ -659,8 +696,7 @@ static void page_wifi_update_dirty_flag() {
         page_wifi.page_2.dns.dirty ||
         page_wifi.page_2.rf_channel.dirty ||
         page_wifi.page_3.root_pw.dirty ||
-        page_wifi.page_3.ssh.dirty ||
-        page_wifi.page_3.macRandom.dirty;
+        page_wifi.page_3.ssh.dirty;
 
     if (page_wifi.dirty) {
         if (!page_wifi_apply_settings_pending_timer) {
@@ -741,9 +777,6 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", "On", "Off", "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
-    create_btn_group_item(&page_wifi.page_3.macRandom.button, parent, 2, "MAC", "Random", "Fixed", "", "", 3);
-    btn_group_set_sel(&page_wifi.page_3.macRandom.button, !g_setting.wifi.macRandom);
-
     page_wifi.page_3.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_3.note, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(page_wifi.page_3.note, LV_TEXT_ALIGN_LEFT, 0);
@@ -753,7 +786,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     lv_obj_set_grid_cell(page_wifi.page_3.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     page_wifi_update_page_3_notes();
 
-    page_wifi.page_3.row_count = 4;
+    page_wifi.page_3.row_count = 3;
 }
 
 /**
@@ -974,12 +1007,6 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             } else {
                 keyboard_press();
             }
-            break;
-        case 2:
-
-            btn_group_toggle_sel(&page_wifi.page_3.macRandom.button);
-            page_wifi.page_3.macRandom.dirty =
-                (btn_group_get_sel(&page_wifi.page_3.macRandom.button) != !g_setting.wifi.macRandom);
             break;
         }
         break;
