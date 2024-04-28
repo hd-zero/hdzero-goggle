@@ -260,7 +260,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     AV_Mode_Switch_fpga(g_setting.source.analog_format);
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    I2C_Write(ADDR_FPGA, 0x8d, 0x1c);
     I2C_Write(ADDR_FPGA, 0x8e, 0x84);
     I2C_Write(ADDR_AL, 0x14, 0x00);
 
@@ -534,7 +534,7 @@ void HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         OLED_display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
-                        break;    
+                        break;
 
                     case HDMIIN_VTMG_1080Pother:
                         system_exec("dispw -s vdpo 1080p50");
