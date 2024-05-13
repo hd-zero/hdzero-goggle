@@ -159,6 +159,7 @@ int main(int argc, char *argv[]) {
     elrs_init();
     ht_init();
     beep_init();
+    vclk_phase_init();
 
     // 4. Initilize UI
     lvgl_init();
