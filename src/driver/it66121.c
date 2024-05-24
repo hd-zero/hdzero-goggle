@@ -117,8 +117,6 @@ void IT66121_init() {
     I2C_R_Write(ADDR_IT66121, 0x61, 0x02);
     I2C_R_Write(ADDR_IT66121, 0xc1, 0x00);
     I2C_R_Write(ADDR_IT66121, 0xc6, 0x03);
-    I2C_R_Write(ADDR_IT66121, 0xa8, 0x01);
-    I2C_R_Write(ADDR_IT66121, 0xa9, 0x3c);
 #else
     I2C_R_Write(ADDR_IT66121, 0x0f, 0x08);
     I2C_R_Write(ADDR_IT66121, 0x05, 0x60);
