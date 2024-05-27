@@ -145,12 +145,12 @@ void vclk_phase_update_cfg() {
 }
 
 void vclk_phase_load_system_cfg() {
-    if (vclk_phase_read_cfg_file("/mnt/app/vclk_phase.cfg")) {
+    if (vclk_phase_read_cfg_file("/var/vclk_phase.cfg")) {
         // if no .cfg file, write it.
-        vclk_phase_write_cfg_file("/mnt/app/vclk_phase.cfg");
+        vclk_phase_write_cfg_file("/var/vclk_phase.cfg");
     } else if (vclk_phase_load[VIDEO_SOURCE_VERSION] != 0xffffffff && vclk_phase_load[VIDEO_SOURCE_VERSION] != vclk_phase[VIDEO_SOURCE_VERSION]) {
         // newer .cfg file version
-        vclk_phase_write_cfg_file("/mnt/app/vclk_phase.cfg");
+        vclk_phase_write_cfg_file("/var/vclk_phase.cfg");
     } else {
         vclk_phase_update_cfg();
     }
@@ -162,7 +162,7 @@ void vclk_phase_load_sdcard_cfg() {
     }
 
     vclk_phase_update_cfg();
-    vclk_phase_write_cfg_file("/mnt/app/vclk_phase.cfg");
+    vclk_phase_write_cfg_file("/var/vclk_phase.cfg");
 
     system_exec("rm /mnt/extsd/vclk_phase.cfg");
 }
