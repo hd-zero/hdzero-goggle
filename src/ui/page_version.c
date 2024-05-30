@@ -645,6 +645,10 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
 
 static void page_version_fw_select_hide(fw_select_t *fw_select) {
     lv_obj_add_flag(fw_select->msgbox, LV_OBJ_FLAG_HIDDEN);
+    if (fw_select_current->dropdown_focused) {
+        page_version_on_click_fw_select(0, 0); // Release Dropdown
+        page_version_on_click_fw_select(0, 2); // Hide Dialog
+    }
 }
 
 static void page_version_on_roller_fw_select(uint8_t key) {
