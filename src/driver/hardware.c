@@ -51,7 +51,7 @@ uint32_t vclk_phase[VIDEO_SOURCE_NUM] = {
 };
 uint32_t vclk_phase_load[VIDEO_SOURCE_NUM];
 
-uint8_t vclk_phase_read_cfg_file(char *file_path) {
+uint8_t vclk_phase_read_file(char *file_path) {
     FILE *file;
     char line[256];
     char type_str[128];
@@ -60,7 +60,7 @@ uint8_t vclk_phase_read_cfg_file(char *file_path) {
     uint32_t value;
     uint8_t i = 0;
 
-    LOGI("vclk_phase_read_cfg_file: %s", file_path);
+    LOGI("vclk_phase_read_file: %s", file_path);
     for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
         vclk_phase_load[i] = 0xffffffff;
     }
@@ -110,10 +110,69 @@ uint8_t vclk_phase_read_cfg_file(char *file_path) {
     return 0;
 }
 
-uint8_t vclk_phase_write_cfg_file(char *file_path) {
+uint8_t vclk_phase_read_file(char *file_path) {
+    FILE *file;
+    char line[256];
+    char type_str[128];
+    char value_str[16];
+    char *endptr;
+    uint32_t value;
+    uint8_t i = 0;
+
+    LOGI("vclk_phase_read_file: %s", file_path);
+    for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+        vclk_phase_load[i] = 0xffffffff;
+    }
+
+    file = fopen(file_path, "r");
+    if (file == NULL) {
+        LOGI("%s open failed", file_path);
+        return 1;
+    } else {
+        while (fgets(line, sizeof(line), file)) {
+            sscanf(line, "%s %s", type_str, value_str);
+            value = strtoul(value_str, &endptr, 0);
+            if (*endptr != '\0') {
+                LOGI("vclk parse error: %s, %s", type_str, value_str);
+                break;
+            }
+            LOGI("%s    0x%08x", type_str, value);
+
+            if (strcmp(type_str, "VIDEO_SOURCE_VERSION") == 0)
+                vclk_phase_load[VIDEO_SOURCE_VERSION] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_MENU_UI") == 0)
+                vclk_phase_load[VIDEO_SOURCE_MENU_UI] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P60_50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P60_50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P90") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P90] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_1080P30") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDZERO_IN_1080P30] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_AV_IN") == 0)
+                vclk_phase_load[VIDEO_SOURCE_AV_IN] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P60") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080POTHER") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080POTHER] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P50") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P60") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P100") == 0)
+                vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P100] = value;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+uint8_t vclk_phase_write_file(char *file_path) {
     FILE *file;
 
-    LOGI("vclk_phase_write_cfg_file %s", file_path);
+    LOGI("vclk_phase_write_file %s", file_path);
 
     file = fopen(file_path, "w");
     if (file == NULL) {
@@ -136,7 +195,7 @@ uint8_t vclk_phase_write_cfg_file(char *file_path) {
     fclose(file);
 }
 
-void vclk_phase_update_cfg() {
+void vclk_phase_update() {
     uint8_t i;
     for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
         if (vclk_phase_load[i] != 0xffffffff && vclk_phase_load[i] != vclk_phase[i])
@@ -144,30 +203,30 @@ void vclk_phase_update_cfg() {
     }
 }
 
-void vclk_phase_load_system_cfg() {
-    if (vclk_phase_read_cfg_file("/etc/vclk_phase.cfg")) {
+void vclk_phase_load_system() {
+    if (vclk_phase_read_file("/etc/vclk_phase.cfg")) {
         // if no .cfg file, write it.
-        vclk_phase_write_cfg_file("/etc/vclk_phase.cfg");
+        vclk_phase_write_file("/etc/vclk_phase.cfg");
     } else if (vclk_phase_load[VIDEO_SOURCE_VERSION] != 0xffffffff && vclk_phase_load[VIDEO_SOURCE_VERSION] != vclk_phase[VIDEO_SOURCE_VERSION]) {
         // newer .cfg file version
-        vclk_phase_write_cfg_file("/etc/vclk_phase.cfg");
+        vclk_phase_write_file("/etc/vclk_phase.cfg");
     } else {
-        vclk_phase_update_cfg();
+        vclk_phase_update();
     }
 }
 
-void vclk_phase_load_sdcard_cfg() {
-    if (vclk_phase_read_cfg_file("/mnt/extsd/vclk_phase.cfg")) {
+void vclk_phase_load_sdcard() {
+    if (vclk_phase_read_file("/mnt/extsd/vclk_phase.cfg")) {
         return;
     }
 
-    vclk_phase_update_cfg();
-    vclk_phase_write_cfg_file("/etc/vclk_phase.cfg");
+    vclk_phase_update();
+    vclk_phase_write_file("/etc/vclk_phase.cfg");
 
     system_exec("rm /mnt/extsd/vclk_phase.cfg");
 }
 
-void vclk_phase_dump_cfg() {
+void vclk_phase_dump() {
     FILE *file;
     char *file_path = "/mnt/extsd/vclk_phase_dump.cfg";
 
@@ -176,13 +235,13 @@ void vclk_phase_dump_cfg() {
         return;
     fclose(file);
 
-    vclk_phase_write_cfg_file(file_path);
+    vclk_phase_write_file(file_path);
 }
 
 void vclk_phase_init() {
-    vclk_phase_load_system_cfg();
-    vclk_phase_load_sdcard_cfg();
-    vclk_phase_dump_cfg();
+    vclk_phase_load_system();
+    vclk_phase_load_sdcard();
+    vclk_phase_dump();
 
     LOGI("vclk phase:");
     LOGI("VIDEO_SOURCE_VERSION             0x%08x", vclk_phase[0]);
@@ -199,15 +258,15 @@ void vclk_phase_init() {
     LOGI("VIDEO_SOURCE_HDMI_IN_720P100     0x%08x", vclk_phase[11]);
 }
 
-void vclk_phase_set(video_source_t vs, uint8_t reg_8d_sel) {
+void vclk_phase_set(video_source_t source, uint8_t reg_8d_sel) {
 
     if (reg_8d_sel)
-        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[vs] >> 0) & 0xff);
+        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 0) & 0xff);
     else
-        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[vs] >> 24) & 0xff);
+        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
 
-    I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[vs] >> 16) & 0xff);
-    I2C_Write(ADDR_AL, 0x14, (vclk_phase[vs] >> 8) & 0xff);
+    I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[source] >> 16) & 0xff);
+    I2C_Write(ADDR_AL, 0x14, (vclk_phase[source] >> 8) & 0xff);
 }
 
 void hw_stat_init() {
