@@ -143,6 +143,7 @@ int main(int argc, char *argv[]) {
     // 1. Recall configuration
     settings_init();
     settings_load();
+    vclk_phase_init();
 
     // 2. Initialize communications.
     rtc_init();
@@ -159,7 +160,6 @@ int main(int argc, char *argv[]) {
     elrs_init();
     ht_init();
     beep_init();
-    vclk_phase_init();
 
     // 4. Initilize UI
     lvgl_init();
