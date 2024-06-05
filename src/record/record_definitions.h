@@ -89,7 +89,7 @@ extern "C" {
 #define REC_packTypesNUM    2
 
 #define REC_filePathGet(BUFF, PATH, PREFIX, INDEX, FILEFMT) \
-    sprintf((BUFF), "%s%s%03d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
+    sprintf((BUFF), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 
