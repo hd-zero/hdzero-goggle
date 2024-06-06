@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <libgen.h>
 
 #include <log/log.h>
 
@@ -145,7 +146,13 @@ bool disk_checkPath(char* sPath)
 	stat(sPath, &st);
 	if(!S_ISDIR(st.st_mode))
 	{
-		mkdir(sPath, 0777);
+		char command[128];
+		snprintf(command, sizeof(command), "mkdir -p %s && chmod -R 777 $(dirname %s)", sPath, sPath);
+		int ret =  system(command);
+
+		if (ret != 0) {
+			return false;
+		}
 
 		memset(&st, 0, sizeof(st));
 		stat(sPath, &st);
