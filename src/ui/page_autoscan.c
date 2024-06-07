@@ -44,7 +44,7 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_t btn_group;
     create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off", "", 0);
     create_btn_group_item2(&btn_group1, cont, 5, "Default", "Last", "HDZero", "Expansion", "AV In", "HDMI In", " ", 1); // 2 rows
-    create_btn_group_item(&btn_group2, cont, 2, "Toggle Mode", "Race", "Cycle", "", "", 3);
+    create_btn_group_item(&btn_group2, cont, 2, "Toggle Mode", "Cycle", "Race", "", "", 3);
     create_label_item(cont, "< Back", 1, 4, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
