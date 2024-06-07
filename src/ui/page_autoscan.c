@@ -10,6 +10,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_T
 
 static btn_group_t btn_group0;
 static btn_group_t btn_group1;
+static btn_group_t btn_group2;
 
 static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -42,7 +43,8 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_t btn_group;
     create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off", "", 0);
     create_btn_group_item2(&btn_group1, cont, 5, "Default", "Last", "HDZero", "Expansion", "AV In", "HDMI In", " ", 1); // 2 rows
-    create_label_item(cont, "< Back", 1, 3, 1);
+    create_btn_group_item(&btn_group2, cont, 2, "Toggle Mode", "Cycle", "Race", "", "", 3);
+    create_label_item(cont, "< Back", 1, 4, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, "*if Auto Scan is 'Last', goggles will default to show last tuned channel");
@@ -52,10 +54,11 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_pad_top(label2, 12, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 3,
-                         LV_GRID_ALIGN_START, 4, 2);
+                         LV_GRID_ALIGN_START, 5, 2);
 
     btn_group_set_sel(&btn_group0, g_setting.autoscan.status);
     btn_group_set_sel(&btn_group1, g_setting.autoscan.source);
+    btn_group_set_sel(&btn_group2, g_setting.autoscan.toggle);
     return page;
 }
 
@@ -64,11 +67,14 @@ static void page_autoscan_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group0);
         g_setting.autoscan.status = btn_group_get_sel(&btn_group0);
         ini_putl("autoscan", "status", g_setting.autoscan.status, SETTING_INI);
-    } else if (sel < 3) {
+    } else if (sel == 1) {
         btn_group_toggle_sel(&btn_group1);
         g_setting.autoscan.source = btn_group_get_sel(&btn_group1);
         ini_putl("autoscan", "source", g_setting.autoscan.source, SETTING_INI);
-    }
+    } else if (sel == 3) {
+        btn_group_toggle_sel(&btn_group2);
+        g_setting.autoscan.toggle = btn_group_get_sel(&btn_group2);
+        ini_putl("autoscan", "toggle", g_setting.autoscan.toggle, SETTING_INI);
 }
 
 page_pack_t pp_autoscan = {
