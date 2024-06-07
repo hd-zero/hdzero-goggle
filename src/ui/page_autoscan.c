@@ -107,7 +107,7 @@ void source_toggle() {
     } else {
         source_cycle();
     }
-
+}
 static void page_autoscan_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
