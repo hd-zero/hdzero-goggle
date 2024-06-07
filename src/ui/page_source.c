@@ -124,7 +124,7 @@ void source_status_timer() {
     }
 }
 
-static void page_source_select_hdzero() {
+void page_source_select_hdzero() {
     progress_bar.start = 1;
     app_switch_to_hdzero(true);
     app_state_push(APP_STATE_VIDEO);
@@ -133,12 +133,12 @@ static void page_source_select_hdzero() {
     dvr_enable_line_out(true);
 }
 
-static void page_source_select_hdmi() {
+void page_source_select_hdmi() {
     if (g_source_info.hdmi_in_status)
         app_switch_to_hdmi_in();
 }
 
-static void page_source_select_av_in() {
+void page_source_select_av_in() {
     app_switch_to_analog(0);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_IN;
@@ -146,7 +146,7 @@ static void page_source_select_av_in() {
     dvr_enable_line_out(true);
 }
 
-static void page_source_select_expansion() {
+void page_source_select_expansion() {
     app_switch_to_analog(1);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_EXPANSION;
