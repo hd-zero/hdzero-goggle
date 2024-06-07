@@ -12,6 +12,7 @@
 
 #include "ui/page_fans.h"
 #include "ui/ui_image_setting.h"
+#include "ui/page_autoscan.h"
 
 /**
  * Various enumerations and typedefs
@@ -36,8 +37,8 @@ typedef enum page_input_rows {
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
-const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed"};
-void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan};
+const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed", "Toggle source"};
+void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan, &source_toggle};
 
 const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
 void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
