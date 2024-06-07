@@ -121,6 +121,7 @@ static void page_autoscan_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group2);
         g_setting.autoscan.toggle = btn_group_get_sel(&btn_group2);
         ini_putl("autoscan", "toggle", g_setting.autoscan.toggle, SETTING_INI);
+    }
 }
 
 page_pack_t pp_autoscan = {
