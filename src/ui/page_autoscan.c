@@ -4,6 +4,7 @@
 
 #include "core/settings.h"
 #include "ui/ui_style.h"
+#include "ui/page_source.h"
 
 static lv_coord_t col_dsc[] = {160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -62,6 +63,51 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     return page;
 }
 
+static void source_race() {
+    switch(g_source_info.source) {
+    case SOURCE_HDZERO:
+        page_source_select_expansion();
+        break;
+    case SOURCE_EXPANSION:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_AV_IN:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_HDMI_IN:
+        page_source_select_hdzero();
+        break;
+    }
+}
+
+static void source_cycle() {
+    switch(g_source_info.source) {
+    case SOURCE_HDZERO: 
+        if (g_source_info.hdmi_in_status) {
+            page_source_select_hdmi();
+        } else {
+             page_source_select_av_in();
+        }
+        break;
+    case SOURCE_EXPANSION:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_AV_IN:
+        page_source_select_expansion();
+        break;
+    case SOURCE_HDMI_IN:
+        page_source_select_av_in();
+        break;
+    }
+}
+
+void source_toggle() {
+    if (g_setting.autoscan.toggle == 1) {
+        source_race();
+    } else {
+        source_cycle();
+    }
+
 static void page_autoscan_on_click(uint8_t key, int sel) {
     if (sel == 0) {
         btn_group_toggle_sel(&btn_group0);
@@ -80,7 +126,7 @@ static void page_autoscan_on_click(uint8_t key, int sel) {
 page_pack_t pp_autoscan = {
     .p_arr = {
         .cur = 0,
-        .max = 4,
+        .max = 5,
     },
     .name = "Auto Scan",
     .create = page_autoscan_create,
