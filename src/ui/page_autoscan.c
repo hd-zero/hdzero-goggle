@@ -44,7 +44,7 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_t btn_group;
     create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off", "", 0);
     create_btn_group_item2(&btn_group1, cont, 5, "Default", "Last", "HDZero", "Expansion", "AV In", "HDMI In", " ", 1); // 2 rows
-    create_btn_group_item(&btn_group2, cont, 2, "Toggle Mode", "Cycle", "Race", "", "", 3);
+    create_btn_group_item(&btn_group2, cont, 2, "Toggle Mode", "Race", "Cycle", "", "", 3);
     create_label_item(cont, "< Back", 1, 4, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
@@ -61,44 +61,6 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group1, g_setting.autoscan.source);
     btn_group_set_sel(&btn_group2, g_setting.autoscan.toggle);
     return page;
-}
-
-static void source_race() {
-    switch(g_source_info.source) {
-    case SOURCE_HDZERO:
-        page_source_select_expansion();
-        break;
-    case SOURCE_EXPANSION:
-        page_source_select_hdzero();
-        break;
-    case SOURCE_AV_IN:
-        page_source_select_hdzero();
-        break;
-    case SOURCE_HDMI_IN:
-        page_source_select_hdzero();
-        break;
-    }
-}
-
-static void source_cycle() {
-    switch(g_source_info.source) {
-    case SOURCE_HDZERO: 
-        if (g_source_info.hdmi_in_status) {
-            page_source_select_hdmi();
-        } else {
-             page_source_select_av_in();
-        }
-        break;
-    case SOURCE_EXPANSION:
-        page_source_select_hdzero();
-        break;
-    case SOURCE_AV_IN:
-        page_source_select_expansion();
-        break;
-    case SOURCE_HDMI_IN:
-        page_source_select_av_in();
-        break;
-    }
 }
 
 void source_toggle() {
