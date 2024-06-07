@@ -30,6 +30,7 @@ const setting_t g_setting_defaults = {
         .status = SETTING_AUTOSCAN_STATUS_ON,
         .last_source = SETTING_AUTOSCAN_SOURCE_LAST,
         .source = SETTING_AUTOSCAN_SOURCE_HDZERO,
+        .toggle = SETTING_AUTOSCAN_TOGGLE_CYCLE,
     },
     .power = {
         .voltage = 35,
