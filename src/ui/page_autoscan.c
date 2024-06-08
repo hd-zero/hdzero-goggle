@@ -64,7 +64,7 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 void source_toggle() {
-    if (g_setting.autoscan.toggle == 1) {
+    if (g_setting.autoscan.toggle == SETTING_AUTOSCAN_TOGGLE_RACE) {
         source_race();
     } else {
         source_cycle();
