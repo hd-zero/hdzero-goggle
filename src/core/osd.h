@@ -87,6 +87,7 @@ typedef struct {
 } osd_font_t;
 
 extern uint8_t channel_osd_mode;
+extern lv_img_dsc_t img_menu_bg;
 
 int osd_init(void);
 int osd_clear(void);
@@ -101,7 +102,7 @@ void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 void osd_toggle();
-
+int load_wallpaper(char *file_path);
 #ifdef __cplusplus
 }
 #endif

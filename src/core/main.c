@@ -135,6 +135,12 @@ void lvgl_init() {
                                               false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
+
+    // user wallpaper
+    if (load_wallpaper("/mnt/extsd/resource/OSD/GOGGLE/wallpaper.bmp")) {
+        lv_obj_t *img_obj = lv_img_create(lv_scr_act());
+        lv_img_set_src(img_obj, &img_menu_bg);
+    }
 }
 
 int main(int argc, char *argv[]) {
