@@ -172,10 +172,8 @@ uint8_t vclk_phase_inv_read_file(char *file_path) {
             if ((value >> 1) & 1) // 8e[7]
                 vclk_phase[mode] ^= (1 << 23);
 
-            if ((value >> 2) & 1) { // 8d[2]
-                vclk_phase[mode] ^= (1 << 2);
+            if ((value >> 2) & 1) // 8d[2]
                 vclk_phase[mode] ^= (1 << 26);
-            }
 
             if ((value >> 3) & 1) // hdmi out_0
                 vclk_phase[mode] ^= (1 << 0);
