@@ -31,6 +31,8 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
+void (*sdcard_ready_cb)() = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void) {
@@ -52,7 +54,9 @@ static void detect_sdcard(void) {
         // Only repair card at bootup or when inserted
         if (g_init_done) {
             if (sdcard_init_scan && g_sdcard_enable) {
-                page_storage_init_auto_sd_repair();
+                if (sdcard_ready_cb) {
+                    sdcard_ready_cb();
+                }
                 sdcard_init_scan = false;
             } else if (!g_sdcard_enable && sdcard_enable_last) {
                 sdcard_init_scan = true;
