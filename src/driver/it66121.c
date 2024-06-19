@@ -2,10 +2,11 @@
 #include "../core/common.hh"
 #include "dm5680.h"
 #include "i2c.h"
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+uint8_t it66121_vi_phase = 0;
 
 void IT66121_close() {
     DM5680_ResetHDMI_TX(0);
@@ -117,4 +118,15 @@ void IT66121_init() {
     I2C_R_Write(ADDR_IT66121, 0x61, 0x02);
     I2C_R_Write(ADDR_IT66121, 0xc1, 0x00);
     I2C_R_Write(ADDR_IT66121, 0xc6, 0x03);
+}
+
+void IT66121_set_phase(uint8_t phase) {
+    uint8_t rdat;
+
+    rdat = I2C_R_Read(ADDR_IT66121, 0x02);
+    if (rdat == 0x12) {
+        I2C_R_Write(ADDR_IT66121, 0x70, (0x48 | phase));
+    } else if (rdat == 0x22) {
+        I2C_R_Write(ADDR_IT66121, 0x72, (0x03 | (phase << 6)));
+    }
 }
