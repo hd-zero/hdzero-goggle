@@ -32,10 +32,16 @@ typedef enum {
     SETTING_AUTOSCAN_SOURCE_HDMI_IN = 4
 } setting_autoscan_source_t;
 
+typedef enum {
+    SETTING_AUTOSCAN_TOGGLE_CYCLE = 0,
+    SETTING_AUTOSCAN_TOGGLE_RACE = 1,
+} setting_autoscan_toggle_t;
+
 typedef struct {
     setting_autoscan_status_t status;
     setting_autoscan_source_t last_source;
     setting_autoscan_source_t source;
+    setting_autoscan_toggle_t toggle;
 } setting_autoscan_t;
 
 typedef enum {

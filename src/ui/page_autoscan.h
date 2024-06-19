@@ -11,6 +11,8 @@ extern "C" {
 
 extern page_pack_t pp_autoscan;
 
+void source_toggle();
+
 #ifdef __cplusplus
 }
 #endif
