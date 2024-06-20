@@ -42,6 +42,8 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1142, 894);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Playback:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
@@ -49,6 +51,8 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_size(cont, 1164, 760);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont, &style_context, LV_PART_MAIN);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(cont, LV_OPA_50, 0);
 
     for (uint32_t pos = 0; pos < ITEMS_LAYOUT_CNT; pos++) {
         pb_ui[pos]._img = lv_img_create(cont);

@@ -1053,6 +1053,7 @@ int load_bmp_image(const char *file, uint32_t *obuf, int width, int height) {
 
 static uint32_t img_menu_bg_data[1920 * 1080]; // 0x00BBGGRR
 lv_img_dsc_t img_menu_bg;
+uint8_t wallpaper_is_used = 0;
 int load_wallpaper(char *file_path) {
     if (load_bmp_image(file_path, img_menu_bg_data, 1920, 1080)) {
         img_menu_bg.header.cf = LV_IMG_CF_TRUE_COLOR;
@@ -1062,6 +1063,7 @@ int load_wallpaper(char *file_path) {
         img_menu_bg.header.h = 1080;
         img_menu_bg.data_size = 1920 * 1080 * LV_COLOR_SIZE / 8;
         img_menu_bg.data = (uint8_t *)img_menu_bg_data;
+        wallpaper_is_used = 1;
         return 1;
     } else {
         return 0;

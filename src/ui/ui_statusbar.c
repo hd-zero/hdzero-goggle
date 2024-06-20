@@ -53,6 +53,8 @@ int statusbar_init(void) {
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(cont, lv_color_make(19, 19, 19), 0);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(cont, LV_OPA_50, 0);
     lv_obj_set_style_border_width(cont, 0, 0);
     lv_obj_set_style_radius(cont, 0, 0);
     lv_obj_set_style_pad_row(cont, 0, 0);

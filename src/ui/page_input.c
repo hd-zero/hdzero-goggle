@@ -7,8 +7,8 @@
 #include "core/dvr.h"
 #include "core/ht.h"
 #include "core/input_device.h"
-#include "core/sleep_mode.h"
 #include "core/osd.h"
+#include "core/sleep_mode.h"
 
 #include "ui/page_fans.h"
 #include "ui/ui_image_setting.h"
@@ -37,10 +37,10 @@ static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
 const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed"};
-void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan};
+void (*const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan};
 
 const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
-void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
+void (*const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
 const uint16_t rollerDefaultOption = 0;
 
 static rowType_t selectedRow = ROW_COUNT;
@@ -51,7 +51,7 @@ static uint16_t previousSelection;
 /**
  * Build a '\n'-separated list of all available options for the dropdown element
  */
-static void build_options_string(const char** input, size_t arraySize, char* output) {
+static void build_options_string(const char **input, size_t arraySize, char *output) {
     output[0] = 0;
     for (size_t i = 0; i < arraySize; i++) {
         strcat(output, input[i]);
@@ -168,6 +168,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Inputs:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
@@ -177,6 +179,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_layout(content, LV_LAYOUT_GRID);
     lv_obj_clear_flag(content, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(content, &style_context, LV_PART_MAIN);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(content, LV_OPA_50, 0);
 
     lv_obj_set_style_grid_column_dsc_array(content, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(content, row_dsc, 0);
@@ -246,7 +250,7 @@ static void page_input_exit() {
  */
 static void page_input_on_roller(uint8_t key) {
     if (is_any_dropdown_open()) {
-        lv_obj_t * const targetItem = pageItems[selectedRow];
+        lv_obj_t *const targetItem = pageItems[selectedRow];
         uint32_t evt = (key == DIAL_KEY_DOWN) ? LV_KEY_UP : LV_KEY_DOWN;
 
         lv_event_send(targetItem, LV_EVENT_KEY, &evt);
@@ -275,7 +279,7 @@ static void page_input_on_roller(uint8_t key) {
 static void page_input_on_click(uint8_t key, int sel) {
     LV_UNUSED(key);
 
-    if ((rowType_t) sel >= BACK_BTN) {
+    if ((rowType_t)sel >= BACK_BTN) {
         return;
     }
 
@@ -283,10 +287,10 @@ static void page_input_on_click(uint8_t key, int sel) {
         accept_dropdown(pageItems[selectedRow]);
     } else {
         selectedRow = (rowType_t)sel;
-        lv_obj_t * const currentItem = pageItems[selectedRow];
+        lv_obj_t *const currentItem = pageItems[selectedRow];
 
         lv_dropdown_open(currentItem);
-        lv_obj_t * const list = lv_dropdown_get_list(currentItem);
+        lv_obj_t *const list = lv_dropdown_get_list(currentItem);
         lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
         lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
         previousSelection = lv_dropdown_get_selected(currentItem);

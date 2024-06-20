@@ -8,6 +8,7 @@
 #include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
+#include "core/osd.h"
 #include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
@@ -42,7 +43,7 @@ static btn_group_t btn_group_osd_display_mode;
 static btn_group_t btn_group_warn_type;
 static btn_group_t btn_group_power_ana;
 
-static slider_group_t* selected_slider_group = NULL;
+static slider_group_t *selected_slider_group = NULL;
 
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
@@ -97,6 +98,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1063, 984);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Power:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
@@ -106,6 +109,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont, &style_context, LV_PART_MAIN);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(cont, LV_OPA_50, 0);
 
     lv_obj_set_style_grid_column_dsc_array(cont, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);

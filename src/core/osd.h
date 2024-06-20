@@ -88,6 +88,7 @@ typedef struct {
 
 extern uint8_t channel_osd_mode;
 extern lv_img_dsc_t img_menu_bg;
+extern uint8_t wallpaper_is_used;
 
 int osd_init(void);
 int osd_clear(void);
