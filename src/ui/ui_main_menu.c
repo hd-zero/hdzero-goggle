@@ -312,6 +312,8 @@ void main_menu_init(void) {
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
     lv_obj_set_pos(section, 0, 0);
+    if (wallpaper_is_used)
+        lv_obj_set_style_bg_opa(section, LV_OPA_50, 0);
 
     lv_obj_set_size(root_page, 250, 975);
     lv_obj_set_pos(root_page, 0, 0);
