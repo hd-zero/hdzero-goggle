@@ -19,6 +19,12 @@ extern "C" {
 #define OSD_BOUNDRY_0  0
 #define OSD_BOUNDRY_1  6
 
+#ifdef EMULATOR_BUILD
+#define WALLPAPER_PATH "wallpaper.bmp"
+#else
+#define WALLPAPER_PATH "/mnt/extsd/resource/OSD/GOGGLE/wallpaper.bmp"
+#endif
+
 typedef enum {
     OSD_RESOURCE_720 = 0,
     OSD_RESOURCE_1080,
