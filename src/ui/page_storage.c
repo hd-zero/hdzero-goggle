@@ -8,6 +8,8 @@
 
 #include "core/common.hh"
 #include "core/settings.h"
+#include "record/record_definitions.h"
+#include "ui/page_common.h"
 #include "ui/page_playback.h"
 #include "util/filesystem.h"
 #include "util/sdcard.h"
@@ -22,6 +24,7 @@ typedef enum {
     ITEM_LOGGING,
     ITEM_FORMAT,
     ITEM_REPAIR,
+    ITEM_REMOVE_DVR,
     ITEM_BACK,
 
     ITEM_LIST_TOTAL
@@ -52,8 +55,10 @@ typedef struct {
     btn_group_t logging;
     lv_obj_t *format_sd;
     lv_obj_t *repair_sd;
+    lv_obj_t *remove_dvr;
     int confirm_format;
     int confirm_repair;
+    int confirm_remove;
     bool status_displayed;
     lv_obj_t *back;
     lv_obj_t *status;
@@ -82,6 +87,7 @@ static void disable_controls() {
     btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
     lv_obj_add_state(page_storage.format_sd, STATE_DISABLED);
     lv_obj_add_state(page_storage.repair_sd, STATE_DISABLED);
+    lv_obj_add_state(page_storage.remove_dvr, STATE_DISABLED);
 }
 
 static void enable_controls() {
@@ -93,6 +99,7 @@ static void enable_controls() {
     btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
     lv_obj_clear_state(page_storage.format_sd, STATE_DISABLED);
     lv_obj_clear_state(page_storage.repair_sd, STATE_DISABLED);
+    lv_obj_clear_state(page_storage.remove_dvr, STATE_DISABLED);
 }
 
 /**
@@ -101,8 +108,10 @@ static void enable_controls() {
 static void page_storage_cancel() {
     page_storage.confirm_format = 0;
     page_storage.confirm_repair = 0;
+    page_storage.confirm_remove = 0;
     lv_label_set_text(page_storage.format_sd, "Format SD Card");
     lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
+    lv_label_set_text(page_storage.remove_dvr, "Remove DVR Folder");
 }
 
 /**
@@ -383,7 +392,8 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
     page_storage.repair_sd = create_label_item(cont, "Repair SD Card", 1, 2, 3);
-    page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
+    page_storage.remove_dvr = create_label_item(cont, "Remove DVR Folder", 1, 3, 3);
+    page_storage.back = create_label_item(cont, "< Back", 1, 4, 1);
 
     page_storage.note = lv_label_create(cont);
     lv_label_set_text(page_storage.note, "");
@@ -435,6 +445,7 @@ static void page_storage_on_roller(uint8_t key) {
     // Ignore commands until timer has expired before allowing user to proceed.
     if (page_storage.confirm_format == 2 ||
         page_storage.confirm_repair == 2 ||
+        page_storage.confirm_remove == 2 ||
         page_storage.status_displayed) {
         return;
     }
@@ -495,6 +506,26 @@ static void page_storage_on_click(uint8_t key, int sel) {
             }
         }
         break;
+    case ITEM_REMOVE_DVR:
+        if (!page_storage.disable_controls) {
+            if (page_storage.confirm_remove) {
+                page_storage.confirm_remove = 2;
+                lv_label_set_text(page_storage.remove_dvr, "Remove DVR Folder #FF0000 Removing...#");
+                lv_timer_handler();
+                LOGI("removing dvr folder");
+                char buf[256];
+                sprintf(buf, "rm -rf %s%s", REC_diskPATH, REC_packPATH);
+                system_exec(buf);
+                lv_label_set_text(page_storage.remove_dvr, "Remove DVR Folder #FFFF00 Done#");
+                LOGI("remove done");
+                page_storage.confirm_remove = 3;
+                g_sdcard_det_req = 1;
+            } else {
+                page_storage.confirm_remove = 1;
+                lv_label_set_text(page_storage.remove_dvr, "Remove DVR Folder #FFFF00 Click to confirm or Scroll to cancel...#");
+            }
+        }
+        break;
     default:
         page_storage_cancel();
         break;
@@ -505,7 +536,7 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
- * Returns true once the thread has completed. 
+ * Returns true once the thread has completed.
  */
 static bool page_storage_is_sd_repair_complete() {
     if (page_storage.is_sd_repair_complete) {
