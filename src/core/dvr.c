@@ -12,6 +12,7 @@
 #include "core/settings.h"
 #include "driver/hardware.h"
 #include "ui/page_common.h"
+#include "util/sdcard.h"
 #include "util/system.h"
 
 bool dvr_is_recording = false;
@@ -165,7 +166,7 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
     }
 
     if (start_rec) {
-        if (!dvr_is_recording && g_sdcard_size >= 103) {
+        if (!dvr_is_recording && !sdcard_is_full()) {
             dvr_update_record_conf();
             dvr_is_recording = true;
             usleep(10 * 1000);

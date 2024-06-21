@@ -209,16 +209,15 @@ void statubar_update(void) {
     } else {
         if (g_sdcard_enable) {
             int cnt = get_videofile_cnt();
-            float gb = g_sdcard_size / 1024.0;
-            bool bFull = g_sdcard_size < 103;
+            float gb = sdcard_free_size() / 1024.0;
             lv_img_set_src(img_sdc, &img_sdcard);
             if (cnt != 0) {
-                if (bFull)
+                if (sdcard_is_full())
                     sprintf(buf, "%d clip(s), SD Card full", cnt);
                 else
                     sprintf(buf, "%d clip(s), %.2fGB available", cnt, gb);
             } else {
-                if (bFull)
+                if (sdcard_is_full())
                     sprintf(buf, "#FF0000 SD Card full#");
                 else
                     sprintf(buf, "%.2fGB available", gb);
