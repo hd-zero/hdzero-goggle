@@ -77,8 +77,8 @@ extern "C" {
 #define MAX_PANELS 9
 
 #define FLAG_SELECTABLE LV_OBJ_FLAG_USER_1
-#define STATE_DISABLED LV_STATE_USER_1
-#define COLOR_DISABLED (lv_color_darken(lv_color_white(), 127))
+#define STATE_DISABLED  LV_STATE_USER_1
+#define COLOR_DISABLED  (lv_color_darken(lv_color_white(), 127))
 
 typedef enum {
     SOURCE_HDZERO = 0,
@@ -132,7 +132,6 @@ typedef uint8_t lv_menu_builder_variant_t;
 
 extern bool g_sdcard_enable;
 extern bool g_sdcard_det_req;
-extern int g_sdcard_size;
 extern bool g_autoscan_exit;
 extern bool g_scanning;
 extern bool g_latency_locked;

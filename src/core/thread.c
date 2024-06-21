@@ -43,11 +43,7 @@ static void detect_sdcard(void) {
         g_sdcard_enable = sdcard_mounted();
 
         if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-            struct statfs info;
-            if (statfs("/mnt/extsd", &info) == 0)
-                g_sdcard_size = (info.f_bsize * info.f_bavail) >> 20; // in MB
-            else
-                g_sdcard_size = 0;
+            sdcard_update_free_size();
             g_sdcard_det_req = 0;
         }
 
@@ -135,7 +131,9 @@ static void check_hdzero_signal(int vtmg_change) {
             if (cnt >= SIGNAL_ACCQ_DURATION_THR) {
                 cnt = 0;
                 LOGI("Signal accquired");
-                dvr_cmd(DVR_START);
+                sdcard_update_free_size();
+                if (!sdcard_is_full())
+                    dvr_cmd(DVR_START);
             }
         } else
             cnt = 0;
