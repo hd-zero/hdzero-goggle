@@ -7,6 +7,7 @@
 
 #include "common.hh"
 #include "core/app_state.h"
+#include "core/wallpaper.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
@@ -78,15 +79,15 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
-static void select_menu_tab(page_pack_t* pp) {
+static void select_menu_tab(page_pack_t *pp) {
     lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
 }
 
-static void deselect_menu_tab(page_pack_t* pp) {
+static void deselect_menu_tab(page_pack_t *pp) {
     // LV_OPA_20 is the default for pressed menu
     // see lv_theme_default.c styles->menu_pressed
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
     lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -100,7 +101,8 @@ void submenu_enter(void) {
 
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first selectable one
-        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
+        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur)
+            ;
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
@@ -292,6 +294,8 @@ void main_menu_init(void) {
     lv_obj_clear_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(menu, lv_color_make(32, 32, 32), 0);
+    if (wallpaper_is_used())
+        lv_obj_set_style_bg_opa(menu, LV_OPA_50, 0);
     lv_obj_set_style_border_width(menu, 2, 0);
     lv_obj_set_style_border_color(menu, lv_color_make(255, 0, 0), 0);
     lv_obj_set_style_border_side(menu, LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT, 0);
@@ -327,6 +331,8 @@ void main_menu_init(void) {
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
     lv_obj_set_pos(section, 0, 0);
+    if (wallpaper_is_used())
+        lv_obj_set_style_bg_opa(section, LV_OPA_50, 0);
 
     lv_obj_set_size(root_page, 250, 975);
     lv_obj_set_pos(root_page, 0, 0);

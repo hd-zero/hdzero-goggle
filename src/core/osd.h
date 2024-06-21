@@ -19,6 +19,12 @@ extern "C" {
 #define OSD_BOUNDRY_0  0
 #define OSD_BOUNDRY_1  6
 
+#ifdef EMULATOR_BUILD
+#define WALLPAPER_PATH "wallpaper.bmp"
+#else
+#define WALLPAPER_PATH "/mnt/extsd/resource/OSD/GOGGLE/wallpaper.bmp"
+#endif
+
 typedef enum {
     OSD_RESOURCE_720 = 0,
     OSD_RESOURCE_1080,
@@ -101,7 +107,6 @@ void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 void osd_toggle();
-
 #ifdef __cplusplus
 }
 #endif

@@ -22,6 +22,7 @@
 #include "core/settings.h"
 #include "core/sleep_mode.h"
 #include "core/thread.h"
+#include "core/wallpaper.h"
 #include "driver/TP2825.h"
 #include "driver/beep.h"
 #include "driver/dm5680.h"
@@ -135,6 +136,12 @@ void lvgl_init() {
                                               false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
+
+    load_wallpaper(WALLPAPER_PATH);
+    if (wallpaper_is_used()) {
+        lv_obj_t *img_obj = lv_img_create(lv_scr_act());
+        lv_img_set_src(img_obj, &img_menu_bg);
+    }
 }
 
 int main(int argc, char *argv[]) {
