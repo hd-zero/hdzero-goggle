@@ -9,6 +9,7 @@
 #include "core/input_device.h"
 #include "core/osd.h"
 #include "core/sleep_mode.h"
+#include "core/wallpaper.h"
 
 #include "ui/page_fans.h"
 #include "ui/ui_image_setting.h"
@@ -168,7 +169,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Inputs:", LV_MENU_ITEM_BUILDER_VARIANT_2);
@@ -179,7 +180,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_layout(content, LV_LAYOUT_GRID);
     lv_obj_clear_flag(content, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(content, &style_context, LV_PART_MAIN);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(content, LV_OPA_50, 0);
 
     lv_obj_set_style_grid_column_dsc_array(content, col_dsc, 0);

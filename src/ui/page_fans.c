@@ -7,8 +7,8 @@
 
 #include "core/app_state.h"
 #include "core/common.hh"
-#include "core/osd.h"
 #include "core/settings.h"
+#include "core/wallpaper.h"
 #include "driver/fans.h"
 #include "driver/nct75.h"
 #include "ui/page_common.h"
@@ -51,7 +51,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Fans:", LV_MENU_ITEM_BUILDER_VARIANT_2);
@@ -62,7 +62,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont, &style_context, LV_PART_MAIN);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(cont, LV_OPA_50, 0);
 
     lv_obj_set_style_grid_column_dsc_array(cont, col_dsc, 0);

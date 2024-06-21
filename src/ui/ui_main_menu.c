@@ -7,7 +7,7 @@
 
 #include "common.hh"
 #include "core/app_state.h"
-#include "core/osd.h"
+#include "core/wallpaper.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
@@ -292,7 +292,7 @@ void main_menu_init(void) {
     lv_obj_clear_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(menu, lv_color_make(32, 32, 32), 0);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(menu, LV_OPA_50, 0);
     lv_obj_set_style_border_width(menu, 2, 0);
     lv_obj_set_style_border_color(menu, lv_color_make(255, 0, 0), 0);
@@ -312,7 +312,7 @@ void main_menu_init(void) {
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
     lv_obj_set_pos(section, 0, 0);
-    if (wallpaper_is_used)
+    if (wallpaper_is_used())
         lv_obj_set_style_bg_opa(section, LV_OPA_50, 0);
 
     lv_obj_set_size(root_page, 250, 975);
