@@ -326,7 +326,6 @@ static void page_power_on_click(uint8_t key, int sel) {
         break;
 
     case ROW_WARN_TYPE:
-        LOGI("Change warn type");
         btn_group_toggle_sel(&btn_group_warn_type);
         g_setting.power.warning_type = btn_group_get_sel(&btn_group_warn_type);
         ini_putl("power", "warning_type", g_setting.power.warning_type, SETTING_INI);
