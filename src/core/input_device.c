@@ -565,9 +565,10 @@ void input_device_init() {
         }
     }
     app_state_push(APP_STATE_MAINMENU);
-#endif
+#else
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
     }
+#endif
     pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
 }
