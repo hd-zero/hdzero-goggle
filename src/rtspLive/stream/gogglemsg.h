@@ -1,5 +1,4 @@
-#ifndef __GOGGLEMSG_H_
-#define __GOGGLEMSG_H_
+#pragma once
 
 #if defined (__cplusplus)
 extern "C" {
@@ -48,6 +47,3 @@ int gogglemsg_flush( GoggleMsgType_e mtype );
 #if defined (__cplusplus)
 }
 #endif
-
-#endif //__GOGGLEMSG_H_
-

@@ -19,6 +19,7 @@
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
 #include "ui/ui_style.h"
+#include "util/filesystem.h"
 #include "util/system.h"
 
 /**
@@ -406,6 +407,10 @@ static int page_wifi_get_current_page_max() {
  * Update UI to reflect current wifi page options.
  */
 static void page_wifi_update_current_page(int which) {
+    for (size_t i = 0; i < MAX_PANELS; i++) {
+        lv_obj_add_flag(pp_wifi.p_arr.panel[i], FLAG_SELECTABLE);
+    }
+
     // Page 1
     btn_group_show(&page_wifi.page_1.enable.button, false);
     btn_group_show(&page_wifi.page_1.mode.button, false);
@@ -455,15 +460,52 @@ static void page_wifi_update_current_page(int which) {
     case 1:
         pp_wifi.p_arr.max = page_wifi.page_2.row_count;
         btn_group_show(&page_wifi.page_2.dhcp.button, true);
+        btn_group_enable(&page_wifi.page_2.dhcp.button, page_wifi.page_1.mode.button.current == WIFI_MODE_STA);
+        if (page_wifi.page_1.mode.button.current != WIFI_MODE_STA) {
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[1], FLAG_SELECTABLE);
+        }
+
         lv_obj_clear_flag(page_wifi.page_2.ip_addr.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.ip_addr.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.netmask.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.netmask.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.gateway.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
+
+        if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
+                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+                page_wifi.page_2.dhcp.button.current == 1)) {
+            lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.gateway.input, STATE_DISABLED);
+        } else {
+            lv_obj_add_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.gateway.input, STATE_DISABLED);
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[3], FLAG_SELECTABLE);
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[4], FLAG_SELECTABLE);
+        }
+
         lv_obj_clear_flag(page_wifi.page_2.dns.label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_2.dns.input, LV_OBJ_FLAG_HIDDEN);
+
+        if (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+            page_wifi.page_2.dhcp.button.current == 1) {
+            lv_obj_clear_state(page_wifi.page_2.dns.label, STATE_DISABLED);
+            lv_obj_clear_state(page_wifi.page_2.dns.input, STATE_DISABLED);
+        } else {
+            lv_obj_add_state(page_wifi.page_2.dns.label, STATE_DISABLED);
+            lv_obj_add_state(page_wifi.page_2.dns.input, STATE_DISABLED);
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[5], FLAG_SELECTABLE);
+        }
+
         slider_show(&page_wifi.page_2.rf_channel.input, true);
+        slider_enable(&page_wifi.page_2.rf_channel.input, page_wifi.page_1.mode.button.current == WIFI_MODE_AP);
+        if (page_wifi.page_1.mode.button.current != WIFI_MODE_AP) {
+            lv_obj_clear_flag(pp_wifi.p_arr.panel[6], FLAG_SELECTABLE);
+        }
         break;
     case 2:
         pp_wifi.p_arr.max = page_wifi.page_3.row_count;
@@ -685,7 +727,6 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_wifi_create_page_3(cont);
     page_wifi_sync_settings();
     page_wifi_update_current_page(0);
-    page_wifi_update_settings();
 
     return page;
 }
@@ -730,6 +771,29 @@ static void page_wifi_exit() {
 
     keyboard_close();
     page_wifi.item_select = 0;
+}
+
+/**
+ *  Invoked periodically.
+ */
+static void page_wifi_on_update(uint32_t delta_ms) {
+    static uint32_t elapsed = -1;
+
+    // Check immediately after running, then every 5 minutes.
+    if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
+        switch (g_setting.wifi.mode) {
+        case WIFI_MODE_STA:
+            if (page_wifi_get_real_address()) {
+                if (!fs_file_exists("/tmp/hdz_goggle_fw.latest") &&
+                    !fs_file_exists("/tmp/hdz_vtx_fw.latest")) {
+                    system_script(WIFI_DOWNLOAD);
+                }
+            }
+            break;
+        }
+
+        elapsed = 0;
+    }
 }
 
 /**
@@ -791,6 +855,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             btn_group_toggle_sel(&page_wifi.page_2.dhcp.button);
             page_wifi.page_2.dhcp.dirty =
                 (btn_group_get_sel(&page_wifi.page_2.dhcp.button) != !g_setting.wifi.dhcp);
+            page_wifi_update_current_page(page_wifi.page_select.button.current);
             break;
         case 2:
             if (!keyboard_active()) {
@@ -1052,9 +1117,14 @@ page_pack_t pp_wifi = {
     .create = page_wifi_create,
     .enter = page_wifi_enter,
     .exit = page_wifi_exit,
+    .on_created = NULL,
+    .on_update = page_wifi_on_update,
     .on_roller = page_wifi_on_roller,
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,
+    .post_bootup_run_priority = 100,
+    .post_bootup_run_function = page_wifi_update_settings,
+    .post_bootup_run_complete = NULL,
 };
 
 /**

@@ -9,9 +9,11 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "ui/page_playback.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/sdcard.h"
 #include "util/system.h"
+
+extern void (*sdcard_ready_cb)();
 
 /**
  * Types
@@ -59,6 +61,7 @@ typedef struct {
     bool disable_controls;
     bool is_sd_repair_active;
     bool is_auto_sd_repair_active;
+    bool is_sd_repair_complete;
 } page_options_t;
 
 /**
@@ -69,6 +72,28 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_
 static page_options_t page_storage;
 static lv_timer_t *page_storage_format_sd_timer = NULL;
 static lv_timer_t *page_storage_repair_sd_timer = NULL;
+
+static void disable_controls() {
+    page_storage.disable_controls = true;
+
+    for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
+        lv_obj_clear_flag(pp_storage.p_arr.panel[i], FLAG_SELECTABLE);
+    }
+    btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
+    lv_obj_add_state(page_storage.format_sd, STATE_DISABLED);
+    lv_obj_add_state(page_storage.repair_sd, STATE_DISABLED);
+}
+
+static void enable_controls() {
+    page_storage.disable_controls = false;
+
+    for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
+        lv_obj_add_flag(pp_storage.p_arr.panel[i], FLAG_SELECTABLE);
+    }
+    btn_group_enable(&page_storage.logging, !page_storage.disable_controls);
+    lv_obj_clear_state(page_storage.format_sd, STATE_DISABLED);
+    lv_obj_clear_state(page_storage.repair_sd, STATE_DISABLED);
+}
 
 /**
  * Cancel operation.
@@ -125,7 +150,7 @@ static format_codes_t page_storage_format_sd() {
     system_exec(shell_command);
 
     int timeout_interval = 0;
-    while (!file_exists(log_file) && ++timeout_interval < 5) {
+    while (!fs_file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
@@ -133,7 +158,7 @@ static format_codes_t page_storage_format_sd() {
         status = FMC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
-        while (!file_exists(results_file) && ++timeout_interval < 60) {
+        while (!fs_file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
@@ -197,7 +222,7 @@ static repair_codes_t page_storage_repair_sd() {
     system_exec(shell_command);
 
     int timeout_interval = 0;
-    while (!file_exists(log_file) && ++timeout_interval < 5) {
+    while (!fs_file_exists(log_file) && ++timeout_interval < 5) {
         sleep(1);
     }
 
@@ -205,7 +230,7 @@ static repair_codes_t page_storage_repair_sd() {
         status = RPC_ERR_PROCESS_DID_NOT_START;
     } else {
         timeout_interval = 0;
-        while (!file_exists(results_file) && ++timeout_interval < 60) {
+        while (!fs_file_exists(results_file) && ++timeout_interval < 60) {
             sleep(1);
         }
         if (timeout_interval > 60) {
@@ -371,14 +396,14 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     if (g_setting.storage.selftest) {
         lv_label_set_text(page_storage.note, "Self-Test is enabled, All storage options are disabled.");
-        page_storage.disable_controls = true;
+        disable_controls();
     } else {
-        if (file_exists(DEVELOP_SCRIPT) || file_exists(APP_BIN_FILE)) {
+        if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
             char text[256];
             snprintf(text, sizeof(text), "Detected files being accessed by SD Card, All storage options are disabled.\n"
                                          "Remove the following files from the SD Card and try again:\n" DEVELOP_SCRIPT "\n" APP_BIN_FILE);
             lv_label_set_text(page_storage.note, text);
-            page_storage.disable_controls = true;
+            disable_controls();
         }
     }
 
@@ -480,6 +505,18 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
+ * Returns true once the thread has completed. 
+ */
+static bool page_storage_is_sd_repair_complete() {
+    if (page_storage.is_sd_repair_complete) {
+        sdcard_ready_cb = page_storage_init_auto_sd_repair;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
  */
@@ -492,9 +529,14 @@ page_pack_t pp_storage = {
     .create = page_storage_create,
     .enter = page_storage_enter,
     .exit = page_storage_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_storage_on_roller,
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,
+    .post_bootup_run_priority = 50,
+    .post_bootup_run_function = page_storage_init_auto_sd_repair,
+    .post_bootup_run_complete = page_storage_is_sd_repair_complete,
 };
 
 /**
@@ -503,13 +545,14 @@ page_pack_t pp_storage = {
 static void *page_storage_repair_thread(void *arg) {
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
-        page_storage.disable_controls = true;
+        disable_controls();
         lv_label_set_text(page_storage.note, "SD Card integrity check is active, controls are disabled until process has completed.");
         page_storage_repair_sd();
-        page_storage.disable_controls = false;
+        enable_controls();
         lv_label_set_text(page_storage.note, "");
         page_storage.is_auto_sd_repair_active = false;
     }
+    page_storage.is_sd_repair_complete = true;
     pthread_exit(NULL);
 }
 
@@ -524,10 +567,13 @@ bool page_storage_is_sd_repair_active() {
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
+    page_storage.is_sd_repair_complete = false;
     if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
         if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
         }
+    } else {
+        page_storage.is_sd_repair_complete = true;
     }
 }

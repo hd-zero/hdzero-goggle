@@ -31,6 +31,8 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
+void (*sdcard_ready_cb)() = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void) {
@@ -52,7 +54,9 @@ static void detect_sdcard(void) {
         // Only repair card at bootup or when inserted
         if (g_init_done) {
             if (sdcard_init_scan && g_sdcard_enable) {
-                page_storage_init_auto_sd_repair();
+                if (sdcard_ready_cb) {
+                    sdcard_ready_cb();
+                }
                 sdcard_init_scan = false;
             } else if (!g_sdcard_enable && sdcard_enable_last) {
                 sdcard_init_scan = true;
@@ -76,6 +80,17 @@ static void check_hdzero_signal(int vtmg_change) {
         DM5680_req_rssi();
         DM5680_req_vldflg();
         tune_channel_timer();
+    }
+
+    if (g_source_info.source == SOURCE_AV_IN)
+        is_valid = g_source_info.av_in_status;
+    else if (g_source_info.source == SOURCE_EXPANSION)
+        is_valid = g_source_info.av_bay_status;
+    else
+        is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
+
+    if (g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_VIDEO) {
+        g_setting.ht.alarm_on_video = is_valid;
     }
 
     // exit if no SD card or not in video mode
@@ -103,19 +118,13 @@ static void check_hdzero_signal(int vtmg_change) {
         cnt = 0;
     }
 
-    if (g_source_info.source == SOURCE_AV_IN)
-        is_valid = g_source_info.av_in_status;
-    else if (g_source_info.source == SOURCE_EXPANSION)
-        is_valid = g_source_info.av_bay_status;
-    else
-        is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
-
     if (dvr_is_recording) { // in-recording
         if (!is_valid) {
             cnt++;
             if (cnt >= SIGNAL_LOSS_DURATION_THR) {
                 cnt = 0;
                 LOGI("Signal lost");
+                g_setting.ht.alarm_on_video = false;
                 dvr_cmd(DVR_STOP);
             }
         } else

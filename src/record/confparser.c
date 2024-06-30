@@ -27,6 +27,7 @@
 #define KEY_SIZE        "size"
 #define KEY_FULL        "full"
 #define KEY_AUDIO       "audio"
+#define KEY_NAMING      "naming"
 
 #define KEY_WIDTH       "width"
 #define KEY_HEIGHT      "height"
@@ -425,6 +426,10 @@ void conf_loadRecordParams(char* confFile, RecordParams_t* para)
             strcpy(para->packType, REC_packTYPE);
         }
     }
+
+    lValue = ini_getl(SEC_RECORD, KEY_NAMING, NAMING_CONTIGUOUS, confFile);
+    lValue = check_set(lValue, NAMING_CONTIGUOUS, NAMING_DATE);
+    para->fileNaming = lValue;
 
     lValue = ini_getl(SEC_RECORD, KEY_DURATION, REC_packDURATION, confFile);
     lValue = check_set(lValue, REC_minDURATION, REC_maxDURATION);

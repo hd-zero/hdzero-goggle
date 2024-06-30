@@ -35,6 +35,9 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
+    lv_obj_set_grid_cell(pp_autoscan.p_arr.panel[1], LV_GRID_ALIGN_STRETCH, 0, 6,
+                         LV_GRID_ALIGN_STRETCH, 1, 2);
+    lv_obj_clear_flag(pp_autoscan.p_arr.panel[2], FLAG_SELECTABLE);
 
     btn_group_t btn_group;
     create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off", "", 0);
@@ -77,6 +80,8 @@ page_pack_t pp_autoscan = {
     .create = page_autoscan_create,
     .enter = NULL,
     .exit = NULL,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = NULL,
     .on_click = page_autoscan_on_click,
     .on_right_button = NULL,

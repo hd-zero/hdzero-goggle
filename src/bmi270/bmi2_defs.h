@@ -36,9 +36,7 @@
 *
 */
 
-#ifndef BMI2_DEFS_H_
-#define BMI2_DEFS_H_
-
+#pragma once
 /******************************************************************************/
 /*! @name       Header includes                           */
 /******************************************************************************/
@@ -2654,5 +2652,3 @@ struct bmi2_hc_act_recg_sett
     /*! Minimum segments belonging to a certain activity type */
     uint16_t min_seg_conf;
 };
-
-#endif /* BMI2_DEFS_H_ */

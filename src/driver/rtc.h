@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  *  RTC Driver Interface.
  *
@@ -79,3 +83,7 @@ int rtc_get_clock_log_str(char *buffer, int size);
 int rtc_get_clock_osd_str(char *date, int dsize,
                           char *time, int tsize,
                           char *format, int fsize);
+
+#ifdef __cplusplus
+}
+#endif

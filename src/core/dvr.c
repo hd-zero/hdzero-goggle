@@ -87,6 +87,10 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
     LOGI("update_record_vi_conf: fmt=%d", fmt);
 }
 
+void dvr_toggle() {
+    dvr_cmd(DVR_TOGGLE);
+}
+
 static void dvr_update_record_conf() {
     LOGI("CAM_MODE=%d", CAM_MODE);
     if (g_setting.record.format_ts)
@@ -130,6 +134,7 @@ static void dvr_update_record_conf() {
 
     ini_putl("record", "audio", g_setting.record.audio, REC_CONF);
     dvr_select_audio_source(g_setting.record.audio_source);
+    ini_putl("record", "naming", g_setting.record.naming, REC_CONF);
 }
 
 void dvr_cmd(osd_dvr_cmd_t cmd) {
@@ -163,6 +168,7 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         if (!dvr_is_recording && g_sdcard_size >= 103) {
             dvr_update_record_conf();
             dvr_is_recording = true;
+            usleep(10 * 1000);
             system_script(REC_START);
             sleep(2); // wait for record process
         }

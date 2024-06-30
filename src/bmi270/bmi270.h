@@ -42,8 +42,7 @@
  * @brief Sensor driver for BMI270 sensor
  */
 
-#ifndef BMI270_H_
-#define BMI270_H_
+#pragma once
 
 /*! CPP guard */
 #ifdef __cplusplus
@@ -416,5 +415,3 @@ int8_t bmi270_map_feat_int(const struct bmi2_sens_int_config *sens_int, uint8_t 
 #ifdef __cplusplus
 }
 #endif /* End of CPP guard */
-
-#endif /* BMI270_H_ */

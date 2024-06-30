@@ -1,5 +1,6 @@
-#include "file.h"
+#include "filesystem.h"
 
+#include <dirent.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-bool file_compare(char *f1, char *f2) {
+bool fs_compare_files(char *f1, char *f2) {
     FILE *fp1;
     FILE *fp2;
     char c1, c2;
@@ -37,11 +38,20 @@ bool file_compare(char *f1, char *f2) {
     return ret;
 }
 
-bool file_exists(const char *filename) {
+bool fs_path_exists(const char *path) {
+    DIR *dir = opendir("path");
+    if (dir) {
+        closedir(dir);
+        return true;
+    }
+    return false;
+}
+
+bool fs_file_exists(const char *filename) {
     return access(filename, F_OK) == 0;
 }
 
-bool file_printf(const char *filename, const char *fmt, ...) {
+bool fs_printf(const char *filename, const char *fmt, ...) {
     FILE *fp = fopen(filename, "w");
     if (!fp) {
         return false;
@@ -57,7 +67,7 @@ bool file_printf(const char *filename, const char *fmt, ...) {
     return true;
 }
 
-long file_get_size(const char *filename) {
+long fs_filesize(const char *filename) {
     struct stat st;
     if (stat(filename, &st) != 0) {
         return 0;
@@ -65,7 +75,7 @@ long file_get_size(const char *filename) {
     return st.st_size;
 }
 
-const char *file_get_name(const char *path) {
+const char *fs_basename(const char *path) {
     for (int i = strlen(path); i >= 0; --i) {
         if (path[i] == '/') {
             return &path[i + 1];

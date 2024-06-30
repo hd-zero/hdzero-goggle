@@ -49,7 +49,6 @@ SDL_mutex *global_sdl_mutex;
 #include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
-#include "util/file.h"
 
 int gif_cnt = 0;
 
@@ -156,6 +155,7 @@ int main(int argc, char *argv[]) {
     // 1. Recall configuration
     settings_init();
     settings_load();
+    vclk_phase_init();
 
     // 2. Initialize communications.
     rtc_init();
@@ -204,10 +204,14 @@ int main(int argc, char *argv[]) {
     // 8.1 set initial analog module power state
     Analog_Module_Power(0);
 
+    // Head alarm
+    head_alarm_init();
+
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
+        main_menu_update();
         sleep_reminder();
         statubar_update();
         osd_hdzero_update();

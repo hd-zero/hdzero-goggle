@@ -49,7 +49,10 @@ static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500;
 static const int ppmCenter = 1500;
 
+static pthread_t head_alarm_handle;
+
 static void calculate_orientation();
+static void *head_alarm_thread(void *arg);
 
 ///////////////////////////////////////////////////////////////////////////////
 // no motion to disable OLED display
@@ -239,6 +242,11 @@ void ht_set_maxangle(int angle) {
     ht_data.panFactor = 1000.0 / angle;
 }
 
+void ht_set_alarm_angle() {
+    g_setting.ht.alarm_angle = ht_data.tiltAngle;
+    ini_putl("ht", "alarm_angle", g_setting.ht.alarm_angle, SETTING_INI);
+}
+
 static void calc_gyr(float *gyrAngle) // in degree
 {
     // convert gyro readings to degrees/sec (with calibration offsets)
@@ -355,4 +363,37 @@ void ht_disable() {
 
 int16_t *ht_get_channels() {
     return ht_data.htChannels;
+}
+
+void head_alarm_init() {
+    pthread_create(&head_alarm_handle, NULL, head_alarm_thread, NULL);
+}
+
+void *head_alarm_thread(void *arg) {
+    while (1) {
+        bool sounding_alarm = false;
+        if (ht_data.enable && (g_setting.ht.alarm_state != SETTING_HT_ALARM_STATE_OFF)) {                                                                                                             // user settings
+            if ((g_setting.ht.alarm_on_arm && g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_ARM) || (g_setting.ht.alarm_on_video && g_setting.ht.alarm_state == SETTING_HT_ALARM_STATE_VIDEO)) { // system enabling alarm (when armed or has video signal)
+
+                if (ht_data.tiltAngle < g_setting.ht.alarm_angle) {
+                    beep();
+                    usleep(100000);
+                    beep();
+                    for (int i = 0; i < 30; i++) { // delay of 3 seconds split into 30x100ms to allow for a quicker response to the alarm
+                        if (ht_data.tiltAngle >= g_setting.ht.alarm_angle) {
+                            break;
+                        }
+                        usleep(100000);
+                    }
+                }
+
+                usleep(150000); // prevent resource occupation (when armed or video)
+            } else {
+                usleep(250000); // prevent resource occupation (when !armed and/or !video)
+            }
+        } else {
+            sleep(3); // prevent resource occupation (when ht and/or alarm is disabled)
+        }
+    }
+    pthread_exit(NULL);
 }

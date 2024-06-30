@@ -9,7 +9,7 @@
 
 #include "core/self_test.h"
 #include "ui/page_common.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/system.h"
 
 #define SETTINGS_INI_VERSION_UNKNOWN 0
@@ -47,6 +47,7 @@ const setting_t g_setting_defaults = {
         .osd = true,
         .audio = true,
         .audio_source = SETTING_RECORD_AUDIO_SOURCE_MIC,
+        .naming = SETTING_NAMING_CONTIGUOUS,
     },
     .image = {
         .oled = 8,
@@ -64,6 +65,12 @@ const setting_t g_setting_defaults = {
         .gyr_x = 0,
         .gyr_y = 0,
         .gyr_z = 0,
+        .alarm_state = SETTING_HT_ALARM_STATE_OFF,
+        .alarm_angle = 1300,
+        .alarm_delay = 5,
+        .alarm_pattern = SETTING_HT_ALARM_PATTERN_2SHORT,
+        .alarm_on_arm = false,
+        .alarm_on_video = false,
     },
     .elrs = {
         .enable = false,
@@ -178,6 +185,15 @@ const setting_t g_setting_defaults = {
         .sec = 30,
         .format = 0,
     },
+    // Refer to `page_input.c`'s arrays `rollerFunctionPointers` and `btnFunctionPointers`
+    .inputs = {
+        .roller = 0,
+        .left_click = 0,
+        .left_press = 1,
+        .right_click = 2,
+        .right_press = 6,
+        .right_double_click = 3,
+    },
     .wifi = {
         .enable = false,
         .mode = 0,
@@ -288,7 +304,7 @@ void settings_reset(void) {
 
 void settings_init(void) {
     // check if backup of old settings file exists after goggle update
-    if (file_exists("/mnt/UDISK/setting.ini")) {
+    if (fs_file_exists("/mnt/UDISK/setting.ini")) {
         char buf[256];
         sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
         system_exec(buf);
@@ -375,6 +391,7 @@ void settings_load(void) {
     g_setting.record.osd = settings_get_bool("record", "osd", g_setting_defaults.record.osd);
     g_setting.record.audio = settings_get_bool("record", "audio", g_setting_defaults.record.audio);
     g_setting.record.audio_source = ini_getl("record", "audio_source", g_setting_defaults.record.audio_source, SETTING_INI);
+    g_setting.record.naming = ini_getl("record", "naming", g_setting_defaults.record.naming, SETTING_INI);
 
     // image
     g_setting.image.oled = ini_getl("image", "oled", g_setting_defaults.image.oled, SETTING_INI);
@@ -392,6 +409,8 @@ void settings_load(void) {
     g_setting.ht.gyr_x = ini_getl("ht", "gyr_x", g_setting_defaults.ht.gyr_x, SETTING_INI);
     g_setting.ht.gyr_y = ini_getl("ht", "gyr_y", g_setting_defaults.ht.gyr_y, SETTING_INI);
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
+    g_setting.ht.alarm_state = ini_getl("ht", "alarm_state", g_setting_defaults.ht.alarm_state, SETTING_INI);
+    g_setting.ht.alarm_angle = ini_getl("ht", "alarm_angle", g_setting_defaults.ht.alarm_angle, SETTING_INI);
 
     // elrs
     g_setting.elrs.enable = settings_get_bool("elrs", "enable", g_setting_defaults.elrs.enable);
@@ -404,6 +423,14 @@ void settings_load(void) {
     g_setting.clock.min = ini_getl("clock", "min", g_setting_defaults.clock.min, SETTING_INI);
     g_setting.clock.sec = ini_getl("clock", "sec", g_setting_defaults.clock.sec, SETTING_INI);
     g_setting.clock.format = ini_getl("clock", "format", g_setting_defaults.clock.format, SETTING_INI);
+
+    // inputs
+    g_setting.inputs.roller = ini_getl("inputs", "roller", g_setting_defaults.inputs.roller, SETTING_INI);
+    g_setting.inputs.left_click = ini_getl("inputs", "left_click", g_setting_defaults.inputs.left_click, SETTING_INI);
+    g_setting.inputs.left_press = ini_getl("inputs", "left_press", g_setting_defaults.inputs.left_press, SETTING_INI);
+    g_setting.inputs.right_click = ini_getl("inputs", "right_click", g_setting_defaults.inputs.right_click, SETTING_INI);
+    g_setting.inputs.right_press = ini_getl("inputs", "right_press", g_setting_defaults.inputs.right_press, SETTING_INI);
+    g_setting.inputs.right_double_click = ini_getl("inputs", "right_double_click", g_setting_defaults.inputs.right_double_click, SETTING_INI);
 
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
@@ -423,13 +450,13 @@ void settings_load(void) {
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
 
     //  no dial under video mode
-    g_setting.ease.no_dial = file_exists(NO_DIAL_FILE);
+    g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);
 
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
     // Check
-    if (file_exists(SELF_TEST_FILE)) {
+    if (fs_file_exists(SELF_TEST_FILE)) {
         unlink(SELF_TEST_FILE);
         if (log_file_open(SELF_TEST_FILE)) {
             g_setting.storage.logging = true;

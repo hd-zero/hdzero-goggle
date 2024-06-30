@@ -18,7 +18,7 @@
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
 #include "ui/ui_style.h"
-#include "util/file.h"
+#include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
 
@@ -105,8 +105,13 @@ static void show_pb_item(uint8_t pos, char *label) {
     lv_label_set_text(pb_ui[pos]._label, label);
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
+    const lv_coord_t labelPosX = pb_ui[pos].x + (ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &lv_font_montserrat_26, 0, 0)) / 2;
+    const lv_coord_t labelPosY = pb_ui[pos].y + ITEM_PREVIEW_H + 10;
+    lv_obj_set_pos(pb_ui[pos]._label, labelPosX, labelPosY);
+    lv_obj_set_pos(pb_ui[pos]._arrow, labelPosX - lv_obj_get_width(pb_ui[pos]._arrow) - 5, labelPosY);
+
     sprintf(fname, "%s/%s." REC_packJPG, TMP_DIR, label);
-    if (file_exists(fname))
+    if (fs_file_exists(fname))
         sprintf(fname, "A:%s/%s." REC_packJPG, TMP_DIR, label);
     else
         osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
@@ -188,7 +193,7 @@ static int walk_sdcard() {
 
         sprintf(fname, "%s%s", MEDIA_FILES_DIR, in_file->d_name);
 
-        long size = file_get_size(fname);
+        long size = fs_filesize(fname);
         size >>= 20; // in MB
         if (size < 5) {
             // skip small files
@@ -201,6 +206,9 @@ static int walk_sdcard() {
         }
 
         media_file_node_t *pnode = &media_db.list[media_db.count];
+        ZeroMemory(pnode->filename, sizeof(pnode->filename));
+        ZeroMemory(pnode->label, sizeof(pnode->label));
+        ZeroMemory(pnode->ext, sizeof(pnode->ext));
         strcpy(pnode->filename, in_file->d_name);
         strncpy(pnode->label, in_file->d_name, dot - in_file->d_name);
         strcpy(pnode->ext, dot + 1);
@@ -314,11 +322,12 @@ static void mark_video_file(int const seq) {
     const int index = find_next_available_hot_index();
 
     char cmd[256];
-    int length = sprintf(cmd, "mv %s%s ", MEDIA_FILES_DIR, pnode->filename);
-    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, pnode->ext);
+    char newLabel[68];
+    sprintf(newLabel, "%s%s", REC_hotPREFIX, pnode->label);
+
+    sprintf(cmd, "mv %s%s %s%s.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
-    length = sprintf(cmd, "mv %s%s." REC_packJPG " ", MEDIA_FILES_DIR, pnode->label);
-    REC_filePathGet(&cmd[length], MEDIA_FILES_DIR, REC_packHotPREFIX, index, REC_packJPG);
+    sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
     system_exec(cmd);
 
     walk_sdcard();
@@ -464,6 +473,8 @@ page_pack_t pp_playback = {
     .create = page_playback_create,
     .enter = page_playback_enter,
     .exit = page_playback_exit,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_playback_on_roller,
     .on_click = page_playback_on_click,
     .on_right_button = page_playback_on_right_button,

@@ -1,5 +1,8 @@
-#ifndef RECORD_DEFINITIONS_H_
-#define RECORD_DEFINITIONS_H_
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MAX_pathLEN         128
 
@@ -68,7 +71,7 @@
 #define REC_packSIZE        1024                //MB
 #define REC_minSIZE         50                  //MB
 #define REC_maxSIZE         (2 * 1024)          //MB
-#define REC_packPATH        "/movies/" //REC_diskPATH "/movies/"
+#define REC_packPATH        "/DCIM/100HDZRO/" //REC_diskPATH "/DCIM/100HDZRO/"
 #define REC_packPREFIX      "hdz_"
 #define REC_hotPREFIX       "hot_"
 #define REC_packHotPREFIX   REC_hotPREFIX REC_packPREFIX
@@ -79,15 +82,17 @@
 #define REC_packPGN         "png"
 #define REC_packTYPE        REC_packTS
 #define REC_packSnapTYPE    REC_packJPG
-#define REC_packIndexLEN    3
+#define REC_packIndexLEN    4
 #define REC_packTYPES       {REC_packMP4,REC_packTS}
 #define DOT                 "."
 #define REC_packEXTS        {DOT REC_packMP4, DOT REC_packTS}
 #define REC_packTypesNUM    2
 
 #define REC_filePathGet(BUFF, PATH, PREFIX, INDEX, FILEFMT) \
-    sprintf((BUFF), "%s%s%03d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
+    sprintf((BUFF), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 
-#endif /* RECORD_DEFINITIONS_H_ */
+#ifdef __cplusplus
+}
+#endif

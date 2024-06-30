@@ -41,6 +41,34 @@ static lv_obj_t *btn_vtx_send;
 static btn_group_t elrs_group;
 static bool binding = false;
 
+static void update_visibility() {
+    const bool backpackIsActive = elrs_group.current == 0;
+
+    if (backpackIsActive) {
+        lv_obj_clear_state(btn_wifi, STATE_DISABLED);
+        lv_obj_clear_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_clear_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_clear_state(btn_bind, STATE_DISABLED);
+        lv_obj_clear_state(label_bind_status, STATE_DISABLED);
+        lv_obj_clear_state(btn_vtx_send, STATE_DISABLED);
+
+        lv_obj_add_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_elrs.p_arr.panel[3], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_state(btn_wifi, STATE_DISABLED);
+        lv_obj_add_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_add_state(label_wifi_status, STATE_DISABLED);
+        lv_obj_add_state(btn_bind, STATE_DISABLED);
+        lv_obj_add_state(label_bind_status, STATE_DISABLED);
+        lv_obj_add_state(btn_vtx_send, STATE_DISABLED);
+
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[0], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_elrs.p_arr.panel[3], FLAG_SELECTABLE);
+    }
+}
+
 static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -85,6 +113,8 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_long_mode(cancel_label, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(cancel_label, LV_GRID_ALIGN_START, 1, 3, LV_GRID_ALIGN_START, POS_MAX, 2);
 
+    update_visibility();
+
     return page;
 }
 
@@ -113,8 +143,7 @@ static void elrs_status_timer(struct _lv_timer_t *timer) {
     }
 }
 
-static void request_uid()
-{
+static void request_uid() {
     msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);
     lv_timer_t *timer = lv_timer_create(elrs_status_timer, 250, NULL);
     lv_timer_set_repeat_count(timer, 20);
@@ -130,7 +159,11 @@ static void elrs_enable_timer(struct _lv_timer_t *timer) {
 static void page_elrs_enter() {
     lv_label_set_text(label_wifi_status, "Click to start");
     lv_label_set_text(label_bind_status, "Click to start");
-    request_uid();
+    if (elrs_group.current == 0) {
+        request_uid();
+    } else {
+        pp_elrs.p_arr.cur = 1;
+    }
 }
 
 static void page_elrs_on_click(uint8_t key, int sel) {
@@ -143,6 +176,8 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             enable_esp32();
         else
             disable_esp32();
+
+        update_visibility();
     } else if (sel == POS_VTX) // Send VTX freq
     {
         msp_channel_update();
@@ -170,25 +205,25 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             pthread_mutex_unlock(&lvgl_mutex);
             mspAwaitResposne_e response = msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"O", 120000);
             pthread_mutex_lock(&lvgl_mutex);
-            switch(response) {
-                case AWAIT_SUCCESS:
-                    lv_label_set_text(label_bind_status, "#00FF00 Success#");
-                    request_uid();
-                    break;
-                case AWAIT_TIMEDOUT:
-                    lv_label_set_text(label_bind_status, "#FEBE00 Timeout#");
-                    break;
-                case AWAIT_FAILED:
-                    lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
-                    break;
-                case AWAIT_CANCELLED:
-                    lv_label_set_text(label_bind_status, "#FEBE00 Cancelled#");
-                    // repower the module and re-request binding info
-                    disable_esp32();
-                    if (g_setting.elrs.enable) {
-                        lv_timer_create(elrs_enable_timer, 100, NULL);
-                    }
-                    break;
+            switch (response) {
+            case AWAIT_SUCCESS:
+                lv_label_set_text(label_bind_status, "#00FF00 Success#");
+                request_uid();
+                break;
+            case AWAIT_TIMEDOUT:
+                lv_label_set_text(label_bind_status, "#FEBE00 Timeout#");
+                break;
+            case AWAIT_FAILED:
+                lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
+                break;
+            case AWAIT_CANCELLED:
+                lv_label_set_text(label_bind_status, "#FEBE00 Cancelled#");
+                // repower the module and re-request binding info
+                disable_esp32();
+                if (g_setting.elrs.enable) {
+                    lv_timer_create(elrs_enable_timer, 100, NULL);
+                }
+                break;
             }
             lv_obj_add_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
             binding = false;
@@ -196,8 +231,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
     }
 }
 
-static void page_elrs_on_rbtn(bool is_short)
-{
+static void page_elrs_on_rbtn(bool is_short) {
     if (binding && is_short) {
         msp_cancel_await();
     }
@@ -212,6 +246,8 @@ page_pack_t pp_elrs = {
     .create = page_elrs_create,
     .enter = page_elrs_enter,
     .exit = NULL,
+    .on_created = NULL,
+    .on_update = NULL,
     .on_roller = page_elrs_on_roller,
     .on_click = page_elrs_on_click,
     .on_right_button = page_elrs_on_rbtn,

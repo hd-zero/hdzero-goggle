@@ -1,5 +1,8 @@
-#ifndef _IT66021_H
-#define _IT66021_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void IT66021_srst();
 void IT66021_close();
@@ -10,4 +13,7 @@ int IT66021_Get_CS();
 void IT66021_Set_CSMatrix(int cs);
 int IT66021_Get_PCLKFREQ();
 void IT66021_edid();
+
+#ifdef __cplusplus
+}
 #endif

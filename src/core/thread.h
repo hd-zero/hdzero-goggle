@@ -1,5 +1,8 @@
-#ifndef _THREAD_H
-#define _THREAD_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <pthread.h>
 #include <stdint.h>
@@ -15,4 +18,7 @@ typedef struct {
 } threads_obj_t;
 
 int create_threads();
+
+#ifdef __cplusplus
+}
 #endif

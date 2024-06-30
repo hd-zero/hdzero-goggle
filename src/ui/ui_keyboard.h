@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -49,3 +53,7 @@ void keyboard_set_text(const char *text);
  * the number of characters written into buffer.
  */
 int keyboard_get_text(char *buffer, const uint32_t size);
+
+#ifdef __cplusplus
+}
+#endif

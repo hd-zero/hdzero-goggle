@@ -56,6 +56,7 @@ void create_select_item(panel_arr_t *arr, lv_obj_t *parent) {
         arr->panel[i] = lv_obj_create(parent);
         lv_obj_clear_flag(arr->panel[i], LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_add_flag(arr->panel[i], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(arr->panel[i], FLAG_SELECTABLE);
         lv_obj_add_style(arr->panel[i], &style_select, LV_PART_MAIN);
         lv_obj_set_grid_cell(arr->panel[i], LV_GRID_ALIGN_STRETCH, 0, 6,
                              LV_GRID_ALIGN_STRETCH, i, 1);
@@ -98,6 +99,7 @@ lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col,
     lv_obj_set_size(label, 120 * cols, height);
 
     lv_label_set_recolor(label, true);
+    lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);
 
     lv_obj_set_grid_cell(label, col_align, col, cols,
                          LV_GRID_ALIGN_CENTER, row, 1);
@@ -114,6 +116,7 @@ lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row
     lv_obj_set_size(label, 320 * cols, 60);
 
     lv_label_set_recolor(label, true);
+    lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);
 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, col, cols,
                          LV_GRID_ALIGN_CENTER, row, 1);
@@ -146,16 +149,22 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_size(slider_group->name, 200, 40);
     lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(slider_group->name, COLOR_DISABLED, STATE_DISABLED);
 
     slider_group->slider = lv_slider_create(parent);
 
     lv_obj_remove_style_all(slider_group->slider);
     lv_obj_add_style(slider_group->slider, &style_silder_main, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_MAIN | STATE_DISABLED);
+
     lv_obj_add_style(slider_group->slider, &style_silder_indicator, LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_INDICATOR | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_INDICATOR | LV_STATE_PRESSED);
+
     lv_obj_set_style_bg_opa(slider_group->slider, LV_OPA_COVER, LV_PART_KNOB);
     lv_obj_set_style_pad_ver(slider_group->slider, 10, LV_PART_KNOB);
     lv_obj_set_style_pad_hor(slider_group->slider, 2, LV_PART_KNOB);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_KNOB | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_KNOB | LV_STATE_PRESSED);
 
     lv_obj_set_size(slider_group->slider, 0, 2);
@@ -176,6 +185,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_size(slider_group->label, 160, 40);
     lv_obj_set_grid_cell(slider_group->label, LV_GRID_ALIGN_START, 4, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(slider_group->label, COLOR_DISABLED, STATE_DISABLED);
 }
 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row) {
@@ -188,14 +198,20 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     lv_obj_set_size(slider_group->name, 320, 60);
     lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(slider_group->name, COLOR_DISABLED, STATE_DISABLED);
 
     slider_group->slider = lv_slider_create(parent);
 
     lv_obj_remove_style_all(slider_group->slider);
     lv_obj_add_style(slider_group->slider, &style_silder_main, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_MAIN | STATE_DISABLED);
+    
     lv_obj_add_style(slider_group->slider, &style_silder_indicator, LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_INDICATOR | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_INDICATOR | LV_STATE_PRESSED);
+
     lv_obj_add_style(slider_group->slider, &style_silder_knob, LV_PART_KNOB);
+    lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_KNOB | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_KNOB | LV_STATE_PRESSED);
 
     lv_obj_set_size(slider_group->slider, 320, 3);
@@ -216,6 +232,7 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     lv_obj_set_size(slider_group->label, 160, 60);
     lv_obj_set_grid_cell(slider_group->label, LV_GRID_ALIGN_START, 5, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(slider_group->label, COLOR_DISABLED, STATE_DISABLED);
 }
 
 void update_slider_item_with_value(slider_group_t *slider_group, int value) {
@@ -236,6 +253,7 @@ void create_btn_item(lv_obj_t *parent, const char *name, int col, int row) {
     lv_obj_set_style_text_font(btn, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(btn, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_bg_color(btn, lv_color_make(19, 19, 19), 0);
+    lv_obj_set_style_bg_color(btn, COLOR_DISABLED, STATE_DISABLED);
     lv_obj_set_style_bg_opa(btn, 0x0, 0);
     lv_obj_set_style_shadow_width(btn, 0, 0);
     lv_obj_set_style_pad_top(btn, 0, 0);
@@ -252,6 +270,7 @@ lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, i
     lv_obj_set_style_shadow_width(obj, 0, 0);
     lv_obj_set_style_pad_top(obj, pad_top, 0);
     lv_obj_set_size(obj, width, height);
+    lv_obj_set_style_text_color(obj, COLOR_DISABLED, STATE_DISABLED);
 
     lv_obj_set_grid_cell(obj, column_align, col, col_span, LV_GRID_ALIGN_CENTER, row, 1);
 
@@ -293,6 +312,7 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
     lv_obj_set_size(btn_a->btn, 160, 60);
     lv_obj_set_grid_cell(btn_a->btn, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
 
     lv_obj_set_style_pad_column(btn_a->container, 0, 0);
 }
@@ -360,6 +380,7 @@ static void create_btn_with_arrow_compact(lv_obj_t *parent, btn_with_arr_t *btn_
     lv_obj_set_style_bg_color(btn_a->btn, lv_color_make(19, 19, 19), 0);
     lv_obj_set_style_bg_opa(btn_a->btn, 0x0, 0);
     lv_obj_set_style_shadow_width(btn_a->btn, 0, 0);
+    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
 
     lv_obj_set_style_pad_top(btn_a->btn, 0, 0);
     lv_obj_set_style_pad_bottom(btn_a->btn, 0, 0);
@@ -414,6 +435,7 @@ void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, 
     lv_obj_set_size(btn_group->label, 320, 60);
     lv_obj_set_grid_cell(btn_group->label, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(btn_group->label, COLOR_DISABLED, STATE_DISABLED);
 
     create_btn_with_arrow(parent, &btn_group->btn_a[0], name0, row, 2);
     if (count >= 2) {
@@ -443,6 +465,7 @@ void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent, int count,
     lv_obj_set_size(label, 320, 60);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
+    lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);
 
     create_btn_with_arrow(parent, &btn_group->btn_a[0], name0, row, 2);
     if (count >= 2) {
@@ -480,6 +503,18 @@ void slider_show(slider_group_t *slider_group, bool visible) {
     }
 }
 
+void slider_enable(slider_group_t *slider_group, bool enable) {
+    if (enable) {
+        lv_obj_clear_state(slider_group->slider, STATE_DISABLED);
+        lv_obj_clear_state(slider_group->label, STATE_DISABLED);
+        lv_obj_clear_state(slider_group->name, STATE_DISABLED);
+    } else {
+        lv_obj_add_state(slider_group->slider, STATE_DISABLED);
+        lv_obj_add_state(slider_group->label, STATE_DISABLED);
+        lv_obj_add_state(slider_group->name, STATE_DISABLED);
+    }
+}
+
 void btn_group_show(btn_group_t *btn_group, bool visible) {
     for (int i = 0; i < btn_group->valid; ++i) {
         if (visible) {
@@ -498,5 +533,24 @@ void btn_group_show(btn_group_t *btn_group, bool visible) {
         lv_obj_add_flag(btn_group->btn_a[sel].arrow, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(btn_group->btn_a[sel].label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(btn_group->label, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+void btn_group_enable(btn_group_t *btn_group, bool enable) {
+    for (int i = 0; i < btn_group->valid; ++i) {
+        if (enable) {
+            lv_obj_clear_state(btn_group->btn_a[i].label, STATE_DISABLED);
+        } else {
+            lv_obj_add_state(btn_group->btn_a[i].label, STATE_DISABLED);
+        }
+    }
+
+    const int sel = btn_group_get_sel(btn_group);
+    if (enable) {
+        lv_obj_clear_state(btn_group->label, STATE_DISABLED);
+        lv_obj_clear_flag(btn_group->btn_a[sel].arrow, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_state(btn_group->label, STATE_DISABLED);
+        lv_obj_add_flag(btn_group->btn_a[sel].arrow, LV_OBJ_FLAG_HIDDEN);
     }
 }

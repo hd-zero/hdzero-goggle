@@ -1,6 +1,10 @@
 #ifndef __AI2AENC_H_
 #define __AI2AENC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <plat_type.h>
 #include <mm_common.h>
@@ -81,6 +85,10 @@ void ai2aenc_deinitSys(Ai2Aenc_t* aa);
 ERRORTYPE ai2aenc_prepare(Ai2Aenc_t* aa, AiParams_t* aiParams, AencParams_t* aeParams);
 ERRORTYPE ai2aenc_start(Ai2Aenc_t* aa);
 ERRORTYPE ai2aenc_stop(Ai2Aenc_t* aa, bool disableDev);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __AI2AENC_H_ */
 

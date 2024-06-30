@@ -1,5 +1,8 @@
-#ifndef _PAGE_SCANNOW_H
-#define _PAGE_SCANNOW_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "ui/ui_main_menu.h"
 #include <lvgl/lvgl.h>
@@ -17,4 +20,7 @@ void autoscan_exit(void);
 void page_scannow_set_channel_label(void);
 
 extern page_pack_t pp_scannow;
+
+#ifdef __cplusplus
+}
 #endif

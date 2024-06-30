@@ -1,5 +1,8 @@
-#ifndef __MSP_DISPLAYPORT_H
-#define __MSP_DISPLAYPORT_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 
@@ -76,4 +79,6 @@ extern uint8_t osd_page_buf[HD_VMAX][7];
 extern uint16_t last_rcv_seconds0;
 extern uint16_t last_rcv_seconds1;
 
+#ifdef __cplusplus
+}
 #endif

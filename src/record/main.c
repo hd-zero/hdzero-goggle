@@ -136,6 +136,7 @@ void record_dumpParams(RecordParams_t* params)
     LOGD("full: %d MB", params->minDiskSize);
     LOGD("duration: %d minutes", params->packDuration/(60*1000));
     LOGD("audio   : %s", params->enableAudio ? "yes" : "no");
+    LOGD("naming  : %s", params->fileNaming == NAMING_DATE ? "Date" : "Contiguous");
 }
 
 void record_dumpVeParams(VencParams_t* params)
@@ -348,8 +349,20 @@ int record_start(RecordContext_t* recCtx)
         LOGE("get sps failed: %x", ret);
     }
 
+    char dateString[16];
     char sFile[256];
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+        break;
+    case NAMING_DATE: {
+        const time_t t = time(0);
+        const struct tm* date = localtime(&t);
+        sprintf(dateString, "%04d%02d%02d-%02d%02d%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
+        break;
+    }
+    }
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
@@ -403,6 +416,22 @@ int record_start(RecordContext_t* recCtx)
     recCtx->fpsStatus.tickFps = recCtx->tickBegin;
     recCtx->fpsStatus.nbFrames= 0;
 
+    // Add metadata to the program context
+    // Note: ts container does not support date so this will only be visible when
+    //       recording to mp4 container format
+    {
+        const time_t t = time(0);
+        const struct tm * date = localtime(&t);
+        char localDateString[20];
+        char fileName[64];
+
+        strcpy(fileName, strrchr(sFile, '/') + 1);
+        av_dict_set(&ff->ofmtContext->metadata, "title", fileName, 0);
+
+        sprintf(localDateString, "%04d-%02d-%02d %02d:%02d:%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        av_dict_set(&ff->ofmtContext->metadata, "date", localDateString, 0);
+    }
+
     ret = ffpack_start(ff);
     if( ret != SUCCESS ) {
         goto failed;
@@ -424,7 +453,14 @@ int record_start(RecordContext_t* recCtx)
     record_saveStatus(recCtx, REC_statusRun);
     recCtx->nbFileIndex++;
 
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+        break;
+    case NAMING_DATE:
+        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, REC_packSnapTYPE);
+        break;
+    }
     ret = record_takePicture(recCtx, sFile);
 
     record_dumpViParams(&viParams);

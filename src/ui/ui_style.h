@@ -1,5 +1,9 @@
-#ifndef _STYLE_H
-#define _STYLE_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "lvgl/lvgl.h"
 
 enum KB_STYLE {
@@ -28,4 +32,7 @@ extern lv_style_t style_keyboard[KB_STYLE_COUNT];
 extern lv_style_t style_pb, style_pb_dark;
 
 int style_init(void);
+
+#ifdef __cplusplus
+}
 #endif
