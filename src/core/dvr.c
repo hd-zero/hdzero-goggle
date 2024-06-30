@@ -17,6 +17,7 @@
 bool dvr_is_recording = false;
 
 static pthread_mutex_t dvr_mutex;
+void rename_hot_clip(int const seq);
 
 ///////////////////////////////////////////////////////////////////
 //-1=error;
@@ -181,4 +182,15 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
     }
 
     pthread_mutex_unlock(&dvr_mutex);
+}
+
+void live_mark_video_file() {
+    bool dvr_was_recording = dvr_is_recording;
+    if (dvr_is_recording) {
+        dvr_cmd(DVR_STOP);
+    }
+    rename_hot_clip(0);
+    if (dvr_was_recording) {
+        dvr_cmd(DVR_START);
+    }
 }
