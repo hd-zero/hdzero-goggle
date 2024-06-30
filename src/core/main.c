@@ -11,6 +11,11 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#ifdef EMULATOR_BUILD
+#include "SDLaccess.h"
+SDL_mutex *global_sdl_mutex;
+#endif
+
 #include "bmi270/accel_gyro.h"
 #include "core/app_state.h"
 #include "core/common.hh"
@@ -139,6 +144,13 @@ void lvgl_init() {
 
 int main(int argc, char *argv[]) {
     pthread_mutex_init(&lvgl_mutex, NULL);
+
+#ifdef EMULATOR_BUILD
+    global_sdl_mutex = SDL_CreateMutex();
+    if (global_sdl_mutex == NULL) {
+        LOGE("Failed to create an SDL mutex!");
+    }
+#endif
 
     // 1. Recall configuration
     settings_init();
