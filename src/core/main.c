@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 
     if (g_setting.power.beep_on_power)
     {
-        beep_dur(BEEP_SHORT);
+        beep();
     }
 
     // 10. Execute main loop

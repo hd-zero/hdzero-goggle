@@ -921,7 +921,10 @@ void Analog_Module_Power(bool ForceSet) {
             }
         }
         if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
-            beep();
+            if (g_setting.power.beep_on_power)
+            {
+                beep();
+            }
             Analog_Module_Power_State_Last = Analog_Module_Power_State;
             DM5680_Power_AnalogModule(Analog_Module_Power_State);
         }
