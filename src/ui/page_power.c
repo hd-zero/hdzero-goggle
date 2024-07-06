@@ -50,6 +50,11 @@ static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LA
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 lv_obj_t *label_cell_count;
 
+
+hw_revision_t getHwRevision1() {
+    return HW_REV_2;
+}
+
 static void page_power_update_cell_count() {
     char str[10];
 
@@ -88,13 +93,13 @@ static void page_power_update_calibration_offset() {
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     // Update number of rows based on Batch 2 vs Batch 1 options
-    pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
+    pp_power.p_arr.max = getHwRevision1() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1063, 980);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, 70, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
@@ -103,7 +108,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_text(NULL, section, false, "Power:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 970, 680);
+    lv_obj_set_size(cont, 970, 700);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -127,7 +132,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_power_on_beep, cont, 2, "Beep on Power", "Off", "On", "", "", ROW_POWER_BEEP);
 
     // Batch 2 goggles only
-    if (getHwRevision() >= HW_REV_2) {
+    if (getHwRevision1() >= HW_REV_2) {
         create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Auto", "", "", ROW_POWER_ANA);
     }
 
@@ -339,7 +344,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (getHwRevision() >= HW_REV_2) {
+        if (getHwRevision1() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
