@@ -921,8 +921,7 @@ void Analog_Module_Power(bool ForceSet) {
             }
         }
         if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
-            if (g_setting.power.beep_on_power)
-            {
+            if (g_setting.power.beep_on_power) {
                 beep();
             }
             Analog_Module_Power_State_Last = Analog_Module_Power_State;

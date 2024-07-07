@@ -195,8 +195,7 @@ int main(int argc, char *argv[]) {
     // Head alarm
     head_alarm_init();
 
-    if (g_setting.power.beep_on_power)
-    {
+    if (g_setting.power.beep_on_power) {
         beep();
     }
 
