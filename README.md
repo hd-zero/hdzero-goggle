@@ -47,7 +47,7 @@ SD Card File Hierarchy:
 
 ```
 /develop.sh
-/HDZGOOGLE
+/HDZGOGGLE
 ```
 
 Development script (develop.sh):
