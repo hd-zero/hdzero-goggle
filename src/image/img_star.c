@@ -9,11 +9,11 @@
 #define LV_ATTRIBUTE_MEM_ALIGN
 #endif
 
-#ifndef LV_ATTRIBUTE_IMG_IMG_HEART
-#define LV_ATTRIBUTE_IMG_IMG_HEART
+#ifndef LV_ATTRIBUTE_IMG_IMG_STAR
+#define LV_ATTRIBUTE_IMG_IMG_STAR
 #endif
 
-const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_IMG_HEART uint8_t img_heart_map[] = {
+const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_IMG_STAR uint8_t img_star_map[] = {
 #if LV_COLOR_DEPTH == 1 || LV_COLOR_DEPTH == 8
   /*Pixel format: Red: 3 bit, Green: 3 bit, Blue: 2 bit*/
 
@@ -70,12 +70,12 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_IMG_HEART
 #endif
 };
 
-const lv_img_dsc_t img_heart = {
+const lv_img_dsc_t img_star = {
   .header.cf = LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED,
   .header.always_zero = 0,
   .header.reserved = 0,
   .header.w = 32,
   .header.h = 32,
   .data_size = 1024 * LV_COLOR_SIZE / 8,
-  .data = img_heart_map,
+  .data = img_star_map,
 };

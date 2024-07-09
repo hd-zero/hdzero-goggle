@@ -22,7 +22,7 @@ player_cmd_t cmd;
 
 LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
-LV_IMG_DECLARE(img_heart);
+LV_IMG_DECLARE(img_star);
 
 bool likes_position_on_timeline = false;
 size_t likes_count = 0;
@@ -126,7 +126,7 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     for (size_t i = 0; i < likes_count; i++)
     {
         controller._hearts[i] = lv_img_create(parent);
-        lv_img_set_src(controller._hearts[i], &img_heart);
+        lv_img_set_src(controller._hearts[i], &img_star);
         lv_obj_set_pos(controller._hearts[i], x, y + 20);
     }
 }
