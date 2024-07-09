@@ -92,7 +92,7 @@ void dvr_toggle() {
     dvr_cmd(DVR_TOGGLE);
 }
 
-void dvr_like() {
+void dvr_star() {
     pthread_mutex_lock(&dvr_mutex);
     if (dvr_is_recording) {
         char current_dvr_file[256] = "";

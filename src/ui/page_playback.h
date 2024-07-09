@@ -30,7 +30,7 @@ typedef struct {
     char label[64];
     char ext[16];
     int size;
-    bool like;
+    bool star;
 } media_file_node_t;
 
 typedef struct {
@@ -43,7 +43,7 @@ typedef struct {
     lv_obj_t *_img;
     lv_obj_t *_label;
     lv_obj_t *_arrow;
-    lv_obj_t *_heart;
+    lv_obj_t *_star;
     uint16_t x;
     uint16_t y;
     uint8_t state; // 0: invisible; 1=highlighted; 2= normal
