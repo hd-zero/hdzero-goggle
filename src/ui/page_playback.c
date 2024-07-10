@@ -181,7 +181,7 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
 static bool dvr_has_stars(const char* filename)
 {
     char temp_buffer[256] = "";
-    int count = snprintf(temp_buffer, 255, "%s.like.txt", filename);
+    int count = snprintf(temp_buffer, 255, "%s" REC_starSUFFIX, filename);
     temp_buffer[count] = 0;
 
     return fs_file_exists(temp_buffer);

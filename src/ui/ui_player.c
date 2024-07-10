@@ -9,6 +9,7 @@
 #include "common.hh"
 #include "player/media.h"
 #include "ui/ui_style.h"
+#include "record/record_definitions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // locals
@@ -271,7 +272,7 @@ void load_stars(char *fname)
 {
     stars_position_on_timeline = false;
     char stars_filename[100] = "";
-    snprintf(stars_filename, 100, "%s%s", fname, ".like.txt");
+    snprintf(stars_filename, 100, "%s" REC_starSUFFIX, fname);
 
     stars_count = 0;
     FILE* stars_file = fopen(stars_filename, "r");
@@ -280,7 +281,7 @@ void load_stars(char *fname)
     {
         unsigned mins = 0;
         unsigned secs = 0;
-        while (fscanf(stars_file, "%u:%u like!2\n", &mins, &secs) == 2)
+        while (fscanf(stars_file, REC_starFORMAT, &mins, &secs) == 2)
         {
             stars_timestamps_s[stars_count] = mins * 60 + secs;
             stars_count++;

@@ -289,11 +289,31 @@ void record_stop(RecordContext_t* recCtx)
     record_saveStatus(recCtx, record_stopStatus(recCtx));
 
 
+
+
+
+
+
+
+
+
+
+
+
     {
-        char recording_file_path[256] = "";
-        snprintf(recording_file_path, 256, "%s/now_recording", recCtx->params.packPath);
-        remove(recording_file_path);
+        remove(NOW_RECORDING_FILE);
     }
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -464,15 +484,32 @@ int record_start(RecordContext_t* recCtx)
 
 
 
+
+
+
+
+
+
+
+
+
+
     {
-        char recording_file_path[256] = "";
-        snprintf(recording_file_path, 256, "%s/now_recording", recCtx->params.packPath);
-        FILE *recording_file = fopen(recording_file_path, "w");
+        FILE *recording_file = fopen(NOW_RECORDING_FILE, "w");
         if (recording_file) {
             fprintf(recording_file, "%s", sFile);
             fclose(recording_file);
         }
     }
+
+
+
+
+
+
+
+
+
 
 
 
