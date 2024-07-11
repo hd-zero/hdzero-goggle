@@ -287,34 +287,7 @@ void record_stop(RecordContext_t* recCtx)
     pthread_mutex_unlock(&recCtx->mutex);
 
     record_saveStatus(recCtx, record_stopStatus(recCtx));
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {
-        remove(NOW_RECORDING_FILE);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    remove(NOW_RECORDING_FILE);
 }
 
 int record_start(RecordContext_t* recCtx)
@@ -481,38 +454,11 @@ int record_start(RecordContext_t* recCtx)
     record_saveStatus(recCtx, REC_statusRun);
     recCtx->nbFileIndex++;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {
-        FILE *recording_file = fopen(NOW_RECORDING_FILE, "w");
-        if (recording_file) {
-            fprintf(recording_file, "%s", sFile);
-            fclose(recording_file);
-        }
+    FILE *recording_file = fopen(NOW_RECORDING_FILE, "w");
+    if (recording_file) {
+        fprintf(recording_file, "%s", sFile);
+        fclose(recording_file);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:

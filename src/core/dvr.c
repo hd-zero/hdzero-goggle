@@ -98,15 +98,13 @@ void dvr_star() {
     if (dvr_is_recording) {
         char current_dvr_file[256] = "";
         FILE* now_recording_file = fopen(NOW_RECORDING_FILE, "r");
-        if(now_recording_file) {
+        if (now_recording_file) {
             const size_t read_count = fread(current_dvr_file, 1, sizeof(current_dvr_file) - 1, now_recording_file);
-            if (ferror(now_recording_file) == 0)
-            {
+            if (ferror(now_recording_file) == 0) {
                 current_dvr_file[read_count] = '\0';
                 strcat(current_dvr_file, REC_starSUFFIX);
                 FILE* like_file = fopen(current_dvr_file, "a");
-                if(like_file)
-                {
+                if (like_file) {
                     unsigned recording_duration_s = time(NULL) - dvr_recording_start;
                     unsigned minutes = recording_duration_s / 60;
                     unsigned seconds = recording_duration_s % 60;

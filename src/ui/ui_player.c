@@ -25,11 +25,9 @@ LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
 LV_IMG_DECLARE(img_star);
 
-bool stars_position_on_timeline = false;
-size_t stars_count = 0;
-size_t stars_timestamps_s[MAX_STARS] = {0,};
-
-
+static bool stars_positioned_on_timeline = false;
+static size_t stars_count = 0;
+static size_t stars_timestamps_s[MAX_STARS] = {0,};
 
 ///////////////////////////////////////////////////////////////////////////////
 static void time2str(uint32_t t1, uint32_t t2, char *s) {
@@ -61,15 +59,16 @@ static void update_time_label(bool mediaOK) {
         lv_slider_set_value(controller._slider, percent, LV_ANIM_OFF);
 
 
-        if (!stars_position_on_timeline) {
+        if (!stars_positioned_on_timeline) {
             for (size_t i = 0; i < stars_count; i++) {
                 int star_percent = duration ? (stars_timestamps_s[i] * 1000 * 100 / duration) : 0;
 
                 lv_obj_set_pos(controller._stars[i],
-                    MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * star_percent / 100 - 16, -10);
+                    MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP 
+                    + MPLAYER_SLD_WIDTH * star_percent / 100 - (img_star.header.w / 2), 20);
             }
             if (duration) {
-                stars_position_on_timeline = true;
+                stars_positioned_on_timeline = true;
             }
         }
 
@@ -268,26 +267,22 @@ static void notify_cb(media_info_t *info) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-void load_stars(char *fname)
-{
-    stars_position_on_timeline = false;
-    char stars_filename[100] = "";
-    snprintf(stars_filename, 100, "%s" REC_starSUFFIX, fname);
+void load_stars(char *fname) {
+    stars_positioned_on_timeline = false;
+    char stars_filename[256] = "";
+    snprintf(stars_filename, sizeof(stars_filename), "%s" REC_starSUFFIX, fname);
 
     stars_count = 0;
     FILE* stars_file = fopen(stars_filename, "r");
 
-    if (stars_file)
-    {
+    if (stars_file) {
         unsigned mins = 0;
         unsigned secs = 0;
-        while (fscanf(stars_file, REC_starFORMAT, &mins, &secs) == 2)
-        {
+        while (fscanf(stars_file, REC_starFORMAT, &mins, &secs) == 2) {
             stars_timestamps_s[stars_count] = mins * 60 + secs;
             stars_count++;
 
-            if (stars_count == MAX_STARS)
-            {
+            if (stars_count == MAX_STARS) {
                 break;
             }
         }

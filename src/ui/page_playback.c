@@ -83,7 +83,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_pos(pb_ui[pos]._arrow, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) - 10,
                        pb_ui[pos].y + ITEM_PREVIEW_H + 10);
 
-        lv_obj_set_pos(pb_ui[pos]._star, pb_ui[pos].x, pb_ui[pos].y);
+        lv_obj_set_pos(pb_ui[pos]._star, pb_ui[pos].x + 5, pb_ui[pos].y);
 
         lv_obj_set_pos(pb_ui[pos]._label, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) + ITEM_GAP_W,
                        pb_ui[pos].y + ITEM_PREVIEW_H + 10);
@@ -180,11 +180,10 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
 
 static bool dvr_has_stars(const char* filename)
 {
-    char temp_buffer[256] = "";
-    int count = snprintf(temp_buffer, 255, "%s" REC_starSUFFIX, filename);
-    temp_buffer[count] = 0;
+    char star_file[256] = "";
+    int count = snprintf(star_file, sizeof(star_file), "%s" REC_starSUFFIX, filename);
 
-    return fs_file_exists(temp_buffer);
+    return fs_file_exists(star_file);
 }
 
 static int walk_sdcard() {

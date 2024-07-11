@@ -89,7 +89,7 @@ extern "C" {
 #define DOT                 "."
 #define REC_packEXTS        {DOT REC_packMP4, DOT REC_packTS}
 #define REC_packTypesNUM    2
-#define REC_starFORMAT      "%u:%02u like!2\n"
+#define REC_starFORMAT      "%u:%02u star\n"
 
 #define REC_filePathGet(BUFF, PATH, PREFIX, INDEX, FILEFMT) \
     sprintf((BUFF), "%s%s%03d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
