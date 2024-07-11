@@ -195,6 +195,7 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         if (!dvr_is_recording && g_sdcard_size >= 103) {
             dvr_update_record_conf();
             dvr_is_recording = true;
+            usleep(10 * 1000);
             system_script(REC_START);
             dvr_recording_start = time(NULL);
             sleep(2); // wait for record process

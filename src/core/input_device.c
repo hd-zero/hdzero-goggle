@@ -73,6 +73,9 @@ void tune_channel(uint8_t action) {
     if (g_setting.ease.no_dial)
         return;
 
+    if (g_source_info.source != SOURCE_HDZERO)
+        return;
+
     LOGI("tune_channel:%d", action);
 
     if (tune_state == 0) {

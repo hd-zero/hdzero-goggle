@@ -727,7 +727,6 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_wifi_create_page_3(cont);
     page_wifi_sync_settings();
     page_wifi_update_current_page(0);
-    page_wifi_update_settings();
 
     return page;
 }
@@ -1123,6 +1122,9 @@ page_pack_t pp_wifi = {
     .on_roller = page_wifi_on_roller,
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,
+    .post_bootup_run_priority = 100,
+    .post_bootup_run_function = page_wifi_update_settings,
+    .post_bootup_run_complete = NULL,
 };
 
 /**

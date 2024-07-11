@@ -67,6 +67,8 @@ static page_pack_t *page_packs[] = {
 
 #define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
 
+static page_pack_t* post_bootup_actions[PAGE_COUNT + 1];
+
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         if (page_packs[i]->page == page) {
@@ -301,8 +303,25 @@ void main_menu_init(void) {
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
 
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0, j = 0; i < PAGE_COUNT; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);
+        if (page_packs[i]->post_bootup_run_priority > 0) {
+            post_bootup_actions[j++] = page_packs[i];
+        }
+    }
+
+    // Resort based on priority
+    for (uint32_t i = 0; i < PAGE_COUNT; ++i) {
+        for (uint32_t j = 1; j < PAGE_COUNT; ++j) {
+            if (post_bootup_actions[i] && post_bootup_actions[j]) {
+                if (post_bootup_actions[j]->post_bootup_run_priority <
+                    post_bootup_actions[i]->post_bootup_run_priority) {
+                    post_bootup_actions[PAGE_COUNT] = post_bootup_actions[i];
+                    post_bootup_actions[i] = post_bootup_actions[j];
+                    post_bootup_actions[j] = post_bootup_actions[PAGE_COUNT];
+                } 
+            }
+        }
     }
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
@@ -332,11 +351,36 @@ void main_menu_init(void) {
 
 void main_menu_update() {
     static uint32_t delta_ms = 0;
+    static uint32_t last_bootup_action = 0;
     uint32_t now_ms = time_ms();
     delta_ms = now_ms - delta_ms;
+
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         if (page_packs[i]->on_update) {
             page_packs[i]->on_update(delta_ms);
+        }
+
+        if (last_bootup_action == i && post_bootup_actions[i]) {
+            if (post_bootup_actions[i] != NULL) {
+                // Function invokation
+                if (post_bootup_actions[i]->post_bootup_run_complete == NULL) {
+                    if (post_bootup_actions[i]->post_bootup_run_function != NULL) {
+                        post_bootup_actions[i]->post_bootup_run_function();
+                        post_bootup_actions[i]->post_bootup_run_function = NULL;
+                        post_bootup_actions[i] = NULL;
+                        ++last_bootup_action;
+                    }
+                } else { // Thread invokation
+                    if (post_bootup_actions[i]->post_bootup_run_function){
+                        post_bootup_actions[i]->post_bootup_run_function();
+                        post_bootup_actions[i]->post_bootup_run_function = NULL;
+                    } else if (post_bootup_actions[i]->post_bootup_run_complete()) {
+                        post_bootup_actions[i]->post_bootup_run_complete = NULL;
+                        post_bootup_actions[i] = NULL;
+                        ++last_bootup_action;
+                    }
+                }
+            }
         }
     }
     delta_ms = now_ms;

@@ -143,6 +143,7 @@ int main(int argc, char *argv[]) {
     // 1. Recall configuration
     settings_init();
     settings_load();
+    vclk_phase_init();
 
     // 2. Initialize communications.
     rtc_init();
@@ -190,6 +191,9 @@ int main(int argc, char *argv[]) {
 
     // 8.1 set initial analog module power state
     Analog_Module_Power(0);
+
+    // Head alarm
+    head_alarm_init();
 
     // 10. Execute main loop
     g_init_done = 1;

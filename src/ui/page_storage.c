@@ -13,6 +13,8 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
+extern void (*sdcard_ready_cb)();
+
 /**
  * Types
  */
@@ -59,6 +61,7 @@ typedef struct {
     bool disable_controls;
     bool is_sd_repair_active;
     bool is_auto_sd_repair_active;
+    bool is_sd_repair_complete;
 } page_options_t;
 
 /**
@@ -502,6 +505,18 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
+ * Returns true once the thread has completed. 
+ */
+static bool page_storage_is_sd_repair_complete() {
+    if (page_storage.is_sd_repair_complete) {
+        sdcard_ready_cb = page_storage_init_auto_sd_repair;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
  */
@@ -519,6 +534,9 @@ page_pack_t pp_storage = {
     .on_roller = page_storage_on_roller,
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,
+    .post_bootup_run_priority = 50,
+    .post_bootup_run_function = page_storage_init_auto_sd_repair,
+    .post_bootup_run_complete = page_storage_is_sd_repair_complete,
 };
 
 /**
@@ -534,6 +552,7 @@ static void *page_storage_repair_thread(void *arg) {
         lv_label_set_text(page_storage.note, "");
         page_storage.is_auto_sd_repair_active = false;
     }
+    page_storage.is_sd_repair_complete = true;
     pthread_exit(NULL);
 }
 
@@ -548,10 +567,13 @@ bool page_storage_is_sd_repair_active() {
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
+    page_storage.is_sd_repair_complete = false;
     if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
         if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
         }
+    } else {
+        page_storage.is_sd_repair_complete = true;
     }
 }

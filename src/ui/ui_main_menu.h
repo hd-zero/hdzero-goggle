@@ -27,6 +27,10 @@ typedef struct {
     void (*on_roller)(uint8_t key);
     void (*on_click)(uint8_t key, int sel);
     void (*on_right_button)(bool is_short);
+
+    int32_t post_bootup_run_priority;
+    void(*post_bootup_run_function)();
+    bool(*post_bootup_run_complete)();
 } page_pack_t;
 
 typedef struct {
