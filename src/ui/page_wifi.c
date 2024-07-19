@@ -15,6 +15,7 @@
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "core/wallpaper.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
@@ -473,8 +474,8 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
 
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
-                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
-                page_wifi.page_2.dhcp.button.current == 1)) {
+            (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+             page_wifi.page_2.dhcp.button.current == 1)) {
             lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
@@ -706,6 +707,8 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
+    if (wallpaper_is_used())
+        lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "WiFi Module:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
@@ -715,6 +718,8 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont, &style_context, LV_PART_MAIN);
+    if (wallpaper_is_used())
+        lv_obj_set_style_bg_opa(cont, LV_OPA_50, 0);
 
     lv_obj_set_style_grid_column_dsc_array(cont, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);

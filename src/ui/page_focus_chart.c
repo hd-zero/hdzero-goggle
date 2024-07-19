@@ -4,6 +4,7 @@
 
 #include "core/osd.h"
 #include "core/settings.h"
+#include "core/wallpaper.h"
 #include "ui/ui_porting.h"
 
 static lv_obj_t *focus_chart_img;
@@ -18,6 +19,8 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
+    if (wallpaper_is_used())
+        lv_obj_set_style_bg_opa(section, LV_OPA_TRANSP, 0);
 
     create_text(NULL, section, false, "Focus Chart:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
