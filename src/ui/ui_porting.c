@@ -10,7 +10,7 @@
 #include "lvgl/lvgl.h"
 
 #ifdef EMULATOR_BUILD
-#include <SDL2/SDL.h>
+#include "SDLaccess.h"
 static void *fb1, *fb2;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -55,6 +55,7 @@ static void hdz_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_
 
     fb_sync(&fbdev);
 #else
+    SDL_LockMutex(global_sdl_mutex);
     SDL_Rect
         src = {
             .x = 0,
@@ -76,6 +77,7 @@ static void hdz_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_
     src.h = dst.h;
     SDL_RenderCopy(renderer, texture, &src, &dst);
     SDL_RenderPresent(renderer);
+    SDL_UnlockMutex(global_sdl_mutex);
 #endif
 
     if (disp_orbit_state & ORBIT_FLUSH) {
@@ -127,8 +129,13 @@ int lvgl_init_porting() {
 
     lv_disp_drv_init(&disp_drv);
 #else
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
+        SDL_InitSubSystem(SDL_INIT_VIDEO);
+    } else {
+        LOGI("SDL already initialised.");
+    }
 
+    SDL_LockMutex(global_sdl_mutex);
     window = SDL_CreateWindow(WINDOW_NAME,
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               DISP_HOR_RES_FHD, DISP_VER_RES_FHD, 0);
@@ -140,6 +147,7 @@ int lvgl_init_porting() {
                                 SDL_TEXTUREACCESS_STREAMING,
                                 DRAW_HOR_RES_FHD,
                                 DRAW_VER_RES_FHD);
+    SDL_UnlockMutex(global_sdl_mutex);
 
     fb1 = malloc(DRAW_HOR_RES_FHD * DRAW_VER_RES_FHD * ((LV_COLOR_DEPTH + 7) / 8));
     fb2 = malloc(DRAW_HOR_RES_FHD * DRAW_VER_RES_FHD * ((LV_COLOR_DEPTH + 7) / 8));
