@@ -23,6 +23,7 @@ void dvr_enable_line_out(bool enable);
 void dvr_cmd(osd_dvr_cmd_t cmd);
 void dvr_update_vi_conf(video_resolution_t fmt);
 void dvr_toggle();
+void dvr_star();
 
 #ifdef __cplusplus
 }

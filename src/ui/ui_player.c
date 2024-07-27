@@ -9,6 +9,7 @@
 #include "common.hh"
 #include "player/media.h"
 #include "ui/ui_style.h"
+#include "record/record_definitions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // locals
@@ -22,6 +23,11 @@ player_cmd_t cmd;
 
 LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
+LV_IMG_DECLARE(img_star);
+
+static bool stars_positioned_on_timeline = false;
+static size_t stars_count = 0;
+static size_t stars_timestamps_s[MAX_STARS] = {0,};
 
 ///////////////////////////////////////////////////////////////////////////////
 static void time2str(uint32_t t1, uint32_t t2, char *s) {
@@ -49,8 +55,25 @@ static void update_time_label(bool mediaOK) {
 
         time2str(now, duration, s);
         lv_label_set_text(controller._label, s);
-        percent = (int)(now * 100 / (duration * 1.0));
+        percent = duration ? (now * 100 / duration) : 0;
         lv_slider_set_value(controller._slider, percent, LV_ANIM_OFF);
+
+
+        if (!stars_positioned_on_timeline) {
+            for (size_t i = 0; i < stars_count; i++) {
+                int star_percent = duration ? (stars_timestamps_s[i] * 1000 * 100 / duration) : 0;
+
+                lv_obj_set_pos(controller._stars[i],
+                    MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP 
+                    + MPLAYER_SLD_WIDTH * star_percent / 100 - (img_star.header.w / 2), 20);
+            }
+            if (duration) {
+                stars_positioned_on_timeline = true;
+            }
+        }
+
+
+
     } else {
         lv_label_set_text(controller._label, "Bad file");
         lv_slider_set_value(controller._slider, 0, LV_ANIM_OFF);
@@ -98,6 +121,14 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     lv_obj_set_style_text_color(controller._label, lv_color_hex(0xC0C0C0), 0);
     lv_obj_set_pos(controller._label, x + MPLAYER_SLD_WIDTH + MPLAYER_BTN_GAP, y);
     lv_obj_set_size(controller._label, 160, MPLAYER_BTN_HEIGHT);
+
+
+    for (size_t i = 0; i < stars_count; i++)
+    {
+        controller._stars[i] = lv_img_create(parent);
+        lv_img_set_src(controller._stars[i], &img_star);
+        lv_obj_set_pos(controller._stars[i], x, y + 20);
+    }
 }
 
 static void init_mplayer() {
@@ -151,6 +182,10 @@ static void free_mplayer() {
     lv_obj_del(controller._btn);
     lv_obj_del(controller._label);
     lv_obj_del(controller._slider);
+    for (size_t i = 0; i < stars_count; i++)
+    {
+        lv_obj_del(controller._stars[i]);
+    }
     lv_obj_del(controller.bar);
     lv_obj_del(controller.bg);
 }
@@ -232,6 +267,29 @@ static void notify_cb(media_info_t *info) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
+void load_stars(char *fname) {
+    stars_positioned_on_timeline = false;
+    char stars_filename[256] = "";
+    snprintf(stars_filename, sizeof(stars_filename), "%s" REC_starSUFFIX, fname);
+
+    stars_count = 0;
+    FILE* stars_file = fopen(stars_filename, "r");
+
+    if (stars_file) {
+        unsigned mins = 0;
+        unsigned secs = 0;
+        while (fscanf(stars_file, REC_starFORMAT, &mins, &secs) == 2) {
+            stars_timestamps_s[stars_count] = mins * 60 + secs;
+            stars_count++;
+
+            if (stars_count == MAX_STARS) {
+                break;
+            }
+        }
+        fclose(stars_file);
+    }
+}
+
 void media_init(char *fname) {
     media = media_instantiate(fname, notify_cb);
     if (!media) {
@@ -289,6 +347,7 @@ void media_seek(uint32_t seekto) {
 // interface func
 void mplayer_file(char *fname) {
     LOGI("mplayer %s", fname);
+    load_stars(fname);
     init_mplayer();
     media_init(fname);
     media_start();

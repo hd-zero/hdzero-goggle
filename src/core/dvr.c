@@ -13,9 +13,11 @@
 #include "driver/hardware.h"
 #include "ui/page_common.h"
 #include "util/system.h"
+#include "record/record_definitions.h"
 
 bool dvr_is_recording = false;
 
+static time_t dvr_recording_start = 0;
 static pthread_mutex_t dvr_mutex;
 
 ///////////////////////////////////////////////////////////////////
@@ -89,6 +91,31 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
 
 void dvr_toggle() {
     dvr_cmd(DVR_TOGGLE);
+}
+
+void dvr_star() {
+    pthread_mutex_lock(&dvr_mutex);
+    if (dvr_is_recording) {
+        char current_dvr_file[256] = "";
+        FILE* now_recording_file = fopen(NOW_RECORDING_FILE, "r");
+        if (now_recording_file) {
+            const size_t read_count = fread(current_dvr_file, 1, sizeof(current_dvr_file) - 1, now_recording_file);
+            if (ferror(now_recording_file) == 0) {
+                current_dvr_file[read_count] = '\0';
+                strcat(current_dvr_file, REC_starSUFFIX);
+                FILE* like_file = fopen(current_dvr_file, "a");
+                if (like_file) {
+                    unsigned recording_duration_s = time(NULL) - dvr_recording_start;
+                    unsigned minutes = recording_duration_s / 60;
+                    unsigned seconds = recording_duration_s % 60;
+                    fprintf(like_file, REC_starFORMAT, minutes, seconds);
+                    fclose(like_file);
+                }
+            }
+            fclose(now_recording_file);
+        }
+    }
+    pthread_mutex_unlock(&dvr_mutex);
 }
 
 static void dvr_update_record_conf() {
@@ -170,6 +197,7 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
             dvr_is_recording = true;
             usleep(10 * 1000);
             system_script(REC_START);
+            dvr_recording_start = time(NULL);
             sleep(2); // wait for record process
         }
     } else {

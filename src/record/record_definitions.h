@@ -7,6 +7,7 @@ extern "C" {
 #define MAX_pathLEN         128
 
 #define LOCKFILE "/tmp/record.pid"
+#define NOW_RECORDING_FILE "/tmp/now_recording"
 #define LOCKMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)
 
 #define VI_HDZERO           1
@@ -74,6 +75,7 @@ extern "C" {
 #define REC_packPATH        "/DCIM/100HDZRO/" //REC_diskPATH "/DCIM/100HDZRO/"
 #define REC_packPREFIX      "hdz_"
 #define REC_hotPREFIX       "hot_"
+#define REC_starSUFFIX      ".star.txt"
 #define REC_packHotPREFIX   REC_hotPREFIX REC_packPREFIX
 #define REC_packMP4         "mp4"
 #define REC_packTS          "ts"
@@ -87,6 +89,7 @@ extern "C" {
 #define DOT                 "."
 #define REC_packEXTS        {DOT REC_packMP4, DOT REC_packTS}
 #define REC_packTypesNUM    2
+#define REC_starFORMAT      "%u:%02u star\n"
 
 #define REC_filePathGet(BUFF, PATH, PREFIX, INDEX, FILEFMT) \
     sprintf((BUFF), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
