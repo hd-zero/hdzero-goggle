@@ -205,7 +205,7 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     lv_obj_remove_style_all(slider_group->slider);
     lv_obj_add_style(slider_group->slider, &style_silder_main, LV_PART_MAIN);
     lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_MAIN | STATE_DISABLED);
-    
+
     lv_obj_add_style(slider_group->slider, &style_silder_indicator, LV_PART_INDICATOR);
     lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_INDICATOR | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_INDICATOR | LV_STATE_PRESSED);
