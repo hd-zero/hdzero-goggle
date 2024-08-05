@@ -11,6 +11,7 @@
 #include "core/osd.h"
 
 #include "ui/page_fans.h"
+#include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
 
 /**
@@ -36,8 +37,8 @@ typedef enum page_input_rows {
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
-const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed", "Star DVR"};
-void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan, &dvr_star};
+const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed", "Star DVR", "Toggle source", "Cycle source"};
+void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan, &dvr_star, &source_toggle, &source_cycle};
 
 const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
 void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
