@@ -124,37 +124,89 @@ void source_status_timer() {
     }
 }
 
+static void page_source_select_hdzero() {
+    progress_bar.start = 1;
+    app_switch_to_hdzero(true);
+    app_state_push(APP_STATE_VIDEO);
+    g_source_info.source = SOURCE_HDZERO;
+    dvr_select_audio_source(2);
+    dvr_enable_line_out(true);
+}
+
+static void page_source_select_hdmi() {
+    if (g_source_info.hdmi_in_status)
+        app_switch_to_hdmi_in();
+}
+
+static void page_source_select_av_in() {
+    app_switch_to_analog(0);
+    app_state_push(APP_STATE_VIDEO);
+    g_source_info.source = SOURCE_AV_IN;
+    dvr_select_audio_source(2);
+    dvr_enable_line_out(true);
+}
+
+static void page_source_select_expansion() {
+    app_switch_to_analog(1);
+    app_state_push(APP_STATE_VIDEO);
+    g_source_info.source = SOURCE_EXPANSION;
+    dvr_select_audio_source(2);
+    dvr_enable_line_out(true);
+}
+
+void source_toggle() {
+    switch(g_source_info.source) {
+    case SOURCE_HDZERO:
+        page_source_select_expansion();
+        break;
+    case SOURCE_EXPANSION:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_AV_IN:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_HDMI_IN:
+        page_source_select_hdzero();
+        break;
+    }
+    Analog_Module_Power(0);
+}
+
+void source_cycle() {
+    switch(g_source_info.source) {
+    case SOURCE_HDZERO: 
+        if (g_source_info.hdmi_in_status) {
+            page_source_select_hdmi();
+        } else {
+             page_source_select_av_in();
+        }
+        break;
+    case SOURCE_EXPANSION:
+        page_source_select_hdzero();
+        break;
+    case SOURCE_AV_IN:
+        page_source_select_expansion();
+        break;
+    case SOURCE_HDMI_IN:
+        page_source_select_av_in();
+        break;
+    }
+    Analog_Module_Power(0);
+}
+
 static void page_source_on_click(uint8_t key, int sel) {
     switch (sel) {
-    case 0:
-        progress_bar.start = 1;
-        app_switch_to_hdzero(true);
-        app_state_push(APP_STATE_VIDEO);
-        g_source_info.source = SOURCE_HDZERO;
-        dvr_select_audio_source(2);
-        dvr_enable_line_out(true);
-        break;
+    case 0: // HDZero in
+        page_source_select_hdzero();
 
-    case 1:
-        if (g_source_info.hdmi_in_status)
-            app_switch_to_hdmi_in();
-        break;
+    case 1: // HDMI in
+        page_source_select_hdmi();
 
     case 2: // AV in
-        app_switch_to_analog(0);
-        app_state_push(APP_STATE_VIDEO);
-        g_source_info.source = SOURCE_AV_IN;
-        dvr_select_audio_source(2);
-        dvr_enable_line_out(true);
-        break;
+        page_source_select_av_in();
 
-    case 3: // Module in
-        app_switch_to_analog(1);
-        app_state_push(APP_STATE_VIDEO);
-        g_source_info.source = SOURCE_EXPANSION;
-        dvr_select_audio_source(2);
-        dvr_enable_line_out(true);
-        break;
+    case 3: // Expansion module in
+        page_source_select_expansion();
 
     case 4: // Analog video format
         btn_group_toggle_sel(&btn_group0);
