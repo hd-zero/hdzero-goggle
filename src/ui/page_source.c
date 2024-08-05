@@ -11,6 +11,7 @@
 #include "core/dvr.h"
 #include "core/osd.h"
 #include "core/settings.h"
+#include "driver/beep.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
 #include "driver/oled.h"
@@ -155,6 +156,7 @@ static void page_source_select_expansion() {
 }
 
 void source_toggle() {
+    beep_dur(BEEP_SHORT);
     switch(g_source_info.source) {
     case SOURCE_HDZERO:
         page_source_select_expansion();
@@ -173,6 +175,7 @@ void source_toggle() {
 }
 
 void source_cycle() {
+    beep_dur(BEEP_SHORT);
     switch(g_source_info.source) {
     case SOURCE_HDZERO: 
         if (g_source_info.hdmi_in_status) {
