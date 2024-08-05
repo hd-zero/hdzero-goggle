@@ -35,7 +35,7 @@ typedef enum page_input_rows {
  * Compile-unit local variables, constants and fields
  */
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 80, LV_GRID_TEMPLATE_LAST};
 
 const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed", "Star DVR", "Toggle source", "Cycle source"};
 void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan, &dvr_star, &source_toggle, &source_cycle};
@@ -211,7 +211,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     pageItems[BACK_BTN] = create_label_item(content, "< Back", 1, BACK_BTN, 1);
 
     lv_obj_t *label = lv_label_create(content);
-    lv_label_set_text(label, "*Settings apply to video mode only");
+    lv_label_set_text(label, "*Settings apply to video mode only\n"
+                             "'Toggle source' will switch between HDZero and Expansion module");
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
