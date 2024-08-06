@@ -65,6 +65,7 @@ file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
 file(GLOB SRC_FILES_FONTS  "src/fonts/*.c" "src/fonts/*.h")
 file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
+file(GLOB SRC_FIELS_LV_I18N "src/lv_i18n/*.c" "src/lv_i18n/*.h")
 file(GLOB SRC_FILES_UI   "src/ui/*.c" "src/ui/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_UTIL "src/util/*.c" "src/util/*.h")
@@ -76,6 +77,7 @@ set(SRC_FILES
 	${SRC_FILES_DRIVER}
 	${SRC_FILES_FONTS}
 	${SRC_FILES_IMAGE}
+	${SRC_FIELS_LV_I18N}
 	${SRC_FILES_UI}
 	${SRC_FILES_BMI}
 	${SRC_FILES_UTIL}

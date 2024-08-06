@@ -40,6 +40,7 @@ SDL_mutex *global_sdl_mutex;
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
 #include "driver/rtc.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -140,6 +141,9 @@ void lvgl_init() {
                                               false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
+
+    lv_i18n_init(lv_i18n_language_pack);
+    lv_i18n_set_locale("ru-RU");
 }
 
 int main(int argc, char *argv[]) {
