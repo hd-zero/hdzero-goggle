@@ -209,7 +209,6 @@ enum {
 typedef struct {
     bool enable;
     uint8_t mode; // 0 == WIFI_MODE_AP, 1 == WIFI_MODE_STA
-    char clientid[WIFI_CLIENTID_MAX];
     char ssid[WIFI_MODE_COUNT][WIFI_SSID_MAX];
     char passwd[WIFI_MODE_COUNT][WIFI_PASSWD_MAX];
     bool dhcp;
@@ -220,6 +219,7 @@ typedef struct {
     uint8_t rf_channel;
     char root_pw[WIFI_SSID_MAX];
     bool ssh;
+    char mac[18];
 } wifi_t;
 
 typedef struct {
@@ -290,6 +290,8 @@ int settings_put_osd_element(const setting_osd_goggle_element_t *element, char *
 int settings_put_osd_element_pos_y(const setting_osd_goggle_element_positions_t *pos, char *config_name);
 int settings_put_osd_element_pos_x(const setting_osd_goggle_element_positions_t *pos, char *config_name);
 int settings_put_osd_element_shown(bool show, char *config_name);
+
+static bool is_valid_mac_address(const char mac_address[]);
 
 #ifdef __cplusplus
 }

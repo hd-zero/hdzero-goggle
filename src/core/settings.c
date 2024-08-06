@@ -1,13 +1,11 @@
 #include "settings.h"
 
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <log/log.h>
 #include <minIni.h>
 
-#include "core/self_test.h"
 #include "ui/page_common.h"
 #include "util/filesystem.h"
 #include "util/system.h"
@@ -197,7 +195,6 @@ const setting_t g_setting_defaults = {
     .wifi = {
         .enable = false,
         .mode = 0,
-        .clientid = {""},
         .ssid = {"HDZero", "MySSID"},
         .passwd = {"divimath", "MyPassword"},
         .dhcp = true,
@@ -435,7 +432,6 @@ void settings_load(void) {
     // wifi
     g_setting.wifi.enable = settings_get_bool("wifi", "enable", g_setting_defaults.wifi.enable);
     g_setting.wifi.mode = ini_getl("wifi", "mode", g_setting_defaults.wifi.mode, SETTING_INI);
-    ini_gets("wifi", "clientid", g_setting_defaults.wifi.clientid, g_setting.wifi.clientid, WIFI_CLIENTID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_ssid", g_setting_defaults.wifi.ssid[0], g_setting.wifi.ssid[0], WIFI_SSID_MAX, SETTING_INI);
     ini_gets("wifi", "ap_passwd", g_setting_defaults.wifi.passwd[0], g_setting.wifi.passwd[0], WIFI_PASSWD_MAX, SETTING_INI);
     ini_gets("wifi", "sta_ssid", g_setting_defaults.wifi.ssid[1], g_setting.wifi.ssid[1], WIFI_SSID_MAX, SETTING_INI);
@@ -448,6 +444,7 @@ void settings_load(void) {
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
     ini_gets("wifi", "root_pw", g_setting_defaults.wifi.root_pw, g_setting.wifi.root_pw, WIFI_PASSWD_MAX, SETTING_INI);
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
+    ini_gets("wifi", "mac", "", g_setting.wifi.mac, 18, SETTING_INI);
 
     //  no dial under video mode
     g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);
