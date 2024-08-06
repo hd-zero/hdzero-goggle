@@ -201,15 +201,19 @@ static void page_source_on_click(uint8_t key, int sel) {
     switch (sel) {
     case 0: // HDZero in
         page_source_select_hdzero();
+        break;
 
     case 1: // HDMI in
         page_source_select_hdmi();
+        break;
 
     case 2: // AV in
         page_source_select_av_in();
+        break;
 
     case 3: // Expansion module in
         page_source_select_expansion();
+        break;
 
     case 4: // Analog video format
         btn_group_toggle_sel(&btn_group0);
