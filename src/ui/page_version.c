@@ -87,6 +87,7 @@ static fw_select_t fw_select_goggle;
 static fw_select_t fw_select_vtx;
 static fw_select_t fw_select_language;
 static fw_select_t *fw_select_current = &fw_select_vtx;
+extern const lv_i18n_language_pack_t lv_i18n_language_pack[];
 
 #define ADDR_AL            0x65
 #define ADDR_FPGA          0x64
@@ -300,12 +301,34 @@ static void flash_goggle() {
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 }
 
+void get_languages(char *buffer, size_t buffer_size) {
+    const lv_i18n_language_pack_t *lang_pack = lv_i18n_language_pack;
+    size_t offset = 0;
+    int first = 1;
+    buffer[0] = '\0';
+
+    while (*lang_pack != NULL) {
+        size_t name_length = strlen((*lang_pack)->locale_name);
+
+        if (!first) {
+            buffer[offset] = '\n';
+            offset++;
+        } else {
+            first = 0;
+        }
+
+        strcpy(buffer + offset, (*lang_pack)->locale_name);
+        offset += name_length;
+        lang_pack++;
+    }
+
+    buffer[offset] = '\0';
+}
+
 static void set_language(char *lang) {
     strncpy(g_setting.language.lang, lang, 5);
     g_setting.language.lang[5] = '\0';
     ini_puts("language", "lang", g_setting.language.lang, SETTING_INI);
-    // lv_i18n_set_locale(g_setting.language.lang);
-    // LOGI("language: %s", lv_i18n_get_current_locale());
     LOGI("language: %s", g_setting.language.lang);
 }
 
@@ -656,13 +679,13 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
     page_version_fw_select_toggle_panel(fw_select);
 }
 
-lv_obj_t *create_language_dropdown_item(lv_obj_t *parent, const char *options, int col, int row, int width, int height, int col_span, int pad_top, lv_grid_align_t column_align, const lv_font_t *font) {
+static lv_obj_t *create_language_dropdown_item(lv_obj_t *parent, int col, int row, int width, int height, int col_span, int pad_top, lv_grid_align_t column_align, const lv_font_t *font) {
+    char buffer[BUFFER_SIZE];
+    get_languages(buffer, sizeof(buffer));
 
     lv_obj_t *obj = lv_dropdown_create(parent);
 
-    lv_dropdown_set_options(obj, options);
-
-    lv_dropdown_set_options(obj, options);
+    lv_dropdown_set_options(obj, buffer);
     lv_obj_set_style_text_font(obj, font, 0);
     lv_obj_set_style_shadow_width(obj, 0, 0);
     lv_obj_set_style_pad_top(obj, pad_top, 0);
@@ -818,10 +841,18 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_goggle = create_label_item(cont, "Update Goggle", 1, ROW_UPDATE_GOGGLE, 2);
     btn_esp = create_label_item(cont, "Update ESP32", 1, ROW_UPDATE_ESP32, 2);
     label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
-    dropdown_language = create_language_dropdown_item(cont, "en-GB\n"
-                                                            "ru-RU",
-                                                      1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    dropdown_language = create_language_dropdown_item(cont, 1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
+
+    lv_obj_t *label2 = lv_label_create(cont);
+    lv_label_set_text(label2, "Language change requires a reboot of the goggle.");
+    lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_pad_top(label2, 12, 0);
+    lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
+    lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
+                         LV_GRID_ALIGN_START, ROW_BACK + 1, 3);
 
     bar_vtx = lv_bar_create(cont);
     lv_obj_set_size(bar_vtx, 320, 20);
