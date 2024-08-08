@@ -223,6 +223,10 @@ typedef struct {
 } wifi_t;
 
 typedef struct {
+    char lang[6];
+} setting_language_t;
+
+typedef struct {
     uint8_t no_dial; // 1=disable turning channels under video mode
 } ease_use_t;
 
@@ -270,6 +274,7 @@ typedef struct {
     setting_head_tracker_t ht;
     setting_elrs_t elrs;
     wifi_t wifi;
+    setting_language_t language;
     setting_osd_t osd;
     setting_clock_t clock;
     setting_inputs_t inputs;

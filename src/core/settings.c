@@ -218,6 +218,9 @@ const setting_t g_setting_defaults = {
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
         .hdzero_bw = SETTING_SOURCES_HDZERO_BW_WIDE,
     },
+    .language = {
+        .lang = "en-GB",
+    },
 };
 
 int settings_put_osd_element_shown(bool show, char *config_name) {
@@ -448,6 +451,9 @@ void settings_load(void) {
     g_setting.wifi.rf_channel = ini_getl("wifi", "rf_channel", g_setting_defaults.wifi.rf_channel, SETTING_INI);
     ini_gets("wifi", "root_pw", g_setting_defaults.wifi.root_pw, g_setting.wifi.root_pw, WIFI_PASSWD_MAX, SETTING_INI);
     g_setting.wifi.ssh = settings_get_bool("wifi", "ssh", g_setting_defaults.wifi.ssh);
+
+    // language
+    ini_gets("language", "lang", g_setting_defaults.language.lang, g_setting.language.lang, 6, SETTING_INI);
 
     //  no dial under video mode
     g_setting.ease.no_dial = fs_file_exists(NO_DIAL_FILE);

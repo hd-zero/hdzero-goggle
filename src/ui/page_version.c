@@ -20,6 +20,7 @@
 #include "driver/fans.h"
 #include "driver/i2c.h"
 #include "driver/uart.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_style.h"
@@ -33,6 +34,7 @@ enum {
     ROW_UPDATE_VTX,
     ROW_UPDATE_GOGGLE,
     ROW_UPDATE_ESP32,
+    ROW_LANGUAGE,
     ROW_BACK,
 
     ROW_COUNT
@@ -74,6 +76,7 @@ static lv_obj_t *bar_goggle = NULL;
 static lv_obj_t *btn_goggle = NULL;
 static lv_obj_t *bar_esp = NULL;
 static lv_obj_t *btn_esp = NULL;
+static lv_obj_t *dropdown_language = NULL;
 static lv_obj_t *label_esp = NULL;
 static lv_obj_t *msgbox_update_complete = NULL;
 static lv_obj_t *msgbox_settings_reset = NULL;
@@ -82,6 +85,7 @@ static lv_obj_t *label_note = NULL;
 static lv_obj_t *alert_img = NULL;
 static fw_select_t fw_select_goggle;
 static fw_select_t fw_select_vtx;
+static fw_select_t fw_select_language;
 static fw_select_t *fw_select_current = &fw_select_vtx;
 
 #define ADDR_AL            0x65
@@ -294,6 +298,15 @@ static void flash_goggle() {
         lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
     }
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void set_language(char *lang) {
+    strncpy(g_setting.language.lang, lang, 5);
+    g_setting.language.lang[5] = '\0';
+    ini_puts("language", "lang", g_setting.language.lang, SETTING_INI);
+    // lv_i18n_set_locale(g_setting.language.lang);
+    // LOGI("language: %s", lv_i18n_get_current_locale());
+    LOGI("language: %s", g_setting.language.lang);
 }
 
 int generate_current_version(sys_version_t *sys_ver) {
@@ -643,6 +656,24 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
     page_version_fw_select_toggle_panel(fw_select);
 }
 
+lv_obj_t *create_language_dropdown_item(lv_obj_t *parent, const char *options, int col, int row, int width, int height, int col_span, int pad_top, lv_grid_align_t column_align, const lv_font_t *font) {
+
+    lv_obj_t *obj = lv_dropdown_create(parent);
+
+    lv_dropdown_set_options(obj, options);
+
+    lv_dropdown_set_options(obj, options);
+    lv_obj_set_style_text_font(obj, font, 0);
+    lv_obj_set_style_shadow_width(obj, 0, 0);
+    lv_obj_set_style_pad_top(obj, pad_top, 0);
+    lv_obj_set_size(obj, width, height);
+    lv_obj_set_style_text_color(obj, COLOR_DISABLED, STATE_DISABLED);
+
+    lv_obj_set_grid_cell(obj, column_align, col, col_span, LV_GRID_ALIGN_CENTER, row, 1);
+
+    return obj;
+}
+
 static void page_version_fw_select_hide(fw_select_t *fw_select) {
     lv_obj_add_flag(fw_select->msgbox, LV_OBJ_FLAG_HIDDEN);
     if (fw_select_current->dropdown_focused) {
@@ -787,6 +818,9 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_goggle = create_label_item(cont, "Update Goggle", 1, ROW_UPDATE_GOGGLE, 2);
     btn_esp = create_label_item(cont, "Update ESP32", 1, ROW_UPDATE_ESP32, 2);
     label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
+    dropdown_language = create_language_dropdown_item(cont, "en-GB\n"
+                                                            "ru-RU",
+                                                      1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     create_label_item(cont, "< Back", 1, ROW_BACK, 1);
 
     bar_vtx = lv_bar_create(cont);
@@ -946,6 +980,8 @@ static void page_version_on_roller(uint8_t key) {
 }
 
 static void page_version_on_click(uint8_t key, int sel) {
+    static int selected_index = 0;
+    static char selected_lang[6];
     if (!page_version_release_notes_active()) {
         version_update_title();
         if (sel == ROW_CUR_VERSION) {
@@ -1005,6 +1041,14 @@ static void page_version_on_click(uint8_t key, int sel) {
             else
                 lv_label_set_text(btn_esp, "#FF0000 FAILED#");
             page_version_enter();
+        } else if (sel == ROW_LANGUAGE) {
+            selected_index++;
+            if (selected_index >= lv_dropdown_get_option_cnt(dropdown_language)) {
+                selected_index = 0;
+            }
+            lv_dropdown_set_selected(dropdown_language, selected_index);
+            lv_dropdown_get_selected_str(dropdown_language, selected_lang, 6);
+            set_language(selected_lang);
         }
     }
 }

@@ -143,7 +143,7 @@ void lvgl_init() {
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
 
     lv_i18n_init(lv_i18n_language_pack);
-    lv_i18n_set_locale("ru-RU");
+    lv_i18n_set_locale(g_setting.language.lang);
 }
 
 int main(int argc, char *argv[]) {
