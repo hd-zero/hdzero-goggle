@@ -75,6 +75,7 @@ typedef struct {
     setting_power_osd_display_mode_t osd_display_mode;
     bool power_ana;
     int calibration_offset;
+    bool beep_on_power;
 } setting_power_t;
 
 typedef enum {

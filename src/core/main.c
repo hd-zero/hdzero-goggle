@@ -207,6 +207,10 @@ int main(int argc, char *argv[]) {
     // Head alarm
     head_alarm_init();
 
+    if (g_setting.power.beep_on_power) {
+        beep();
+    }
+
     // 10. Execute main loop
     g_init_done = 1;
     for (;;) {
