@@ -5,8 +5,6 @@
 
 #include "ui/ui_attribute.h"
 
-extern const lv_font_t montserrat_26;
-
 ///////////////////////////////////////////////////////////////////////////////
 bool g_sdcard_enable = false;
 bool g_sdcard_det_req = false;

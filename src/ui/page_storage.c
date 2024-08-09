@@ -8,6 +8,7 @@
 
 #include "core/common.hh"
 #include "core/settings.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_playback.h"
 #include "util/filesystem.h"
 #include "util/sdcard.h"
@@ -101,8 +102,8 @@ static void enable_controls() {
 static void page_storage_cancel() {
     page_storage.confirm_format = 0;
     page_storage.confirm_repair = 0;
-    lv_label_set_text(page_storage.format_sd, "Format SD Card");
-    lv_label_set_text(page_storage.repair_sd, "Repair SD Card");
+    lv_label_set_text(page_storage.format_sd, _("format_sd_card"));
+    lv_label_set_text(page_storage.repair_sd, _("repair_sd_card"));
 }
 
 /**
@@ -354,6 +355,8 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_storage.name = _("storage");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -364,7 +367,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Storage:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("storage"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);
@@ -378,7 +381,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&page_storage.logging, cont, 2, "Logging", "On", "Off", "", "", 0);
+    create_btn_group_item(&page_storage.logging, cont, 2, _("logging"), _("on"), _("off"), "", "", 0);
     btn_group_set_sel(&page_storage.logging, g_setting.storage.logging ? 0 : 1);
 
     page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
@@ -505,7 +508,7 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
- * Returns true once the thread has completed. 
+ * Returns true once the thread has completed.
  */
 static bool page_storage_is_sd_repair_complete() {
     if (page_storage.is_sd_repair_complete) {

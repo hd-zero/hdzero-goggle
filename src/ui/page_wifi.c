@@ -15,6 +15,7 @@
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
@@ -473,8 +474,8 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
 
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
-                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
-                page_wifi.page_2.dhcp.button.current == 1)) {
+            (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+             page_wifi.page_2.dhcp.button.current == 1)) {
             lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
@@ -523,7 +524,7 @@ static void page_wifi_update_current_page(int which) {
  * Revert the 'Apply Settings' text back to it's initial text and colored state.
  */
 static void page_wifi_apply_settings_reset() {
-    lv_label_set_text(page_wifi.page_1.apply_settings, "Apply Settings");
+    lv_label_set_text(page_wifi.page_1.apply_settings, _("apply_settings"));
     page_wifi.confirm_settings = 0;
 }
 
@@ -616,22 +617,22 @@ static void page_wifi_update_dirty_flag() {
  * Page 1 contains basic settings.
  */
 static void page_wifi_create_page_1(lv_obj_t *parent) {
-    create_btn_group_item(&page_wifi.page_1.enable.button, parent, 2, "Enable", "On", "Off", "", "", 1);
+    create_btn_group_item(&page_wifi.page_1.enable.button, parent, 2, _("enable"), _("on"), _("off"), "", "", 1);
     btn_group_set_sel(&page_wifi.page_1.enable.button, !g_setting.wifi.enable);
 
-    create_btn_group_item(&page_wifi.page_1.mode.button, parent, 2, "Mode", "Host", "Client", "", "", 2);
+    create_btn_group_item(&page_wifi.page_1.mode.button, parent, 2, _("mode"), _("host"), _("client"), "", "", 2);
     btn_group_set_sel(&page_wifi.page_1.mode.button, g_setting.wifi.mode);
 
     page_wifi.page_1.ssid.label = create_label_item(parent, "SSID", 1, 3, 1);
     page_wifi.page_1.ssid.input = create_label_item(parent, g_setting.wifi.ssid[g_setting.wifi.mode], 2, 3, 2);
 
-    page_wifi.page_1.passwd.label = create_label_item(parent, "Password", 1, 4, 1);
+    page_wifi.page_1.passwd.label = create_label_item(parent, _("password"), 1, 4, 1);
     page_wifi.page_1.passwd.input = create_label_item(parent, "", 2, 4, 2);
     page_wifi.page_1.passwd.status = create_label_item(parent, "", 4, 4, 2);
     page_wifi_mask_password(page_wifi.page_1.passwd.input, strlen(g_setting.wifi.passwd[g_setting.wifi.mode]));
 
-    page_wifi.page_1.apply_settings = create_label_item(parent, "Apply Settings", 1, 5, 3);
-    page_wifi.page_1.back = create_label_item(parent, "< Back", 1, 6, 3);
+    page_wifi.page_1.apply_settings = create_label_item(parent, _("apply_settings"), 1, 5, 3);
+    page_wifi.page_1.back = create_label_item(parent, _("back"), 1, 6, 3);
 
     page_wifi.page_1.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_1.note, &lv_font_montserrat_16, 0);
@@ -648,7 +649,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
  * Page 2 contains network addressing settings.
  */
 static void page_wifi_create_page_2(lv_obj_t *parent) {
-    create_btn_group_item(&page_wifi.page_2.dhcp.button, parent, 2, "DHCP", "On", "Off", "", "", 1);
+    create_btn_group_item(&page_wifi.page_2.dhcp.button, parent, 2, "DHCP", _("on"), _("off"), "", "", 1);
     btn_group_set_sel(&page_wifi.page_2.dhcp.button, !g_setting.wifi.dhcp);
 
     page_wifi.page_2.ip_addr.label = create_label_item(parent, "Address", 1, 2, 1);
@@ -678,7 +679,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     page_wifi.page_3.root_pw.status = create_label_item(parent, "", 4, 1, 2);
     page_wifi_mask_password(page_wifi.page_3.root_pw.input, strlen(g_setting.wifi.root_pw));
 
-    create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", "On", "Off", "", "", 2);
+    create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", _("on"), _("off"), "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
     page_wifi.page_3.note = lv_label_create(parent);
@@ -697,6 +698,8 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_wifi.name = _("wifi");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -707,7 +710,7 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "WiFi Module:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("wifi_module"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);
@@ -721,7 +724,7 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&page_wifi.page_select.button, cont, 3, "Page", "Basic", "Advanced", "System", "", 0);
+    create_btn_group_item(&page_wifi.page_select.button, cont, 3, _("page"), _("basic"), _("advanced"), _("system"), "", 0);
     page_wifi_create_page_1(cont);
     page_wifi_create_page_2(cont);
     page_wifi_create_page_3(cont);

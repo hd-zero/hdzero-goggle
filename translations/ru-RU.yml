@@ -1,2 +1,158 @@
 ru-RU:
   source: 'Источник:'
+  auto_scan: Авто сканирование
+  'on': Вкл
+  last: Последний
+  'off': Выкл
+  default: По умолчанию
+  hdzero: HDZero
+  expansion: Расширение
+  av_in: AV вход
+  hdmi_in: HDMI вход
+  back: < Назад
+  set_clock: Установить время
+  clock: Время
+  format: Формат
+  24_hour: 24 Часа
+  send_vtx: Отправить VTX
+  click_to_start: Нажмите для начала
+  bind: Соединенить
+  starting: Загрузка
+  binding: Соединение...
+  fans: Куллеры
+  auto_control: Авто контроль
+  top_fan: Верхний куллер
+  side_fans: Боковые куллеры
+  set_alarm_angle: Уст. увед. наклона
+  head_tracker: Отслеживание головы
+  page: Страница
+  tracking: Отслеживание
+  tilt_alarm: Сигнал наклона
+  alarm: Сигнал
+  video: Видео
+  arm: Арм
+  calibrate: Откалибровать
+  set_center: Установить центр
+  max_angle: Макс. угол
+  pan: Панорама
+  tilt: Наклон
+  roll: Вращение
+  calibrating: Калибровка...
+  re_calibrating: Перекалибровка
+  updating_angle: Обновление угла...
+  image_setting: Настройка изображения
+  oled: OLED
+  brightness: Яркость
+  saturation: Насыщенность
+  contrast: Контраст
+  oled_auto_off: OLED авто выкл
+  adjust_osd_elements: Настройка элементов OSD
+  osd_orbit: OSD орбита
+  min: Мин
+  max: Макс
+  osd_mode: Режим OSD
+  at_startup: При запуске
+  show: Показать
+  hide: Скрыть
+  playback: Воспроизведение
+  power: Питание
+  battery: Аккумулятор
+  cell_count_mode: Режим подсчета ячеек
+  auto: Авто
+  manual: Ручной
+  cell_count: Кол-во ячеек
+  warning_cell_voltage: Предупреждение о напряжении ячейки
+  voltage_calibration: Калибровка напряжения
+  display_mode: Режим отображения
+  total: Всего
+  cell_average: Среднее
+  warning_type: Тип предупреждения
+  beep: Звук
+  visual: Визуально
+  both: Оба
+  analogrx_power: AnalogRX питание
+  record_option: Опции записи
+  record_mode: Режим записи
+  record_format: Формат записи
+  record_osd: запись OSD
+  'yes': да
+  'no': нет
+  record_audio: Запись аудио
+  audio_source: Источник аудио
+  mic: Микрофон
+  line_in: Линейный вход
+  a/v_in: A/V вход
+  naming_scheme: Схема именования
+  digits: Цифры
+  date: Дата
+  scan_ready: Сканирование готово
+  scanning: Сканирование...
+  scanning_done: Сканирование завершено
+  scanning_ready: Сканирование готово
+  go_sleep: Сон
+  expansion_module: Модуль расширения
+  analog_video: Аналоговое видео
+  hdzero_band: HDZero диапазон
+  raceband: Raceband
+  lowband: Lowband
+  hdzero_bw: HDZero BW
+  wide: Широкий
+  narrow: Узкий
+  oled_pattern_normal: OLED шаблон нормальный
+  format_sd_card: Форматировать SD карту
+  repair_sd_card: Восстановить SD карту
+  storage: Хранилище
+  logging: Логирование
+  firmware: Прошивка
+  current_version: Текущая версия
+  reset_all_settings: Сброс всех настроек
+  update_vtx: Обновить VTX
+  update_goggle: Обновить очки
+  update_esp32: Обновить ESP32
+  vtx_firmware: Прошивка VTX
+  goggle_firmware: Прошивка очков
+  flashing: Прошивка...
+  apply_settings: Применить настройки
+  enable: Вкл
+  mode: Режим
+  host: Хост
+  client: Клиент
+  password: Пароль
+  wifi_module: WiFi модуль
+  basic: Базовый
+  advanced: Расширенный
+  system: Система
+  reset_all_elements(both_modes): Сброс всех элементов (оба режима)
+  save_changes: Сохранить изменения
+  cancel: Отмена
+  pos_x: Позиция X
+  pos_y: Позиция Y
+  bad_file: Испорченный файл
+  elrs_off: 'ELRS: Выкл'
+  wifi_off: 'WiFi: Выкл'
+  integrity_check: Проверка целостности
+  elrs_on: 'ELRS: Вкл'
+  main_menu: Главное меню
+  toggle_OSD: Переключить OSD
+  center_ht: Центр HT
+  calibrate_ht: Калибровка HT
+  toggle_fan_sleep: Переключить сон куллера
+  start_dvr: Запись DVR
+  change_fan_speed: Изменить скорость куллера
+  oled_brightness: Яркость OLED
+  inputs: Вводы
+  elrs: ELRA
+  image_settings: Настройки изображения
+  input: Ввод
+  record_options: Настройки записи
+  scan_now: Сканировать
+  image_settigns: Изображение
+  roller: Колесо
+  left_short: Короткое лево
+  left_long: Длинное лево
+  right_short: Короткое право
+  right_long: Длинное право
+  right_double: Двойное вправо
+  osd: OSD
+  scannow: Сканировать
+  wifi: WiFi

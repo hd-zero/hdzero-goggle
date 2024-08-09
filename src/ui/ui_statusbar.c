@@ -9,6 +9,7 @@
 #include "core/osd.h"
 #include "core/settings.h"
 #include "driver/beep.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/page_playback.h"
 #include "ui/page_storage.h"
@@ -17,6 +18,7 @@
 #include "ui/ui_style.h"
 #include "util/sdcard.h"
 
+extern const lv_font_t montserrat_26;
 ///////////////////////////////////////////////////////////////////////////////
 // local
 enum STATUS {
@@ -106,7 +108,7 @@ int statusbar_init(void) {
         lv_obj_set_width(label[i], 267); /*Set smaller width to make the lines wrap*/
         lv_obj_set_style_text_align(label[i], LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(label[i], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_style_text_font(label[i], &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(label[i], &montserrat_26, 0);
 
         if (i == STS_SDCARD) {
             lv_label_set_long_mode(label[i], LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -123,9 +125,9 @@ int statusbar_init(void) {
     sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
     lv_label_set_text(label[STS_SOURCE], buf);
 
-    lv_label_set_text(label[STS_ELRS], "ELRS: Off");
+    lv_label_set_text(label[STS_ELRS], _("elrs_off"));
 
-    lv_label_set_text(label[STS_WIFI], "WiFi: Off");
+    lv_label_set_text(label[STS_WIFI], _("wifi_off"));
 
     lv_label_set_text(label[STS_BATT], "       ");
     return 0;
@@ -205,7 +207,7 @@ void statubar_update(void) {
 
     if (page_storage_is_sd_repair_active()) {
         lv_img_set_src(img_sdc, &img_sdcard);
-        lv_label_set_text(label[STS_SDCARD], "Integrity check");
+        lv_label_set_text(label[STS_SDCARD], _("integrity_check"));
     } else {
         if (g_sdcard_enable) {
             int cnt = get_videofile_cnt();
@@ -236,9 +238,9 @@ void statubar_update(void) {
     }
 
     if (g_setting.elrs.enable)
-        lv_label_set_text(label[STS_ELRS], "ELRS: On ");
+        lv_label_set_text(label[STS_ELRS], _("elrs_on"));
     else
-        lv_label_set_text(label[STS_ELRS], "ELRS: Off");
+        lv_label_set_text(label[STS_ELRS], _("elrs_off"));
 
     page_wifi_get_statusbar_text(buf, sizeof(buf));
     lv_label_set_text(label[STS_WIFI], buf);

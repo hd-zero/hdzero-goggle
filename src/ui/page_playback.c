@@ -14,6 +14,7 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "lv_i18n/lv_i18n.h"
 #include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
@@ -34,6 +35,8 @@ static media_db_t media_db;
 static pb_ui_item_t pb_ui[ITEMS_LAYOUT_CNT];
 
 static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_playback.name = _("playback");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1142, 900);
@@ -44,7 +47,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1142, 894);
 
-    create_text(NULL, section, false, "Playback:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("playback"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1164, 760);
@@ -66,7 +69,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_add_flag(pb_ui[pos]._star, LV_OBJ_FLAG_HIDDEN);
 
         pb_ui[pos]._label = lv_label_create(cont);
-        lv_obj_set_style_text_font(pb_ui[pos]._label, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(pb_ui[pos]._label, &montserrat_26, 0);
         lv_label_set_long_mode(pb_ui[pos]._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         lv_obj_set_style_text_align(pb_ui[pos]._label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_add_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
@@ -113,7 +116,7 @@ static void show_pb_item(uint8_t pos, char *label, bool star) {
     lv_label_set_text(pb_ui[pos]._label, label);
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
-    const lv_coord_t labelPosX = pb_ui[pos].x + (ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &lv_font_montserrat_26, 0, 0)) / 2;
+    const lv_coord_t labelPosX = pb_ui[pos].x + (ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &montserrat_26, 0, 0)) / 2;
     const lv_coord_t labelPosY = pb_ui[pos].y + ITEM_PREVIEW_H + 10;
     lv_obj_set_pos(pb_ui[pos]._label, labelPosX, labelPosY);
     lv_obj_set_pos(pb_ui[pos]._arrow, labelPosX - lv_obj_get_width(pb_ui[pos]._arrow) - 5, labelPosY);
@@ -178,8 +181,7 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
     return strcoll((*a)->d_name, (*b)->d_name);
 }
 
-static bool dvr_has_stars(const char* filename)
-{
+static bool dvr_has_stars(const char *filename) {
     char star_file[256] = "";
     int count = snprintf(star_file, sizeof(star_file), "%s" REC_starSUFFIX, filename);
 

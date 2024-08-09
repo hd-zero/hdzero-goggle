@@ -23,6 +23,7 @@
 #include "driver/i2c.h"
 #include "driver/oled.h"
 #include "driver/uart.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
@@ -140,7 +141,7 @@ static void create_channel_switch(lv_obj_t *parent, int col, int row, channel_t 
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     channel->label = lv_label_create(parent);
-    lv_obj_set_style_text_font(channel->label, &lv_font_montserrat_40, 0);
+    lv_obj_set_style_text_font(channel->label, &montserrat_40, 0);
     lv_obj_set_style_text_align(channel->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(channel->label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(channel->label, 12, 0);
@@ -192,6 +193,8 @@ void page_scannow_set_channel_label(void) {
 // 1420-256
 // 1164
 static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_scannow.name = _("scannow");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1158, 900);
@@ -222,8 +225,8 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_bar_set_range(progressbar, 0, 14);
 
     label = lv_label_create(cont1);
-    lv_label_set_text(label, "Scan Ready");
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_label_set_text(label, _("scan_ready"));
+    lv_obj_set_style_text_font(label, &montserrat_26, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label, 12, 0);
@@ -233,7 +236,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *label2 = lv_label_create(cont1);
     lv_label_set_text(label2, "When scanning is complete, use the\n dial to select a channel and press\n the Enter button to choose");
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label2, &montserrat_26, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label2, 12, 0);
@@ -314,7 +317,7 @@ int8_t scan_now(void) {
     bool valid;
     uint8_t valid_index;
 
-    lv_label_set_text(label, "Scanning...");
+    lv_label_set_text(label, _("scanning"));
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     lv_timer_handler();
     lv_bar_set_value(progressbar, 2, LV_ANIM_OFF);
@@ -352,7 +355,7 @@ int8_t scan_now(void) {
     }
 
     user_select_signal();
-    lv_label_set_text(label, "Scanning done");
+    lv_label_set_text(label, _("scanning_done"));
     if (!valid_index)
         return -1;
     else
@@ -360,7 +363,7 @@ int8_t scan_now(void) {
 }
 
 int scan_reinit(void) {
-    lv_label_set_text(label, "Scanning ready");
+    lv_label_set_text(label, _("scanning_ready"));
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     user_clear_signal();
     lv_timer_handler();

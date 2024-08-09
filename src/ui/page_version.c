@@ -792,7 +792,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
         lv_obj_set_style_bg_color(fw_select->this.panel[i], lv_color_make(0x44, 0x44, 0x44), 0);
     }
     fw_select->page = pp_version.p_arr;
-    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
     fw_select->back = create_label_item(fw_select->container, "< Back", 1, 2, 4);
 
@@ -821,7 +821,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Firmware:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("firmware"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -834,15 +834,15 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
-    cur_ver_label = create_label_item(cont, "Current Version", 1, ROW_CUR_VERSION, 2);
+    cur_ver_label = create_label_item(cont, _("current_version"), 1, ROW_CUR_VERSION, 2);
 
-    btn_reset_all_settings = create_label_item(cont, "Reset all settings", 1, ROW_RESET_ALL_SETTINGS, 2);
-    btn_vtx = create_label_item(cont, "Update VTX", 1, ROW_UPDATE_VTX, 2);
-    btn_goggle = create_label_item(cont, "Update Goggle", 1, ROW_UPDATE_GOGGLE, 2);
-    btn_esp = create_label_item(cont, "Update ESP32", 1, ROW_UPDATE_ESP32, 2);
+    btn_reset_all_settings = create_label_item(cont, _("reset_all_settings"), 1, ROW_RESET_ALL_SETTINGS, 2);
+    btn_vtx = create_label_item(cont, _("update_vtx"), 1, ROW_UPDATE_VTX, 2);
+    btn_goggle = create_label_item(cont, _("update_goggle"), 1, ROW_UPDATE_GOGGLE, 2);
+    btn_esp = create_label_item(cont, _("update_esp32"), 1, ROW_UPDATE_ESP32, 2);
     label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
-    dropdown_language = create_language_dropdown_item(cont, 1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    create_label_item(cont, "< Back", 1, ROW_BACK, 1);
+    dropdown_language = create_language_dropdown_item(cont, 1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
+    create_label_item(cont, _("back"), 1, ROW_BACK, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, "Language change requires a reboot of the goggle.");
@@ -981,7 +981,7 @@ static void elrs_version_timer(struct _lv_timer_t *timer) {
 }
 
 static void reset_all_settings_reset_label_text() {
-    lv_label_set_text(btn_reset_all_settings, "Reset all settings");
+    lv_label_set_text(btn_reset_all_settings, _("reset_all_settings"));
 }
 
 static void page_version_enter() {
@@ -1055,14 +1055,14 @@ static void page_version_on_click(uint8_t key, int sel) {
             }
         } else if (sel == ROW_UPDATE_VTX) {
             page_version_fw_scan_for_updates();
-            page_version_fw_select_show("VTX Firmware", &fw_select_vtx);
+            page_version_fw_select_show(_("vtx_firmware"), &fw_select_vtx);
         } else if ((sel == ROW_UPDATE_GOGGLE) && !reboot_flag) {
             page_version_fw_scan_for_updates();
-            page_version_fw_select_show("Goggle Firmware", &fw_select_goggle);
+            page_version_fw_select_show(_("goggle_firmware"), &fw_select_goggle);
         } else if (sel == ROW_UPDATE_ESP32) { // flash ESP via SD
             lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
-            lv_label_set_text(btn_esp, "Flashing...");
+            lv_label_set_text(btn_esp, _("flashing"));
             lv_timer_handler();
             esp_loader_error_t ret = flash_elrs();
             lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
@@ -1136,10 +1136,10 @@ void update_current_version() {
 
 void version_update_title() {
     update_current_version();
-    lv_label_set_text(btn_vtx, "Update VTX");
+    lv_label_set_text(btn_vtx, _("update_vtx"));
     if (!reboot_flag)
-        lv_label_set_text(btn_goggle, "Update Goggle");
-    lv_label_set_text(btn_esp, "Update ESP32");
+        lv_label_set_text(btn_goggle, _("update_goggle"));
+    lv_label_set_text(btn_esp, _("update_esp32"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,11 @@
 #include <log/log.h>
 #include <stdio.h>
 
+#include "lv_i18n/lv_i18n.h"
+
 lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_sleep.name = _("go_sleep");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -17,13 +21,13 @@ lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Go Sleep:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("go_sleep"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_menu_cont_create(section);
     lv_obj_t *desc_label = lv_label_create(cont);
     lv_label_set_text(desc_label, "Click the Enter Button to go sleep.\n"
                                   "Click any button to exit sleep mode.");
-    lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(desc_label, &montserrat_26, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(desc_label, 12, 0);
     lv_label_set_long_mode(desc_label, LV_LABEL_LONG_WRAP);

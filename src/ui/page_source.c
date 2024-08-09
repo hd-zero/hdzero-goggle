@@ -31,6 +31,8 @@ static bool in_sourcepage = false;
 static btn_group_t btn_group0, btn_group1, btn_group2;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_source.name = _("source");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -55,28 +57,28 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    label[0] = create_label_item(cont, "HDZero", 1, 0, 3);
-    label[1] = create_label_item(cont, "HDMI In", 1, 1, 3);
-    label[2] = create_label_item(cont, "AV In", 1, 2, 3);
-    label[3] = create_label_item(cont, "Expansion Module", 1, 3, 3);
+    label[0] = create_label_item(cont, _("hdzero"), 1, 0, 3);
+    label[1] = create_label_item(cont, _("hdmi_in"), 1, 1, 3);
+    label[2] = create_label_item(cont, _("av_in"), 1, 2, 3);
+    label[3] = create_label_item(cont, _("expansion_module"), 1, 3, 3);
 
-    create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
+    create_btn_group_item(&btn_group0, cont, 2, _("analog_video"), "NTSC", "PAL", "", "", 4);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 
-    create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Raceband", "Lowband", "", "", 5);
+    create_btn_group_item(&btn_group1, cont, 2, _("hdzero_band"), _("raceband"), _("lowband"), "", "", 5);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
-    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "Wide", "Narrow", "", "", 6);
+    create_btn_group_item(&btn_group2, cont, 2, _("hdzero_bw"), _("wide"), _("narrow"), "", "", 6);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
     if (g_setting.storage.selftest) {
         pp_source.p_arr.max = 9;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
-        create_label_item(cont, "< Back", 1, 8, 3);
+        label[4] = create_label_item(cont, _("oled_pattern_normal"), 1, 7, 3);
+        create_label_item(cont, _("back"), 1, 8, 3);
     } else {
         pp_source.p_arr.max = 8;
         label[4] = NULL;
-        create_label_item(cont, "< Back", 1, 7, 3);
+        create_label_item(cont, _("back"), 1, 7, 3);
     }
     return page;
 }

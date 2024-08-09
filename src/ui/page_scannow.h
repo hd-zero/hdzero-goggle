@@ -20,6 +20,8 @@ void autoscan_exit(void);
 void page_scannow_set_channel_label(void);
 
 extern page_pack_t pp_scannow;
+extern const lv_font_t montserrat_40;
+extern const lv_font_t montserrat_26;
 
 #ifdef __cplusplus
 }

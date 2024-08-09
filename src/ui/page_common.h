@@ -136,6 +136,7 @@ extern bool g_autoscan_exit;
 extern bool g_scanning;
 extern bool g_latency_locked;
 extern source_info_t g_source_info;
+extern const lv_font_t montserrat_26;
 
 int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char *txt,
                 lv_menu_builder_variant_t builder_variant);

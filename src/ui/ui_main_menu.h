@@ -29,8 +29,8 @@ typedef struct {
     void (*on_right_button)(bool is_short);
 
     int32_t post_bootup_run_priority;
-    void(*post_bootup_run_function)();
-    bool(*post_bootup_run_complete)();
+    void (*post_bootup_run_function)();
+    bool (*post_bootup_run_complete)();
 } page_pack_t;
 
 typedef struct {
@@ -40,6 +40,7 @@ typedef struct {
 } progress_bar_t;
 
 extern progress_bar_t progress_bar;
+extern const lv_font_t montserrat_26;
 
 void main_menu_init();
 void main_menu_update();

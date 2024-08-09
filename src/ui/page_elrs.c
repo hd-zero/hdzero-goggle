@@ -18,6 +18,7 @@
 #include "core/elrs.h"
 #include "core/settings.h"
 #include "driver/esp32.h"
+#include "lv_i18n/lv_i18n.h"
 #include "page_version.h"
 #include "ui/ui_style.h"
 
@@ -70,6 +71,8 @@ static void update_visibility() {
 }
 
 static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_elrs.name = _("elrs");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -80,7 +83,7 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "ELRS:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("elrs"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -94,14 +97,14 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&elrs_group, cont, 2, "Backpack", "On", "Off", "", "", POS_PWR);
+    create_btn_group_item(&elrs_group, cont, 2, "Backpack", _("on"), _("off"), "", "", POS_PWR);
     btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
-    btn_vtx_send = create_label_item(cont, "Send VTX", 1, POS_VTX, 1);
+    btn_vtx_send = create_label_item(cont, _("send_vtx"), 1, POS_VTX, 1);
     btn_wifi = create_label_item(cont, "WiFi", 1, POS_WIFI, 1);
-    label_wifi_status = create_label_item(cont, "Click to start", 2, POS_WIFI, 1);
-    btn_bind = create_label_item(cont, "Bind", 1, POS_BIND, 1);
-    label_bind_status = create_label_item(cont, "Click to start", 2, POS_BIND, 1);
-    create_label_item(cont, "< Back", 1, POS_BACK, 1);
+    label_wifi_status = create_label_item(cont, _("click_to_start"), 2, POS_WIFI, 1);
+    btn_bind = create_label_item(cont, _("bind"), 1, POS_BIND, 1);
+    label_bind_status = create_label_item(cont, _("click_to_start"), 2, POS_BIND, 1);
+    create_label_item(cont, _("back"), 1, POS_BACK, 1);
 
     cancel_label = lv_label_create(cont);
     lv_obj_add_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
@@ -119,8 +122,8 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 static void page_elrs_reset() {
-    lv_label_set_text(label_wifi_status, "Click to start");
-    lv_label_set_text(label_bind_status, "Click to start");
+    lv_label_set_text(label_wifi_status, _("click_to_start"));
+    lv_label_set_text(label_bind_status, _("click_to_start"));
 }
 
 static void page_elrs_on_roller(uint8_t key) {
@@ -157,8 +160,8 @@ static void elrs_enable_timer(struct _lv_timer_t *timer) {
 }
 
 static void page_elrs_enter() {
-    lv_label_set_text(label_wifi_status, "Click to start");
-    lv_label_set_text(label_bind_status, "Click to start");
+    lv_label_set_text(label_wifi_status, _("click_to_start"));
+    lv_label_set_text(label_bind_status, _("click_to_start"));
     if (elrs_group.current == 0) {
         request_uid();
     } else {
@@ -183,7 +186,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
         msp_channel_update();
     } else if (sel == POS_WIFI) // start ESP Wifi
     {
-        lv_label_set_text(label_wifi_status, "Starting...");
+        lv_label_set_text(label_wifi_status, _("starting"));
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS)
@@ -192,13 +195,13 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             lv_label_set_text(label_wifi_status, "#00FF00 Success#");
     } else if (sel == POS_BIND) // start ESP bind
     {
-        lv_label_set_text(label_bind_status, "Starting...");
+        lv_label_set_text(label_bind_status, _("starting"));
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS) {
             lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
         } else {
-            lv_label_set_text(label_bind_status, "Binding...");
+            lv_label_set_text(label_bind_status, _("binding"));
             lv_obj_clear_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
             binding = true;
             lv_timer_handler();

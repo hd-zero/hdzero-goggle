@@ -8,6 +8,7 @@
 #include "core/settings.h"
 #include "driver/hardware.h"
 #include "driver/oled.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -26,6 +27,8 @@ static slider_group_t slider_group4;
 static slider_group_t slider_group5;
 
 static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_imagesettings.name = _("image_settigns");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -36,7 +39,7 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Image Setting:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("image_setting"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -50,13 +53,13 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_slider_item(&slider_group, cont, "OLED", 12, g_setting.image.oled, 0);
-    create_slider_item(&slider_group1, cont, "Brightness", 78, g_setting.image.brightness, 1);
-    create_slider_item(&slider_group2, cont, "Saturation", 47, g_setting.image.saturation, 2);
-    create_slider_item(&slider_group3, cont, "Contrast", 47, g_setting.image.contrast, 3);
-    create_slider_item(&slider_group4, cont, "OLED Auto off", 3, g_setting.image.auto_off, 4);
+    create_slider_item(&slider_group, cont, _("oled"), 12, g_setting.image.oled, 0);
+    create_slider_item(&slider_group1, cont, _("brightness"), 78, g_setting.image.brightness, 1);
+    create_slider_item(&slider_group2, cont, _("saturation"), 47, g_setting.image.saturation, 2);
+    create_slider_item(&slider_group3, cont, _("contrast"), 47, g_setting.image.contrast, 3);
+    create_slider_item(&slider_group4, cont, _("oled_auto_off"), 3, g_setting.image.auto_off, 4);
 
-    create_label_item(cont, "< Back", 1, 5, 1);
+    create_label_item(cont, _("back"), 1, 5, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, "To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video.");

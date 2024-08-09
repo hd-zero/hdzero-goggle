@@ -50,6 +50,7 @@ typedef struct {
 } pb_ui_item_t;
 
 extern page_pack_t pp_playback;
+extern const lv_font_t montserrat_26;
 
 void pb_key(uint8_t key);
 

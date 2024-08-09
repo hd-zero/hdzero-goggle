@@ -10,6 +10,7 @@
 #include "core/osd.h"
 #include "core/settings.h"
 #include "driver/hardware.h"
+#include "lv_i18n/lv_i18n.h"
 #include "page_common.h"
 #include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
@@ -35,6 +36,8 @@ static btn_group_t btn_group_osd_mode;
 static btn_group_t btn_group_osd_startup_visibility;
 
 static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_osd.name = _("osd");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -60,11 +63,11 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_select_item(arr, cont);
 
     // create menu entries
-    create_label_item(cont, "Adjust OSD Elements", 1, ROW_ADJUST_OSD_ELEMENTS, 1);
-    create_btn_group_item(&btn_group_osd_orbit, cont, 3, "OSD Orbit", "Off", "Min", "Max", "", ROW_OSD_ORBIT);
-    create_btn_group_item(&btn_group_osd_mode, cont, 2, "OSD Mode", "4x3", "16x9", "", "", ROW_OSD_MODE);
-    create_btn_group_item(&btn_group_osd_startup_visibility, cont, 3, "At Startup", "Show", "Hide", "Last", "", ROW_OSD_STARTUP_VISIBILITY);
-    create_label_item(cont, "< Back", 1, ROW_BACK, 1);
+    create_label_item(cont, _("adjust_osd_elements"), 1, ROW_ADJUST_OSD_ELEMENTS, 1);
+    create_btn_group_item(&btn_group_osd_orbit, cont, 3, _("osd_orbit"), _("off"), _("min"), _("max"), "", ROW_OSD_ORBIT);
+    create_btn_group_item(&btn_group_osd_mode, cont, 2, _("osd_mode"), "4x3", "16x9", "", "", ROW_OSD_MODE);
+    create_btn_group_item(&btn_group_osd_startup_visibility, cont, 3, _("at_startup"), _("show"), _("hide"), _("last"), "", ROW_OSD_STARTUP_VISIBILITY);
+    create_label_item(cont, _("back"), 1, ROW_BACK, 1);
 
     lv_obj_t *label_user_hint = lv_label_create(cont);
     lv_label_set_text(label_user_hint, "Note: The positioning preview will display all OSD elements. Some elements might\nnot show during normal operation, depending on input source and conditions.\nOSD Element positioning is based on a 1280x720 canvas.\nPositions can be set for 4x3 and 16x9 modes separately,\nthe Show Element toggle is shared between both modes.");

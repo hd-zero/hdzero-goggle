@@ -10,6 +10,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "driver/rtc.h"
+#include "lv_i18n/lv_i18n.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_style.h"
@@ -147,7 +148,7 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
     char text[512];
     snprintf(text, sizeof(text), "%d", option);
 
-    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
     page_clock_items[item].type = ITEM_TYPE_OBJ;
 
     int index = page_clock_get_dropdown_index(item, text);
@@ -238,7 +239,7 @@ static void page_clock_refresh_styles() {
  * Set the 'Set Clock' text back to it's initial text and colored state.
  */
 static void page_clock_set_clock_reset() {
-    lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "Set Clock");
+    lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, _("set_clock"));
     page_clock_set_clock_confirm = 0;
 }
 
@@ -341,6 +342,8 @@ static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_clock.name = _("clock");
+
     rtc_get_clock(&page_clock_rtc_date);
     page_clock_build_options_from_date(&page_clock_rtc_date);
 
@@ -354,7 +357,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Clock:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("clock"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);
@@ -376,16 +379,16 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
-    create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, "Format", "AM/PM", "24 Hour", "", "", 2);
+    create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, _("format"), "AM/PM", _("24_hour"), "", "", 2);
     page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
-    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, "Set Clock", 1, 3, 3);
+    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _("set_clock"), 1, 3, 3);
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_OBJ;
     page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, "< Back", 1, 4, 1);
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, _("back"), 1, 4, 1);
     page_clock_items[ITEM_BACK].type = ITEM_TYPE_OBJ;
     page_clock_items[ITEM_BACK].panel = arr->panel[4];
 

@@ -28,6 +28,7 @@ typedef struct {
 } sys_version_t;
 
 extern page_pack_t pp_version;
+extern const lv_font_t montserrat_26;
 
 void version_update(int sel);
 void process_bar_update(const int value0, const int value1);

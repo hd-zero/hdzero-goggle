@@ -1,2 +1,157 @@
 en-GB:
   source: 'Source:'
+  auto_scan: Auto scan
+  'on': 'On'
+  last: Last
+  'off': 'Off'
+  default: Default
+  hdzero: HDZero
+  expansion: Expansion
+  av_in: AV in
+  hdmi_in: HDMI in
+  back: < Back
+  set_clock: Set clock
+  clock: Clock
+  format: Format
+  24_hour: 24 hour
+  send_vtx: Send VTX
+  click_to_start: Click to scan
+  bind: Bind
+  starting: Starting
+  binding: Binding
+  fans: Fans
+  auto_control: Auto control
+  top_fan: Top fan
+  side_fans: Side fans
+  set_alarm_angle: Set alarm angle
+  head_tracker: Head tracker
+  page: Page
+  tracking: Tracking
+  tilt_alarm: Tilt alarm
+  alarm: Alarm
+  video: Video
+  arm: Arm
+  calibrate: Calibrate
+  set_center: Set center
+  max_angle: Max angle
+  pan: Pan
+  tilt: Tilt
+  roll: Roll
+  calibrating: Calibrating...
+  re_calibrating: Re-calibrating
+  updating_angle: Updating angle...
+  image_setting: Image setting
+  oled: OLED
+  brightness: Brightness
+  saturation: Saturation
+  contrast: Contrast
+  oled_auto_off: Oled auto off
+  adjust_osd_elements: Adjust osd elements
+  osd_orbit: OSD orbit
+  min: Min
+  max: Max
+  osd_mode: OSD mode
+  at_startup: At startup
+  show: Show
+  hide: Hide
+  playback: Playback
+  power: Power
+  battery: Battery
+  cell_count_mode: Cell count mode
+  auto: Auto
+  manual: Manual
+  cell_count: Cell count
+  warning_cell_voltage: Warning cell voltage
+  voltage_calibration: Voltage calibration
+  display_mode: Display mdoe
+  total: Total
+  cell_average: Cell average
+  warning_type: Warning type
+  beep: Beep
+  visual: Visual
+  both: Both
+  analogrx_power: AnalogRX power
+  record_option: Record option
+  record_mode: Record mode
+  record_format: Record format
+  record_osd: Record OSD
+  'yes': 'Yes'
+  'no': 'No'
+  record_audio: Record audio
+  audio_source: Audio Source
+  mic: Mic
+  line_in: Line in
+  a/v_in: A/V in
+  naming_scheme: Naming scheme
+  digits: Digits
+  date: Date
+  scan_ready: Scan ready
+  scanning: Scanning
+  scanning_done: Scanning done
+  scanning_ready: Scanning ready
+  go_sleep: Go sleep
+  expansion_module: Expansion module
+  analog_video: Analog video
+  hdzero_band: HDZero band
+  raceband: Raceband
+  lowband: Lowband
+  hdzero_bw: HDZero BW
+  wide: Wide
+  narrow: Narrow
+  oled_pattern_normal: OLED pattern normal
+  format_sd_card: Format SD card
+  repair_sd_card: Repair SD card
+  storage: Storage
+  logging: Logging
+  firmware: Firmware
+  current_version: Current version
+  reset_all_settings: Reset all settings
+  update_vtx: Update VTX
+  update_goggle: Update goggle
+  update_esp32: Update ESP32
+  vtx_firmware: VTX firmware
+  goggle_firmware: Goggle firmware
+  flashing: Flashing...
+  apply_settings: Apply settings
+  enable: Enable
+  mode: Mode
+  host: Host
+  client: Client
+  password: Password
+  wifi_module: WiFi module
+  basic: Basic
+  advanced: Advanced
+  system: System
+  reset_all_elements(both_modes): Reset all elements (both modes)
+  save_changes: Save changes
+  cancel: Cancel
+  pos_x: Pos-X
+  pos_y: Pos-Y
+  bad_file: Bad file
+  elrs_off: 'ELRS: Off'
+  wifi_off: 'WiFi: Off'
+  integrity_check: Integrity check
+  elrs_on: 'ELRS: On'
+  inputs: Inputs
+  main_menu: Main Menu
+  toggle_OSD: Toggle OSD
+  center_ht: Center HT
+  calibrate_ht: Calibrate HT
+  toggle_fan_sleep: Toggle fan speed
+  start_dvr: start DVR
+  change_fan_speed: Change fan speed
+  oled_brightness: OLED brightness
+  elrs: ELRS
+  image_settings: Image settings
+  input: Input
+  record_options: Record options
+  scan_now: Scan now
+  roller: Roller
+  left_short: Left short
+  left_long: Left long
+  right_short: Right short
+  right_long: Right long
+  right_double: Right double
+  osd: OSD
+  scannow: Scan now
+  wifi: WiFi
