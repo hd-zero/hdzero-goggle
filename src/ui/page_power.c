@@ -101,7 +101,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1063, 984);
 
-    create_text(NULL, section, false, _("power"), LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("power:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 970, 680);

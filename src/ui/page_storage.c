@@ -384,9 +384,9 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&page_storage.logging, cont, 2, _("logging"), _("on"), _("off"), "", "", 0);
     btn_group_set_sel(&page_storage.logging, g_setting.storage.logging ? 0 : 1);
 
-    page_storage.format_sd = create_label_item(cont, "Format SD Card", 1, 1, 3);
-    page_storage.repair_sd = create_label_item(cont, "Repair SD Card", 1, 2, 3);
-    page_storage.back = create_label_item(cont, "< Back", 1, 3, 1);
+    page_storage.format_sd = create_label_item(cont, _("format_sd_card"), 1, 1, 3);
+    page_storage.repair_sd = create_label_item(cont, _("repair_sd_card"), 1, 2, 3);
+    page_storage.back = create_label_item(cont, _("back"), 1, 3, 1);
 
     page_storage.note = lv_label_create(cont);
     lv_label_set_text(page_storage.note, "");
@@ -477,10 +477,10 @@ static void page_storage_on_click(uint8_t key, int sel) {
                 page_storage.confirm_format = 2;
                 page_storage_format_sd_timer = lv_timer_create(page_storage_format_sd_timer_cb, 1000, NULL);
                 lv_timer_set_repeat_count(page_storage_format_sd_timer, 1);
-                lv_label_set_text(page_storage.format_sd, "Format SD Card #FF0000 Formatting...#");
+                lv_label_set_text(page_storage.format_sd, _("format_sd_card_process"));
             } else {
                 page_storage.confirm_format = 1;
-                lv_label_set_text(page_storage.format_sd, "Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+                lv_label_set_text(page_storage.format_sd, _("format_sd_card_confirmation"));
             }
         }
         break;
@@ -490,11 +490,11 @@ static void page_storage_on_click(uint8_t key, int sel) {
                 page_storage.confirm_repair = 2;
                 page_storage_repair_sd_timer = lv_timer_create(page_storage_repair_sd_timer_cb, 1000, NULL);
                 lv_timer_set_repeat_count(page_storage_repair_sd_timer, 1);
-                lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FF0000 Repairing...#");
+                lv_label_set_text(page_storage.repair_sd, _("repair_sd_card_process"));
 
             } else {
                 page_storage.confirm_repair = 1;
-                lv_label_set_text(page_storage.repair_sd, "Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#");
+                lv_label_set_text(page_storage.repair_sd, _("repair_sd_card_confirmation"));
             }
         }
         break;

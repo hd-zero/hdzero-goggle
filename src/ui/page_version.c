@@ -775,7 +775,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
     snprintf(text, sizeof(text), "Update %s", device);
 
     fw_select->flash = flash;
-    fw_select->msgbox = create_msgbox_item(device, "Target:");
+    fw_select->msgbox = create_msgbox_item(device, _("target:"));
     fw_select->container = lv_obj_create(fw_select->msgbox);
 
     lv_obj_set_pos(fw_select->container, 0, 0);
@@ -792,9 +792,9 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
         lv_obj_set_style_bg_color(fw_select->this.panel[i], lv_color_make(0x44, 0x44, 0x44), 0);
     }
     fw_select->page = pp_version.p_arr;
-    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
+    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
-    fw_select->back = create_label_item(fw_select->container, "< Back", 1, 2, 4);
+    fw_select->back = create_label_item(fw_select->container, _("back"), 1, 2, 4);
 
     lv_obj_set_style_grid_column_dsc_array(fw_select->msgbox, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(fw_select->msgbox, row_dsc, 0);
@@ -845,8 +845,8 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, _("back"), 1, ROW_BACK, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, "Language change requires a reboot of the goggle.");
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
+    lv_label_set_text(label2, _("firmware_page_note"));
+    lv_obj_set_style_text_font(label2, &montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label2, 12, 0);
@@ -872,13 +872,13 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_update_complete = create_msgbox_item("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+    msgbox_update_complete = create_msgbox_item(_("update_complete"), _("mgsbox_update_complete"));
     lv_obj_add_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_settings_reset = create_msgbox_item("Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+    msgbox_settings_reset = create_msgbox_item(_("reset_settings"), _("msgbox_settings_reset"));
     lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_release_notes = create_msgbox_item("Release Notes", "Empty");
+    msgbox_release_notes = create_msgbox_item(_("release_notes"), _("empty"));
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
 
     label_note = lv_label_create(cont);

@@ -48,7 +48,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "OSD:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("osd:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -70,7 +70,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, _("back"), 1, ROW_BACK, 1);
 
     lv_obj_t *label_user_hint = lv_label_create(cont);
-    lv_label_set_text(label_user_hint, "Note: The positioning preview will display all OSD elements. Some elements might\nnot show during normal operation, depending on input source and conditions.\nOSD Element positioning is based on a 1280x720 canvas.\nPositions can be set for 4x3 and 16x9 modes separately,\nthe Show Element toggle is shared between both modes.");
+    lv_label_set_text(label_user_hint, _("osd_page_note"));
     lv_obj_set_style_text_font(label_user_hint, &montserrat_16, 0);
     lv_obj_set_style_text_align(label_user_hint, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label_user_hint, lv_color_make(255, 255, 255), 0);

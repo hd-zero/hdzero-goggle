@@ -40,7 +40,6 @@ en-GB:
   calibrating: Calibrating...
   re_calibrating: Re-calibrating
   updating_angle: Updating angle...
-  image_setting: Image setting
   oled: OLED
   brightness: Brightness
   saturation: Saturation
@@ -71,7 +70,6 @@ en-GB:
   visual: Visual
   both: Both
   analogrx_power: AnalogRX power
-  record_option: Record option
   record_mode: Record mode
   record_format: Record format
   record_osd: Record OSD
@@ -142,10 +140,7 @@ en-GB:
   change_fan_speed: Change fan speed
   oled_brightness: OLED brightness
   elrs: ELRS
-  image_settings: Image settings
   input: Input
-  record_options: Record options
-  scan_now: Scan now
   roller: Roller
   left_short: Left short
   left_long: Left long
@@ -155,3 +150,89 @@ en-GB:
   osd: OSD
   scannow: Scan now
   wifi: WiFi
+  'auto_scan:': 'Auto scan:'
+  autoscan_page_notice: '*if Auto Scan is ''Last'', goggles will default to show last tuned channel'
+  'clock:': 'Clock:'
+  clock_page_note: '*Battery not installed or clock not configured'
+  'elrs:': ELRS
+  'fans:': 'Fans:'
+  focus_chart: Focus chart
+  'focus_chart:': 'Focus chart:'
+  focus_chart_page_note: |
+    Click the Enter Button to display the Back Focusing Chart.
+    Click the Enter Button again to exit
+  image_settigns: Image settings
+  image_setting_page_note: |
+    To change image settings, click the Enter button to enter video mode.
+    Make sure a HDZero VTX or analog VTX is powered on for live video.
+  input_page_note: '*Settings apply to video mode only'
+  'osd:': 'OSD:'
+  osd_page_note: >
+    Note: The positioning preview will display all OSD elements. Some elements
+    might
+
+    not show during normal operation, depending on input source and conditions.
+
+    OSD Element positioning is based on a 1280x720 canvas.
+
+    Positions can be set for 4x3 and 16x9 modes separately,
+
+    the Show Element toggle is shared between both modes.
+  'playback:': 'Playback:'
+  playback_page_note: |
+    *Long press the Enter button to exit
+    **Long press the Func button to delete
+  'power:': 'Power:'
+  record_page_note: |
+    MP4 format requires properly closing files or the files will be corrupt.
+    TS format is highly recommended.
+  scan_now_page_note: |
+    When scanning is complete, use the
+    dial to select a channel and press
+    the Enter button to choose
+  go_sleep!: Go sleep!
+  go_sleep_page_note: |
+    Click the Enter Button to go sleep.
+    Click any button to exit sleep mode.
+  'source:': 'Source:'
+  firmware_page_note: Language change required a reebot of the goggles
+  update_complete: Update complete
+  mgsbox_update_complete: |
+    Goggle update completed successfully.
+    Please repower goggle now.
+  reset_settings: Settings reset
+  msgbox_settings_reset: |
+    All settings have been reset.
+    Please repower goggle now.
+  release_notes: Release notes
+  empty: Empty
+  'image_settings:': 'Image settings:'
+  record_options: Record options
+  'record_options:': 'Record options:'
+  format_sd_card_process: 'Format SD Card #FF0000 Formatting...#'
+  format_sd_card_confirmation: 'Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#'
+  repair_sd_card_process: 'Repair SD Card #FF0000 Repairing...#'
+  repair_sd_card_confirmation: 'Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#'
+  'target:': 'Target:'
+  page_wifi_update_page_1_note: |
+    'Password Requirements:
+        Minimum 8 characters, maximum 64 characters.
+
+    Live Stream:
+        1.  Connect to the WiFi network identified above.
+        2. Use VLC Player to open a Network Stream:
+
+                rtsp://%s:8554/hdzero'
+        
+  page_wifi_update_page_3_note: |
+    'Password Requirements:
+        Minimum 8 characters, maximum 64 characters.'
+  ssid: SSID
+  dhcp: DHCP
+  address: Address
+  netmask: Netmask
+  gateway: Gateway
+  dns: DNS
+  rf_channel: RF Channel
+  root_pw: Root PW
+  ssh: SSH

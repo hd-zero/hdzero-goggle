@@ -208,13 +208,13 @@ static void reset_all_osd_elements_reset_label_text() {
 
 static void save_osd_elements_reset_label_text() {
     lv_label_set_text(label_save_osd_elements, _("save_changes"));
-    lv_obj_set_style_text_font(label_save_osd_elements, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(label_save_osd_elements, &montserrat_20, 0);
     save_changes_confirm = CONFIRMATION_UNCONFIRMED;
 }
 
 static void cancel_osd_elements_reset_label_text() {
     lv_label_set_text(label_cancel_osd_elements, _("cancel"));
-    lv_obj_set_style_text_font(label_cancel_osd_elements, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(label_cancel_osd_elements, &montserrat_20, 0);
     cancel_changes_confirm = CONFIRMATION_UNCONFIRMED;
 }
 
@@ -534,9 +534,9 @@ void ui_osd_element_pos_init(void) {
     create_select_item(&ui_selection_panel, ui_root_container);
 
     // create all elements
-    create_btn_group_item_compact(&btn_group_osd_mode, ui_root_container, 2, _("mode"), "4x3", "16x9", "", "", ROW_OSD_MODE, 40, 80, &lv_font_montserrat_20);
+    create_btn_group_item_compact(&btn_group_osd_mode, ui_root_container, 2, _("mode"), "4x3", "16x9", "", "", ROW_OSD_MODE, 40, 80, &montserrat_20);
 
-    create_label_item_compact(ui_root_container, "Element: ", 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, &lv_font_montserrat_20);
+    create_label_item_compact(ui_root_container, "Element: ", 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, &montserrat_20); // not sure how to markdown cause of the space
     fill_osd_elements_str();
     dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, &montserrat_20);
 

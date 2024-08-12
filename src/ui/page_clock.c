@@ -357,7 +357,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, _("clock"), LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("clock:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);
@@ -396,8 +396,8 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
-        lv_label_set_text(note, "*Battery not installed or clock not configured.");
-        lv_obj_set_style_text_font(note, &lv_font_montserrat_16, 0);
+        lv_label_set_text(note, _("clock_page_note"));
+        lv_obj_set_style_text_font(note, &montserrat_16, 0);
         lv_obj_set_style_text_align(note, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
         lv_obj_set_style_pad_top(note, 12, 0);

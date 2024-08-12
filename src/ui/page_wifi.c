@@ -349,25 +349,14 @@ static void page_wifi_update_page_1_notes() {
     }
 
     static char buffer[1024];
-    snprintf(buffer,
-             sizeof(buffer),
-             "Password Requirements:\n"
-             "    Minimum 8 characters, maximum 64 characters.\n\n"
-             "Live Stream:\n"
-             "    1.  Connect to the WiFi network identified above.\n"
-             "    2. Use VLC Player to open a Network Stream:\n\n"
-             "           rtsp://%s:8554/hdzero\n\n",
-             address ? address : page_wifi.page_2.ip_addr.text);
+    snprintf(buffer, sizeof(buffer), _("page_wifi_update_page_1_note"), address ? address : page_wifi.page_2.ip_addr.text);
 
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
 
 static void page_wifi_update_page_3_notes() {
     static char buffer[1024];
-    snprintf(buffer,
-             sizeof(buffer),
-             "Password Requirements:\n"
-             "    Minimum 8 characters, maximum 64 characters.\n\n");
+    snprintf(buffer, sizeof(buffer), _("page_wifi_update_page_3_note"));
 
     lv_label_set_text(page_wifi.page_3.note, buffer);
 }
@@ -578,7 +567,7 @@ static void page_wifi_apply_settings_timer_cb(struct _lv_timer_t *timer) {
 }
 
 /**
- * Verify if user entered text contains a valid network adresses.
+ * Verify if user entered text contains a valid network addresses.
  */
 static bool page_wifi_is_network_address_valid(const char *address) {
     struct sockaddr_in sa;
@@ -623,7 +612,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     create_btn_group_item(&page_wifi.page_1.mode.button, parent, 2, _("mode"), _("host"), _("client"), "", "", 2);
     btn_group_set_sel(&page_wifi.page_1.mode.button, g_setting.wifi.mode);
 
-    page_wifi.page_1.ssid.label = create_label_item(parent, "SSID", 1, 3, 1);
+    page_wifi.page_1.ssid.label = create_label_item(parent, _("ssid"), 1, 3, 1);
     page_wifi.page_1.ssid.input = create_label_item(parent, g_setting.wifi.ssid[g_setting.wifi.mode], 2, 3, 2);
 
     page_wifi.page_1.passwd.label = create_label_item(parent, _("password"), 1, 4, 1);
@@ -649,22 +638,22 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
  * Page 2 contains network addressing settings.
  */
 static void page_wifi_create_page_2(lv_obj_t *parent) {
-    create_btn_group_item(&page_wifi.page_2.dhcp.button, parent, 2, "DHCP", _("on"), _("off"), "", "", 1);
+    create_btn_group_item(&page_wifi.page_2.dhcp.button, parent, 2, _("dhcp"), _("on"), _("off"), "", "", 1);
     btn_group_set_sel(&page_wifi.page_2.dhcp.button, !g_setting.wifi.dhcp);
 
-    page_wifi.page_2.ip_addr.label = create_label_item(parent, "Address", 1, 2, 1);
+    page_wifi.page_2.ip_addr.label = create_label_item(parent, _("address"), 1, 2, 1);
     page_wifi.page_2.ip_addr.input = create_label_item(parent, g_setting.wifi.ip_addr, 2, 2, 2);
     page_wifi.page_2.ip_addr.status = create_label_item(parent, "", 4, 2, 2);
-    page_wifi.page_2.netmask.label = create_label_item(parent, "Netmask", 1, 3, 1);
+    page_wifi.page_2.netmask.label = create_label_item(parent, _("netmask"), 1, 3, 1);
     page_wifi.page_2.netmask.input = create_label_item(parent, g_setting.wifi.netmask, 2, 3, 2);
     page_wifi.page_2.netmask.status = create_label_item(parent, "", 4, 3, 2);
-    page_wifi.page_2.gateway.label = create_label_item(parent, "Gateway", 1, 4, 1);
+    page_wifi.page_2.gateway.label = create_label_item(parent, _("gateway"), 1, 4, 1);
     page_wifi.page_2.gateway.input = create_label_item(parent, g_setting.wifi.gateway, 2, 4, 2);
     page_wifi.page_2.gateway.status = create_label_item(parent, "", 4, 4, 2);
-    page_wifi.page_2.dns.label = create_label_item(parent, "DNS", 1, 5, 1);
+    page_wifi.page_2.dns.label = create_label_item(parent, _("dns"), 1, 5, 1);
     page_wifi.page_2.dns.input = create_label_item(parent, g_setting.wifi.gateway, 2, 5, 2);
     page_wifi.page_2.dns.status = create_label_item(parent, "", 4, 5, 2);
-    create_slider_item(&page_wifi.page_2.rf_channel.input, parent, "RF Channel", WIFI_RF_CHANNELS - 1, g_setting.wifi.rf_channel, 6);
+    create_slider_item(&page_wifi.page_2.rf_channel.input, parent, _("rf_channel"), WIFI_RF_CHANNELS - 1, g_setting.wifi.rf_channel, 6);
     lv_slider_set_value(page_wifi.page_2.rf_channel.input.slider, g_setting.wifi.rf_channel - 1, LV_ANIM_OFF);
 
     page_wifi.page_2.row_count = 7;
@@ -674,12 +663,12 @@ static void page_wifi_create_page_2(lv_obj_t *parent) {
  * Page 3 contains service settings.
  */
 static void page_wifi_create_page_3(lv_obj_t *parent) {
-    page_wifi.page_3.root_pw.label = create_label_item(parent, "Root PW", 1, 1, 1);
+    page_wifi.page_3.root_pw.label = create_label_item(parent, _("root_pw"), 1, 1, 1);
     page_wifi.page_3.root_pw.input = create_label_item(parent, "", 2, 1, 2);
     page_wifi.page_3.root_pw.status = create_label_item(parent, "", 4, 1, 2);
     page_wifi_mask_password(page_wifi.page_3.root_pw.input, strlen(g_setting.wifi.root_pw));
 
-    create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", _("on"), _("off"), "", "", 2);
+    create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, _("ssh"), _("on"), _("off"), "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
     page_wifi.page_3.note = lv_label_create(parent);

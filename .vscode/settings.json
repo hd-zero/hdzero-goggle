@@ -2,6 +2,7 @@
     "editor.formatOnSave": true,
     "files.associations": {
         "ui_osd_element_pos.h": "c",
-        "msp_displayport.h": "c"
+        "msp_displayport.h": "c",
+        "complex": "c"
     }
 }

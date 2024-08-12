@@ -215,8 +215,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     pageItems[BACK_BTN] = create_label_item(content, _("back"), 1, BACK_BTN, 1);
 
     lv_obj_t *label = lv_label_create(content);
-    lv_label_set_text(label, "*Settings apply to video mode only");
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_label_set_text(label, _("input_page_note"));
+    lv_obj_set_style_text_font(label, &montserrat_16, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
 

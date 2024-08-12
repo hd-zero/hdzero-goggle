@@ -1,10 +1,10 @@
 ru-RU:
-  source: 'Источник:'
+  source: Источник
   auto_scan: Автоскан
   'on': Вкл
   last: Посл.
   'off': Выкл
-  default: По умолчанию
+  default: Дефолт
   hdzero: HDZero
   expansion: Расшир.
   av_in: A/V
@@ -27,7 +27,7 @@ ru-RU:
   head_tracker: Трекинг
   page: Страница
   tracking: Трекинг
-  tilt_alarm: Сигнал наклона
+  tilt_alarm: Увед. накл.
   alarm: Сигнал
   video: Видео
   arm: Арм
@@ -40,7 +40,6 @@ ru-RU:
   calibrating: Калибровка...
   re_calibrating: Перекалибровка
   updating_angle: Обновление угла...
-  image_setting: Настройка изображения
   oled: OLED
   brightness: Яркость
   saturation: Насыщенность
@@ -66,17 +65,16 @@ ru-RU:
   display_mode: Отображение
   total: Всего
   cell_average: Среднее
-  warning_type: Предупреждение
+  warning_type: Предупрежд.
   beep: Звук
   visual: Визуал
   both: Оба
   analogrx_power: AnalogRX питание
-  record_option: Опции записи
   record_mode: Режим записи
   record_format: Формат записи
-  record_osd: запись OSD
-  'yes': да
-  'no': нет
+  record_osd: Запись OSD
+  'yes': Да
+  'no': Нет
   record_audio: Запись аудио
   audio_source: Источник аудио
   mic: Микроф.
@@ -142,13 +140,11 @@ ru-RU:
   oled_brightness: Яркость OLED
   inputs: Вводы
   elrs: ELRS
-  image_settings: Настройки изображения
   input: Ввод
   record_options: Запись / DVR
-  scan_now: Сканировать
   image_settigns: Изображение
   roller: Колесо
-  left_short: Коротк. влево 
+  left_short: Коротк. влево
   left_long: Длинн. влево
   right_short: Коротк. вправо
   right_long: Длинн. вправо
@@ -156,3 +152,91 @@ ru-RU:
   osd: OSD
   scannow: Сканировать
   wifi: WiFi
+  'auto_scan:': 'Автоскан:'
+  autoscan_page_notice: |
+    *Если выбрано "Последний", то очки по умолчанию 
+    покажут последний настроенный канал
+  'clock:': 'Время:'
+  clock_page_note: '*Батарея не установлена или время не настроено'
+  'elrs:': 'ELRS:'
+  'fans:': 'Куллеры:'
+  focus_chart: Фокус чарт
+  'focus_chart:': 'Фокус чарт:'
+  focus_chart_page_note: |
+    Нажмите кнопку Enter для отображения фокус чарта.
+    Нажмите кнопку Enter еще раз, чтобы выйти
+  image_setting_page_note: |
+    Чтобы изменить настройки изображения, нажмите 
+    кнопку Enter для переключения на режим видео. 
+    Убедитесь, что HDZero или аналоговый
+    передатчики включены для лайв-видео
+  input_page_note: '*Настройки применяются только для режима видео'
+  'osd:': 'OSD:'
+  osd_page_note: |
+    Внимание: Превью позиционирования покажет все элементы OSD. 
+    Некоторые элементы могут быть скрыты во время обычного пользования, 
+    зависимо от входного источника и условий. 
+    Позицирование элементов OSD базировано на канвасе 1280x720. 
+    Позиционирование может быть отдельно установлено для
+    режимов 4x3 и 16x9, переключатель Show Element применяется для обоих режимов
+  'playback:': 'Воспроизведение:'
+  playback_page_note: |
+    *Удержите кнопку Enter для выхода 
+    Удержите кнопку Func для удаления
+  'power:': 'Питание:'
+  record_page_note: |
+    Формат MP4 требует правильного закрытия файла, иначе запись будет испорчена.
+    Крайне рекомендуется использовать формат TS
+  scan_now_page_note: |
+    Когда сканирование завершится, 
+    используйте колесо для выбора канала и
+    нажмите кнопку Enter для подтвержения
+  go_sleep!: Иди спать!
+  go_sleep_page_note: |
+    Нажмите на Enter для входа в режим сна. 
+    Нажмите на любую кнопку для выхода из режима сна
+  'source:': 'Источник:'
+  firmware_page_note: Смена языка требует перезагрузки очков
+  update_complete: Обновление завершено
+  mgsbox_update_complete: |
+    Очки успешно обновлены.
+    Пожалуйста, перезагрузите очки.
+  reset_settings: Сброс настроек
+  msgbox_settings_reset: |
+    Все настройки были сброшены.
+    Пожалуйста, перезагрузите очки.
+  release_notes: 'Изменения:'
+  empty: нету
+  'image_settings:': 'Настройки изображения:'
+  'record_options:': 'Настройки записи:'
+  format_sd_card_process: 'Форматирование SD карты #FF0000 Форматирование...#'
+  format_sd_card_confirmation: >-
+    Форматирование SD карты #FFFF00 Нажмите для подтверждения или прокрутите для
+    отмены...#
+  repair_sd_card_process: 'Восстановление SD карты #FF0000 Ремонт...#'
+  repair_sd_card_confirmation: >-
+    Восстановление SD карты #FFFF00 Нажмите для подтверждения или прокрутите для
+    отмены...#
+  'target:': 'Цель:'
+  page_wifi_update_page_1_note: |
+    'Требования к паролю:
+        Минимум 8 символов, максимум 64 символа.
+
+    Прямая трансляция:
+        1. Подключитесь к WiFi-сети, указанной выше.
+        2. Используйте VLC Player для открытия сетевого потока:
+
+                rtsp://%s:8554/hdzero'
+      
+  page_wifi_update_page_3_note: |
+    'Требования к паролю:
+        Минимум 8 символов, максимум 64 символа.'
+  ssid: SSID
+  dhcp: DHCP
+  address: Адрес
+  netmask: Маска подсети
+  gateway: Шлюз
+  dns: DNS
+  rf_channel: RF канал
+  root_pw: Root PW
+  ssh: SSH
