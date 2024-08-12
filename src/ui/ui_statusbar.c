@@ -18,7 +18,6 @@
 #include "ui/ui_style.h"
 #include "util/sdcard.h"
 
-extern const lv_font_t montserrat_26;
 ///////////////////////////////////////////////////////////////////////////////
 // local
 enum STATUS {

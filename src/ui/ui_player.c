@@ -113,7 +113,6 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     controller._label = lv_label_create(parent);
     sprintf(buf, "00:00/00:00");
     lv_label_set_text(controller._label, buf);
-    lv_obj_set_style_text_font(controller._label, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(controller._label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_pad_top(controller._label, 12, 0);
     lv_label_set_long_mode(controller._label, LV_LABEL_LONG_SCROLL_CIRCULAR);

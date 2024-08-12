@@ -29,7 +29,6 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
     if (txt) {
         label = lv_label_create(obj);
         lv_label_set_text(label, txt);
-        lv_obj_set_style_text_font(label, &montserrat_26, 0);
         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         //    lv_obj_set_flex_grow(label, 1);
     }
@@ -109,7 +108,6 @@ lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col,
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &montserrat_26, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -126,7 +124,7 @@ lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row
 lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row, int cols) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(label, &montserrat_18, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -191,7 +189,6 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row) {
     slider_group->name = lv_label_create(parent);
     lv_label_set_text(slider_group->name, name);
-    lv_obj_set_style_text_font(slider_group->name, &montserrat_26, 0);
     lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(slider_group->name, 12, 0);
     lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -225,7 +222,6 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     memset(buf, 0, sizeof(buf));
     sprintf(buf, "%d", default_value);
     lv_label_set_text(slider_group->label, buf);
-    lv_obj_set_style_text_font(slider_group->label, &montserrat_26, 0);
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_pad_top(slider_group->label, 12, 0);
     lv_label_set_long_mode(slider_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -250,7 +246,6 @@ void create_btn_item(lv_obj_t *parent, const char *name, int col, int row) {
     lv_label_set_text(label, name);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
 
-    lv_obj_set_style_text_font(btn, &montserrat_26, 0);
     lv_obj_set_style_text_align(btn, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_bg_color(btn, lv_color_make(19, 19, 19), 0);
     lv_obj_set_style_bg_color(btn, COLOR_DISABLED, STATE_DISABLED);
@@ -303,7 +298,6 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
     btn_a->label = lv_label_create(btn_a->btn);
     lv_label_set_text(btn_a->label, name);
     lv_obj_set_style_text_align(btn_a->label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_font(btn_a->btn, &montserrat_26, 0);
     lv_obj_set_style_text_align(btn_a->btn, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_bg_color(btn_a->btn, lv_color_make(19, 19, 19), 0);
     lv_obj_set_style_bg_opa(btn_a->btn, 0x0, 0);
@@ -428,7 +422,6 @@ void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, 
 
     btn_group->label = lv_label_create(parent);
     lv_label_set_text(btn_group->label, name);
-    lv_obj_set_style_text_font(btn_group->label, &montserrat_26, 0);
     lv_obj_set_style_text_align(btn_group->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(btn_group->label, 12, 0);
     lv_label_set_long_mode(btn_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -458,7 +451,6 @@ void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent, int count,
 
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &montserrat_26, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);

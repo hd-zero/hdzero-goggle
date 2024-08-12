@@ -40,7 +40,6 @@ typedef struct {
 } progress_bar_t;
 
 extern progress_bar_t progress_bar;
-extern const lv_font_t montserrat_26;
 
 void main_menu_init();
 void main_menu_update();

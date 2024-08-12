@@ -841,7 +841,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_goggle = create_label_item(cont, _("update_goggle"), 1, ROW_UPDATE_GOGGLE, 2);
     btn_esp = create_label_item(cont, _("update_esp32"), 1, ROW_UPDATE_ESP32, 2);
     label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
-    dropdown_language = create_language_dropdown_item(cont, 1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
+    dropdown_language = create_language_dropdown_item(cont, 1, ROW_LANGUAGE, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     create_label_item(cont, _("back"), 1, ROW_BACK, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);

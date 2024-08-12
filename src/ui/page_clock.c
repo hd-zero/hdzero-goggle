@@ -148,7 +148,7 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
     char text[512];
     snprintf(text, sizeof(text), "%d", option);
 
-    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &montserrat_26);
+    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     page_clock_items[item].type = ITEM_TYPE_OBJ;
 
     int index = page_clock_get_dropdown_index(item, text);
@@ -163,7 +163,7 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
 static lv_obj_t *page_clock_create_datetime_item_attr(lv_obj_t *parent, int row) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, "");
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label, &montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label, 8, 0);

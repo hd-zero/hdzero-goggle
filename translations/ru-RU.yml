@@ -1,14 +1,14 @@
 ru-RU:
   source: 'Источник:'
-  auto_scan: Авто сканирование
+  auto_scan: Автоскан
   'on': Вкл
-  last: Последний
+  last: Посл.
   'off': Выкл
   default: По умолчанию
   hdzero: HDZero
-  expansion: Расширение
-  av_in: AV вход
-  hdmi_in: HDMI вход
+  expansion: Расшир.
+  av_in: A/V
+  hdmi_in: HDMI
   back: < Назад
   set_clock: Установить время
   clock: Время
@@ -20,13 +20,13 @@ ru-RU:
   starting: Загрузка
   binding: Соединение...
   fans: Куллеры
-  auto_control: Авто контроль
+  auto_control: Автоматич.
   top_fan: Верхний куллер
   side_fans: Боковые куллеры
   set_alarm_angle: Уст. увед. наклона
-  head_tracker: Отслеживание головы
+  head_tracker: Трекинг
   page: Страница
-  tracking: Отслеживание
+  tracking: Трекинг
   tilt_alarm: Сигнал наклона
   alarm: Сигнал
   video: Видео
@@ -54,21 +54,21 @@ ru-RU:
   at_startup: При запуске
   show: Показать
   hide: Скрыть
-  playback: Воспроизведение
+  playback: Воспроизв.
   power: Питание
   battery: Аккумулятор
-  cell_count_mode: Режим подсчета ячеек
+  cell_count_mode: Подсчет ячеек
   auto: Авто
   manual: Ручной
   cell_count: Кол-во ячеек
-  warning_cell_voltage: Предупреждение о напряжении ячейки
+  warning_cell_voltage: Предупреждение о низком напряжении ячейки
   voltage_calibration: Калибровка напряжения
-  display_mode: Режим отображения
+  display_mode: Отображение
   total: Всего
   cell_average: Среднее
-  warning_type: Тип предупреждения
+  warning_type: Предупреждение
   beep: Звук
-  visual: Визуально
+  visual: Визуал
   both: Оба
   analogrx_power: AnalogRX питание
   record_option: Опции записи
@@ -79,10 +79,10 @@ ru-RU:
   'no': нет
   record_audio: Запись аудио
   audio_source: Источник аудио
-  mic: Микрофон
-  line_in: Линейный вход
+  mic: Микроф.
+  line_in: Линейн.
   a/v_in: A/V вход
-  naming_scheme: Схема именования
+  naming_scheme: Именование
   digits: Цифры
   date: Дата
   scan_ready: Сканирование готово
@@ -91,8 +91,8 @@ ru-RU:
   scanning_ready: Сканирование готово
   go_sleep: Сон
   expansion_module: Модуль расширения
-  analog_video: Аналоговое видео
-  hdzero_band: HDZero диапазон
+  analog_video: Аналог
+  hdzero_band: HDZero band
   raceband: Raceband
   lowband: Lowband
   hdzero_bw: HDZero BW
@@ -120,7 +120,7 @@ ru-RU:
   password: Пароль
   wifi_module: WiFi модуль
   basic: Базовый
-  advanced: Расширенный
+  advanced: Расшир.
   system: Система
   reset_all_elements(both_modes): Сброс всех элементов (оба режима)
   save_changes: Сохранить изменения
@@ -141,18 +141,18 @@ ru-RU:
   change_fan_speed: Изменить скорость куллера
   oled_brightness: Яркость OLED
   inputs: Вводы
-  elrs: ELRA
+  elrs: ELRS
   image_settings: Настройки изображения
   input: Ввод
-  record_options: Настройки записи
+  record_options: Запись / DVR
   scan_now: Сканировать
   image_settigns: Изображение
   roller: Колесо
-  left_short: Короткое лево
-  left_long: Длинное лево
-  right_short: Короткое право
-  right_long: Длинное право
-  right_double: Двойное вправо
+  left_short: Коротк. влево 
+  left_long: Длинн. влево
+  right_short: Коротк. вправо
+  right_long: Длинн. вправо
+  right_double: Двойн. вправо
   osd: OSD
   scannow: Сканировать
   wifi: WiFi

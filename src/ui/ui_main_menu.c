@@ -272,14 +272,12 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
 
     pp->label = lv_label_create(cont);
     lv_label_set_text(pp->label, pp->name);
-    lv_obj_set_style_text_font(pp->label, &montserrat_26, 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     pp->icon = lv_img_create(cont);
     lv_img_set_src(pp->icon, &img_arrow);
     lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_set_style_text_font(cont, &montserrat_26, 0);
     lv_menu_set_load_page_event(menu, cont, pp->page);
 
     if (pp->on_created) {

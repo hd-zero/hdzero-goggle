@@ -440,7 +440,7 @@ static int ui_handle_click() {
             return 1;
         }
 
-        lv_obj_set_style_text_font(label_cancel_osd_elements, &lv_font_montserrat_18, 0);
+        lv_obj_set_style_text_font(label_cancel_osd_elements, &montserrat_18, 0);
         lv_label_set_text(label_cancel_osd_elements, "#FFFF00 click to confirm/scroll to cancel#");
         cancel_changes_confirm = CONFIRMATION_CONFIRMED;
         return 0;
@@ -457,7 +457,7 @@ static int ui_handle_click() {
             return 1;
         }
 
-        lv_obj_set_style_text_font(label_save_osd_elements, &lv_font_montserrat_18, 0);
+        lv_obj_set_style_text_font(label_save_osd_elements, &montserrat_18, 0);
         lv_label_set_text(label_save_osd_elements, "#FFFF00 click to confirm/scroll to cancel#");
         save_changes_confirm = CONFIRMATION_CONFIRMED;
         return 0;
@@ -538,14 +538,14 @@ void ui_osd_element_pos_init(void) {
 
     create_label_item_compact(ui_root_container, "Element: ", 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, &lv_font_montserrat_20);
     fill_osd_elements_str();
-    dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, &lv_font_montserrat_20);
+    dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, &montserrat_20);
 
-    create_btn_group_item_compact(&btn_group_osd_show_element, ui_root_container, 2, _("show"), _("yes"), _("no"), "", "", ROW_OSD_SHOW_ELEMENT, 40, 80, &lv_font_montserrat_20);
-    create_slider_item_compact(&slider_group_osd_element_pos_x, ui_root_container, _("pos_x"), OSD_ELEMENT_MAX_X_POS, 0, ROW_OSD_ELEMENT_POS_X, &lv_font_montserrat_20);
-    create_slider_item_compact(&slider_group_osd_element_pos_y, ui_root_container, _("pos_y"), OSD_ELEMENT_MAX_Y_POS, 0, ROW_OSD_ELEMENT_POS_Y, &lv_font_montserrat_20);
-    label_save_osd_elements = create_label_item_compact(ui_root_container, _("save_changes"), 0, ROW_SAVE, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_20);
-    label_cancel_osd_elements = create_label_item_compact(ui_root_container, _("cancel"), 0, ROW_CANCEL, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_20);
-    label_reset_all_osd_elements = create_label_item_compact(ui_root_container, _("reset_all_elements(both_modes)"), 0, ROW_RESET_ELEMENTS, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_18);
+    create_btn_group_item_compact(&btn_group_osd_show_element, ui_root_container, 2, _("show"), _("yes"), _("no"), "", "", ROW_OSD_SHOW_ELEMENT, 40, 80, &montserrat_20);
+    create_slider_item_compact(&slider_group_osd_element_pos_x, ui_root_container, _("pos_x"), OSD_ELEMENT_MAX_X_POS, 0, ROW_OSD_ELEMENT_POS_X, &montserrat_20);
+    create_slider_item_compact(&slider_group_osd_element_pos_y, ui_root_container, _("pos_y"), OSD_ELEMENT_MAX_Y_POS, 0, ROW_OSD_ELEMENT_POS_Y, &montserrat_20);
+    label_save_osd_elements = create_label_item_compact(ui_root_container, _("save_changes"), 0, ROW_SAVE, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &montserrat_20);
+    label_cancel_osd_elements = create_label_item_compact(ui_root_container, _("cancel"), 0, ROW_CANCEL, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &montserrat_20);
+    label_reset_all_osd_elements = create_label_item_compact(ui_root_container, _("reset_all_elements(both_modes)"), 0, ROW_RESET_ELEMENTS, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &montserrat_18);
 
     // make the menu semi-transparent
     lv_obj_set_style_bg_opa(ui_root_container, LV_OPA_70, 0);

@@ -27,7 +27,7 @@ lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *desc_label = lv_label_create(cont);
     lv_label_set_text(desc_label, "Click the Enter Button to go sleep.\n"
                                   "Click any button to exit sleep mode.");
-    lv_obj_set_style_text_font(desc_label, &montserrat_26, 0);
+    // lv_obj_set_style_text_font(desc_label, &montserrat_26, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(desc_label, 12, 0);
     lv_label_set_long_mode(desc_label, LV_LABEL_LONG_WRAP);

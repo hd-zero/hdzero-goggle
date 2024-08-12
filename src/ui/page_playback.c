@@ -69,7 +69,6 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_add_flag(pb_ui[pos]._star, LV_OBJ_FLAG_HIDDEN);
 
         pb_ui[pos]._label = lv_label_create(cont);
-        lv_obj_set_style_text_font(pb_ui[pos]._label, &montserrat_26, 0);
         lv_label_set_long_mode(pb_ui[pos]._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         lv_obj_set_style_text_align(pb_ui[pos]._label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_add_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
@@ -94,7 +93,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *label = lv_label_create(cont);
     lv_label_set_text(label, "*Long press the Enter button to exit\n**Long press the Func button to delete");
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label, &montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);

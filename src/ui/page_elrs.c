@@ -109,7 +109,7 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     cancel_label = lv_label_create(cont);
     lv_obj_add_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
     lv_label_set_text(cancel_label, "* Press right button to cancel binding");
-    lv_obj_set_style_text_font(cancel_label, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(cancel_label, &montserrat_16, 0);
     lv_obj_set_style_text_align(cancel_label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(cancel_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(cancel_label, 12, 0);
