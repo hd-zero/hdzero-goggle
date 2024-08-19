@@ -260,6 +260,13 @@ int IT66021_Get_VTMG(int *freq_ref) {
     fps = 6831.0 / r9a[1];
     fps = fps * 1000000 / hmax / vmax;
 
+    IT66021_Mask_WR(0, 0x0f, 0x03, 0x02);
+    r9c = I2C_L_Read(ADDR_IT66021, 0x18);
+    if (r9c == 16 || r9c == 4)
+        fps = 60;
+    else if (r9c == 19 || r9c == 31)
+        fps = 50;
+
     if (hact == 1920 && vact == 1080) {
         if (fps < 45 || fps >= 70)
             ret = HDMIIN_VTMG_1080Pother;
