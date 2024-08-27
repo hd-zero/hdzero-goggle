@@ -261,6 +261,9 @@ static void page_wifi_mask_password(lv_obj_t *obj, int size) {
 
 /**
  * Update settings and apply them.
+ *
+ *  Note: This function will be invoked asynchronously post bootup and may
+ *        require additional APP_STATE checks to ensure integrity of execution.
  */
 static void page_wifi_update_settings() {
     g_setting.wifi.enable = btn_group_get_sel(&page_wifi.page_1.enable.button) == 0;
@@ -304,7 +307,9 @@ static void page_wifi_update_settings() {
 
     // Activate WiFi interface
     if (g_setting.wifi.enable) {
-        dvr_update_vi_conf(VR_1080P30);
+        if (g_app_state == APP_STATE_MAINMENU) {
+            dvr_update_vi_conf(VR_1080P30);
+        }
         if (WIFI_MODE_AP == g_setting.wifi.mode) {
             system_script(WIFI_AP_ON);
         } else {
@@ -727,11 +732,6 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_wifi_create_page_3(cont);
     page_wifi_sync_settings();
     page_wifi_update_current_page(0);
-
-    // Update DVR Resolution
-    if (g_setting.wifi.enable) {
-        dvr_update_vi_conf(VR_1080P30);
-    }
 
     return page;
 }
