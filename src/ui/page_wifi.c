@@ -473,8 +473,8 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
 
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
-                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
-                page_wifi.page_2.dhcp.button.current == 1)) {
+            (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+             page_wifi.page_2.dhcp.button.current == 1)) {
             lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
@@ -727,6 +727,11 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_wifi_create_page_3(cont);
     page_wifi_sync_settings();
     page_wifi_update_current_page(0);
+
+    // Update DVR Resolution
+    if (g_setting.wifi.enable) {
+        dvr_update_vi_conf(VR_1080P30);
+    }
 
     return page;
 }
