@@ -261,6 +261,9 @@ static void page_wifi_mask_password(lv_obj_t *obj, int size) {
 
 /**
  * Update settings and apply them.
+ *
+ *  Note: This function will be invoked asynchronously post bootup and may
+ *        require additional APP_STATE checks to ensure integrity of execution.
  */
 static void page_wifi_update_settings() {
     g_setting.wifi.enable = btn_group_get_sel(&page_wifi.page_1.enable.button) == 0;
@@ -304,7 +307,9 @@ static void page_wifi_update_settings() {
 
     // Activate WiFi interface
     if (g_setting.wifi.enable) {
-        dvr_update_vi_conf(VR_1080P30);
+        if (g_app_state == APP_STATE_MAINMENU) {
+            dvr_update_vi_conf(VR_1080P30);
+        }
         if (WIFI_MODE_AP == g_setting.wifi.mode) {
             system_script(WIFI_AP_ON);
         } else {
@@ -473,8 +478,8 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_2.gateway.input, LV_OBJ_FLAG_HIDDEN);
 
         if (page_wifi.page_1.mode.button.current == WIFI_MODE_AP ||
-                (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
-                page_wifi.page_2.dhcp.button.current == 1)) {
+            (page_wifi.page_1.mode.button.current == WIFI_MODE_STA &&
+             page_wifi.page_2.dhcp.button.current == 1)) {
             lv_obj_clear_state(page_wifi.page_2.netmask.label, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.netmask.input, STATE_DISABLED);
             lv_obj_clear_state(page_wifi.page_2.gateway.label, STATE_DISABLED);
