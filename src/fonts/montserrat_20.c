@@ -9300,9 +9300,7 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
     0xa5, 0xcf, 0x90, 0x0, 0x0, 0xf, 0xff, 0x90,
     0x0, 0x0, 0x0, 0x0, 0x3, 0xf9, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x3f, 0x90, 0x0, 0x0, 0x0,
-    0x0, 0x1, 0x84
-};
-
+    0x0, 0x1, 0x84};
 
 /*---------------------
  *  GLYPH DESCRIPTION
@@ -9994,23 +9992,20 @@ static const lv_font_fmt_txt_glyph_dsc_t glyph_dsc[] = {
     {.bitmap_index = 60413, .adv_w = 261, .box_w = 17, .box_h = 19, .ofs_x = -2, .ofs_y = -5},
     {.bitmap_index = 60575, .adv_w = 218, .box_w = 14, .box_h = 15, .ofs_x = -2, .ofs_y = -4},
     {.bitmap_index = 60680, .adv_w = 261, .box_w = 16, .box_h = 17, .ofs_x = 0, .ofs_y = -3},
-    {.bitmap_index = 60816, .adv_w = 212, .box_w = 13, .box_h = 14, .ofs_x = 0, .ofs_y = -3}
-};
+    {.bitmap_index = 60816, .adv_w = 212, .box_w = 13, .box_h = 14, .ofs_x = 0, .ofs_y = -3}};
 
 /*---------------------
  *  CHARACTER MAPPING
  *--------------------*/
 
 static const uint16_t unicode_list_0[] = {
-    0x0, 0xd
-};
+    0x0, 0xd};
 
 static const uint16_t unicode_list_3[] = {
     0x0, 0x3, 0x11, 0x12, 0x20, 0x21, 0x28, 0x35,
     0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d,
     0x3e, 0x3f, 0x44, 0x45, 0x55, 0x56, 0x57, 0x58,
-    0x59, 0x5a, 0x5b, 0x5c, 0x5f, 0x60
-};
+    0x59, 0x5a, 0x5b, 0x5c, 0x5f, 0x60};
 
 static const uint16_t unicode_list_5[] = {
     0x0, 0x1, 0xc, 0xd, 0xe, 0xf, 0x12, 0x13,
@@ -10020,70 +10015,31 @@ static const uint16_t unicode_list_5[] = {
     0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe8, 0xe9, 0xea,
     0xeb, 0xec, 0xed, 0xee, 0xf1, 0xf3, 0xf4, 0xfd,
     0x105, 0x106, 0x108, 0x109, 0x10a, 0x110, 0x113, 0x117,
-    0x118, 0x119, 0x11a, 0x176, 0x18b, 0x19e, 0x1a2
-};
+    0x118, 0x119, 0x11a, 0x176, 0x18b, 0x19e, 0x1a2};
 
 static const uint16_t unicode_list_7[] = {
-    0x0, 0x1, 0x8, 0x9, 0x10, 0x11, 0x12, 0x13
-};
+    0x0, 0x1, 0x8, 0x9, 0x10, 0x11, 0x12, 0x13};
 
 static const uint8_t glyph_id_ofs_list_10[] = {
     0, 1, 2, 3, 0, 0, 0, 0,
     0, 0, 4, 5, 6, 7, 0, 0,
     0, 0, 0, 0, 8, 9, 10, 11,
-    12, 13, 0, 0, 0, 0, 14, 15
-};
+    12, 13, 0, 0, 0, 0, 14, 15};
 
 /*Collect the unicode lists and glyph_id offsets*/
 static const lv_font_fmt_txt_cmap_t cmaps[] =
-{
     {
-        .range_start = 0, .range_length = 14, .glyph_id_start = 1,
-        .unicode_list = unicode_list_0, .glyph_id_ofs_list = NULL, .list_length = 2, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
-    },
-    {
-        .range_start = 32, .range_length = 95, .glyph_id_start = 3,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 160, .range_length = 224, .glyph_id_start = 98,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 399, .range_length = 97, .glyph_id_start = 322,
-        .unicode_list = unicode_list_3, .glyph_id_ofs_list = NULL, .list_length = 30, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
-    },
-    {
-        .range_start = 506, .range_length = 34, .glyph_id_start = 352,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 542, .range_length = 419, .glyph_id_start = 386,
-        .unicode_list = unicode_list_5, .glyph_id_ofs_list = NULL, .list_length = 63, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
-    },
-    {
-        .range_start = 1024, .range_length = 96, .glyph_id_start = 449,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 1122, .range_length = 20, .glyph_id_start = 545,
-        .unicode_list = unicode_list_7, .glyph_id_ofs_list = NULL, .list_length = 8, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
-    },
-    {
-        .range_start = 1162, .range_length = 59, .glyph_id_start = 553,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 1222, .range_length = 58, .glyph_id_start = 612,
-        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
-    },
-    {
-        .range_start = 1296, .range_length = 32, .glyph_id_start = 670,
-        .unicode_list = NULL, .glyph_id_ofs_list = glyph_id_ofs_list_10, .list_length = 32, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_FULL
-    }
-};
-
-
+        {.range_start = 0, .range_length = 14, .glyph_id_start = 1, .unicode_list = unicode_list_0, .glyph_id_ofs_list = NULL, .list_length = 2, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY},
+        {.range_start = 32, .range_length = 95, .glyph_id_start = 3, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 160, .range_length = 224, .glyph_id_start = 98, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 399, .range_length = 97, .glyph_id_start = 322, .unicode_list = unicode_list_3, .glyph_id_ofs_list = NULL, .list_length = 30, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY},
+        {.range_start = 506, .range_length = 34, .glyph_id_start = 352, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 542, .range_length = 419, .glyph_id_start = 386, .unicode_list = unicode_list_5, .glyph_id_ofs_list = NULL, .list_length = 63, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY},
+        {.range_start = 1024, .range_length = 96, .glyph_id_start = 449, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 1122, .range_length = 20, .glyph_id_start = 545, .unicode_list = unicode_list_7, .glyph_id_ofs_list = NULL, .list_length = 8, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY},
+        {.range_start = 1162, .range_length = 59, .glyph_id_start = 553, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 1222, .range_length = 58, .glyph_id_start = 612, .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY},
+        {.range_start = 1296, .range_length = 32, .glyph_id_start = 670, .unicode_list = NULL, .glyph_id_ofs_list = glyph_id_ofs_list_10, .list_length = 32, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_FULL}};
 
 /*--------------------
  *  ALL CUSTOM DATA
@@ -10091,7 +10047,7 @@ static const lv_font_fmt_txt_cmap_t cmaps[] =
 
 #if LVGL_VERSION_MAJOR == 8
 /*Store all the custom data of the font*/
-static  lv_font_fmt_txt_glyph_cache_t cache;
+static lv_font_fmt_txt_glyph_cache_t cache;
 #endif
 
 #if LVGL_VERSION_MAJOR >= 8
@@ -10113,8 +10069,6 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
 #endif
 };
 
-
-
 /*-----------------
  *  PUBLIC FONT
  *----------------*/
@@ -10125,10 +10079,10 @@ const lv_font_t montserrat_20 = {
 #else
 lv_font_t montserrat_20 = {
 #endif
-    .get_glyph_dsc = lv_font_get_glyph_dsc_fmt_txt,    /*Function pointer to get glyph's data*/
-    .get_glyph_bitmap = lv_font_get_bitmap_fmt_txt,    /*Function pointer to get glyph's bitmap*/
-    .line_height = 28,          /*The maximum line height required by the font*/
-    .base_line = 6,             /*Baseline measured from the bottom of the line*/
+    .get_glyph_dsc = lv_font_get_glyph_dsc_fmt_txt, /*Function pointer to get glyph's data*/
+    .get_glyph_bitmap = lv_font_get_bitmap_fmt_txt, /*Function pointer to get glyph's bitmap*/
+    .line_height = 28,                              /*The maximum line height required by the font*/
+    .base_line = 6,                                 /*Baseline measured from the bottom of the line*/
 #if !(LVGL_VERSION_MAJOR == 6 && LVGL_VERSION_MINOR == 0)
     .subpx = LV_FONT_SUBPX_NONE,
 #endif
@@ -10136,14 +10090,11 @@ lv_font_t montserrat_20 = {
     .underline_position = -2,
     .underline_thickness = 1,
 #endif
-    .dsc = &font_dsc,          /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
+    .dsc = &font_dsc, /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
 #if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
-    .fallback = NULL,
+    .fallback = &lv_font_montserrat_20,
 #endif
     .user_data = NULL,
 };
 
-
-
 #endif /*#if MONTSERRAT_20*/
-

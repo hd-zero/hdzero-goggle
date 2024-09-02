@@ -190,16 +190,16 @@ static void page_elrs_on_click(uint8_t key, int sel) {
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS)
-            lv_label_set_text(label_wifi_status, "#FF0000 FAILED#");
+            lv_label_set_text(label_wifi_status, _("failed"));
         else
-            lv_label_set_text(label_wifi_status, "#00FF00 Success#");
+            lv_label_set_text(label_wifi_status, _("success"));
     } else if (sel == POS_BIND) // start ESP bind
     {
         lv_label_set_text(label_bind_status, _("starting"));
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS) {
-            lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
+            lv_label_set_text(label_bind_status, _("failed"));
         } else {
             lv_label_set_text(label_bind_status, _("binding"));
             lv_obj_clear_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
@@ -210,17 +210,17 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             pthread_mutex_lock(&lvgl_mutex);
             switch (response) {
             case AWAIT_SUCCESS:
-                lv_label_set_text(label_bind_status, "#00FF00 Success#");
+                lv_label_set_text(label_bind_status, _("success"));
                 request_uid();
                 break;
             case AWAIT_TIMEDOUT:
-                lv_label_set_text(label_bind_status, "#FEBE00 Timeout#");
+                lv_label_set_text(label_bind_status, _("timeout"));
                 break;
             case AWAIT_FAILED:
-                lv_label_set_text(label_bind_status, "#FF0000 FAILED#");
+                lv_label_set_text(label_bind_status, _("failed"));
                 break;
             case AWAIT_CANCELLED:
-                lv_label_set_text(label_bind_status, "#FEBE00 Cancelled#");
+                lv_label_set_text(label_bind_status, _("cancelled"));
                 // repower the module and re-request binding info
                 disable_esp32();
                 if (g_setting.elrs.enable) {

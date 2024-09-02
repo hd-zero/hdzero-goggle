@@ -189,27 +189,27 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_select_item(arr, content);
 
     create_label_item(content, _("roller"), 1, ROLLER, 1);
-    pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[ROLLER], g_setting.inputs.roller);
 
     create_label_item(content, _("left_short"), 1, LEFT_SHORT, 1);
-    pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[LEFT_SHORT], g_setting.inputs.left_click);
 
     create_label_item(content, _("left_long"), 1, LEFT_LONG, 1);
-    pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[LEFT_LONG], g_setting.inputs.left_press);
 
     create_label_item(content, _("right_short"), 1, RIGHT_SHORT, 1);
-    pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_SHORT], g_setting.inputs.right_click);
 
     create_label_item(content, _("right_long"), 1, RIGHT_LONG, 1);
-    pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_LONG], g_setting.inputs.right_press);
 
     create_label_item(content, _("right_double"), 1, RIGHT_DOUBLE, 1);
-    pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &montserrat_26);
+    pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], g_setting.inputs.right_double_click);
 
     pageItems[BACK_BTN] = create_label_item(content, _("back"), 1, BACK_BTN, 1);

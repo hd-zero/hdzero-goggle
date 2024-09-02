@@ -84,7 +84,11 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 char *state2string(uint8_t status) {
-    return status ? "#00FF00 Detected#" : "#C0C0C0 Disconnected";
+    static char buf[32];
+    const char *translation = status ? _("detected") : _("disconnected");
+
+    snprintf(buf, sizeof(buf), "%s", translation);
+    return buf;
 }
 
 void source_status_timer() {
@@ -97,25 +101,25 @@ void source_status_timer() {
     ch = g_setting.scan.channel & 0x7F;
     if (g_setting.source.hdzero_band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
         if (ch <= 8) {
-            sprintf(buf, "HDZero: R%d", ch);
+            sprintf(buf, _("hdzero_r_channel"), ch);
         } else {
-            sprintf(buf, "HDZero: F%d", (ch - 8) * 2);
+            sprintf(buf, _("hdzero_f_channel"), (ch - 8) * 2);
         }
     } else {
         if (ch > 8) {
             g_setting.scan.channel = 1;
         }
-        sprintf(buf, "HDZero: L%d", ch);
+        sprintf(buf, _("hdzerp_l_channel"), ch);
     }
     lv_label_set_text(label[0], buf);
 
-    sprintf(buf, "HDMI In: %s", state2string(g_source_info.hdmi_in_status));
+    sprintf(buf, _("hdmi_in_string"), state2string(g_source_info.hdmi_in_status));
     lv_label_set_text(label[1], buf);
 
-    sprintf(buf, "AV In: %s", state2string(g_source_info.av_in_status));
+    sprintf(buf, _("av_id_string"), state2string(g_source_info.av_in_status));
     lv_label_set_text(label[2], buf);
 
-    sprintf(buf, "Expansion Module: %s", state2string(g_source_info.av_bay_status));
+    sprintf(buf, _("expansion_module_string"), state2string(g_source_info.av_bay_status));
     lv_label_set_text(label[3], buf);
 
     if (g_setting.storage.selftest && label[3]) {

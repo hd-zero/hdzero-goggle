@@ -301,28 +301,22 @@ static void flash_goggle() {
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 }
 
-void get_languages(char *buffer, size_t buffer_size) {
+void get_languages(char languages[MAX_LANGUAGES][MAX_LANGUAGE_NAME_LENGTH]) {
     const lv_i18n_language_pack_t *lang_pack = lv_i18n_language_pack;
-    size_t offset = 0;
-    int first = 1;
-    buffer[0] = '\0';
+    size_t language_index = 0;
 
-    while (*lang_pack != NULL) {
-        size_t name_length = strlen((*lang_pack)->locale_name);
-
-        if (!first) {
-            buffer[offset] = '\n';
-            offset++;
-        } else {
-            first = 0;
-        }
-
-        strcpy(buffer + offset, (*lang_pack)->locale_name);
-        offset += name_length;
-        lang_pack++;
+    // Initialize all entries to be empty strings
+    for (size_t i = 0; i < MAX_LANGUAGES; i++) {
+        languages[i][0] = '\0';
     }
 
-    buffer[offset] = '\0';
+    while (*lang_pack != NULL && language_index < MAX_LANGUAGES) {
+        strncpy(languages[language_index], (*lang_pack)->locale_name, MAX_LANGUAGE_NAME_LENGTH - 1);
+        languages[language_index][MAX_LANGUAGE_NAME_LENGTH - 1] = '\0'; // Ensure null-termination
+
+        language_index++;
+        lang_pack++;
+    }
 }
 
 static void set_language(char *lang) {
@@ -670,7 +664,7 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
                  "%s %s", title,
                  fw_select->alt_title ? fw_select->alt_title : fs_basename(fw_select->path));
     } else {
-        snprintf(text, sizeof(text), "%s %s", title, "not found");
+        snprintf(text, sizeof(text), "%s %s", title, _("not_found"));
     }
 
     page_version_fw_select_populate(fw_select);
@@ -680,12 +674,41 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
 }
 
 static lv_obj_t *create_language_dropdown_item(lv_obj_t *parent, int col, int row, int width, int height, int col_span, int pad_top, lv_grid_align_t column_align, const lv_font_t *font) {
-    char buffer[BUFFER_SIZE];
-    get_languages(buffer, sizeof(buffer));
+    char languages[MAX_LANGUAGES][MAX_LANGUAGE_NAME_LENGTH];
+    char buffer[MAX_LANGUAGES * (MAX_LANGUAGE_NAME_LENGTH + 1)];
+    int current_lang = 0;
+
+    get_languages(languages);
+
+    // getting the current language index
+    for (int i = 0; i < MAX_LANGUAGES; i++) {
+        if (languages[i][0] == '\0') {
+            break;
+        }
+        if (strcmp(languages[i], g_setting.language.lang) == 0) {
+            current_lang = i;
+            break;
+        }
+    }
+
+    // assembling a string to pass to the dropdown
+    buffer[0] = '\0';
+    for (int i = 0; i < MAX_LANGUAGES; i++) {
+        if (languages[i][0] == '\0') {
+            break;
+        }
+
+        strcat(buffer, languages[i]);
+
+        if (i + 1 < MAX_LANGUAGES && languages[i + 1][0] != '\0') {
+            strcat(buffer, "\n");
+        }
+    }
 
     lv_obj_t *obj = lv_dropdown_create(parent);
 
     lv_dropdown_set_options(obj, buffer);
+    lv_dropdown_set_selected(obj, current_lang);
     lv_obj_set_style_text_font(obj, font, 0);
     lv_obj_set_style_shadow_width(obj, 0, 0);
     lv_obj_set_style_pad_top(obj, pad_top, 0);
@@ -772,7 +795,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
     static lv_coord_t mbsbox_row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
     char text[256];
-    snprintf(text, sizeof(text), "Update %s", device);
+    snprintf(text, sizeof(text), _("update_device"), device);
 
     fw_select->flash = flash;
     fw_select->msgbox = create_msgbox_item(device, _("target:"));
@@ -811,6 +834,8 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
 }
 
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
+    pp_version.name = _("firmware");
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -821,7 +846,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, _("firmware"), LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("firmware:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -891,8 +916,8 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(label_note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
 
     page_version_fw_scan_for_updates();
-    page_version_fw_select_create("Goggle", &fw_select_goggle, flash_goggle);
-    page_version_fw_select_create("VTX", &fw_select_vtx, flash_vtx);
+    page_version_fw_select_create(_("goggle"), &fw_select_goggle, flash_goggle);
+    page_version_fw_select_create(_("VTX"), &fw_select_vtx, flash_vtx);
 
     return page;
 }
@@ -1050,7 +1075,7 @@ static void page_version_on_click(uint8_t key, int sel) {
                 lv_obj_clear_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
                 app_state_push(APP_STATE_USER_INPUT_DISABLED);
             } else {
-                lv_label_set_text(btn_reset_all_settings, "#FFFF00 click to confirm/scroll to cancel#");
+                lv_label_set_text(btn_reset_all_settings, _("confirmation"));
                 reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
             }
         } else if (sel == ROW_UPDATE_VTX) {
@@ -1127,7 +1152,7 @@ void update_current_version() {
         sys_version_t sys_version;
         generate_current_version(&sys_version);
         memset(strtmp, 0, sizeof(strtmp));
-        strcat(strtmp, "Current Version ");
+        strcat(strtmp, _("current_version"));
         strcat(strtmp, sys_version.current);
         lv_label_set_text(cur_ver_label, strtmp);
         bInit = false;

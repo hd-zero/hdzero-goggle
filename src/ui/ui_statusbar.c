@@ -118,7 +118,7 @@ int statusbar_init(void) {
         lv_obj_set_grid_cell(label[i], LV_GRID_ALIGN_CENTER, ((i + 1) * 2), 1, LV_GRID_ALIGN_CENTER, 0, 1);
     }
 
-    lv_label_set_text(label[STS_SDCARD], "SD Card                 ");
+    lv_label_set_text(label[STS_SDCARD], _("statusbar_sdcard"));
     lv_label_set_recolor(label[STS_SDCARD], true);
 
     sprintf(buf, "RF: HDZero %s", channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
@@ -133,6 +133,7 @@ int statusbar_init(void) {
 }
 
 void statubar_update(void) {
+    const char *translation;
     char buf[128];
     memset(buf, 0, sizeof(buf));
 
@@ -213,23 +214,29 @@ void statubar_update(void) {
             float gb = sdcard_free_size() / 1024.0;
             lv_img_set_src(img_sdc, &img_sdcard);
             if (cnt != 0) {
-                if (sdcard_is_full())
-                    sprintf(buf, "%d clip(s), SD Card full", cnt);
-                else
-                    sprintf(buf, "%d clip(s), %.2fGB available", cnt, gb);
+                if (sdcard_is_full()) {
+                    translation = _("statusbar_sdcard_full_clips");
+                    snprintf(buf, sizeof(buf), translation, cnt);
+                } else {
+                    translation = _("statusbar_sdcard_clips_and_available");
+                    snprintf(buf, sizeof(buf), translation, cnt, gb);
+                }
             } else {
-                if (sdcard_is_full())
-                    sprintf(buf, "#FF0000 SD Card full#");
-                else
-                    sprintf(buf, "%.2fGB available", gb);
+                if (sdcard_is_full()) {
+                    translation = _("statusbar_sdcard_full_data");
+                    snprintf(buf, sizeof(buf), "%s", translation);
+                } else {
+                    translation = _("statusbar_sdcard_available");
+                    snprintf(buf, sizeof(buf), translation, gb);
+                }
             }
         } else {
             lv_img_set_src(img_sdc, &img_noSdcard);
 
             if (sdcard_inserted()) {
-                sprintf(buf, "Unsupported");
+                snprintf(buf, sizeof(buf), "%s", _("statusbar_sdcard_unsupported"));
             } else {
-                sprintf(buf, "No SD Card");
+                snprintf(buf, sizeof(buf), "%s", _("statusbar_no_sdcard"));
             }
         }
 

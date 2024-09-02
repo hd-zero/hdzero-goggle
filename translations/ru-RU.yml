@@ -45,7 +45,7 @@ ru-RU:
   saturation: Насыщенность
   contrast: Контраст
   oled_auto_off: OLED авто выкл
-  adjust_osd_elements: Настройка элементов OSD
+  adjust_osd_elements: Настройка эл-тов OSD
   osd_orbit: OSD орбита
   min: Мин
   max: Макс
@@ -60,8 +60,8 @@ ru-RU:
   auto: Авто
   manual: Ручной
   cell_count: Кол-во ячеек
-  warning_cell_voltage: Предупреждение о низком напряжении ячейки
-  voltage_calibration: Калибровка напряжения
+  warning_cell_voltage: Предупрежд. низк. напряж.
+  voltage_calibration: Калибровка напряж.
   display_mode: Отображение
   total: Всего
   cell_average: Среднее
@@ -109,7 +109,7 @@ ru-RU:
   update_esp32: Обновить ESP32
   vtx_firmware: Прошивка VTX
   goggle_firmware: Прошивка очков
-  flashing: Прошивка...
+  flashing: Обновление...
   apply_settings: Применить настройки
   enable: Вкл
   mode: Режим
@@ -123,8 +123,8 @@ ru-RU:
   reset_all_elements(both_modes): Сброс всех элементов (оба режима)
   save_changes: Сохранить изменения
   cancel: Отмена
-  pos_x: Позиция X
-  pos_y: Позиция Y
+  pos_x: Поз.  X
+  pos_y: Поз. Y
   bad_file: Испорченный файл
   elrs_off: 'ELRS: Выкл'
   wifi_off: 'WiFi: Выкл'
@@ -213,30 +213,100 @@ ru-RU:
   format_sd_card_confirmation: >-
     Форматирование SD карты #FFFF00 Нажмите для подтверждения или прокрутите для
     отмены...#
-  repair_sd_card_process: 'Восстановление SD карты #FF0000 Ремонт...#'
+  repair_sd_card_process: 'Восстановление SD карты #FF0000 Восстановление...#'
   repair_sd_card_confirmation: >-
     Восстановление SD карты #FFFF00 Нажмите для подтверждения или прокрутите для
     отмены...#
-  'target:': 'Цель:'
+  'target:': 'Файл:'
   page_wifi_update_page_1_note: |
-    'Требования к паролю:
+    Требования к паролю:
         Минимум 8 символов, максимум 64 символа.
 
     Прямая трансляция:
         1. Подключитесь к WiFi-сети, указанной выше.
         2. Используйте VLC Player для открытия сетевого потока:
 
-                rtsp://%s:8554/hdzero'
+                rtsp://%s:8554/hdzero
       
   page_wifi_update_page_3_note: |
-    'Требования к паролю:
-        Минимум 8 символов, максимум 64 символа.'
+    Требования к паролю:
+        Минимум 8 символов, максимум 64 символа.
   ssid: SSID
   dhcp: DHCP
   address: Адрес
-  netmask: Маска подсети
+  netmask: Netmask
   gateway: Шлюз
   dns: DNS
   rf_channel: RF канал
   root_pw: Root PW
   ssh: SSH
+  statusbar_sdcard_full_clips: '%d клип(ов), карта заполнена'
+  statusbar_sdcard_clips_and_available: '%d клип(ов), %.2fGB доступно'
+  statusbar_sdcard_full_data: '#FF0000 карта заполнена'
+  statusbar_sdcard_available: '%.2fGB доступно'
+  statusbar_sdcard_unsupported: Не поддерживается
+  statusbar_no_sdcard: Нет SD карты
+  statusbar_sdcard: 'SD Карта                '
+  'element:': 'Элемент:'
+  not_found: не найдена
+  update_device: Обновить %s
+  'firmware:': 'Прошивка:'
+  confirmation: '#FFFF00 Нажмите для подтв./прокр. для отмены#'
+  sd_card_format_status: Статус форматирования SD карты
+  goggle: Очки
+  VTX: VTX
+  updating_clock: '#FF0000 Установка Времени...#'
+  elements_reset: '#00FF00 Элементы сброшены.#'
+  format_was_successfull: |
+    Форматирование прошло успешно.
+    Нажмите для выхода.
+  format_has_failed: |
+    Форматирование не удалось.
+    Нажмите для выхода.
+  insert_sd_card: |
+    Пожалуйста, вставьте SD-карту.
+    Нажмите для выхода.
+  failed_to_extract_results: |
+    Не удалось извлечь результаты.
+    Нажмите для выхода.
+  failed_to_access_results: |
+    Не удалось получить доступ к результатам.
+    Нажмите для выхода.
+  failed_to_generate_results: |
+    Не удалось сгенерировать результаты.
+    Нажмите для выхода.
+  failed_to_start_format: |
+    Не удалось начать форматирование.
+    Нажмите для выхода.
+  unsupported_status_code: |
+    Неподдерживаемый ответный код.
+    Нажмите для выхода.
+  filesystem_is_ok: |
+    Файловая система в порядке.
+    Нажмите для выхода.
+  filesystem_was_fixed: |
+    Файловая система была изменена и исправлена.
+    Нажмите для выхода.
+  failed_to_remount: |
+    Не удалось повторно смонтировать SD-карту.
+    Нажмите для выхода.
+  failed_to_start_repair: |
+    Не удалось начать восстановление.
+    Нажмите для выхода.
+  sd_card_repair_status: Статус восстановления SD карты
+  'storage:': 'Хранилище:'
+  wifi_ssid: 'WiFi: %s'
+  wifi_searching: 'WiFi: Поиск'
+  failed: '#FF0000 ПРОВАЛ#'
+  success: '#00FF00 Успешно#'
+  timeout: '#FEBE00 Таймаут#'
+  cancelled: '#FEBE00 Отмена#'
+  detected: '#00FF00 Обнаружен#'
+  disconnected: '#C0C0C0 Не подключен'
+  hdzero_r_channel: 'HDZero: R%d'
+  hdzero_f_channel: 'HDZero: F%d'
+  hdzerp_l_channel: 'HDZero: L%d'
+  hdmi_in_string: 'HDMI Вход: %s'
+  av_id_string: 'A/V Вход: %s'
+  expansion_module_string: 'Модуль расширения: %s'
+  set_clock_red: '#%02x0000 Установить время#'

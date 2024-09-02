@@ -283,32 +283,32 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
 
     switch (page_storage_format_sd()) {
     case FMC_SUCCESS:
-        snprintf(text, sizeof(text), "%s", "Format was successful.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("format_was_successfull"));
         break;
     case FMC_FAILURE:
-        snprintf(text, sizeof(text), "%s", "Format has failed.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("format_has_failed"));
         break;
     case FMC_ERR_SDCARD_NOT_INSERTED:
-        snprintf(text, sizeof(text), "%s", "Please insert a SD Card.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("insert_sd_card"));
         break;
     case FMC_ERR_RESULTS_NOT_EXTRACTED:
-        snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_extract_results"));
         break;
     case FMC_ERR_RESULTS_NOT_ACCESSIBLE:
-        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_access_results"));
         break;
     case FMC_ERR_RESULTS_FILE_MISSING:
-        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_generate_results"));
         break;
     case FMC_ERR_PROCESS_DID_NOT_START:
-        snprintf(text, sizeof(text), "%s", "Failed to start format.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_start_format"));
         break;
     default:
-        snprintf(text, sizeof(text), "%s", "Unsupported status code.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("unsupported_status_code"));
         break;
     }
 
-    page_storage_open_status_box("SD Card Format Status", text);
+    page_storage_open_status_box(_("sd_card_format_status"), text);
     page_storage_cancel();
 }
 
@@ -319,35 +319,35 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     char text[128];
     switch (page_storage_repair_sd()) {
     case RPC_SUCCESS_NO_CHANGES:
-        snprintf(text, sizeof(text), "%s", "Filesystem is OK.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("filesystem_is_ok"));
         break;
     case RPC_SUCCESS_CARD_FIXED:
-        snprintf(text, sizeof(text), "%s", "Filesystem was modified and fixed.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("filesystem_was_fixed"));
         break;
     case RPC_ERR_SDCARD_NOT_INSERTED:
-        snprintf(text, sizeof(text), "%s", "Please insert a SD Card.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("insert_sd_card"));
         break;
     case RPC_ERR_RESULTS_NOT_EXTRACTED:
-        snprintf(text, sizeof(text), "%s", "Failed to extract results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_extract_results"));
         break;
     case RPC_ERR_RESULTS_NOT_ACCESSIBLE:
-        snprintf(text, sizeof(text), "%s", "Failed to access results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_access_results"));
         break;
     case RPC_ERR_FAILED_TO_REMOUNT_CARD:
-        snprintf(text, sizeof(text), "%s", "Failed to remount SD Card.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_remount"));
         break;
     case RPC_ERR_RESULTS_FILE_MISSING:
-        snprintf(text, sizeof(text), "%s", "Failed to generate results.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_generate_results"));
         break;
     case RPC_ERR_PROCESS_DID_NOT_START:
-        snprintf(text, sizeof(text), "%s", "Failed to start repair.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("failed_to_start_repair"));
         break;
     default:
-        snprintf(text, sizeof(text), "%s", "Unsupported status code.\nPress click to exit.");
+        snprintf(text, sizeof(text), "%s", _("unsupported_status_code"));
         break;
     }
 
-    page_storage_open_status_box("SD Card Repair Status", text);
+    page_storage_open_status_box(_("sd_card_repair_status"), text);
     page_storage_cancel();
 }
 
@@ -367,7 +367,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, _("storage"), LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("storage:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);

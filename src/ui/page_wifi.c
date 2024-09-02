@@ -340,6 +340,7 @@ static const char *page_wifi_get_real_address() {
  * Updates the all notes on every page.
  */
 static void page_wifi_update_page_1_notes() {
+    const char *translation = _("page_wifi_update_page_1_note");
     const char *address = page_wifi_get_real_address();
 
     if (btn_group_get_sel(&page_wifi.page_1.mode.button) == WIFI_MODE_STA &&
@@ -349,14 +350,16 @@ static void page_wifi_update_page_1_notes() {
     }
 
     static char buffer[1024];
-    snprintf(buffer, sizeof(buffer), _("page_wifi_update_page_1_note"), address ? address : page_wifi.page_2.ip_addr.text);
+    snprintf(buffer, sizeof(buffer), translation, address ? address : page_wifi.page_2.ip_addr.text);
 
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
 
 static void page_wifi_update_page_3_notes() {
+    const char *translation = _("page_wifi_update_page_3_note");
+
     static char buffer[1024];
-    snprintf(buffer, sizeof(buffer), _("page_wifi_update_page_3_note"));
+    snprintf(buffer, sizeof(buffer), "%s", translation);
 
     lv_label_set_text(page_wifi.page_3.note, buffer);
 }
@@ -624,7 +627,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi.page_1.back = create_label_item(parent, _("back"), 1, 6, 3);
 
     page_wifi.page_1.note = lv_label_create(parent);
-    lv_obj_set_style_text_font(page_wifi.page_1.note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(page_wifi.page_1.note, &montserrat_16, 0);
     lv_obj_set_style_text_align(page_wifi.page_1.note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(page_wifi.page_1.note, 12, 0);
@@ -672,7 +675,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
     page_wifi.page_3.note = lv_label_create(parent);
-    lv_obj_set_style_text_font(page_wifi.page_3.note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(page_wifi.page_3.note, &montserrat_16, 0);
     lv_obj_set_style_text_align(page_wifi.page_3.note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(page_wifi.page_3.note, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(page_wifi.page_3.note, 12, 0);
@@ -1126,17 +1129,17 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
     if (g_setting.wifi.enable) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_AP:
-            snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
+            snprintf(buffer, size, _("wifi_ssid"), g_setting.wifi.ssid[WIFI_MODE_AP]);
             break;
         case WIFI_MODE_STA:
             if (page_wifi_get_real_address()) {
-                snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
+                snprintf(buffer, size, _("wifi_ssid"), g_setting.wifi.ssid[WIFI_MODE_STA]);
             } else {
-                snprintf(buffer, size, "WiFi: Searching");
+                snprintf(buffer, size, "%s", _("wifi_searching"));
             }
             break;
         }
     } else {
-        snprintf(buffer, size, "WiFi: Off");
+        snprintf(buffer, size, "%s", _("wifi_off"));
     }
 }

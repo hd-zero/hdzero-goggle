@@ -1,6 +1,6 @@
 en-GB:
-  source: 'Source:'
-  auto_scan: Auto scan
+  source: Source
+  auto_scan: Auto Scan
   'on': 'On'
   last: Last
   'off': 'Off'
@@ -10,107 +10,107 @@ en-GB:
   av_in: AV in
   hdmi_in: HDMI in
   back: < Back
-  set_clock: Set clock
+  set_clock: Set Clock
   clock: Clock
   format: Format
   24_hour: 24 hour
   send_vtx: Send VTX
-  click_to_start: Click to scan
+  click_to_start: Click to start
   bind: Bind
-  starting: Starting
+  starting: Starting...
   binding: Binding
   fans: Fans
-  auto_control: Auto control
-  top_fan: Top fan
-  side_fans: Side fans
-  set_alarm_angle: Set alarm angle
+  auto_control: Auto Control
+  top_fan: Top Fan
+  side_fans: Side Fans
+  set_alarm_angle: Set Alarm Angle
   head_tracker: Head tracker
   page: Page
   tracking: Tracking
-  tilt_alarm: Tilt alarm
+  tilt_alarm: Tilt Alarm
   alarm: Alarm
   video: Video
   arm: Arm
   calibrate: Calibrate
-  set_center: Set center
-  max_angle: Max angle
+  set_center: Set Center
+  max_angle: Max Angle
   pan: Pan
   tilt: Tilt
   roll: Roll
   calibrating: Calibrating...
-  re_calibrating: Re-calibrating
-  updating_angle: Updating angle...
+  re_calibrating: Re-Calibrate
+  updating_angle: Updating Angle...
   oled: OLED
   brightness: Brightness
   saturation: Saturation
   contrast: Contrast
-  oled_auto_off: Oled auto off
-  adjust_osd_elements: Adjust osd elements
-  osd_orbit: OSD orbit
+  oled_auto_off: Oled Auto off
+  adjust_osd_elements: Adjust OSD Elements
+  osd_orbit: OSD Orbit
   min: Min
   max: Max
-  osd_mode: OSD mode
-  at_startup: At startup
+  osd_mode: OSD Mode
+  at_startup: At Startup
   show: Show
   hide: Hide
   playback: Playback
   power: Power
   battery: Battery
-  cell_count_mode: Cell count mode
+  cell_count_mode: Cell Count Mode
   auto: Auto
   manual: Manual
   cell_count: Cell count
-  warning_cell_voltage: Warning cell voltage
-  voltage_calibration: Voltage calibration
-  display_mode: Display mdoe
+  warning_cell_voltage: Warning Cell Voltage
+  voltage_calibration: Voltage Calibration
+  display_mode: Display Mode
   total: Total
-  cell_average: Cell average
-  warning_type: Warning type
+  cell_average: Cell avg.
+  warning_type: Warning Type
   beep: Beep
   visual: Visual
   both: Both
   analogrx_power: AnalogRX power
-  record_mode: Record mode
-  record_format: Record format
+  record_mode: Record Mode
+  record_format: Record Format
   record_osd: Record OSD
   'yes': 'Yes'
   'no': 'No'
-  record_audio: Record audio
+  record_audio: Record Audio
   audio_source: Audio Source
   mic: Mic
   line_in: Line in
   a/v_in: A/V in
-  naming_scheme: Naming scheme
+  naming_scheme: Naming Scheme
   digits: Digits
   date: Date
   scan_ready: Scan ready
-  scanning: Scanning
+  scanning: Scanning...
   scanning_done: Scanning done
   scanning_ready: Scanning ready
-  go_sleep: Go sleep
-  expansion_module: Expansion module
-  analog_video: Analog video
-  hdzero_band: HDZero band
+  go_sleep: Go Sleep!
+  expansion_module: Expansion Module
+  analog_video: Analog Video
+  hdzero_band: HDZero Band
   raceband: Raceband
   lowband: Lowband
   hdzero_bw: HDZero BW
   wide: Wide
   narrow: Narrow
   oled_pattern_normal: OLED pattern normal
-  format_sd_card: Format SD card
-  repair_sd_card: Repair SD card
+  format_sd_card: Format SD Card
+  repair_sd_card: Repair SD Card
   storage: Storage
   logging: Logging
   firmware: Firmware
-  current_version: Current version
+  current_version: Current Version
   reset_all_settings: Reset all settings
   update_vtx: Update VTX
-  update_goggle: Update goggle
+  update_goggle: Update Goggle
   update_esp32: Update ESP32
   vtx_firmware: VTX firmware
   goggle_firmware: Goggle firmware
   flashing: Flashing...
-  apply_settings: Apply settings
+  apply_settings: Apply Settings
   enable: Enable
   mode: Mode
   host: Host
@@ -150,14 +150,14 @@ en-GB:
   osd: OSD
   scannow: Scan now
   wifi: WiFi
-  'auto_scan:': 'Auto scan:'
+  'auto_scan:': 'Auto Scan:'
   autoscan_page_notice: '*if Auto Scan is ''Last'', goggles will default to show last tuned channel'
   'clock:': 'Clock:'
   clock_page_note: '*Battery not installed or clock not configured'
   'elrs:': ELRS
   'fans:': 'Fans:'
-  focus_chart: Focus chart
-  'focus_chart:': 'Focus chart:'
+  focus_chart: Focus Chart
+  'focus_chart:': 'Focus Chart:'
   focus_chart_page_note: |
     Click the Enter Button to display the Back Focusing Chart.
     Click the Enter Button again to exit
@@ -190,7 +190,7 @@ en-GB:
     When scanning is complete, use the
     dial to select a channel and press
     the Enter button to choose
-  go_sleep!: Go sleep!
+  go_sleep!: 'Go Sleep:'
   go_sleep_page_note: |
     Click the Enter Button to go sleep.
     Click any button to exit sleep mode.
@@ -207,26 +207,26 @@ en-GB:
   release_notes: Release notes
   empty: Empty
   'image_settings:': 'Image settings:'
-  record_options: Record options
-  'record_options:': 'Record options:'
+  record_options: Record Options
+  'record_options:': 'Record Options:'
   format_sd_card_process: 'Format SD Card #FF0000 Formatting...#'
   format_sd_card_confirmation: 'Format SD Card #FFFF00 Click to confirm or Scroll to cancel...#'
   repair_sd_card_process: 'Repair SD Card #FF0000 Repairing...#'
   repair_sd_card_confirmation: 'Repair SD Card #FFFF00 Click to confirm or Scroll to cancel...#'
   'target:': 'Target:'
   page_wifi_update_page_1_note: |
-    'Password Requirements:
+    Password Requirements:
         Minimum 8 characters, maximum 64 characters.
 
     Live Stream:
         1.  Connect to the WiFi network identified above.
         2. Use VLC Player to open a Network Stream:
 
-                rtsp://%s:8554/hdzero'
+                rtsp://%s:8554/hdzero
         
   page_wifi_update_page_3_note: |
-    'Password Requirements:
-        Minimum 8 characters, maximum 64 characters.'
+    Password Requirements:
+        Minimum 8 characters, maximum 64 characters.
   ssid: SSID
   dhcp: DHCP
   address: Address
@@ -236,3 +236,73 @@ en-GB:
   rf_channel: RF Channel
   root_pw: Root PW
   ssh: SSH
+  statusbar_sdcard_full_clips: '%d clip(s), SD Card full'
+  statusbar_sdcard_clips_and_available: '%d clip(s), %.2fGB available'
+  statusbar_sdcard_full_data: '#FF0000 SD Card full#'
+  statusbar_sdcard_available: '%.2fGB available'
+  statusbar_sdcard_unsupported: Unsupported
+  statusbar_no_sdcard: No SD Card
+  statusbar_sdcard: 'SD Card                 '
+  'element:': 'Element: '
+  not_found: not found
+  update_device: Update %s
+  'firmware:': 'Firmware:'
+  confirmation: '#FFFF00 Click to confirm or Scroll to cancel...#'
+  sd_card_format_status: SD Card Format Status
+  goggle: Очки
+  VTX: VTX
+  updating_clock: '#FF0000 Updating Clock...#'
+  elements_reset: '#00FF00 Elements reset.#'
+  format_was_successfull: |
+    Format was successful.
+    Press click to exit.
+  format_has_failed: |
+    Format has failed.
+    Press click to exit.
+  insert_sd_card: |
+    Please insert a SD Card.
+    Press click to exit.
+  failed_to_extract_results: |
+    Failed to extract results.
+    Press click to exit.
+  failed_to_access_results: |
+    Failed to access results.
+    Press click to exit.
+  failed_to_generate_results: |
+    Failed to generate results.
+    Press click to exit.
+  failed_to_start_format: |
+    Failed to start format.
+    Press click to exit.
+  unsupported_status_code: |
+    Unsupported status code.
+    Press click to exit.
+  filesystem_is_ok: |
+    Filesystem is OK.
+    Press click to exit.
+  filesystem_was_fixed: |
+    Filesystem was modified and fixed.
+    Press click to exit.
+  failed_to_remount: |
+    Failed to remount SD Card.
+    Press click to exit.
+  failed_to_start_repair: |
+    Failed to start repair.
+    Press click to exit.
+  sd_card_repair_status: SD Card Repair Status
+  'storage:': 'Storage:'
+  wifi_ssid: 'WiFi: %s'
+  wifi_searching: 'WiFi: Searcing'
+  failed: '#FF0000 FAILED#'
+  success: '#00FF00 Success#'
+  timeout: '#FEBE00 Timeout#'
+  cancelled: '#FEBE00 Cancelled#'
+  detected: '#00FF00 Detected#'
+  disconnected: '#C0C0C0 Disconnected'
+  hdzero_r_channel: 'HDZero: R%d'
+  hdzero_f_channel: 'HDZero: F%d'
+  hdzerp_l_channel: 'HDZero: L%d'
+  hdmi_in_string: 'HDMI In: %s'
+  av_id_string: 'AV In: %s'
+  expansion_module_string: 'Expansion Module: %s'
+  set_clock_red: '#%02x0000 Set Clock#'

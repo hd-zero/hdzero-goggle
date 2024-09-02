@@ -288,7 +288,7 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
         static int dir = 20;
         static char text[128];
         static uint8_t red = 150;
-        snprintf(text, sizeof(text), "#%02x0000 Set Clock#", red);
+        snprintf(text, sizeof(text), _("set_clock_red"), red);
         lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, text);
         if (red >= 250) {
             dir = -20;
@@ -516,12 +516,12 @@ static void page_clock_on_click(uint8_t key, int sel) {
         break;
     case ITEM_SET_CLOCK:
         if (page_clock_set_clock_confirm) {
-            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "#FF0000 Updating Clock...#");
+            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, _("updating_clock"));
             page_clock_set_clock_timer = lv_timer_create(page_clock_set_clock_timer_cb, 1000, NULL);
             lv_timer_set_repeat_count(page_clock_set_clock_timer, 1);
             page_clock_set_clock_confirm = 2;
         } else {
-            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "#FFFF00 Click to confirm or Scroll to cancel...#");
+            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, _("confirmation"));
             page_clock_set_clock_confirm = 1;
         }
         break;

@@ -15,7 +15,6 @@ extern "C" {
 
 #define MAX_LANGUAGES            32
 #define MAX_LANGUAGE_NAME_LENGTH 6
-#define BUFFER_SIZE              (MAX_LANGUAGES * (MAX_LANGUAGE_NAME_LENGTH + 1)) // Buffer size for the concatenated string
 
 typedef struct {
     uint8_t rx;
@@ -34,7 +33,7 @@ void process_bar_update(const int value0, const int value1);
 void bar_update(int sel, int value);
 void version_update_title();
 
-void get_languages(char *buffer, size_t buffer_size);
+void get_languages(char locales[MAX_LANGUAGES][MAX_LANGUAGE_NAME_LENGTH]);
 
 int generate_current_version(sys_version_t *sys_ver);
 
