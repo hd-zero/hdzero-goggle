@@ -2,6 +2,7 @@
 /mnt/app/app/record/gogglecmd -live quit
 sleep 1
 killall rtspLive
+killall wpa_supplicant
 killall hostapd
 killall udhcpd
 killall dropbear

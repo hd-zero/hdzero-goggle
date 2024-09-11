@@ -1,8 +1,8 @@
 #pragma once
 
-#define DIAL_SENSITIVITY 1    // number of clicks before dial event is triggered
+#define DIAL_SENSITIVITY           1    // number of clicks before dial event is triggered
 #define DIAL_SENSITIVTY_TIMEOUT_MS 1000 // ms
-#define CHANNEL_SHOWTIME 30 // must <= 127
+#define CHANNEL_SHOWTIME           30   // must <= 127
 
 #define GPIO_BEEP 131
 
@@ -20,8 +20,9 @@
 #define DEV_SPI_VRX_L     "/dev/mtd9"
 #define DEV_SPI_VA        "/dev/mtd10"
 
-#define SELF_TEST_FILE "/mnt/extsd/self_test.txt"
-#define NO_DIAL_FILE   "/mnt/extsd/no_dial.txt"
-#define APP_LOG_FILE   "/mnt/extsd/HDZGOGGLE.log"
-#define APP_BIN_FILE   "/mnt/extsd/HDZGOGGLE"
-#define DEVELOP_SCRIPT "/mnt/extsd/develop.sh"
+#define SELF_TEST_FILE    "/mnt/extsd/self_test.txt"
+#define NO_DIAL_FILE      "/mnt/extsd/no_dial.txt"
+#define APP_LOG_FILE      "/mnt/extsd/HDZGOGGLE.log"
+#define APP_BIN_FILE      "/mnt/extsd/HDZGOGGLE"
+#define DEVELOP_SCRIPT    "/mnt/extsd/develop.sh"
+#define MAC_OVERRIDE_FILE "/mnt/extsd/macaddr.txt"
