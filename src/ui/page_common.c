@@ -143,7 +143,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_style_text_font(slider_group->name, font, 0);
     lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(slider_group->name, lv_font_get_line_height(font) >> 1, 0);
-    // lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_size(slider_group->name, 200, 40);
     lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
@@ -179,7 +179,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_style_text_font(slider_group->label, font, 0);
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(slider_group->label, lv_font_get_line_height(font) >> 1, 0);
-    // lv_label_set_long_mode(slider_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_long_mode(slider_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_size(slider_group->label, 160, 40);
     lv_obj_set_grid_cell(slider_group->label, LV_GRID_ALIGN_START, 4, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);

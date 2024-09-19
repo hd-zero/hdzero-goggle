@@ -87,7 +87,6 @@ ru-RU:
   scanning: Сканирование...
   scanning_done: Сканирование завершено
   scanning_ready: Сканирование готово
-  go_sleep: Сон
   expansion_module: Модуль расширения
   analog_video: Аналог
   hdzero_band: HDZero band
@@ -116,7 +115,6 @@ ru-RU:
   host: Хост
   client: Клиент
   password: Пароль
-  wifi_module: WiFi модуль
   basic: Базовый
   advanced: Расшир.
   system: Система
@@ -138,7 +136,6 @@ ru-RU:
   start_dvr: Запись DVR
   change_fan_speed: Изменить скорость куллера
   oled_brightness: Яркость OLED
-  inputs: Вводы
   elrs: ELRS
   input: Ввод
   record_options: Запись / DVR
@@ -310,3 +307,7 @@ ru-RU:
   av_id_string: 'A/V Вход: %s'
   expansion_module_string: 'Модуль расширения: %s'
   set_clock_red: '#%02x0000 Установить время#'
+  go_sleep: Сон
+  'head_tracker:': 'Трекинг:'
+  'inputs:': 'Ввод:'
+  'wifi_module:': 'WiFi модуль:'

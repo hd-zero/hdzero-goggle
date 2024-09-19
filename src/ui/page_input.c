@@ -174,7 +174,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
 
-    create_text(NULL, section, false, _("inputs"), LV_MENU_ITEM_BUILDER_VARIANT_2);
+    create_text(NULL, section, false, _("inputs:"), LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *content = lv_obj_create(section);
     lv_obj_set_size(content, contentWidth, contentHeight);

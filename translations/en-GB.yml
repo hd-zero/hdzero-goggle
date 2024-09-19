@@ -87,7 +87,6 @@ en-GB:
   scanning: Scanning...
   scanning_done: Scanning done
   scanning_ready: Scanning ready
-  go_sleep: Go Sleep!
   expansion_module: Expansion Module
   analog_video: Analog Video
   hdzero_band: HDZero Band
@@ -116,7 +115,6 @@ en-GB:
   host: Host
   client: Client
   password: Password
-  wifi_module: WiFi module
   basic: Basic
   advanced: Advanced
   system: System
@@ -130,7 +128,6 @@ en-GB:
   wifi_off: 'WiFi: Off'
   integrity_check: Integrity check
   elrs_on: 'ELRS: On'
-  inputs: Inputs
   main_menu: Main Menu
   toggle_OSD: Toggle OSD
   center_ht: Center HT
@@ -154,7 +151,7 @@ en-GB:
   autoscan_page_notice: '*if Auto Scan is ''Last'', goggles will default to show last tuned channel'
   'clock:': 'Clock:'
   clock_page_note: '*Battery not installed or clock not configured'
-  'elrs:': ELRS
+  'elrs:': 'ELRS:'
   'fans:': 'Fans:'
   focus_chart: Focus Chart
   'focus_chart:': 'Focus Chart:'
@@ -190,7 +187,7 @@ en-GB:
     When scanning is complete, use the
     dial to select a channel and press
     the Enter button to choose
-  go_sleep!: 'Go Sleep:'
+  go_sleep!: Go Sleep!
   go_sleep_page_note: |
     Click the Enter Button to go sleep.
     Click any button to exit sleep mode.
@@ -306,3 +303,7 @@ en-GB:
   av_id_string: 'AV In: %s'
   expansion_module_string: 'Expansion Module: %s'
   set_clock_red: '#%02x0000 Set Clock#'
+  go_sleep: Go Sleep
+  'head_tracker:': 'Head Tracker:'
+  'inputs:': 'Inputs:'
+  'wifi_module:': 'WiFi Module:'
