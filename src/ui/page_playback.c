@@ -24,7 +24,6 @@
 #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 bool status_displayed = false;
 lv_obj_t *status;
-int confirm_delete = -1;
 LV_IMG_DECLARE(img_star);
 LV_IMG_DECLARE(img_arrow1);
 
@@ -429,12 +428,6 @@ void pb_key(uint8_t const key) {
     char fname[128];
     uint32_t cur_page_num, lst_page_num;
     uint8_t cur_pos, lst_pos;
-
-    // LOGI("onkey:Key=%d,Count=%d",key,media_db.count);
-    // if (status_displayed && key == DIAL_KEY_CLICK) {
-    //     delete_video_file(media_db.cur_sel);
-    //     page_playback_close_status_box();
-    // }
 
     if (state == 1) {
         if (mplayer_on_key(key)) {
