@@ -21,8 +21,7 @@
 #include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
-#define MEDIA_FILES_DIR "/mnt/extsd/movies/"
-// #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
+#define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
 bool status_displayed = false;
 lv_obj_t *status;
 int confirm_delete = -1;
