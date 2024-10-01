@@ -127,7 +127,7 @@ const setting_t g_setting_defaults = {
             // OSD_GOGGLE_CHANNEL
             {
                 .show = true,
-                .position = {.mode_4_3 = {.x = 540, .y = 0}, .mode_16_9 = {.x = 540, .y = 0}},
+                .position = {.mode_4_3 = {.x = 580, .y = 0}, .mode_16_9 = {.x = 580, .y = 0}},
             },
             // OSD_GOGGLE_SD_REC
             {

@@ -52,19 +52,19 @@ void battery_get_voltage_str(char *buf) {
     default:
     case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL: {
         int bat_mv = battery_get_millivolts(false);
-        sprintf(buf, "%dS %d.%dV",
+        sprintf(buf, "%dS %d.%02dV",
                 g_battery.type,
                 bat_mv / 1000,
-                bat_mv % 1000 / 100);
+                bat_mv % 1000 / 10);
         break;
     }
 
     case SETTING_POWER_OSD_DISPLAY_MODE_CELL: {
         int bat_mv = battery_get_millivolts(true);
-        sprintf(buf, "%dS %d.%dV/C",
+        sprintf(buf, "%dS %d.%02dV/C",
                 g_battery.type,
                 bat_mv / 1000,
-                bat_mv % 1000 / 100);
+                bat_mv % 1000 / 10);
         break;
     }
     }
