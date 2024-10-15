@@ -32,7 +32,7 @@ const setting_t g_setting_defaults = {
         .source = SETTING_AUTOSCAN_SOURCE_HDZERO,
     },
     .power = {
-        .voltage = 35,
+        .voltage = 3500,
         .display_voltage = true,
         .warning_type = SETTING_POWER_WARNING_TYPE_BOTH,
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
