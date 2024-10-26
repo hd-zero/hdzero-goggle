@@ -22,6 +22,7 @@
 #include "util/math.h"
 #include "util/system.h"
 #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
+// #define MEDIA_FILES_DIR "/mnt/extsd/movies/"--Useful for testing playback page
 bool status_displayed = false;
 lv_obj_t *status;
 LV_IMG_DECLARE(img_star);
@@ -444,6 +445,10 @@ void pb_key(uint8_t const key) {
     done = false;
     switch (key) {
     case DIAL_KEY_UP: // up
+        if (status_displayed) {
+            page_playback_close_status_box();
+            break;
+        }
         lst_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
         lst_pos = media_db.cur_sel - lst_page_num * ITEMS_LAYOUT_CNT;
 
@@ -464,6 +469,10 @@ void pb_key(uint8_t const key) {
         break;
 
     case DIAL_KEY_DOWN: // down
+        if (status_displayed) {
+            page_playback_close_status_box();
+            break;
+        }
         lst_page_num = (uint32_t)floor((double)media_db.cur_sel / ITEMS_LAYOUT_CNT);
         lst_pos = media_db.cur_sel - lst_page_num * ITEMS_LAYOUT_CNT;
 
@@ -509,8 +518,8 @@ void pb_key(uint8_t const key) {
 
     case RIGHT_KEY_PRESS:
         if (!status_displayed) {
-            snprintf(text, sizeof(text), "%s", "Click to continue.\nPress function to exit.");
-            page_playback_open_status_box("Are you sure you want to Delete the file", text);
+            snprintf(text, sizeof(text), "%s", "Click center of dial to continue.\nClick function(right button) or scroll to exit.");
+            page_playback_open_status_box("Are you sure you want to DELETE the file", text);
             status_deleting = true;
         } else {
             page_playback_close_status_box();
