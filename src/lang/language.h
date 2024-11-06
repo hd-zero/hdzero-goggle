@@ -3,9 +3,12 @@
 
 #include <lvgl/lvgl.h>
 
+#define TRANSLATE_STRING_NUM 18
+
 typedef enum {
     lang_english = 0,
-    lang_simplified_chinese = 1,
+    lang_simplified_chinese,
+    lang_end,
 } lang_e;
 
 typedef struct {

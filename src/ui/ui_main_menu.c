@@ -10,7 +10,7 @@
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
-#include "fonts/language.h"
+#include "lang/language.h"
 #include "ui/page_autoscan.h"
 #include "ui/page_clock.h"
 #include "ui/page_common.h"
