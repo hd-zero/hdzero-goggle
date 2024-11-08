@@ -95,6 +95,8 @@ static const action_t* actionFromId(const action_t * const actions, size_t size,
 
     return NULL;
 }
+static const action_t* btnActionFromId(uint16_t id) { return actionFromId(btnActions, ARRAY_SIZE(btnActions), id); }
+static const action_t* rollerActionFromId(uint16_t id) { return actionFromId(rollerActions, ARRAY_SIZE(rollerActions), id); }
 
 /**
  * Get the array index of the action that has the given id.
@@ -102,6 +104,8 @@ static const action_t* actionFromId(const action_t * const actions, size_t size,
 static size_t indexFromId(const action_t * const actions, size_t size, uint16_t id) {
     return actionFromId(actions, size, id) - actions;
 }
+static size_t btnIndexFromId(uint16_t id) { return indexFromId(btnActions, ARRAY_SIZE(btnActions), (id)); }
+static size_t rollerIndexFromId(uint16_t id) { return indexFromId(rollerActions, ARRAY_SIZE(rollerActions), (id)); }
 
 /**
  * Update the UI elements as the user navigates the page
@@ -116,12 +120,12 @@ static void reset_dropdown_styles() {
  * Pick the associated function pointers for the globally configured actions
  */
 static void update_inputs() {
-    roller_callback = actionFromId(rollerActions, ARRAY_SIZE(rollerActions), g_setting.inputs.roller)->functionPtr.rollerFunction;
-    btn_click_callback = actionFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.left_click)->functionPtr.btnFunction;
-    btn_press_callback = actionFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.left_press)->functionPtr.btnFunction;
-    rbtn_click_callback = actionFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_click)->functionPtr.btnFunction;
-    rbtn_press_callback = actionFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_press)->functionPtr.btnFunction;
-    rbtn_double_click_callback = actionFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_double_click)->functionPtr.btnFunction;
+    roller_callback = rollerActionFromId(g_setting.inputs.roller)->functionPtr.rollerFunction;
+    btn_click_callback = btnActionFromId(g_setting.inputs.left_click)->functionPtr.btnFunction;
+    btn_press_callback = btnActionFromId(g_setting.inputs.left_press)->functionPtr.btnFunction;
+    rbtn_click_callback = btnActionFromId(g_setting.inputs.right_click)->functionPtr.btnFunction;
+    rbtn_press_callback = btnActionFromId(g_setting.inputs.right_press)->functionPtr.btnFunction;
+    rbtn_double_click_callback = btnActionFromId(g_setting.inputs.right_double_click)->functionPtr.btnFunction;
 }
 
 /**
@@ -227,27 +231,27 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_label_item(content, "Roller:", 1, ROLLER, 1);
     pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[ROLLER], indexFromId(rollerActions, ARRAY_SIZE(rollerActions), g_setting.inputs.roller));
+    lv_dropdown_set_selected(pageItems[ROLLER], rollerIndexFromId(g_setting.inputs.roller));
 
     create_label_item(content, "Left short:", 1, LEFT_SHORT, 1);
     pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_SHORT], indexFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.left_click));
+    lv_dropdown_set_selected(pageItems[LEFT_SHORT], btnIndexFromId(g_setting.inputs.left_click));
 
     create_label_item(content, "Left long:", 1, LEFT_LONG, 1);
     pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_LONG], indexFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.left_press));
+    lv_dropdown_set_selected(pageItems[LEFT_LONG], btnIndexFromId(g_setting.inputs.left_press));
 
     create_label_item(content, "Right short:", 1, RIGHT_SHORT, 1);
     pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], indexFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_click));
+    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], btnIndexFromId(g_setting.inputs.right_click));
 
     create_label_item(content, "Right long:", 1, RIGHT_LONG, 1);
     pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_LONG], indexFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_press));
+    lv_dropdown_set_selected(pageItems[RIGHT_LONG], btnIndexFromId(g_setting.inputs.right_press));
 
     create_label_item(content, "Right double:", 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], indexFromId(btnActions, ARRAY_SIZE(btnActions), g_setting.inputs.right_double_click));
+    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], btnIndexFromId(g_setting.inputs.right_double_click));
 
     pageItems[BACK_BTN] = create_label_item(content, "< Back", 1, BACK_BTN, 1);
 
