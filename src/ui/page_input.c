@@ -46,7 +46,11 @@ typedef struct Action {
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 80, LV_GRID_TEMPLATE_LAST};
 
+static void nop() {}
+static void rollerNop(uint8_t key) { (void) key; }
+
 static const action_t btnActions[] = {
+    {.id = 10, .name = "None", .functionPtr = &nop},
     {.id = 0, .name = "Toggle OSD", .functionPtr = &osd_toggle},
     {.id = 1, .name = "Main menu", .functionPtr = &app_switch_to_menu},
     {.id = 2, .name = "Toggle DVR", .functionPtr = &dvr_toggle},
@@ -60,6 +64,7 @@ static const action_t btnActions[] = {
 };
 
 static const action_t rollerActions[] = {
+    {.id = 3, .name = "None", .functionPtr = &rollerNop},
     {.id = 0, .name = "Switch channel", .functionPtr = &tune_channel},
     {.id = 1, .name = "Change fan speed", .functionPtr = &change_topfan},
     {.id = 2, .name = "OLED Brightness", .functionPtr = &change_oled_brightness}
