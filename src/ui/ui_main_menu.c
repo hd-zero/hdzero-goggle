@@ -272,7 +272,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     lv_obj_t *cont = lv_menu_cont_create(section);
 
     pp->label = lv_label_create(cont);
-    lv_label_set_text_lang(pp->label, pp->name, LANGUAGE);
+    lv_label_set_text(pp->label, _lang(pp->name));
     lv_obj_set_style_text_font(pp->label, &lv_font_montserrat_26, 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 

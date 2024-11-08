@@ -15,6 +15,7 @@
 #include "driver/hardware.h"
 #include "driver/it66121.h"
 #include "driver/oled.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"
 #include "ui/ui_main_menu.h"
@@ -31,6 +32,7 @@ static bool in_sourcepage = false;
 static btn_group_t btn_group0, btn_group1, btn_group2;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -41,7 +43,8 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Source:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Source"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -56,33 +59,35 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_select_item(arr, cont);
 
     label[0] = create_label_item(cont, "HDZero", 1, 0, 3);
-    label[1] = create_label_item(cont, "HDMI In", 1, 1, 3);
-    label[2] = create_label_item(cont, "AV In", 1, 2, 3);
-    label[3] = create_label_item(cont, "Expansion Module", 1, 3, 3);
+    sprintf(buf, "HDMI %s", _lang("In"));
+    label[1] = create_label_item(cont, buf, 1, 1, 3);
+    sprintf(buf, "AV %s", _lang("In"));
+    label[2] = create_label_item(cont, buf, 1, 2, 3);
+    label[3] = create_label_item(cont, _lang("Expansion Module"), 1, 3, 3);
 
-    create_btn_group_item(&btn_group0, cont, 2, "Analog Video", "NTSC", "PAL", "", "", 4);
+    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", 4);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 
-    create_btn_group_item(&btn_group1, cont, 2, "HDZero Band", "Raceband", "Lowband", "", "", 5);
+    create_btn_group_item(&btn_group1, cont, 2, _lang("HDZero Band"), _lang("Raceband"), _lang("Lowband"), "", "", 5);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
-    create_btn_group_item(&btn_group2, cont, 2, "HDZero BW", "Wide", "Narrow", "", "", 6);
+    create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", 6);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
     if (g_setting.storage.selftest) {
         pp_source.p_arr.max = 9;
         label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
-        create_label_item(cont, "< Back", 1, 8, 3);
+        create_label_item(cont, _lang("< Back"), 1, 8, 3);
     } else {
         pp_source.p_arr.max = 8;
         label[4] = NULL;
-        create_label_item(cont, "< Back", 1, 7, 3);
+        create_label_item(cont, _lang("< Back"), 1, 7, 3);
     }
     return page;
 }
 
 char *state2string(uint8_t status) {
-    return status ? "#00FF00 Detected#" : "#C0C0C0 Disconnected";
+    return _lang(status ? "#00FF00 Detected#" : "#C0C0C0 Disconnected");
 }
 
 void source_status_timer() {
@@ -107,13 +112,13 @@ void source_status_timer() {
     }
     lv_label_set_text(label[0], buf);
 
-    sprintf(buf, "HDMI In: %s", state2string(g_source_info.hdmi_in_status));
+    sprintf(buf, "HDMI %s: %s", _lang("In"), state2string(g_source_info.hdmi_in_status));
     lv_label_set_text(label[1], buf);
 
-    sprintf(buf, "AV In: %s", state2string(g_source_info.av_in_status));
+    sprintf(buf, "AV %s: %s", _lang("In"), state2string(g_source_info.av_in_status));
     lv_label_set_text(label[2], buf);
 
-    sprintf(buf, "Expansion Module: %s", state2string(g_source_info.av_bay_status));
+    sprintf(buf, "%s: %s", _lang("Expansion Module"), state2string(g_source_info.av_bay_status));
     lv_label_set_text(label[3], buf);
 
     if (g_setting.storage.selftest && label[3]) {
@@ -157,7 +162,7 @@ static void page_source_select_expansion() {
 
 void source_toggle() {
     beep_dur(BEEP_SHORT);
-    switch(g_source_info.source) {
+    switch (g_source_info.source) {
     case SOURCE_HDZERO:
         page_source_select_expansion();
         break;
@@ -176,12 +181,12 @@ void source_toggle() {
 
 void source_cycle() {
     beep_dur(BEEP_SHORT);
-    switch(g_source_info.source) {
-    case SOURCE_HDZERO: 
+    switch (g_source_info.source) {
+    case SOURCE_HDZERO:
         if (g_source_info.hdmi_in_status) {
             page_source_select_hdmi();
         } else {
-             page_source_select_av_in();
+            page_source_select_av_in();
         }
         break;
     case SOURCE_EXPANSION:

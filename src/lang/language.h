@@ -3,7 +3,7 @@
 
 #include <lvgl/lvgl.h>
 
-#define TRANSLATE_STRING_NUM 18
+#define TRANSLATE_STRING_NUM 79
 
 typedef enum {
     lang_english = 0,
@@ -19,8 +19,9 @@ typedef struct {
 char *translate_string(const char *str, lang_e lang);
 
 #define _str(string, lang) translate_string(string, lang)
+#define _lang(string)      _str(string, LANGUAGE)
 
-void lv_label_set_text_lang(lv_obj_t *obj, const char *text, lang_e lang);
+void lv_label_set_text_lang(lv_obj_t *obj, const char *text);
 
 extern lang_e LANGUAGE;
 #endif

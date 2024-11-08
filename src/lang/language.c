@@ -34,7 +34,7 @@ char *translate_string(const char *str, lang_e lang) {
     return (char *)str;
 }
 
-void lv_label_set_text_lang(lv_obj_t *obj, const char *text, lang_e lang) {
-    char *text_lang = _str(text, lang);
+void lv_label_set_text_lang(lv_obj_t *obj, const char *text) {
+    char *text_lang = _str(text, LANGUAGE);
     lv_label_set_text(obj, text_lang);
 }

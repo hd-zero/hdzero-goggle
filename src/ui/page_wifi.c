@@ -15,6 +15,7 @@
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
@@ -1145,11 +1146,11 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
             if (page_wifi_get_real_address()) {
                 snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
             } else {
-                snprintf(buffer, size, "WiFi: Searching");
+                snprintf(buffer, size, "WiFi: %s", _lang("Searching"));
             }
             break;
         }
     } else {
-        snprintf(buffer, size, "WiFi: Off");
+        snprintf(buffer, size, "WiFi: %s", _lang("Off"));
     }
 }
