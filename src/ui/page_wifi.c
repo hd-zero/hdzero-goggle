@@ -852,6 +852,21 @@ static void page_wifi_on_roller(uint8_t key) {
 }
 
 /**
+ * Common handling method of the three "apply settings" buttons.
+ */
+static void page_wifi_handle_apply_button(lv_obj_t* apply_button) {
+    if (page_wifi.confirm_settings) {
+        lv_label_set_text(apply_button, "#FF0000 Updating WiFi...#");
+        page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
+        lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
+        page_wifi.confirm_settings = 2;
+    } else {
+        lv_label_set_text(apply_button, "#FFFF00 Click to confirm or Scroll to cancel...#");
+        page_wifi.confirm_settings = 1;
+    }
+}
+
+/**
  * Main input selection routine for this page.
  */
 static void page_wifi_on_click(uint8_t key, int sel) {
@@ -930,16 +945,8 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             }
             break;
         case 2:
-            if (page_wifi.confirm_settings) {
-                lv_label_set_text(page_wifi.page_3.apply_settings, "#FF0000 Updating WiFi...#");
-                page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
-                lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
-                page_wifi.confirm_settings = 2;
-            } else {
-                lv_label_set_text(page_wifi.page_3.apply_settings, "#FFFF00 Click to confirm or Scroll to cancel...#");
-                page_wifi.confirm_settings = 1;
-            }
-                break;
+            page_wifi_handle_apply_button(page_wifi.page_3.apply_settings);
+            break;
         }
         break;
     case 4:
@@ -966,15 +973,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
     case 5:
         switch (btn_group_get_sel(&page_wifi.page_select.button)) {
         case 0:
-            if (page_wifi.confirm_settings) {
-                lv_label_set_text(page_wifi.page_1.apply_settings, "#FF0000 Updating WiFi...#");
-                page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
-                lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
-                page_wifi.confirm_settings = 2;
-            } else {
-                lv_label_set_text(page_wifi.page_1.apply_settings, "#FFFF00 Click to confirm or Scroll to cancel...#");
-                page_wifi.confirm_settings = 1;
-            }
+            page_wifi_handle_apply_button(page_wifi.page_1.apply_settings);
             break;
         case 1:
             if (!keyboard_active()) {
@@ -1005,15 +1004,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
     case 7:
         switch (btn_group_get_sel(&page_wifi.page_select.button)) {
         case 1:
-            if (page_wifi.confirm_settings) {
-                lv_label_set_text(page_wifi.page_2.apply_settings, "#FF0000 Updating WiFi...#");
-                page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
-                lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
-                page_wifi.confirm_settings = 2;
-            } else {
-                lv_label_set_text(page_wifi.page_2.apply_settings, "#FFFF00 Click to confirm or Scroll to cancel...#");
-                page_wifi.confirm_settings = 1;
-            }
+            page_wifi_handle_apply_button(page_wifi.page_2.apply_settings);
             break;
         }
         break;
