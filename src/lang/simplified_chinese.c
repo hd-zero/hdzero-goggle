@@ -59,6 +59,7 @@ translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     {"To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video.", "点击进入确认键进入视频模式以修改图像参数. \n确保HDZero VTX或模拟VTX已经运行"},
     {"Never", "从不"},
     {"min", "分钟"},
+    {"Reset All", "复位所有设置"},
 
     // osd
     {"OSD", "OSD"},

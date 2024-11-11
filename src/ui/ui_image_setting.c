@@ -10,6 +10,7 @@
 #include "core/osd.h"
 #include "driver/hardware.h"
 #include "driver/oled.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +33,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[0].x = x;
     ims_page.items[0].y = y;
     ims_page.items[0].type = 1;
-    strcpy(ims_page.items[0].title, "OLED:");
+    sprintf(ims_page.items[0].title, "%s", "OLED:");
     ims_page.items[0].range[0] = 0;
     ims_page.items[0].range[1] = 12;
     ims_page.items[0].value = val[0];
@@ -42,7 +43,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[1].x = x;
     ims_page.items[1].y = y + 25;
     ims_page.items[1].type = 1;
-    strcpy(ims_page.items[1].title, "Brightness:");
+    sprintf(ims_page.items[1].title, "%s:", _lang("Brightness"));
     ims_page.items[1].range[0] = 0;
     ims_page.items[1].range[1] = 78;
     ims_page.items[1].value = val[1];
@@ -51,7 +52,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[2].x = x;
     ims_page.items[2].y = y + 50;
     ims_page.items[2].type = 1;
-    strcpy(ims_page.items[2].title, "Saturation:");
+    sprintf(ims_page.items[2].title, "%s:", _lang("Saturation"));
     ims_page.items[2].range[0] = 0;
     ims_page.items[2].range[1] = 47;
     ims_page.items[2].value = val[2];
@@ -60,7 +61,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[3].x = x;
     ims_page.items[3].y = y + 75;
     ims_page.items[3].type = 1;
-    strcpy(ims_page.items[3].title, "Contrast:");
+    sprintf(ims_page.items[3].title, "%s:", _lang("Contrast"));
     ims_page.items[3].range[0] = 0;
     ims_page.items[3].range[1] = 47;
     ims_page.items[3].value = val[3];
@@ -69,7 +70,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[4].x = x;
     ims_page.items[4].y = y + 100;
     ims_page.items[4].type = 1;
-    strcpy(ims_page.items[4].title, "OLED Auto off:");
+    sprintf(ims_page.items[4].title, "OLED %s:", _lang("Auto Off"));
     ims_page.items[4].range[0] = 0;
     ims_page.items[4].range[1] = 4;
     ims_page.items[4].value = val[4];
@@ -78,13 +79,14 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[5].x = x;
     ims_page.items[5].y = y + 125;
     ims_page.items[5].type = 0;
-    strcpy(ims_page.items[5].title, "< Back");
+
+    sprintf(ims_page.items[5].title, "< %s", _lang("Back"));
     ims_page.items[5].state = 0;
 
     ims_page.items[6].x = x + 200;
     ims_page.items[6].y = y + 125;
     ims_page.items[6].type = 0;
-    strcpy(ims_page.items[6].title, "Reset All");
+    sprintf(ims_page.items[6].title, "%s", _lang("Reset All"));
     ims_page.items[6].state = 0;
 }
 
@@ -112,7 +114,12 @@ static void show_ims_slider(uint8_t index) {
 
     switch (index) {
     case 4: { // auto off
-        char *str_ao[5] = {"1 min", "3 min", "5 min", "7 min", "Never"};
+        char *str_ao[5];
+        sprintf(str_ao[0], "1 %s", _lang("min"));
+        sprintf(str_ao[1], "3 %s", _lang("min"));
+        sprintf(str_ao[2], "5 %s", _lang("min"));
+        sprintf(str_ao[3], "7 %s", _lang("min"));
+        sprintf(str_ao[4], "%s", _lang("Never"));
         strcpy(buf, str_ao[p_slider->value]);
         break;
     }
