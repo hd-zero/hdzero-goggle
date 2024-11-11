@@ -117,7 +117,7 @@ typedef struct {
  *  Globals
  */
 static lv_coord_t col_dsc[] = {160, 160, 160, 180, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
 static page_options_t page_wifi = {0};
 static lv_timer_t *page_wifi_apply_settings_timer = NULL;
 static lv_timer_t *page_wifi_apply_settings_pending_timer = NULL;
