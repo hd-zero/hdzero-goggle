@@ -57,10 +57,11 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group1, cont, _lang("Brightness"), 78, g_setting.image.brightness, 1);
     create_slider_item(&slider_group2, cont, _lang("Saturation"), 47, g_setting.image.saturation, 2);
     create_slider_item(&slider_group3, cont, _lang("Contrast"), 47, g_setting.image.contrast, 3);
-    sprintf(buf, "OLED %s %s", _lang("Auto"), _lang("Off"));
+    sprintf(buf, "OLED %s", _lang("Auto Off"));
     create_slider_item(&slider_group4, cont, buf, 3, g_setting.image.auto_off, 4);
 
-    create_label_item(cont, _lang("< Back"), 1, 5, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, 5, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_label_set_text(label2, _lang("To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video."));
@@ -99,7 +100,7 @@ void set_slider_value() {
     lv_slider_set_value(slider_group3.slider, g_setting.image.contrast, LV_ANIM_OFF);
 
     if (g_setting.image.auto_off == 4)
-        strcpy(buf, "Never");
+        strcpy(buf, _lang("Never"));
     else
         sprintf(buf, "%d %s", g_setting.image.auto_off * 2 + 1, _lang("min"));
     lv_label_set_text(slider_group4.label, buf);

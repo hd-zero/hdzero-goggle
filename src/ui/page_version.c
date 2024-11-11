@@ -20,6 +20,7 @@
 #include "driver/fans.h"
 #include "driver/i2c.h"
 #include "driver/uart.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
 #include "ui/ui_style.h"
@@ -221,9 +222,11 @@ static int flash_hdzero(const char *dst_path, const char *dst_file,
 static void flash_vtx() {
     uint8_t ret = 2;
     char cmd_buff[1024] = {0};
+    char buf[128];
 
     lv_obj_clear_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
-    lv_label_set_text(btn_vtx, "Flashing...");
+    sprintf(buf, "%s...", _lang("Flashing"));
+    lv_label_set_text(btn_vtx, buf);
     lv_timer_handler();
 
     is_need_update_progress = true;
@@ -237,13 +240,18 @@ static void flash_vtx() {
 
     if (ret == 1) {
         if (fs_compare_files("/tmp/HDZERO_TX.bin", "/tmp/HDZERO_TX_RB.bin")) {
-            lv_label_set_text(btn_vtx, "#00FF00 SUCCESS#");
-        } else
-            lv_label_set_text(btn_vtx, "#FF0000 Verification failed, try it again#");
+            sprintf(buf, "#00FF00 %s#", _lang("SUCCESS"));
+            lv_label_set_text(btn_vtx, buf);
+        } else {
+            sprintf(buf, "#FF0000 %s#", _lang("Verification failed, try it again"));
+            lv_label_set_text(btn_vtx, buf);
+        }
     } else if (ret == 2) {
-        lv_label_set_text(btn_vtx, "#FFFF00 No firmware found.#");
+        sprintf(buf, "$FFFF00 %s.#", _lang("No firmware found"));
+        lv_label_set_text(btn_vtx, buf);
     } else {
-        lv_label_set_text(btn_vtx, "#FF0000 Failed, check connection...#");
+        sprintf(buf, "#FF0000 %s...#", _lang("Failed, check connection"));
+        lv_label_set_text(btn_vtx, buf);
     }
     lv_timer_handler();
 
@@ -260,9 +268,12 @@ static void flash_vtx() {
 static void flash_goggle() {
     uint8_t ret = 0;
     char cmd_buff[1024] = {0};
+    char buf[128];
 
     lv_obj_clear_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
-    lv_label_set_text(btn_goggle, "WAIT... DO NOT POWER OFF... ");
+
+    sprintf(buf, "%s... %s... ", _lang("WAIT"), _lang("DO NOT POWER OFF"));
+    lv_label_set_text(btn_goggle, buf);
     lv_timer_handler();
 
     is_need_update_progress = true;
@@ -287,11 +298,14 @@ static void flash_goggle() {
         reboot_flag = true;
         lv_timer_handler();
     } else if (ret == 2) {
-        lv_label_set_text(btn_goggle, "#FFFF00 No firmware found.#");
+        sprintf(buf, "$FFFF00 %s.#", _lang("No firmware found"));
+        lv_label_set_text(btn_goggle, buf);
     } else if (ret == 3) {
-        lv_label_set_text(btn_goggle, "#FFFF00 Multiple versions been found. Keep only one.#");
+        sprintf("#FFFF00 %s. %s.#", _lang("Multiple versions been found"), _lang("Keep only one"));
+        lv_label_set_text(btn_goggle, buf);
     } else {
-        lv_label_set_text(btn_goggle, "#FF0000 FAILED#");
+        sprintf(buf, "#FF0000 %s#", _lang("FAILED"));
+        lv_label_set_text(btn_goggle, buf);
     }
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 }
@@ -458,6 +472,7 @@ static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *
 static void page_version_fw_scan_for_updates() {
     bool has_online_goggle_update = false;
     bool has_online_vtx_update = false;
+    char buf[1024];
 
     page_version_fw_select_reset(&fw_select_goggle);
     snprintf(fw_select_goggle.path, sizeof(fw_select_goggle.path), "/mnt/extsd");
@@ -489,11 +504,14 @@ static void page_version_fw_scan_for_updates() {
         }
 
         if (has_online_goggle_update || has_online_vtx_update) {
-            lv_label_set_text(label_note, "To view release notes, select either Update VTX or Update Goggle\n"
-                                          "then press the Func button to display or hide the release notes.");
+            sprintf(buf, "%s, %s\n%s.",
+                    _lang("To view release notes"),
+                    _lang("select either Update VTX or Update Goggle"),
+                    _lang("then press the Func button to display or hide the release notes"));
+            lv_label_set_text(label_note, buf);
         } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
-            lv_label_set_text(label_note, "Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\n"
-                                          "SD Card in order to install the latest online downloaded firmware files.");
+            sprintf(buf, "%s.", _lang("Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\nSD Card in order to install the latest online downloaded firmware files"));
+            lv_label_set_text(label_note, buf);
         }
     } else {
         lv_label_set_text(label_note, "");
@@ -528,7 +546,7 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
                     written += rbytes;
                 }
             } else {
-                strcpy(&mbuff[written], "\n\nVisit https://github.com/hdzero for the complete list of changes.");
+                sprintf(mbuff, "\n\n%s.", _lang("Visit https://github.com/hdzero for the complete list of changes"));
                 break;
             }
         }
@@ -544,7 +562,7 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
             msg_box_width = 600;
         }
 
-        snprintf(tbuff, sizeof(tbuff), "Release Notes: %s", fs_basename(fw_select->path));
+        snprintf(tbuff, sizeof(tbuff), "%s: %s", _lang("Release Notes"), fs_basename(fw_select->path));
         lv_label_set_text_static(title, tbuff);
         lv_label_set_text_static(message, mbuff);
         lv_obj_set_style_text_font(message, &lv_font_montserrat_16, 0);
@@ -634,7 +652,7 @@ static void page_version_fw_select_show(const char *title, fw_select_t *fw_selec
                  "%s %s", title,
                  fw_select->alt_title ? fw_select->alt_title : fs_basename(fw_select->path));
     } else {
-        snprintf(text, sizeof(text), "%s %s", title, "not found");
+        snprintf(text, sizeof(text), "%s %s", title, _lang("not found"));
     }
 
     page_version_fw_select_populate(fw_select);
@@ -718,10 +736,12 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
     static lv_coord_t mbsbox_row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 
     char text[256];
+    char buf[128];
     snprintf(text, sizeof(text), "Update %s", device);
 
     fw_select->flash = flash;
-    fw_select->msgbox = create_msgbox_item(device, "Target:");
+    sprintf(buf, "%s:", _lang("Target"));
+    fw_select->msgbox = create_msgbox_item(device, buf);
     fw_select->container = lv_obj_create(fw_select->msgbox);
 
     lv_obj_set_pos(fw_select->container, 0, 0);
@@ -740,7 +760,8 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
     fw_select->page = pp_version.p_arr;
     fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
-    fw_select->back = create_label_item(fw_select->container, "< Back", 1, 2, 4);
+    sprintf(text, "< %s", _lang("Back"));
+    fw_select->back = create_label_item(fw_select->container, text, 1, 2, 4);
 
     lv_obj_set_style_grid_column_dsc_array(fw_select->msgbox, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(fw_select->msgbox, row_dsc, 0);
@@ -757,6 +778,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
 }
 
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -767,7 +789,8 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Firmware:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Firmware"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -780,14 +803,18 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
-    cur_ver_label = create_label_item(cont, "Current Version", 1, ROW_CUR_VERSION, 2);
+    cur_ver_label = create_label_item(cont, _lang("Current Version"), 1, ROW_CUR_VERSION, 2);
 
-    btn_reset_all_settings = create_label_item(cont, "Reset all settings", 1, ROW_RESET_ALL_SETTINGS, 2);
-    btn_vtx = create_label_item(cont, "Update VTX", 1, ROW_UPDATE_VTX, 2);
-    btn_goggle = create_label_item(cont, "Update Goggle", 1, ROW_UPDATE_GOGGLE, 2);
-    btn_esp = create_label_item(cont, "Update ESP32", 1, ROW_UPDATE_ESP32, 2);
+    btn_reset_all_settings = create_label_item(cont, _lang("Reset all settings"), 1, ROW_RESET_ALL_SETTINGS, 2);
+    sprintf(buf, "%s VTX", _lang("Update"));
+    btn_vtx = create_label_item(cont, buf, 1, ROW_UPDATE_VTX, 2);
+    sprintf(buf, "%s Goggle", _lang("Update"));
+    btn_goggle = create_label_item(cont, buf, 1, ROW_UPDATE_GOGGLE, 2);
+    sprintf(buf, "%s ESP32", _lang("Update"));
+    btn_esp = create_label_item(cont, buf, 1, ROW_UPDATE_ESP32, 2);
     label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
-    create_label_item(cont, "< Back", 1, ROW_BACK, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, ROW_BACK, 1);
 
     bar_vtx = lv_bar_create(cont);
     lv_obj_set_size(bar_vtx, 320, 20);
@@ -807,13 +834,13 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_update_complete = create_msgbox_item("Update complete", "Goggle update completed successfully.\nPlease repower goggle now.");
+    msgbox_update_complete = create_msgbox_item(_lang("Update complete"), _lang("Goggle update completed successfully.\nPlease repower goggle now."));
     lv_obj_add_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_settings_reset = create_msgbox_item("Settings reset", "All settings have been reset.\nPlease repower goggle now.");
+    msgbox_settings_reset = create_msgbox_item(_lang("Settings reset"), _lang("All settings have been reset.\nPlease repower goggle now."));
     lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_release_notes = create_msgbox_item("Release Notes", "Empty");
+    msgbox_release_notes = create_msgbox_item(_lang("Release Notes"), _lang("Empty"));
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
 
     label_note = lv_label_create(cont);
@@ -916,7 +943,7 @@ static void elrs_version_timer(struct _lv_timer_t *timer) {
 }
 
 static void reset_all_settings_reset_label_text() {
-    lv_label_set_text(btn_reset_all_settings, "Reset all settings");
+    lv_label_set_text(btn_reset_all_settings, _lang("Reset all settings"));
 }
 
 static void page_version_enter() {
@@ -946,6 +973,7 @@ static void page_version_on_roller(uint8_t key) {
 }
 
 static void page_version_on_click(uint8_t key, int sel) {
+    char buf[128];
     if (!page_version_release_notes_active()) {
         version_update_title();
         if (sel == ROW_CUR_VERSION) {
@@ -983,27 +1011,34 @@ static void page_version_on_click(uint8_t key, int sel) {
                 lv_obj_clear_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
                 app_state_push(APP_STATE_USER_INPUT_DISABLED);
             } else {
-                lv_label_set_text(btn_reset_all_settings, "#FFFF00 click to confirm/scroll to cancel#");
+                sprintf(buf, "#FFFF00 %s#", _lang("Click to confirm or Scroll to cancel"));
+                lv_label_set_text(btn_reset_all_settings, buf);
                 reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
             }
         } else if (sel == ROW_UPDATE_VTX) {
             page_version_fw_scan_for_updates();
-            page_version_fw_select_show("VTX Firmware", &fw_select_vtx);
+            sprintf(buf, "VTX %s", _lang("Firmware"));
+            page_version_fw_select_show(buf, &fw_select_vtx);
         } else if ((sel == ROW_UPDATE_GOGGLE) && !reboot_flag) {
             page_version_fw_scan_for_updates();
-            page_version_fw_select_show("Goggle Firmware", &fw_select_goggle);
+            sprintf(buf, "Goggle %s", _lang("Firmware"));
+            page_version_fw_select_show(buf, &fw_select_goggle);
         } else if (sel == ROW_UPDATE_ESP32) { // flash ESP via SD
             lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
-            lv_label_set_text(btn_esp, "Flashing...");
+            sprintf(buf, "%s...", _lang("Flashing"));
+            lv_label_set_text(btn_esp, buf);
             lv_timer_handler();
             esp_loader_error_t ret = flash_elrs();
             lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
-            if (ret == ESP_LOADER_SUCCESS)
-                lv_label_set_text(btn_esp, "#00FF00 Success#");
-            else
-                lv_label_set_text(btn_esp, "#FF0000 FAILED#");
+            if (ret == ESP_LOADER_SUCCESS) {
+                sprintf(buf, "#00FF00 %s#", _lang("SUCCESS"));
+                lv_label_set_text(btn_esp, buf);
+            } else {
+                sprintf(buf, "#FF0000 %s#", _lang("FAILED"));
+                lv_label_set_text(btn_esp, buf);
+            }
             page_version_enter();
         }
     }
@@ -1046,25 +1081,28 @@ void bar_update(int sel, int value) {
 }
 
 void update_current_version() {
-    char strtmp[128];
+    char buf[128];
     static bool bInit = true;
     if (bInit) {
         sys_version_t sys_version;
         generate_current_version(&sys_version);
-        memset(strtmp, 0, sizeof(strtmp));
-        strcat(strtmp, "Current Version ");
-        strcat(strtmp, sys_version.current);
-        lv_label_set_text(cur_ver_label, strtmp);
+        sprintf(buf, "%s ", _lang("Current Version"));
+        lv_label_set_text(cur_ver_label, buf);
         bInit = false;
     }
 }
 
 void version_update_title() {
+    char buf[128];
     update_current_version();
-    lv_label_set_text(btn_vtx, "Update VTX");
-    if (!reboot_flag)
-        lv_label_set_text(btn_goggle, "Update Goggle");
-    lv_label_set_text(btn_esp, "Update ESP32");
+    sprintf(buf, "%s VTX", _lang("Update"));
+    lv_label_set_text(btn_vtx, buf);
+    if (!reboot_flag) {
+        sprintf(buf, "%s Goggle", _lang("Update"));
+        lv_label_set_text(btn_goggle, buf);
+    }
+    sprintf(buf, "%s ESP32", _lang("Update"));
+    lv_label_set_text(btn_esp, buf);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

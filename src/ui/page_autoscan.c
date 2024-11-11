@@ -3,6 +3,7 @@
 #include <minIni.h>
 
 #include "core/settings.h"
+#include "lang/language.h"
 #include "ui/ui_style.h"
 
 static lv_coord_t col_dsc[] = {160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST};
@@ -12,6 +13,7 @@ static btn_group_t btn_group0;
 static btn_group_t btn_group1;
 
 static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -22,7 +24,8 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Auto Scan:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Auto Scan"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -40,12 +43,13 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_clear_flag(pp_autoscan.p_arr.panel[2], FLAG_SELECTABLE);
 
     btn_group_t btn_group;
-    create_btn_group_item(&btn_group0, cont, 3, "Auto Scan", "On", "Last", "Off", "", 0);
-    create_btn_group_item2(&btn_group1, cont, 5, "Default", "Last", "HDZero", "Expansion", "AV In", "HDMI In", " ", 1); // 2 rows
-    create_label_item(cont, "< Back", 1, 3, 1);
+    create_btn_group_item(&btn_group0, cont, 3, _lang("Auto Scan"), _lang("On"), _lang("Last"), _lang("Off"), "", 0);
+    create_btn_group_item2(&btn_group1, cont, 5, _lang("Default"), _lang("Last"), _lang("HDZero"), _lang("Expansion"), _lang("AV In"), _lang("HDMI In"), " ", 1); // 2 rows
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, 3, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, "*if Auto Scan is 'Last', goggles will default to show last tuned channel");
+    lv_label_set_text(label2, _lang("*if Auto Scan is 'Last', goggles will default to show last tuned channel"));
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);

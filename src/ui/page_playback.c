@@ -14,6 +14,7 @@
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/osd.h"
+#include "lang/language.h"
 #include "record/record_definitions.h"
 #include "ui/page_common.h"
 #include "ui/ui_player.h"
@@ -34,6 +35,7 @@ static media_db_t media_db;
 static pb_ui_item_t pb_ui[ITEMS_LAYOUT_CNT];
 
 static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1142, 900);
@@ -44,7 +46,8 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1142, 894);
 
-    create_text(NULL, section, false, "Playback:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Playback"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1164, 760);
@@ -90,7 +93,8 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     }
 
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "*Long press the Enter button to exit\n**Long press the Func button to delete");
+    sprintf(buf, "*%s\n**%s", _lang("Long press the Enter button to exit"), _lang("Long press the Func button to delete"));
+    lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
@@ -178,8 +182,7 @@ int hot_alphasort(const struct dirent **a, const struct dirent **b) {
     return strcoll((*a)->d_name, (*b)->d_name);
 }
 
-static bool dvr_has_stars(const char* filename)
-{
+static bool dvr_has_stars(const char *filename) {
     char star_file[256] = "";
     int count = snprintf(star_file, sizeof(star_file), "%s" REC_starSUFFIX, filename);
 

@@ -10,6 +10,7 @@
 #include "core/settings.h"
 #include "driver/fans.h"
 #include "driver/nct75.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
 #include "ui/ui_attribute.h"
@@ -41,6 +42,7 @@ static void update_visibility() {
 }
 
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -51,7 +53,8 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Fans:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Fans"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -65,20 +68,20 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&btn_group_fans, cont, 2, "Auto Control", "On", "Off", "", "", 0);
-    create_slider_item(&slider_group[0], cont, "Top Fan", MAX_FAN_TOP, 2, 1);
+    create_btn_group_item(&btn_group_fans, cont, 2, _lang("Auto Control"), _lang("On"), _lang("Off"), "", "", 0);
+    create_slider_item(&slider_group[0], cont, _lang("Top Fan"), MAX_FAN_TOP, 2, 1);
     lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
-    create_slider_item(&slider_group[1], cont, "Side Fans", MAX_FAN_SIDE, 2, 2);
+    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, 2);
     lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
 
-    create_label_item(cont, "< Back", 1, 3, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, 3, 1);
 
     btn_group_set_sel(&btn_group_fans, !g_setting.fans.auto_mode);
 
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
     lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
 
-    char buf[5];
     sprintf(buf, "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
     sprintf(buf, "%d", g_setting.fans.left_speed);

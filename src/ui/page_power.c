@@ -133,7 +133,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     }
 
     // Back entry
-    create_label_item(cont, _lang("< Back"), 1, pp_power.p_arr.max - 1, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, pp_power.p_arr.max - 1, 1);
 
     // set menu entry min/max values and labels
     char str[5];

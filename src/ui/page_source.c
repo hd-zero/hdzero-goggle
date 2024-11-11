@@ -74,14 +74,15 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", 6);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
+    sprintf(buf, "< %s", _lang("Back"));
     if (g_setting.storage.selftest) {
         pp_source.p_arr.max = 9;
         label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
-        create_label_item(cont, _lang("< Back"), 1, 8, 3);
+        create_label_item(cont, buf, 1, 8, 3);
     } else {
         pp_source.p_arr.max = 8;
         label[4] = NULL;
-        create_label_item(cont, _lang("< Back"), 1, 7, 3);
+        create_label_item(cont, buf, 1, 7, 3);
     }
     return page;
 }

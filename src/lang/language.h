@@ -3,7 +3,7 @@
 
 #include <lvgl/lvgl.h>
 
-#define TRANSLATE_STRING_NUM 79
+#define TRANSLATE_STRING_NUM 239
 
 typedef enum {
     lang_english = 0,
