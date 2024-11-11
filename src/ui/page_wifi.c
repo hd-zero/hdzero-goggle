@@ -441,6 +441,7 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_2.dns.label, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(page_wifi.page_2.dns.input, LV_OBJ_FLAG_HIDDEN);
     slider_show(&page_wifi.page_2.rf_channel.input, false);
+    lv_obj_add_flag(page_wifi.page_2.apply_settings, LV_OBJ_FLAG_HIDDEN);
 
     // Page 3
     lv_obj_add_flag(page_wifi.page_3.root_pw.label, LV_OBJ_FLAG_HIDDEN);
@@ -448,6 +449,7 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
     btn_group_show(&page_wifi.page_3.ssh.button, false);
     lv_obj_add_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(page_wifi.page_3.apply_settings, LV_OBJ_FLAG_HIDDEN);
 
     switch (which) {
     case 0:
@@ -513,6 +515,8 @@ static void page_wifi_update_current_page(int which) {
         if (page_wifi.page_1.mode.button.current != WIFI_MODE_AP) {
             lv_obj_clear_flag(pp_wifi.p_arr.panel[6], FLAG_SELECTABLE);
         }
+
+        lv_obj_clear_flag(page_wifi.page_2.apply_settings, LV_OBJ_FLAG_HIDDEN);
         break;
     case 2:
         pp_wifi.p_arr.max = page_wifi.page_3.row_count;
@@ -520,6 +524,7 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
         btn_group_show(&page_wifi.page_3.ssh.button, true);
+        lv_obj_clear_flag(page_wifi.page_3.apply_settings, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
         page_wifi_update_page_3_notes();
         break;
