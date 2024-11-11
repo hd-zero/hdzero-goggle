@@ -536,6 +536,8 @@ static void page_wifi_update_current_page(int which) {
  */
 static void page_wifi_apply_settings_reset() {
     lv_label_set_text(page_wifi.page_1.apply_settings, "Apply Settings");
+    lv_label_set_text(page_wifi.page_2.apply_settings, "Apply Settings");
+    lv_label_set_text(page_wifi.page_3.apply_settings, "Apply Settings");
     page_wifi.confirm_settings = 0;
 }
 
@@ -568,6 +570,8 @@ static void page_wifi_apply_settings_pending_cb(struct _lv_timer_t *timer) {
         static uint8_t red = 150;
         snprintf(text, sizeof(text), "#%02x0000 Apply Settings#", red);
         lv_label_set_text(page_wifi.page_1.apply_settings, text);
+        lv_label_set_text(page_wifi.page_2.apply_settings, text);
+        lv_label_set_text(page_wifi.page_3.apply_settings, text);
         if (red >= 250) {
             dir = -20;
             red = 250;
