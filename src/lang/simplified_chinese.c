@@ -125,6 +125,7 @@ translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     // elrs
     {"ELRS", "ELRS"},
     {"Send", "发送"},
+    {"Bind", "绑定"},
     {"Click to start", "点击开始"},
     {"* Press right button to cancel binding", "* 按下右键取消绑定"},
     {"Starting...", "开始..."},
@@ -286,6 +287,7 @@ translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     {"'Toggle source' will switch between HDZero and Expansion module", "'切换信号源'将在扩展模块和HDZero之间切换"},
 
     // go sleep
+    {"Go Sleep", "休眠"},
     {"Go Sleep!", "休眠!"},
     {"Click the Enter Button to go sleep", "点击确认进入休眠"},
     {"Click any button to exit sleep mode", "点击任意按键退出休眠"},

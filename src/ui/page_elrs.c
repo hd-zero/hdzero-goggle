@@ -98,7 +98,8 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_btn_group_item(&elrs_group, cont, 2, _lang("Backpack"), _lang("On"), _lang("Off"), "", "", POS_PWR);
     btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
-    btn_vtx_send = create_label_item(cont, _lang("Send VTX"), 1, POS_VTX, 1);
+    sprintf(buf, "%s VTX", _lang("Send"));
+    btn_vtx_send = create_label_item(cont, buf, 1, POS_VTX, 1);
     btn_wifi = create_label_item(cont, "WiFi", 1, POS_WIFI, 1);
     label_wifi_status = create_label_item(cont, _lang("Click to start"), 2, POS_WIFI, 1);
     btn_bind = create_label_item(cont, _lang("Bind"), 1, POS_BIND, 1);
