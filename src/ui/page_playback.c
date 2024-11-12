@@ -325,6 +325,10 @@ static void update_page() {
 }
 
 static void update_item(uint8_t cur_pos, uint8_t lst_pos) {
+    if (cur_pos == lst_pos) {
+        return;
+    }
+
     lv_obj_clear_flag(pb_ui[cur_pos]._arrow, LV_OBJ_FLAG_HIDDEN);
     lv_obj_remove_style(pb_ui[cur_pos]._img, &style_pb_dark, LV_PART_MAIN);
     lv_obj_add_style(pb_ui[cur_pos]._img, &style_pb, LV_PART_MAIN);
