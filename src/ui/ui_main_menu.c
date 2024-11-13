@@ -70,6 +70,7 @@ static page_pack_t *page_packs[] = {
 
 static page_pack_t* post_bootup_actions[PAGE_COUNT];
 static size_t post_bootup_actions_count = 0;
+static bool bootup_actions_fired = false;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
@@ -353,18 +354,21 @@ void main_menu_init(void) {
     keyboard_init();
 }
 
+static void bootup_action_completed() {
+    bootup_actions_fired = false;
+}
+
 static void handle_bootup_action() {
     static page_pack_t **next_bootup_action = &post_bootup_actions[0];
     if (next_bootup_action - &post_bootup_actions[0] >= post_bootup_actions_count) {
         return;
     }
 
-    (*next_bootup_action++)->post_bootup_run_function(handle_bootup_action);
+    (*next_bootup_action++)->post_bootup_run_function(bootup_action_completed);
 }
 
 void main_menu_update() {
     static uint32_t delta_ms = 0;
-    static bool bootup_actions_fired = false;
     uint32_t now_ms = time_ms();
     delta_ms = now_ms - delta_ms;
 
@@ -375,8 +379,8 @@ void main_menu_update() {
     }
 
     if (!bootup_actions_fired) {
-        handle_bootup_action();
         bootup_actions_fired = true;
+        handle_bootup_action();
     }
     delta_ms = now_ms;
 }
