@@ -1,7 +1,6 @@
 #include "page_wifi.h"
 
 #include <arpa/inet.h>
-#include <errno.h>
 #include <linux/if.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -15,8 +14,8 @@
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/settings.h"
+#include "lvgl/src/core/lv_obj.h"
 #include "ui/page_common.h"
-#include "ui/ui_attribute.h"
 #include "ui/ui_keyboard.h"
 #include "ui/ui_style.h"
 #include "util/filesystem.h"
@@ -143,15 +142,18 @@ static void page_wifi_update_services() {
     if ((fp = fopen(WIFI_STA_ON, "w"))) {
         fprintf(fp, "#!/bin/sh\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
+        fprintf(fp, "insmod /mnt/app/ko/xradio_mac.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_core.ko\n");
         fprintf(fp, "insmod /mnt/app/ko/xradio_wlan.ko\n");
+        fprintf(fp, "ifconfig wlan0 hw ether %s\n", g_setting.wifi.mac);
+
         fprintf(fp, "ifconfig wlan0 up\n");
 
         if (g_setting.wifi.dhcp) {
             fprintf(fp,
                     "udhcpc -x hostname:%s -x 0x3d:%s -r %s -i wlan0 -b&\n",
                     g_setting.wifi.ssid[WIFI_MODE_AP],
-                    g_setting.wifi.clientid,
+                    g_setting.wifi.mac,
                     g_setting.wifi.ip_addr);
         }
 
@@ -259,6 +261,50 @@ static void page_wifi_mask_password(lv_obj_t *obj, int size) {
     lv_label_set_text(obj, buffer);
 }
 
+static bool page_wifi_is_valid_mac_address(const char mac_address[]) {
+    for (int i = 0; i < 17; i++) {
+        // first byte has to be even to be a valid MAC address for our usecase
+        if (i == 1 && (mac_address[i] != '0' && mac_address[i] != '2' && mac_address[i] != '4' && mac_address[i] != '6' && mac_address[i] != '8' && mac_address[i] != 'a' && mac_address[i] != 'A' && mac_address[i] != 'c' && mac_address[i] != 'C' && mac_address[i] != 'e' && mac_address[i] != 'E')) {
+            return false;
+        }
+        if (i % 3 == 2) {
+            if (mac_address[i] != ':') {
+                return false;
+            }
+        } else {
+            if (!(
+                    mac_address[i] >= '0' && mac_address[i] <= '9' ||
+                    mac_address[i] >= 'A' && mac_address[i] <= 'F' ||
+                    mac_address[i] >= 'a' && mac_address[i] <= 'f')) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static void page_wifi_generate_mac_address(char *mac_address) {
+    srandom(time(NULL));
+    sprintf(mac_address, "%02lx:%02lx:%02lx:%02lx:%02lx:%02lx",
+            random() & 254, // First byte must be even.
+            random() & 255,
+            random() & 255,
+            random() & 255,
+            random() & 255,
+            random() & 255);
+}
+
+static void page_wifi_read_mac_file(char *mac_address) {
+    FILE *file = fopen(MAC_OVERRIDE_FILE, "r");
+    char read_mac[18];
+    if (fgets(read_mac, 18, file) != NULL) {
+        if (page_wifi_is_valid_mac_address(read_mac)) {
+            strcpy(mac_address, read_mac);
+        }
+    }
+    fclose(file);
+}
+
 /**
  * Update settings and apply them.
  *
@@ -281,9 +327,16 @@ static void page_wifi_update_settings() {
 
     snprintf(g_setting.wifi.root_pw, WIFI_PASSWD_MAX, "%s", page_wifi.page_3.root_pw.text);
 
-    if (0 == strlen(g_setting.wifi.clientid)) {
-        page_wifi_generate_clientid(g_setting.wifi.clientid, WIFI_CLIENTID_MAX);
-        ini_puts("wifi", "clientid", g_setting.wifi.clientid, SETTING_INI);
+    // Generate one random MAC if none is set or if it is invalid.
+    if (0 == strlen(g_setting.wifi.mac) || !page_wifi_is_valid_mac_address(g_setting.wifi.mac)) {
+        page_wifi_generate_mac_address(g_setting.wifi.mac);
+        ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
+    }
+
+    // Check for override file and apply if it exists.
+    if (fs_file_exists(MAC_OVERRIDE_FILE)) {
+        page_wifi_read_mac_file(g_setting.wifi.mac);
+        ini_puts("wifi", "mac", g_setting.wifi.mac, SETTING_INI);
     }
 
     settings_put_bool("wifi", "enable", g_setting.wifi.enable);
@@ -319,7 +372,7 @@ static void page_wifi_update_settings() {
 }
 
 /**
- * Acquire the actual address in use.
+ * Acquire the actual IP address in use.
  */
 static const char *page_wifi_get_real_address() {
     const char *address = NULL;
@@ -341,7 +394,37 @@ static const char *page_wifi_get_real_address() {
 }
 
 /**
- * Updates the all notes on every page.
+ * Acquire the MAC address in use.
+ */
+static const char *page_wifi_get_real_mac_address() {
+    const char *address = NULL;
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    if (fd >= 0) {
+        struct ifreq ifr;
+        strcpy(ifr.ifr_name, "wlan0");
+
+        char mac[18];
+
+        if (0 == ioctl(fd, SIOCGIFHWADDR, &ifr)) {
+            sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+                    (unsigned char)ifr.ifr_addr.sa_data[0],
+                    (unsigned char)ifr.ifr_addr.sa_data[1],
+                    (unsigned char)ifr.ifr_addr.sa_data[2],
+                    (unsigned char)ifr.ifr_addr.sa_data[3],
+                    (unsigned char)ifr.ifr_addr.sa_data[4],
+                    (unsigned char)ifr.ifr_addr.sa_data[5]);
+        }
+        address = mac;
+
+        close(fd);
+    }
+
+    return address;
+}
+
+/**
+ * Updates the notes on page 1.
  */
 static void page_wifi_update_page_1_notes() {
     const char *address = page_wifi_get_real_address();
@@ -366,12 +449,23 @@ static void page_wifi_update_page_1_notes() {
     lv_label_set_text(page_wifi.page_1.note, buffer);
 }
 
+/**
+ * Updates the notes on page 3.
+ */
 static void page_wifi_update_page_3_notes() {
+    const char *mac = page_wifi_get_real_mac_address();
+
     static char buffer[1024];
     snprintf(buffer,
              sizeof(buffer),
              "Password Requirements:\n"
-             "    Minimum 8 characters, maximum 64 characters.\n\n");
+             "    Minimum 8 characters, maximum 64 characters.\n\n"
+             "MAC-address:\n"
+             "    %s\n\n"
+             "You can override the fixed MAC in client mode by creating the file macaddr.txt\n"
+             "with the new MAC inside on the SD card. Make sure there are no spaces!\n"
+             "Valid mac addresses start with an even byte.\n\n",
+             mac);
 
     lv_label_set_text(page_wifi.page_3.note, buffer);
 }
