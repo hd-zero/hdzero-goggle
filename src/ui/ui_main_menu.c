@@ -1,6 +1,7 @@
 #include "ui/ui_main_menu.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <log/log.h>
 #include <lvgl/lvgl.h>
@@ -67,7 +68,7 @@ static page_pack_t *page_packs[] = {
 
 #define PAGE_COUNT (ARRAY_SIZE(page_packs))
 
-static page_pack_t* post_bootup_actions[PAGE_COUNT + 1];
+static page_pack_t* post_bootup_actions[PAGE_COUNT];
 static size_t post_bootup_actions_count = 0;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
@@ -287,6 +288,19 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     }
 }
 
+static int post_bootup_actions_cmp(const void * lhs, const void * rhs) {
+    const int32_t leftPriority = ((page_pack_t*) lhs)->post_bootup_run_priority;
+    const int32_t rightPriority = ((page_pack_t*) rhs)->post_bootup_run_priority;
+
+    if (leftPriority < rightPriority) {
+        return -1;
+    } else if (leftPriority > rightPriority) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void main_menu_init(void) {
     menu = lv_menu_create(lv_scr_act());
     // lv_obj_add_flag(menu, LV_OBJ_FLAG_HIDDEN);
@@ -312,18 +326,7 @@ void main_menu_init(void) {
     }
 
     // Resort based on priority
-    for (uint32_t i = 0; i < PAGE_COUNT; ++i) {
-        for (uint32_t j = 1; j < PAGE_COUNT; ++j) {
-            if (post_bootup_actions[i] && post_bootup_actions[j]) {
-                if (post_bootup_actions[j]->post_bootup_run_priority <
-                    post_bootup_actions[i]->post_bootup_run_priority) {
-                    post_bootup_actions[PAGE_COUNT] = post_bootup_actions[i];
-                    post_bootup_actions[i] = post_bootup_actions[j];
-                    post_bootup_actions[j] = post_bootup_actions[PAGE_COUNT];
-                } 
-            }
-        }
-    }
+    qsort(post_bootup_actions, post_bootup_actions_count, sizeof(page_pack_t*), post_bootup_actions_cmp);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
