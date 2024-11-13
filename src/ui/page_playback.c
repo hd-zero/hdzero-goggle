@@ -328,6 +328,10 @@ static void update_page() {
 }
 
 static void update_item(uint8_t cur_pos, uint8_t lst_pos) {
+    if (cur_pos == lst_pos) {
+        return;
+    }
+
     lv_obj_clear_flag(pb_ui[cur_pos]._arrow, LV_OBJ_FLAG_HIDDEN);
     lv_obj_remove_style(pb_ui[cur_pos]._img, &style_pb_dark, LV_PART_MAIN);
     lv_obj_add_style(pb_ui[cur_pos]._img, &style_pb, LV_PART_MAIN);
@@ -356,6 +360,8 @@ static void mark_video_file(int const seq) {
     sprintf(cmd, "mv %s%s %s%s.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
     sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
+    system_exec(cmd);
+    sprintf(cmd, "mv %s%s" REC_starSUFFIX " %s%s.%s" REC_starSUFFIX, MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
 
     walk_sdcard();
