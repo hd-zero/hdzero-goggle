@@ -1036,9 +1036,11 @@ static void page_version_on_click(uint8_t key, int sel) {
             dropdown_lang_is_opened = false;
             pp_version.p_arr.max = ROW_COUNT; // enable roller operation on input_device.c
             uint16_t selected = lv_dropdown_get_selected(dropdown_lang);
-            ini_putl("language", "lang", selected, SETTING_INI);
-            lv_obj_clear_flag(msgbox_language_changed, LV_OBJ_FLAG_HIDDEN);
-            app_state_push(APP_STATE_USER_INPUT_DISABLED);
+            if (selected != g_setting.language.lang) {
+                ini_putl("language", "lang", selected, SETTING_INI);
+                lv_obj_clear_flag(msgbox_language_changed, LV_OBJ_FLAG_HIDDEN);
+                app_state_push(APP_STATE_USER_INPUT_DISABLED);
+            }
         } else {
             lv_dropdown_open(dropdown_lang);
             lv_obj_add_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
