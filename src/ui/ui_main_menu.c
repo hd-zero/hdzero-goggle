@@ -65,7 +65,7 @@ static page_pack_t *page_packs[] = {
     &pp_sleep,
 };
 
-#define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
+#define PAGE_COUNT (ARRAY_SIZE(page_packs))
 
 static page_pack_t* post_bootup_actions[PAGE_COUNT + 1];
 
