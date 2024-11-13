@@ -1,13 +1,17 @@
 #include "language.h"
-#include "english.h"
 #include "simplified_chinese.h"
 #include <log/log.h>
 
-lang_e LANGUAGE = lang_simplified_chinese;
+translate_t translate_english_default[TRANSLATE_STRING_NUM];
 
-translate_t *translate_list[] = {
-    translate_english,
+translate_t *translate_list[LANG_END] = {
+    translate_english_default,
     translate_simplified_chinese,
+};
+
+const char *language_options[] = {
+    "English",
+    "Simplified Chinese",
 };
 
 char *translate_string(const char *str, lang_e lang) {
@@ -15,26 +19,24 @@ char *translate_string(const char *str, lang_e lang) {
 
     // search language
     i = 0;
-    while (i != LANGUAGE) {
-        if (i < lang_end)
+    while (i != lang) {
+        if (i < LANG_END)
             i++;
     }
 
     // if language is undefined
-    if (i != LANGUAGE)
+    if (i != lang)
         return (char *)str;
 
     // search str translate
     for (j = 0; j < TRANSLATE_STRING_NUM; j++) {
+        if (translate_list[i][j].in_english == NULL || translate_list[i][j].in_english[0] == '\0')
+            continue;
+
         if (strcmp(str, translate_list[i][j].in_english) == 0)
             return translate_list[i][j].translate;
     }
 
     // if str is undefined
     return (char *)str;
-}
-
-void lv_label_set_text_lang(lv_obj_t *obj, const char *text) {
-    char *text_lang = _str(text, LANGUAGE);
-    lv_label_set_text(obj, text_lang);
 }

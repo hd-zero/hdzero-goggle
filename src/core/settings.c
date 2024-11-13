@@ -8,6 +8,7 @@
 #include <minIni.h>
 
 #include "core/self_test.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "util/filesystem.h"
 #include "util/system.h"
@@ -217,6 +218,9 @@ const setting_t g_setting_defaults = {
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
         .hdzero_bw = SETTING_SOURCES_HDZERO_BW_WIDE,
+    },
+    .language = {
+        .lang = LANG_ENGLISH_DEFAULT,
     },
 };
 
@@ -454,6 +458,10 @@ void settings_load(void) {
 
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
+
+    // language
+    g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
+    LOGI("lang:%d", g_setting.language.lang);
 
     // Check
     if (fs_file_exists(SELF_TEST_FILE)) {

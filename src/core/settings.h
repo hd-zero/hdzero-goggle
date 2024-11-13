@@ -260,6 +260,10 @@ typedef struct {
 } setting_storage_t;
 
 typedef struct {
+    uint16_t lang;
+} language_t;
+
+typedef struct {
     setting_scan_t scan;
     setting_fan_t fans;
     setting_autoscan_t autoscan;
@@ -275,6 +279,7 @@ typedef struct {
     setting_inputs_t inputs;
     ease_use_t ease;
     setting_storage_t storage;
+    language_t language;
 } setting_t;
 
 extern setting_t g_setting;

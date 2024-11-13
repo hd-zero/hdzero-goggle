@@ -249,5 +249,5 @@ void statubar_update(void) {
     }
 
     page_wifi_get_statusbar_text(buf, sizeof(buf));
-    lv_label_set_text_lang(label[STS_WIFI], buf);
+    lv_label_set_text(label[STS_WIFI], buf);
 }
