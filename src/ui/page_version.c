@@ -484,7 +484,7 @@ static void page_version_fw_scan_for_updates() {
     page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE", false);
 
     if (fw_select_goggle.ready) {
-        fw_select_goggle.alt_title = "SD Card";
+        fw_select_goggle.alt_title = _lang("SD Card");
     }
 
     page_version_fw_select_reset(&fw_select_vtx);
@@ -492,7 +492,7 @@ static void page_version_fw_scan_for_updates() {
     page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
 
     if (fw_select_vtx.ready) {
-        fw_select_vtx.alt_title = "SD Card";
+        fw_select_vtx.alt_title = _lang("SD Card");
     }
 
     if (g_setting.wifi.enable) {
@@ -742,7 +742,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
 
     char text[256];
     char buf[128];
-    snprintf(text, sizeof(text), "Update %s", device);
+    snprintf(text, sizeof(text), "%s %s", _lang("Update"), device);
 
     fw_select->flash = flash;
     sprintf(buf, "%s:", _lang("Target"));
