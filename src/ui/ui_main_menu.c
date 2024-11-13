@@ -68,6 +68,7 @@ static page_pack_t *page_packs[] = {
 #define PAGE_COUNT (ARRAY_SIZE(page_packs))
 
 static page_pack_t* post_bootup_actions[PAGE_COUNT + 1];
+static size_t post_bootup_actions_count = 0;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
@@ -303,10 +304,10 @@ void main_menu_init(void) {
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
 
-    for (uint32_t i = 0, j = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);
-        if (page_packs[i]->post_bootup_run_priority > 0) {
-            post_bootup_actions[j++] = page_packs[i];
+        if (page_packs[i]->post_bootup_run_priority > 0 && page_packs[i]->post_bootup_run_function != NULL) {
+            post_bootup_actions[post_bootup_actions_count++] = page_packs[i];
         }
     }
 
