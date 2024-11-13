@@ -206,9 +206,9 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
         contentWidth += col_dsc[i];
     }
 
-    char rollerOptionsStr[128] = "";
+    char rollerOptionsStr[256] = "";
     build_options_string(rollerActions, ARRAY_SIZE(rollerActions), rollerOptionsStr);
-    char btnOptionsStr[128] = "";
+    char btnOptionsStr[256] = "";
     build_options_string(btnActions, ARRAY_SIZE(btnActions), btnOptionsStr);
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
