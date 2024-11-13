@@ -353,9 +353,18 @@ void main_menu_init(void) {
     keyboard_init();
 }
 
+static void handle_bootup_action() {
+    static page_pack_t **next_bootup_action = &post_bootup_actions[0];
+    if (next_bootup_action - &post_bootup_actions[0] >= post_bootup_actions_count) {
+        return;
+    }
+
+    (*next_bootup_action++)->post_bootup_run_function(handle_bootup_action);
+}
+
 void main_menu_update() {
     static uint32_t delta_ms = 0;
-    static uint32_t last_bootup_action = 0;
+    static bool bootup_actions_fired = false;
     uint32_t now_ms = time_ms();
     delta_ms = now_ms - delta_ms;
 
@@ -363,29 +372,11 @@ void main_menu_update() {
         if (page_packs[i]->on_update) {
             page_packs[i]->on_update(delta_ms);
         }
+    }
 
-        if (last_bootup_action == i && post_bootup_actions[i]) {
-            if (post_bootup_actions[i] != NULL) {
-                // Function invokation
-                if (post_bootup_actions[i]->post_bootup_run_complete == NULL) {
-                    if (post_bootup_actions[i]->post_bootup_run_function != NULL) {
-                        post_bootup_actions[i]->post_bootup_run_function();
-                        post_bootup_actions[i]->post_bootup_run_function = NULL;
-                        post_bootup_actions[i] = NULL;
-                        ++last_bootup_action;
-                    }
-                } else { // Thread invokation
-                    if (post_bootup_actions[i]->post_bootup_run_function){
-                        post_bootup_actions[i]->post_bootup_run_function();
-                        post_bootup_actions[i]->post_bootup_run_function = NULL;
-                    } else if (post_bootup_actions[i]->post_bootup_run_complete()) {
-                        post_bootup_actions[i]->post_bootup_run_complete = NULL;
-                        post_bootup_actions[i] = NULL;
-                        ++last_bootup_action;
-                    }
-                }
-            }
-        }
+    if (!bootup_actions_fired) {
+        handle_bootup_action();
+        bootup_actions_fired = true;
     }
     delta_ms = now_ms;
 }
