@@ -358,6 +358,8 @@ static void mark_video_file(int const seq) {
     system_exec(cmd);
     sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
     system_exec(cmd);
+    sprintf(cmd, "mv %s%s" REC_starSUFFIX " %s%s.%s" REC_starSUFFIX, MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
+    system_exec(cmd);
 
     walk_sdcard();
     media_db.cur_sel = constrain(seq, 0, (media_db.count - 1));
