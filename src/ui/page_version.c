@@ -795,7 +795,6 @@ static void build_options_string(const char **input, size_t arraySize, char *out
     }
 }
 
-lv_style_t style;
 char language_options_str[256];
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
@@ -837,7 +836,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     build_options_string(language_options, LANG_END, language_options_str);
     sprintf(buf, "%s", _lang("Language"));
     create_label_item(cont, buf, 1, ROW_LANGUAGE, 1);
-    // dropdown_lang = create_dropdown_item(cont, language_options_str, 3, ROW_LANGUAGE, 360, row_dsc[ROW_LANGUAGE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+
     dropdown_lang = lv_dropdown_create(cont);
     lv_dropdown_set_options(dropdown_lang, language_options_str);
     lv_obj_set_style_text_font(dropdown_lang, &lv_font_montserrat_26, 0);
@@ -846,15 +845,9 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_dropdown_set_selected(dropdown_lang, g_setting.language.lang);
 
-#if (0)
-    lv_style_init(&style);
-    lv_style_set_bg_color(&style, lv_color_make(0x60, 0x60, 0x60));   // 设置默认背景色
-    lv_style_set_text_color(&style, lv_color_make(0x20, 0x20, 0x20)); // 设置默认背景色
-
-    // lv_obj_add_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
-    lv_obj_add_style(dropdown_lang, &style, LV_PART_MAIN);
-    lv_obj_add_style(dropdown_lang, &style, LV_PART_ANY);
-#endif
+    lv_obj_t *list = lv_dropdown_get_list(dropdown_lang);
+    lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN); // The dropdown consists of a button and a list. You need to add a style to the list separately.
+    lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
 
     sprintf(buf, "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, ROW_BACK, 1);
@@ -899,7 +892,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(label_note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
 
     page_version_fw_scan_for_updates();
-    page_version_fw_select_create("Goggle", &fw_select_goggle, flash_goggle);
+    page_version_fw_select_create(_lang("Goggle"), &fw_select_goggle, flash_goggle);
     page_version_fw_select_create("VTX", &fw_select_vtx, flash_vtx);
 
     return page;
@@ -1106,7 +1099,7 @@ static void page_version_on_click(uint8_t key, int sel) {
         case ROW_UPDATE_GOGGLE:
             if (!reboot_flag) {
                 page_version_fw_scan_for_updates();
-                sprintf(buf, "Goggle %s", _lang("Firmware"));
+                sprintf(buf, "%s %s", _lang("Goggle"), _lang("Firmware"));
                 page_version_fw_select_show(buf, &fw_select_goggle);
             }
             break;
@@ -1189,7 +1182,7 @@ void version_update_title() {
     sprintf(buf, "%s VTX", _lang("Update"));
     lv_label_set_text(btn_vtx, buf);
     if (!reboot_flag) {
-        sprintf(buf, "%s Goggle", _lang("Update"));
+        sprintf(buf, "%s %s", _lang("Update"), _lang("Goggle"));
         lv_label_set_text(btn_goggle, buf);
     }
     sprintf(buf, "%s ESP32", _lang("Update"));
