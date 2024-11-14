@@ -1,5 +1,6 @@
 #include "ui/ui_main_menu.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <log/log.h>
@@ -100,8 +101,12 @@ void submenu_enter(void) {
 
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first selectable one
-        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
-        set_select_item(&pp->p_arr, pp->p_arr.cur);
+        for (pp->p_arr.cur = 0; pp->p_arr.cur < pp->p_arr.max && !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
+        if (pp->p_arr.cur == pp->p_arr.max) {
+            pp->p_arr.cur = 0;
+        } else {
+            set_select_item(&pp->p_arr, pp->p_arr.cur);
+        }
     }
 
     if (pp->enter) {
@@ -264,7 +269,7 @@ void main_menu_show(bool is_show) {
 
 static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_t *pp) {
     LOGD("creating main menu entry %s", pp->name);
-
+    assert(pp->p_arr.max <= MAX_PANELS);
     pp->page = pp->create(menu, &pp->p_arr);
 
     lv_obj_t *cont = lv_menu_cont_create(section);

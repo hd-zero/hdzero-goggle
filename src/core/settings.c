@@ -40,6 +40,7 @@ const setting_t g_setting_defaults = {
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
         .power_ana = false,
         .calibration_offset = 0,
+        .beep_on_power = false
     },
     .record = {
         .mode_manual = false,
@@ -384,6 +385,7 @@ void settings_load(void) {
     g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
     g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
     g_setting.power.calibration_offset = ini_getl("power", "calibration_offset", g_setting_defaults.power.calibration_offset, SETTING_INI);
+    g_setting.power.beep_on_power = settings_get_bool("power", "beep_on_power", false);
 
     // record
     g_setting.record.mode_manual = settings_get_bool("record", "mode_manual", g_setting_defaults.record.mode_manual);
