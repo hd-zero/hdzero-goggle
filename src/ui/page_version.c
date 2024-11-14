@@ -1172,7 +1172,7 @@ void update_current_version() {
     if (bInit) {
         sys_version_t sys_version;
         generate_current_version(&sys_version);
-        sprintf(buf, "%s ", _lang("Current Version"));
+        sprintf(buf, "%s %s", _lang("Current Version"), sys_version.current);
         lv_label_set_text(cur_ver_label, buf);
         bInit = false;
     }
