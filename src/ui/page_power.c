@@ -16,10 +16,10 @@
 #include "page_common.h"
 #include "ui/ui_style.h"
 
-#define WARNING_CELL_VOLTAGE_MIN 28
-#define WARNING_CELL_VOLTAGE_MAX 42
-#define CALIBRATION_OFFSET_MIN   -25
-#define CALIBRATION_OFFSET_MAX   25
+#define WARNING_CELL_VOLTAGE_MIN 2800
+#define WARNING_CELL_VOLTAGE_MAX 4200
+#define CALIBRATION_OFFSET_MIN   -2500
+#define CALIBRATION_OFFSET_MAX   2500
 
 enum {
     ROW_BATT_C_LABEL = 0,
@@ -80,8 +80,8 @@ static void page_power_update_calibration_offset() {
     ini_putl("power", "calibration_offset", g_battery.offset, SETTING_INI);
 
     lv_slider_set_value(slider_group_calibration_offset.slider, g_battery.offset, LV_ANIM_OFF);
-    char buf[6];
-    sprintf(buf, "%.1fV", g_battery.offset / 10.f);
+    char buf[7];
+    sprintf(buf, "%.2fV", g_battery.offset / 1000.0);
     lv_label_set_text(slider_group_calibration_offset.label, buf);
 }
 
@@ -137,8 +137,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, buf, 1, pp_power.p_arr.max - 1, 1);
 
     // set menu entry min/max values and labels
-    char str[5];
-    sprintf(str, "%d.%d", g_setting.power.voltage / 10, g_setting.power.voltage % 10);
+    char str[6];
+    sprintf(str, "%.2f", g_setting.power.voltage / 1000.0);
     lv_slider_set_range(slider_group_cell_voltage.slider, WARNING_CELL_VOLTAGE_MIN, WARNING_CELL_VOLTAGE_MAX);
     lv_label_set_text(slider_group_cell_voltage.label, str);
 
@@ -146,7 +146,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_slider_set_range(slider_group_cell_count.slider, CELL_MIN_COUNT, CELL_MAX_COUNT);
     lv_label_set_text(slider_group_cell_count.label, str);
 
-    sprintf(str, "%.1fV", g_setting.power.calibration_offset / 10.f);
+    sprintf(str, "%.2fV", g_setting.power.calibration_offset / 1000.0);
     lv_slider_set_range(slider_group_calibration_offset.slider, CALIBRATION_OFFSET_MIN, CALIBRATION_OFFSET_MAX);
     lv_label_set_text(slider_group_calibration_offset.label, str);
 
@@ -193,12 +193,12 @@ static void power_warning_voltage_inc(void) {
 
     value = lv_slider_get_value(slider_group_cell_voltage.slider);
     if (value < WARNING_CELL_VOLTAGE_MAX)
-        value += 1;
+        value += 10;
 
     lv_slider_set_value(slider_group_cell_voltage.slider, value, LV_ANIM_OFF);
 
-    char buf[5];
-    sprintf(buf, "%d.%d", value / 10, value % 10);
+    char buf[6];
+    sprintf(buf, "%.2f", value / 1000.0);
     lv_label_set_text(slider_group_cell_voltage.label, buf);
 
     g_setting.power.voltage = value;
@@ -211,11 +211,11 @@ static void power_warning_voltage_dec(void) {
 
     value = lv_slider_get_value(slider_group_cell_voltage.slider);
     if (value > WARNING_CELL_VOLTAGE_MIN)
-        value -= 1;
+        value -= 10;
 
     lv_slider_set_value(slider_group_cell_voltage.slider, value, LV_ANIM_OFF);
-    char buf[5];
-    sprintf(buf, "%d.%d", value / 10, value % 10);
+    char buf[6];
+    sprintf(buf, "%.2f", value / 1000.0);
     lv_label_set_text(slider_group_cell_voltage.label, buf);
 
     g_setting.power.voltage = value;
@@ -228,7 +228,7 @@ static void power_calibration_offset_inc(void) {
 
     value = lv_slider_get_value(slider_group_calibration_offset.slider);
     if (value < CALIBRATION_OFFSET_MAX)
-        value += 1;
+        value += 10;
 
     g_setting.power.calibration_offset = value;
 
@@ -240,7 +240,7 @@ static void power_calibration_offset_dec(void) {
 
     value = lv_slider_get_value(slider_group_calibration_offset.slider);
     if (value > CALIBRATION_OFFSET_MIN)
-        value -= 1;
+        value -= 10;
 
     g_setting.power.calibration_offset = value;
 
