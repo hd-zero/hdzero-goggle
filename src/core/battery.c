@@ -36,14 +36,14 @@ bool battery_is_low() {
         return true;
     }
     int cell_volt = battery_get_millivolts(true);
-    return cell_volt <= g_setting.power.voltage * 100;
+    return cell_volt <= g_setting.power.voltage;
 }
 
 int battery_get_millivolts(bool per_cell) {
     if (per_cell && g_battery.type > 0) {
-        return (g_battery.voltage + g_battery.offset * 100) / g_battery.type;
+        return (g_battery.voltage + g_battery.offset) / g_battery.type;
     }
-    return g_battery.voltage + g_battery.offset * 100;
+    return g_battery.voltage + g_battery.offset;
 }
 
 void battery_get_voltage_str(char *buf) {
@@ -52,19 +52,19 @@ void battery_get_voltage_str(char *buf) {
     default:
     case SETTING_POWER_OSD_DISPLAY_MODE_TOTAL: {
         int bat_mv = battery_get_millivolts(false);
-        sprintf(buf, "%dS %d.%dV",
+        sprintf(buf, "%dS %d.%02dV",
                 g_battery.type,
                 bat_mv / 1000,
-                bat_mv % 1000 / 100);
+                bat_mv % 1000 / 10);
         break;
     }
 
     case SETTING_POWER_OSD_DISPLAY_MODE_CELL: {
         int bat_mv = battery_get_millivolts(true);
-        sprintf(buf, "%dS %d.%dV/C",
+        sprintf(buf, "%dS %d.%02dV/C",
                 g_battery.type,
                 bat_mv / 1000,
-                bat_mv % 1000 / 100);
+                bat_mv % 1000 / 10);
         break;
     }
     }
