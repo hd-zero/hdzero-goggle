@@ -85,12 +85,14 @@ typedef struct {
     network_t gateway;
     network_t dns;
     rf_channel_t rf_channel;
+    lv_obj_t *apply_settings;
     int row_count;
 } page_2_t;
 
 typedef struct {
     root_pw_t root_pw;
     button_t ssh;
+    lv_obj_t *apply_settings;
     lv_obj_t *note;
     int row_count;
 } page_3_t;
@@ -115,7 +117,7 @@ typedef struct {
  *  Globals
  */
 static lv_coord_t col_dsc[] = {160, 160, 160, 180, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
 static page_options_t page_wifi = {0};
 static lv_timer_t *page_wifi_apply_settings_timer = NULL;
 static lv_timer_t *page_wifi_apply_settings_pending_timer = NULL;
@@ -439,6 +441,7 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_2.dns.label, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(page_wifi.page_2.dns.input, LV_OBJ_FLAG_HIDDEN);
     slider_show(&page_wifi.page_2.rf_channel.input, false);
+    lv_obj_add_flag(page_wifi.page_2.apply_settings, LV_OBJ_FLAG_HIDDEN);
 
     // Page 3
     lv_obj_add_flag(page_wifi.page_3.root_pw.label, LV_OBJ_FLAG_HIDDEN);
@@ -446,6 +449,7 @@ static void page_wifi_update_current_page(int which) {
     lv_obj_add_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
     btn_group_show(&page_wifi.page_3.ssh.button, false);
     lv_obj_add_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(page_wifi.page_3.apply_settings, LV_OBJ_FLAG_HIDDEN);
 
     switch (which) {
     case 0:
@@ -511,6 +515,8 @@ static void page_wifi_update_current_page(int which) {
         if (page_wifi.page_1.mode.button.current != WIFI_MODE_AP) {
             lv_obj_clear_flag(pp_wifi.p_arr.panel[6], FLAG_SELECTABLE);
         }
+
+        lv_obj_clear_flag(page_wifi.page_2.apply_settings, LV_OBJ_FLAG_HIDDEN);
         break;
     case 2:
         pp_wifi.p_arr.max = page_wifi.page_3.row_count;
@@ -518,6 +524,7 @@ static void page_wifi_update_current_page(int which) {
         lv_obj_clear_flag(page_wifi.page_3.root_pw.input, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.root_pw.status, LV_OBJ_FLAG_HIDDEN);
         btn_group_show(&page_wifi.page_3.ssh.button, true);
+        lv_obj_clear_flag(page_wifi.page_3.apply_settings, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(page_wifi.page_3.note, LV_OBJ_FLAG_HIDDEN);
         page_wifi_update_page_3_notes();
         break;
@@ -529,6 +536,8 @@ static void page_wifi_update_current_page(int which) {
  */
 static void page_wifi_apply_settings_reset() {
     lv_label_set_text(page_wifi.page_1.apply_settings, "Apply Settings");
+    lv_label_set_text(page_wifi.page_2.apply_settings, "Apply Settings");
+    lv_label_set_text(page_wifi.page_3.apply_settings, "Apply Settings");
     page_wifi.confirm_settings = 0;
 }
 
@@ -561,6 +570,8 @@ static void page_wifi_apply_settings_pending_cb(struct _lv_timer_t *timer) {
         static uint8_t red = 150;
         snprintf(text, sizeof(text), "#%02x0000 Apply Settings#", red);
         lv_label_set_text(page_wifi.page_1.apply_settings, text);
+        lv_label_set_text(page_wifi.page_2.apply_settings, text);
+        lv_label_set_text(page_wifi.page_3.apply_settings, text);
         if (red >= 250) {
             dir = -20;
             red = 250;
@@ -670,8 +681,9 @@ static void page_wifi_create_page_2(lv_obj_t *parent) {
     page_wifi.page_2.dns.status = create_label_item(parent, "", 4, 5, 2);
     create_slider_item(&page_wifi.page_2.rf_channel.input, parent, "RF Channel", WIFI_RF_CHANNELS - 1, g_setting.wifi.rf_channel, 6);
     lv_slider_set_value(page_wifi.page_2.rf_channel.input.slider, g_setting.wifi.rf_channel - 1, LV_ANIM_OFF);
+    page_wifi.page_2.apply_settings = create_label_item(parent, "Apply Settings", 1, 7, 3);
 
-    page_wifi.page_2.row_count = 7;
+    page_wifi.page_2.row_count = 8;
 }
 
 /**
@@ -685,6 +697,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
 
     create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", "On", "Off", "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
+    page_wifi.page_3.apply_settings = create_label_item(parent, "Apply Settings", 1, 3, 3);
 
     page_wifi.page_3.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_3.note, &lv_font_montserrat_16, 0);
@@ -695,7 +708,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     lv_obj_set_grid_cell(page_wifi.page_3.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     page_wifi_update_page_3_notes();
 
-    page_wifi.page_3.row_count = 3;
+    page_wifi.page_3.row_count = 4;
 }
 
 /**
@@ -839,6 +852,21 @@ static void page_wifi_on_roller(uint8_t key) {
 }
 
 /**
+ * Common handling method of the three "apply settings" buttons.
+ */
+static void page_wifi_handle_apply_button(lv_obj_t* apply_button) {
+    if (page_wifi.confirm_settings) {
+        lv_label_set_text(apply_button, "#FF0000 Updating WiFi...#");
+        page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
+        lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
+        page_wifi.confirm_settings = 2;
+    } else {
+        lv_label_set_text(apply_button, "#FFFF00 Click to confirm or Scroll to cancel...#");
+        page_wifi.confirm_settings = 1;
+    }
+}
+
+/**
  * Main input selection routine for this page.
  */
 static void page_wifi_on_click(uint8_t key, int sel) {
@@ -916,6 +944,9 @@ static void page_wifi_on_click(uint8_t key, int sel) {
                 keyboard_press();
             }
             break;
+        case 2:
+            page_wifi_handle_apply_button(page_wifi.page_3.apply_settings);
+            break;
         }
         break;
     case 4:
@@ -942,15 +973,7 @@ static void page_wifi_on_click(uint8_t key, int sel) {
     case 5:
         switch (btn_group_get_sel(&page_wifi.page_select.button)) {
         case 0:
-            if (page_wifi.confirm_settings) {
-                lv_label_set_text(page_wifi.page_1.apply_settings, "#FF0000 Updating WiFi...#");
-                page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
-                lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
-                page_wifi.confirm_settings = 2;
-            } else {
-                lv_label_set_text(page_wifi.page_1.apply_settings, "#FFFF00 Click to confirm or Scroll to cancel...#");
-                page_wifi.confirm_settings = 1;
-            }
+            page_wifi_handle_apply_button(page_wifi.page_1.apply_settings);
             break;
         case 1:
             if (!keyboard_active()) {
@@ -978,7 +1001,15 @@ static void page_wifi_on_click(uint8_t key, int sel) {
             break;
         }
         break;
+    case 7:
+        switch (btn_group_get_sel(&page_wifi.page_select.button)) {
+        case 1:
+            page_wifi_handle_apply_button(page_wifi.page_2.apply_settings);
+            break;
+        }
+        break;
     }
+
 
     // Enable/Disable panel scrolling when elements are in focus
     pp_wifi.p_arr.max =
