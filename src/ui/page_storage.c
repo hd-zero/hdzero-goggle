@@ -536,18 +536,6 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
- * Returns true once the thread has completed.
- */
-static bool page_storage_is_sd_repair_complete() {
-    if (page_storage.is_sd_repair_complete) {
-        sdcard_ready_cb = page_storage_init_auto_sd_repair;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
  */
@@ -584,6 +572,7 @@ static void *page_storage_repair_thread(void *arg) {
         page_storage.is_auto_sd_repair_active = false;
     }
     page_storage.is_sd_repair_complete = true;
+    sdcard_ready_cb = page_storage_init_auto_sd_repair;
 
     if (complete_callback != NULL) {
         complete_callback();
