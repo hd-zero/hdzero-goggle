@@ -15,7 +15,7 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
-extern void (*sdcard_ready_cb)();
+extern void (*sdcard_ready_cb)(void(*)());
 
 /**
  * Types
