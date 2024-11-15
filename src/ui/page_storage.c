@@ -15,7 +15,7 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
-extern void (*sdcard_ready_cb)();
+extern void (*sdcard_ready_cb)(void(*)());
 
 /**
  * Types
@@ -536,18 +536,6 @@ static void page_storage_on_right_button(bool is_short) {
 }
 
 /**
- * Returns true once the thread has completed.
- */
-static bool page_storage_is_sd_repair_complete() {
-    if (page_storage.is_sd_repair_complete) {
-        sdcard_ready_cb = page_storage_init_auto_sd_repair;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
  */
@@ -567,13 +555,13 @@ page_pack_t pp_storage = {
     .on_right_button = page_storage_on_right_button,
     .post_bootup_run_priority = 50,
     .post_bootup_run_function = page_storage_init_auto_sd_repair,
-    .post_bootup_run_complete = page_storage_is_sd_repair_complete,
 };
 
 /**
  * Worker thread for repairing SD Card.
  */
 static void *page_storage_repair_thread(void *arg) {
+    void (*complete_callback)() = arg;
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
         disable_controls();
@@ -584,6 +572,11 @@ static void *page_storage_repair_thread(void *arg) {
         page_storage.is_auto_sd_repair_active = false;
     }
     page_storage.is_sd_repair_complete = true;
+    sdcard_ready_cb = page_storage_init_auto_sd_repair;
+
+    if (complete_callback != NULL) {
+        complete_callback();
+    }
     pthread_exit(NULL);
 }
 
@@ -597,11 +590,11 @@ bool page_storage_is_sd_repair_active() {
 /**
  * Once initialized detach until completed.
  */
-void page_storage_init_auto_sd_repair() {
+void page_storage_init_auto_sd_repair(void (*complete_callback)()) {
     page_storage.is_sd_repair_complete = false;
     if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
-        if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
+        if (!pthread_create(&tid, NULL, page_storage_repair_thread, complete_callback)) {
             pthread_detach(tid);
         }
     } else {
