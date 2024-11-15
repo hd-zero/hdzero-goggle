@@ -4,5 +4,5 @@
 
 #include "language.h"
 
-extern translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM];
+extern const translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM];
 #endif

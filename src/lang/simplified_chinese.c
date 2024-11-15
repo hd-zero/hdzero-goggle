@@ -12,7 +12,7 @@ Note:
 
 #include "simplified_chinese.h"
 
-translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
+const translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     // status bar
     {"SD Card", "SD卡"},
     {"Off", "关"},
