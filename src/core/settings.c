@@ -460,8 +460,9 @@ void settings_load(void) {
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
     // language
-    g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
-    LOGI("lang:%d", g_setting.language.lang);
+    if (!language_config()) {
+        g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
+    }
 
     // Check
     if (fs_file_exists(SELF_TEST_FILE)) {

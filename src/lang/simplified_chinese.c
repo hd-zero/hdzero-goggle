@@ -248,11 +248,6 @@ const translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     {"Settings reset", "重置设置"},
     {"All settings have been reset.\nPlease repower goggle now.", "所有设置已被重置.\n现在请重启眼镜."},
     {"Empty", "无"},
-    {"Language", "语言"},
-    {"English", "英语"},
-    {"Simplified Chinese", "简体中文"},
-    {"Set Language", "设置语言"},
-    {"Language has been changed.\nPlease repower goggle now.", "语言已修改.\n现在请重启眼镜."},
     {"Goggle", "眼镜"},
 
     // focus chart
