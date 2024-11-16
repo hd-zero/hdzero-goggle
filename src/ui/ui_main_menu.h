@@ -12,7 +12,7 @@ extern "C" {
 #include "ui/page_common.h"
 
 typedef struct {
-    const char *name;
+    char *name;
     panel_arr_t p_arr;
 
     lv_obj_t *page;
@@ -29,7 +29,7 @@ typedef struct {
     void (*on_right_button)(bool is_short);
 
     int32_t post_bootup_run_priority;
-    void(*post_bootup_run_function)(void(*complete_callback)());
+    void (*post_bootup_run_function)(void(*complete_callback)());
 } page_pack_t;
 
 typedef struct {

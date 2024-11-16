@@ -8,6 +8,7 @@
 #include <minIni.h>
 
 #include "core/self_test.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "util/filesystem.h"
 #include "util/system.h"
@@ -32,7 +33,7 @@ const setting_t g_setting_defaults = {
         .source = SETTING_AUTOSCAN_SOURCE_HDZERO,
     },
     .power = {
-        .voltage = 35,
+        .voltage = 3500,
         .display_voltage = true,
         .warning_type = SETTING_POWER_WARNING_TYPE_BOTH,
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
@@ -127,7 +128,7 @@ const setting_t g_setting_defaults = {
             // OSD_GOGGLE_CHANNEL
             {
                 .show = true,
-                .position = {.mode_4_3 = {.x = 540, .y = 0}, .mode_16_9 = {.x = 540, .y = 0}},
+                .position = {.mode_4_3 = {.x = 580, .y = 0}, .mode_16_9 = {.x = 580, .y = 0}},
             },
             // OSD_GOGGLE_SD_REC
             {
@@ -217,6 +218,9 @@ const setting_t g_setting_defaults = {
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
         .hdzero_bw = SETTING_SOURCES_HDZERO_BW_WIDE,
+    },
+    .language = {
+        .lang = LANG_ENGLISH_DEFAULT,
     },
 };
 
@@ -454,6 +458,11 @@ void settings_load(void) {
 
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
+
+    // language
+    if (!language_config()) {
+        g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
+    }
 
     // Check
     if (fs_file_exists(SELF_TEST_FILE)) {
