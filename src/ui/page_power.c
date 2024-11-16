@@ -12,6 +12,7 @@
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
+#include "lang/language.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 
@@ -85,6 +86,7 @@ static void page_power_update_calibration_offset() {
 }
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     // Update number of rows based on Batch 2 vs Batch 1 options
     pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
@@ -98,7 +100,8 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1063, 984);
 
-    create_text(NULL, section, false, "Power:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Power"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 970, 680);
@@ -114,22 +117,24 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_clear_flag(pp_power.p_arr.panel[0], FLAG_SELECTABLE);
 
     // create menu entries
-    create_label_item(cont, "Battery", 1, ROW_BATT_C_LABEL, 1);
+    create_label_item(cont, _lang("Battery"), 1, ROW_BATT_C_LABEL, 1);
     label_cell_count = create_label_item(cont, "-S", 2, ROW_BATT_C_LABEL, 1);
-    create_btn_group_item(&btn_group_cell_count_mode, cont, 2, "Cell Count Mode", "Auto", "Manual", "", "", ROW_CELL_COUNT_MODE);
-    create_slider_item(&slider_group_cell_count, cont, "Cell Count", CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
-    create_slider_item(&slider_group_cell_voltage, cont, "Warning Cell Voltage", WARNING_CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_WARNING_CELL_VOLTAGE);
-    create_slider_item(&slider_group_calibration_offset, cont, "Voltage Calibration", 0, g_setting.power.calibration_offset, ROW_CALIBRATION_OFFSET);
-    create_btn_group_item(&btn_group_osd_display_mode, cont, 2, "Display Mode", "Total", "Cell Avg.", "", "", ROW_OSD_DISPLAY_MODE);
-    create_btn_group_item(&btn_group_warn_type, cont, 3, "Warning Type", "Beep", "Visual", "Both", "", ROW_WARN_TYPE);
+    create_btn_group_item(&btn_group_cell_count_mode, cont, 2, _lang("Cell Mode"), _lang("Auto"), _lang("Manual"), "", "", ROW_CELL_COUNT_MODE);
+    create_slider_item(&slider_group_cell_count, cont, _lang("Cell Count"), CELL_MAX_COUNT, g_setting.power.cell_count, ROW_CELL_COUNT);
+    create_slider_item(&slider_group_cell_voltage, cont, _lang("Warning Cell Voltage"), WARNING_CELL_VOLTAGE_MAX, g_setting.power.voltage, ROW_WARNING_CELL_VOLTAGE);
+    create_slider_item(&slider_group_calibration_offset, cont, _lang("Voltage Calibration"), 0, g_setting.power.calibration_offset, ROW_CALIBRATION_OFFSET);
+    create_btn_group_item(&btn_group_osd_display_mode, cont, 2, _lang("Display Mode"), _lang("Total"), _lang("Cell Avg."), "", "", ROW_OSD_DISPLAY_MODE);
+    create_btn_group_item(&btn_group_warn_type, cont, 3, _lang("Warning Type"), _lang("Beep"), _lang("Visual"), _lang("Both"), "", ROW_WARN_TYPE);
 
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        create_btn_group_item(&btn_group_power_ana, cont, 2, "AnalogRX Power", "On", "Auto", "", "", ROW_POWER_ANA);
+        sprintf(buf, "%s %s", _lang("AnalogRX"), _lang("Power"));
+        create_btn_group_item(&btn_group_power_ana, cont, 2, buf, _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
     }
 
     // Back entry
-    create_label_item(cont, "< Back", 1, pp_power.p_arr.max - 1, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, pp_power.p_arr.max - 1, 1);
 
     // set menu entry min/max values and labels
     char str[6];

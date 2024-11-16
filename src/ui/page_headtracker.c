@@ -7,6 +7,7 @@
 #include "core/app_state.h"
 #include "core/settings.h"
 #include "ht.h"
+#include "lang/language.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 
@@ -118,7 +119,7 @@ static void update_visibility(uint8_t page) {
 }
 
 static void page_headtracker_set_alarm_reset() {
-    lv_label_set_text(label_alarm_angle, "Set Alarm Angle");
+    lv_label_set_text(label_alarm_angle, _lang("Set Alarm Angle"));
     if (set_alarm_angle_timer != NULL) {
         lv_timer_del(set_alarm_angle_timer);
         set_alarm_angle_timer = NULL;
@@ -131,6 +132,7 @@ static void page_headtracker_set_alarm_angle_timer_cb(struct _lv_timer_t *timer)
 }
 
 static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -141,7 +143,8 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Head Tracker:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Head Tracker"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -155,12 +158,12 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&page_select, cont, 2, "Page", "Tracking", "Tilt Alarm", "", "", 0);
+    create_btn_group_item(&page_select, cont, 2, _lang("Page"), _lang("Tracking"), _lang("Tilt Alarm"), "", "", 0);
 
     // page 2 items
-    create_btn_group_item(&alarm_state, cont, 3, "Alarm", "Off", "Video", "Arm", "", 1);
+    create_btn_group_item(&alarm_state, cont, 3, _lang("Alarm"), _lang("Off"), _lang("Video"), _lang("Arm"), "", 1);
 
-    label_alarm_angle = create_label_item(cont, "Set Alarm Angle", 1, 2, 1);
+    label_alarm_angle = create_label_item(cont, _lang("Set Alarm Angle"), 1, 2, 1);
     lv_obj_clear_flag(label_alarm_angle, LV_OBJ_FLAG_SCROLLABLE);
 
     // preload page 2 items
@@ -168,22 +171,23 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_state(label_alarm_angle, STATE_DISABLED);
 
     // page 1 items
-    create_btn_group_item(&btn_group, cont, 2, "Tracking", "On", "Off", "", "", 1);
+    create_btn_group_item(&btn_group, cont, 2, _lang("Tracking"), _lang("On"), _lang("Off"), "", "", 1);
 
-    label_cali = create_label_item(cont, "Calibrate", 1, 2, 1);
+    label_cali = create_label_item(cont, _lang("Calibrate"), 1, 2, 1);
 
-    label_center = create_label_item(cont, "Set Center", 1, 3, 1);
+    label_center = create_label_item(cont, _lang("Set Center"), 1, 3, 1);
 
-    create_slider_item(&slider_group, cont, "Max Angle", 360, g_setting.ht.max_angle, 4);
+    create_slider_item(&slider_group, cont, _lang("Max Angle"), 360, g_setting.ht.max_angle, 4);
     lv_slider_set_range(slider_group.slider, 0, 360);
 
-    create_label_item(cont, "< Back", 1, 5, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, 5, 1);
 
     btn_group_set_sel(&btn_group, !g_setting.ht.enable);
     btn_group_set_sel(&alarm_state, g_setting.ht.alarm_state);
     btn_group_set_sel(&page_select, 0);
 
-    create_label_item(cont, "Pan", 1, 7, 1);
+    create_label_item(cont, _lang("Pan"), 1, 7, 1);
     pan = lv_bar_create(cont);
     lv_bar_set_range(pan, 1000, 2000);
     lv_obj_set_size(pan, 500, 25);
@@ -196,7 +200,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(pan, LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_CENTER, 7, 1);
 
-    create_label_item(cont, "Tilt", 1, 8, 1);
+    create_label_item(cont, _lang("Tilt"), 1, 8, 1);
     tilt = lv_bar_create(cont);
     lv_bar_set_range(tilt, 1000, 2000);
     lv_obj_set_size(tilt, 500, 25);
@@ -209,7 +213,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(tilt, LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_CENTER, 8, 1);
 
-    create_label_item(cont, "Roll", 1, 9, 1);
+    create_label_item(cont, _lang("Roll"), 1, 9, 1);
     roll = lv_bar_create(cont);
     lv_bar_set_range(roll, 1000, 2000);
     lv_obj_set_size(roll, 500, 25);
@@ -289,6 +293,7 @@ static void page_headtracker_on_roller(uint8_t key) {
 }
 
 static void page_headtracker_on_click_page1(uint8_t key, int sel) {
+    char buf[64];
     if (sel == 1) {
         btn_group_toggle_sel(&btn_group);
         g_setting.ht.enable = btn_group_get_sel(&btn_group) == 0;
@@ -300,10 +305,11 @@ static void page_headtracker_on_click_page1(uint8_t key, int sel) {
 
         update_visibility(curr_page);
     } else if (sel == 2) {
-        lv_label_set_text(label_cali, "Calibrating...");
+        sprintf(buf, "%s...", _lang("Calibrating"));
+        lv_label_set_text(label_cali, buf);
         lv_timer_handler();
         ht_calibrate();
-        lv_label_set_text(label_cali, "Re-calibrate");
+        lv_label_set_text(label_cali, _lang("Re-calibrate"));
         lv_timer_handler();
     } else if (sel == 3) {
         ht_set_center_position();
@@ -319,12 +325,14 @@ static void page_headtracker_on_click_page1(uint8_t key, int sel) {
 }
 
 static void page_headtracker_on_click_page2(uint8_t key, int sel) {
+    char buf[64];
     if (sel == 1) {
         btn_group_toggle_sel(&alarm_state);
         g_setting.ht.alarm_state = btn_group_get_sel(&alarm_state);
         ini_putl("ht", "alarm_state", g_setting.ht.alarm_state, SETTING_INI);
     } else if (sel == 2) {
-        lv_label_set_text(label_alarm_angle, "Updating Angle...");
+        sprintf(buf, "%s...", "Updating Angle");
+        lv_label_set_text(label_alarm_angle, buf);
         set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
         lv_timer_set_repeat_count(set_alarm_angle_timer, 1);
         ht_set_alarm_angle();

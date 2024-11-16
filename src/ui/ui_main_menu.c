@@ -10,6 +10,7 @@
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
 #include "driver/oled.h"
+#include "lang/language.h"
 #include "ui/page_autoscan.h"
 #include "ui/page_clock.h"
 #include "ui/page_common.h"
@@ -67,7 +68,7 @@ static page_pack_t *page_packs[] = {
 
 #define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
 
-static page_pack_t* post_bootup_actions[PAGE_COUNT + 1];
+static page_pack_t *post_bootup_actions[PAGE_COUNT + 1];
 
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
@@ -78,15 +79,15 @@ static page_pack_t *find_pp(lv_obj_t *page) {
     return NULL;
 }
 
-static void select_menu_tab(page_pack_t* pp) {
+static void select_menu_tab(page_pack_t *pp) {
     lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
 }
 
-static void deselect_menu_tab(page_pack_t* pp) {
+static void deselect_menu_tab(page_pack_t *pp) {
     // LV_OPA_20 is the default for pressed menu
     // see lv_theme_default.c styles->menu_pressed
-    lv_obj_set_style_bg_opa(((lv_menu_t*)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
     lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -100,7 +101,8 @@ void submenu_enter(void) {
 
     if (pp->p_arr.max) {
         // if we have selectable entries, select the first selectable one
-        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur);
+        for (pp->p_arr.cur = 0; !lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE); ++pp->p_arr.cur)
+            ;
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
@@ -270,7 +272,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     lv_obj_t *cont = lv_menu_cont_create(section);
 
     pp->label = lv_label_create(cont);
-    lv_label_set_text(pp->label, pp->name);
+    lv_label_set_text(pp->label, _lang(pp->name));
     lv_obj_set_style_text_font(pp->label, &lv_font_montserrat_26, 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
@@ -319,7 +321,7 @@ void main_menu_init(void) {
                     post_bootup_actions[PAGE_COUNT] = post_bootup_actions[i];
                     post_bootup_actions[i] = post_bootup_actions[j];
                     post_bootup_actions[j] = post_bootup_actions[PAGE_COUNT];
-                } 
+                }
             }
         }
     }
@@ -371,7 +373,7 @@ void main_menu_update() {
                         ++last_bootup_action;
                     }
                 } else { // Thread invokation
-                    if (post_bootup_actions[i]->post_bootup_run_function){
+                    if (post_bootup_actions[i]->post_bootup_run_function) {
                         post_bootup_actions[i]->post_bootup_run_function();
                         post_bootup_actions[i]->post_bootup_run_function = NULL;
                     } else if (post_bootup_actions[i]->post_bootup_run_complete()) {

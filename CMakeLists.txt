@@ -70,6 +70,7 @@ file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_UTIL "src/util/*.c" "src/util/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 file(GLOB SRC_FILES_EMULATOR "src/emulator/*.c" "src/emulator/*.h")
+file(GLOB SRC_FILES_LANG "src/lang/*.c" "src/lang/*.h")
 
 set(SRC_FILES
 	${SRC_FILES_CORE}
@@ -79,6 +80,7 @@ set(SRC_FILES
 	${SRC_FILES_UI}
 	${SRC_FILES_BMI}
 	${SRC_FILES_UTIL}
+	${SRC_FILES_LANG}
 )
 if(EMULATOR_BUILD)
 	list(APPEND SRC_FILES ${SRC_FILES_EMULATOR})
