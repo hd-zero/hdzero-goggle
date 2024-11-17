@@ -76,7 +76,7 @@ static void page_power_update_cell_count() {
 
 static void page_power_update_calibration_offset() {
     g_battery.offset = g_setting.power.calibration_offset;
-    ini_putl("power", "calibration_offset", g_battery.offset, SETTING_INI);
+    ini_putl("power", "calibration_offset_mv", g_battery.offset, SETTING_INI);
 
     lv_slider_set_value(slider_group_calibration_offset.slider, g_battery.offset, LV_ANIM_OFF);
     char buf[7];
@@ -198,7 +198,7 @@ static void power_warning_voltage_inc(void) {
 
     g_setting.power.voltage = value;
     LOGI("vol:%d", g_setting.power.voltage);
-    ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
+    ini_putl("power", "voltage_mv", g_setting.power.voltage, SETTING_INI);
 }
 
 static void power_warning_voltage_dec(void) {
@@ -215,7 +215,7 @@ static void power_warning_voltage_dec(void) {
 
     g_setting.power.voltage = value;
     LOGI("vol:%d", g_setting.power.voltage);
-    ini_putl("power", "voltage", g_setting.power.voltage, SETTING_INI);
+    ini_putl("power", "voltage_mv", g_setting.power.voltage, SETTING_INI);
 }
 
 static void power_calibration_offset_inc(void) {
