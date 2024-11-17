@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "lang/language.h"
 #include "ui/ui_attribute.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
 
     if (txt) {
         label = lv_label_create(obj);
-        lv_label_set_text(label, txt);
+        lv_label_set_text(label, _lang(txt));
         lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         //    lv_obj_set_flex_grow(label, 1);

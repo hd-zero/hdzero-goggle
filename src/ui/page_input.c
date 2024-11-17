@@ -7,9 +7,10 @@
 #include "core/dvr.h"
 #include "core/ht.h"
 #include "core/input_device.h"
-#include "core/sleep_mode.h"
 #include "core/osd.h"
+#include "core/sleep_mode.h"
 
+#include "lang/language.h"
 #include "ui/page_fans.h"
 #include "ui/page_source.h"
 #include "ui/ui_image_setting.h"
@@ -31,18 +32,43 @@ typedef enum page_input_rows {
     ROW_COUNT
 } rowType_t;
 
+typedef struct Action {
+    uint16_t id;
+    const char *name;
+    union {
+        void(*const btnFunction);
+        void (*const rollerFunction)(uint8_t);
+    } functionPtr;
+} action_t;
+
 /**
  * Compile-unit local variables, constants and fields
  */
 static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
 static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 80, LV_GRID_TEMPLATE_LAST};
 
-const char *btnOptions[] = {"Toggle OSD", "Main menu", "Toggle DVR", "Center HT", "Calibrate HT", "Go Sleep!", "Toggle fan speed", "Star DVR", "Toggle source", "Cycle source"};
-void (* const btnFunctionPointers[])() = {&osd_toggle, &app_switch_to_menu, &dvr_toggle, &ht_set_center_position, &ht_calibrate, &go_sleep, &step_topfan, &dvr_star, &source_toggle, &source_cycle};
+static void nop() {}
+static void rollerNop(uint8_t key) { (void)key; }
 
-const char *rollerOptions[] = {"Switch channel", "Change fan speed", "OLED Brightness"};
-void (* const rollerFunctionPointers[])(uint8_t) = {&tune_channel, &change_topfan, &change_oled_brightness};
-const uint16_t rollerDefaultOption = 0;
+static const action_t btnActions[] = {
+    {.id = 10, .name = "None", .functionPtr = &nop},
+    {.id = 0, .name = "Toggle OSD", .functionPtr = &osd_toggle},
+    {.id = 1, .name = "Main menu", .functionPtr = &app_switch_to_menu},
+    {.id = 2, .name = "Toggle DVR", .functionPtr = &dvr_toggle},
+    {.id = 3, .name = "Center HT", .functionPtr = &ht_set_center_position},
+    {.id = 4, .name = "Calibrate HT", .functionPtr = &ht_calibrate},
+    {.id = 5, .name = "Go Sleep!", .functionPtr = &go_sleep},
+    {.id = 6, .name = "Toggle fan speed", .functionPtr = &step_topfan},
+    {.id = 7, .name = "Star DVR", .functionPtr = &dvr_star},
+    {.id = 8, .name = "Toggle source", .functionPtr = &source_toggle},
+    {.id = 9, .name = "Cycle source", .functionPtr = &source_cycle},
+};
+
+static const action_t rollerActions[] = {
+    {.id = 3, .name = "None", .functionPtr = &rollerNop},
+    {.id = 0, .name = "Switch channel", .functionPtr = &tune_channel},
+    {.id = 1, .name = "Change fan speed", .functionPtr = &change_topfan},
+    {.id = 2, .name = "OLED Brightness", .functionPtr = &change_oled_brightness}};
 
 static rowType_t selectedRow = ROW_COUNT;
 static lv_obj_t *pageItems[ROW_COUNT];
@@ -52,15 +78,39 @@ static uint16_t previousSelection;
 /**
  * Build a '\n'-separated list of all available options for the dropdown element
  */
-static void build_options_string(const char** input, size_t arraySize, char* output) {
-    output[0] = 0;
-    for (size_t i = 0; i < arraySize; i++) {
-        strcat(output, input[i]);
-        if (i < arraySize - 1) {
+static void build_options_string(const action_t *const actions, size_t size, char *output) {
+    for (size_t i = 0; i < size; i++) {
+        strcat(output, _lang(actions[i].name));
+        if (i < size - 1) {
             strcat(output, "\n");
         }
     }
 }
+
+/**
+ * Get the action_t item from btnActions by the given id
+ * @return The action_t item or NULL if id was not found
+ */
+static const action_t *actionFromId(const action_t *const actions, size_t size, uint16_t id) {
+    for (size_t i = 0; i < size; i++) {
+        if (actions[i].id == id) {
+            return &actions[i];
+        }
+    }
+
+    return NULL;
+}
+static const action_t *btnActionFromId(uint16_t id) { return actionFromId(btnActions, ARRAY_SIZE(btnActions), id); }
+static const action_t *rollerActionFromId(uint16_t id) { return actionFromId(rollerActions, ARRAY_SIZE(rollerActions), id); }
+
+/**
+ * Get the array index of the action that has the given id.
+ */
+static size_t indexFromId(const action_t *const actions, size_t size, uint16_t id) {
+    return actionFromId(actions, size, id) - actions;
+}
+static size_t btnIndexFromId(uint16_t id) { return indexFromId(btnActions, ARRAY_SIZE(btnActions), (id)); }
+static size_t rollerIndexFromId(uint16_t id) { return indexFromId(rollerActions, ARRAY_SIZE(rollerActions), (id)); }
 
 /**
  * Update the UI elements as the user navigates the page
@@ -75,12 +125,12 @@ static void reset_dropdown_styles() {
  * Pick the associated function pointers for the globally configured actions
  */
 static void update_inputs() {
-    roller_callback = rollerFunctionPointers[g_setting.inputs.roller];
-    btn_click_callback = btnFunctionPointers[g_setting.inputs.left_click];
-    btn_press_callback = btnFunctionPointers[g_setting.inputs.left_press];
-    rbtn_click_callback = btnFunctionPointers[g_setting.inputs.right_click];
-    rbtn_press_callback = btnFunctionPointers[g_setting.inputs.right_press];
-    rbtn_double_click_callback = btnFunctionPointers[g_setting.inputs.right_double_click];
+    roller_callback = rollerActionFromId(g_setting.inputs.roller)->functionPtr.rollerFunction;
+    btn_click_callback = btnActionFromId(g_setting.inputs.left_click)->functionPtr.btnFunction;
+    btn_press_callback = btnActionFromId(g_setting.inputs.left_press)->functionPtr.btnFunction;
+    rbtn_click_callback = btnActionFromId(g_setting.inputs.right_click)->functionPtr.btnFunction;
+    rbtn_press_callback = btnActionFromId(g_setting.inputs.right_press)->functionPtr.btnFunction;
+    rbtn_double_click_callback = btnActionFromId(g_setting.inputs.right_double_click)->functionPtr.btnFunction;
 }
 
 /**
@@ -91,28 +141,28 @@ static void accept_dropdown(lv_obj_t *obj) {
     const uint16_t selectedOption = lv_dropdown_get_selected(obj);
 
     if (selectedRow == ROLLER) {
-        g_setting.inputs.roller = selectedOption;
+        g_setting.inputs.roller = rollerActions[selectedOption].id;
         ini_putl("inputs", "roller", g_setting.inputs.roller, SETTING_INI);
     } else {
         switch (selectedRow) {
         case LEFT_SHORT:
-            g_setting.inputs.left_click = selectedOption;
+            g_setting.inputs.left_click = btnActions[selectedOption].id;
             ini_putl("inputs", "left_click", g_setting.inputs.left_click, SETTING_INI);
             break;
         case LEFT_LONG:
-            g_setting.inputs.left_press = selectedOption;
+            g_setting.inputs.left_press = btnActions[selectedOption].id;
             ini_putl("inputs", "left_press", g_setting.inputs.left_press, SETTING_INI);
             break;
         case RIGHT_SHORT:
-            g_setting.inputs.right_click = selectedOption;
+            g_setting.inputs.right_click = btnActions[selectedOption].id;
             ini_putl("inputs", "right_click", g_setting.inputs.right_click, SETTING_INI);
             break;
         case RIGHT_LONG:
-            g_setting.inputs.right_press = selectedOption;
+            g_setting.inputs.right_press = btnActions[selectedOption].id;
             ini_putl("inputs", "right_press", g_setting.inputs.right_press, SETTING_INI);
             break;
         case RIGHT_DOUBLE:
-            g_setting.inputs.right_double_click = selectedOption;
+            g_setting.inputs.right_double_click = btnActions[selectedOption].id;
             ini_putl("inputs", "right_double_click", g_setting.inputs.right_double_click, SETTING_INI);
             break;
         default:
@@ -146,6 +196,7 @@ static bool is_any_dropdown_open() {
  * Main allocation routine for this page
  */
 static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     int contentHeight = 0;
     for (size_t i = 0; i < (ARRAY_SIZE(row_dsc) - 1); i++) {
         contentHeight += row_dsc[i];
@@ -155,10 +206,10 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
         contentWidth += col_dsc[i];
     }
 
-    char rollerOptionsStr[128];
-    build_options_string(rollerOptions, ARRAY_SIZE(rollerOptions), rollerOptionsStr);
-    char btnOptionsStr[128];
-    build_options_string(btnOptions, ARRAY_SIZE(btnOptions), btnOptionsStr);
+    char rollerOptionsStr[256] = "";
+    build_options_string(rollerActions, ARRAY_SIZE(rollerActions), rollerOptionsStr);
+    char btnOptionsStr[256] = "";
+    build_options_string(btnActions, ARRAY_SIZE(btnActions), btnOptionsStr);
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -170,7 +221,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
 
-    create_text(NULL, section, false, "Inputs:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Input"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *content = lv_obj_create(section);
     lv_obj_set_size(content, contentWidth, contentHeight);
@@ -184,35 +236,44 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, content);
 
-    create_label_item(content, "Roller:", 1, ROLLER, 1);
+    sprintf(buf, "%s:", _lang("Roller"));
+    create_label_item(content, buf, 1, ROLLER, 1);
     pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[ROLLER], g_setting.inputs.roller);
+    lv_dropdown_set_selected(pageItems[ROLLER], rollerIndexFromId(g_setting.inputs.roller));
 
-    create_label_item(content, "Left short:", 1, LEFT_SHORT, 1);
+    sprintf(buf, "%s:", _lang("Left short"));
+    create_label_item(content, buf, 1, LEFT_SHORT, 1);
     pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_SHORT], g_setting.inputs.left_click);
+    lv_dropdown_set_selected(pageItems[LEFT_SHORT], btnIndexFromId(g_setting.inputs.left_click));
 
-    create_label_item(content, "Left long:", 1, LEFT_LONG, 1);
+    sprintf(buf, "%s:", _lang("Left long"));
+    create_label_item(content, buf, 1, LEFT_LONG, 1);
     pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[LEFT_LONG], g_setting.inputs.left_press);
+    lv_dropdown_set_selected(pageItems[LEFT_LONG], btnIndexFromId(g_setting.inputs.left_press));
 
-    create_label_item(content, "Right short:", 1, RIGHT_SHORT, 1);
+    sprintf(buf, "%s:", _lang("Right short"));
+    create_label_item(content, buf, 1, RIGHT_SHORT, 1);
     pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], g_setting.inputs.right_click);
+    lv_dropdown_set_selected(pageItems[RIGHT_SHORT], btnIndexFromId(g_setting.inputs.right_click));
 
-    create_label_item(content, "Right long:", 1, RIGHT_LONG, 1);
+    sprintf(buf, "%s:", _lang("Right long"));
+    create_label_item(content, buf, 1, RIGHT_LONG, 1);
     pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_LONG], g_setting.inputs.right_press);
+    lv_dropdown_set_selected(pageItems[RIGHT_LONG], btnIndexFromId(g_setting.inputs.right_press));
 
-    create_label_item(content, "Right double:", 1, RIGHT_DOUBLE, 1);
+    sprintf(buf, "%s:", _lang("Right double"));
+    create_label_item(content, buf, 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
-    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], g_setting.inputs.right_double_click);
+    lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], btnIndexFromId(g_setting.inputs.right_double_click));
 
-    pageItems[BACK_BTN] = create_label_item(content, "< Back", 1, BACK_BTN, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    pageItems[BACK_BTN] = create_label_item(content, buf, 1, BACK_BTN, 1);
 
     lv_obj_t *label = lv_label_create(content);
-    lv_label_set_text(label, "*Settings apply to video mode only\n"
-                             "'Toggle source' will switch between HDZero and Expansion module");
+    sprintf(buf, "*%s\n%s",
+            _lang("Settings apply to video mode only"),
+            _lang("'Toggle source' will switch between HDZero and Expansion module"));
+    lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_pad_top(label, 12, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
@@ -248,7 +309,7 @@ static void page_input_exit() {
  */
 static void page_input_on_roller(uint8_t key) {
     if (is_any_dropdown_open()) {
-        lv_obj_t * const targetItem = pageItems[selectedRow];
+        lv_obj_t *const targetItem = pageItems[selectedRow];
         uint32_t evt = (key == DIAL_KEY_DOWN) ? LV_KEY_UP : LV_KEY_DOWN;
 
         lv_event_send(targetItem, LV_EVENT_KEY, &evt);
@@ -277,7 +338,7 @@ static void page_input_on_roller(uint8_t key) {
 static void page_input_on_click(uint8_t key, int sel) {
     LV_UNUSED(key);
 
-    if ((rowType_t) sel >= BACK_BTN) {
+    if ((rowType_t)sel >= BACK_BTN) {
         return;
     }
 
@@ -285,10 +346,10 @@ static void page_input_on_click(uint8_t key, int sel) {
         accept_dropdown(pageItems[selectedRow]);
     } else {
         selectedRow = (rowType_t)sel;
-        lv_obj_t * const currentItem = pageItems[selectedRow];
+        lv_obj_t *const currentItem = pageItems[selectedRow];
 
         lv_dropdown_open(currentItem);
-        lv_obj_t * const list = lv_dropdown_get_list(currentItem);
+        lv_obj_t *const list = lv_dropdown_get_list(currentItem);
         lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
         lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
         previousSelection = lv_dropdown_get_selected(currentItem);

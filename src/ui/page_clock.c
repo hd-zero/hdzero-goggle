@@ -10,6 +10,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "driver/rtc.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_style.h"
@@ -213,7 +214,7 @@ static void page_clock_refresh_datetime() {
     }
     snprintf(text, sizeof(text), "%02d:%02d:%02d", hour, date.min, date.sec);
     lv_label_set_text(page_clock_datetime.time, text);
-    snprintf(text, sizeof(text), "%s", g_setting.clock.format == 0 ? (date.hour > 11 ? "PM" : "AM") : "");
+    snprintf(text, sizeof(text), "%s", g_setting.clock.format == 0 ? (date.hour > 11 ? _lang("PM") : _lang("AM")) : "");
     lv_label_set_text(page_clock_datetime.format, text);
 }
 
@@ -238,7 +239,7 @@ static void page_clock_refresh_styles() {
  * Set the 'Set Clock' text back to it's initial text and colored state.
  */
 static void page_clock_set_clock_reset() {
-    lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "Set Clock");
+    lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, _lang("Set Clock"));
     page_clock_set_clock_confirm = 0;
 }
 
@@ -287,7 +288,7 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
         static int dir = 20;
         static char text[128];
         static uint8_t red = 150;
-        snprintf(text, sizeof(text), "#%02x0000 Set Clock#", red);
+        snprintf(text, sizeof(text), "#%02x0000 %s#", red, _lang("Set Clock"));
         lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, text);
         if (red >= 250) {
             dir = -20;
@@ -341,6 +342,7 @@ static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[256];
     rtc_get_clock(&page_clock_rtc_date);
     page_clock_build_options_from_date(&page_clock_rtc_date);
 
@@ -354,7 +356,8 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Clock:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Clock"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 1280, 800);
@@ -376,16 +379,18 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
-    create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, "Format", "AM/PM", "24 Hour", "", "", 2);
+    sprintf(buf, "%s/%s", _lang("AM"), _lang("PM"));
+    create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, _lang("Format"), buf, _lang("24 Hour"), "", "", 2);
     page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
-    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, "Set Clock", 1, 3, 3);
+    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 3, 3);
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_OBJ;
     page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, "< Back", 1, 4, 1);
+    sprintf(buf, "< %s", _lang("Back"));
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 4, 1);
     page_clock_items[ITEM_BACK].type = ITEM_TYPE_OBJ;
     page_clock_items[ITEM_BACK].panel = arr->panel[4];
 
@@ -393,7 +398,8 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
-        lv_label_set_text(note, "*Battery not installed or clock not configured.");
+        sprintf(buf, "*%s.", _lang("Battery not installed or clock not configured"));
+        lv_label_set_text(note, buf);
         lv_obj_set_style_text_font(note, &lv_font_montserrat_16, 0);
         lv_obj_set_style_text_align(note, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
@@ -500,6 +506,7 @@ static void page_clock_on_roller(uint8_t key) {
  * Main input selection routine for this page.
  */
 static void page_clock_on_click(uint8_t key, int sel) {
+    char buf[128];
     // Ignore commands until timer has expired before allowing user to proceed.
     if (page_clock_set_clock_confirm == 2) {
         return;
@@ -513,12 +520,14 @@ static void page_clock_on_click(uint8_t key, int sel) {
         break;
     case ITEM_SET_CLOCK:
         if (page_clock_set_clock_confirm) {
-            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "#FF0000 Updating Clock...#");
+            sprintf(buf, "#FF0000 %s %s...#", _lang("Updating"), _lang("Clock"));
+            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, buf);
             page_clock_set_clock_timer = lv_timer_create(page_clock_set_clock_timer_cb, 1000, NULL);
             lv_timer_set_repeat_count(page_clock_set_clock_timer, 1);
             page_clock_set_clock_confirm = 2;
         } else {
-            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, "#FFFF00 Click to confirm or Scroll to cancel...#");
+            sprintf(buf, "#FFFF00 %s...#", _lang("Click to confirm or Scroll to cancel"));
+            lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, buf);
             page_clock_set_clock_confirm = 1;
         }
         break;

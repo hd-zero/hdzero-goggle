@@ -7,6 +7,7 @@
 #include "../core/common.hh"
 #include "core/settings.h"
 #include "driver/rtc.h"
+#include "lang/language.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
 
@@ -39,6 +40,7 @@ static void update_visibility() {
 }
 
 static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -49,7 +51,8 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    create_text(NULL, section, false, "Record Option:", LV_MENU_ITEM_BUILDER_VARIANT_2);
+    sprintf(buf, "%s:", _lang("Record Option"));
+    create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
     lv_obj_set_size(cont, 960, 600);
@@ -63,13 +66,14 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&btn_group_record_mode, cont, 2, "Record Mode", "Auto", "Manual", "", "", 0);
-    create_btn_group_item(&btn_group_format, cont, 2, "Record Format", "MP4", "TS", "", "", 1);
-    create_btn_group_item(&btn_group_record_osd, cont, 2, "Record OSD", "Yes", "No", "", "", 2);
-    create_btn_group_item(&btn_group_record_audio, cont, 2, "Record Audio", "Yes", "No", "", "", 3);
-    create_btn_group_item(&btn_group_audio_source, cont, 3, "Audio Source", "Mic", "Line In", "A/V In", "", 4);
-    create_btn_group_item(&btn_group_file_naming, cont, 2, "Naming Scheme", "Digits", "Date", "", "", 5);
-    create_label_item(cont, "< Back", 1, 6, 1);
+    create_btn_group_item(&btn_group_record_mode, cont, 2, _lang("Record Mode"), _lang("Auto"), _lang("Manual"), "", "", 0);
+    create_btn_group_item(&btn_group_format, cont, 2, _lang("Record Format"), "MP4", "TS", "", "", 1);
+    create_btn_group_item(&btn_group_record_osd, cont, 2, _lang("Record OSD"), _lang("Yes"), _lang("No"), "", "", 2);
+    create_btn_group_item(&btn_group_record_audio, cont, 2, _lang("Record Audio"), _lang("Yes"), _lang("No"), "", "", 3);
+    create_btn_group_item(&btn_group_audio_source, cont, 3, _lang("Audio Source"), _lang("Mic"), _lang("Line In"), _lang("A/V In"), "", 4);
+    create_btn_group_item(&btn_group_file_naming, cont, 2, _lang("Naming Scheme"), _lang("Digits"), _lang("Date"), "", "", 5);
+    sprintf(buf, "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, 6, 1);
 
     btn_group_set_sel(&btn_group_record_mode, g_setting.record.mode_manual ? 1 : 0);
     btn_group_set_sel(&btn_group_format, g_setting.record.format_ts ? 1 : 0);
@@ -79,7 +83,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_file_naming, g_setting.record.naming);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, "MP4 format requires properly closing files or the files will be corrupt. \nTS format is highly recommended.");
+    lv_label_set_text(label2, _lang("MP4 format requires properly closing files or the files will be corrupt. \nTS format is highly recommended."));
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
