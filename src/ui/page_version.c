@@ -54,7 +54,7 @@ typedef struct {
     lv_obj_t *dropdown;
     lv_obj_t *update;
     lv_obj_t *back;
-    char *alt_title;
+    const char *alt_title;
     char path[256];
     char **files;
     bool dropdown_focused;

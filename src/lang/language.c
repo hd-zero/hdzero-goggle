@@ -26,7 +26,7 @@ const char *language_config_file[] = {
     "CHN.TXT",
 };
 
-char *translate_string(const char *str, lang_e lang) {
+const char *translate_string(const char *str, lang_e lang) {
     int i;
 
     if (lang == LANG_ENGLISH_DEFAULT || lang >= LANG_END)

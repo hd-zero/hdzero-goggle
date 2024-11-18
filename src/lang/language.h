@@ -14,11 +14,11 @@ typedef enum {
 } lang_e;
 
 typedef struct {
-    char *in_english;
-    char *translate;
+    const char * const in_english;
+    const char * const translate;
 } translate_t;
 
-char *translate_string(const char *str, lang_e lang);
+const char *translate_string(const char *str, lang_e lang);
 bool language_config();
 
 #define _str(string, lang) translate_string(string, lang)
