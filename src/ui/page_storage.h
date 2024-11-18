@@ -9,7 +9,7 @@ extern "C" {
 extern page_pack_t pp_storage;
 
 bool page_storage_is_sd_repair_active();
-void page_storage_init_auto_sd_repair(void(*complete_callback)());
+void page_storage_init_auto_sd_repair();
 
 #ifdef __cplusplus
 }

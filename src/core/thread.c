@@ -31,7 +31,7 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
-void (*sdcard_ready_cb)(void(*)()) = NULL;
+void (*sdcard_ready_cb)() = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
@@ -51,7 +51,7 @@ static void detect_sdcard(void) {
         if (g_init_done) {
             if (sdcard_init_scan && g_sdcard_enable) {
                 if (sdcard_ready_cb) {
-                    sdcard_ready_cb(NULL);
+                    sdcard_ready_cb();
                 }
                 sdcard_init_scan = false;
             } else if (!g_sdcard_enable && sdcard_enable_last) {

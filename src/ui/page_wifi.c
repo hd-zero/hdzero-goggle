@@ -268,7 +268,7 @@ static void page_wifi_mask_password(lv_obj_t *obj, int size) {
  *  Note: This function will be invoked asynchronously post bootup and may
  *        require additional APP_STATE checks to ensure integrity of execution.
  */
-static void page_wifi_update_settings(void (*complete_callback)()) {
+static void page_wifi_update_settings() {
     g_setting.wifi.enable = btn_group_get_sel(&page_wifi.page_1.enable.button) == 0;
     g_setting.wifi.mode = btn_group_get_sel(&page_wifi.page_1.mode.button);
     g_setting.wifi.dhcp = btn_group_get_sel(&page_wifi.page_2.dhcp.button) == 0;
@@ -318,10 +318,6 @@ static void page_wifi_update_settings(void (*complete_callback)()) {
         } else {
             system_script(WIFI_STA_ON);
         }
-    }
-
-    if (complete_callback != NULL) {
-        complete_callback();
     }
 }
 
@@ -589,7 +585,7 @@ static void page_wifi_apply_settings_pending_cb(struct _lv_timer_t *timer) {
  * Callback invoked once `Apply Settings` is triggered and confirmed via the menu.
  */
 static void page_wifi_apply_settings_timer_cb(struct _lv_timer_t *timer) {
-    page_wifi_update_settings(NULL);
+    page_wifi_update_settings();
     page_wifi_dirty_flag_reset();
     page_wifi_apply_settings_reset();
 }
@@ -1147,6 +1143,14 @@ static void page_wifi_on_right_button(bool is_short) {
     }
 }
 
+void page_wifi_post_bootup_action(void (*complete_callback)()) {
+    page_wifi_update_settings();
+
+    if (complete_callback != NULL) {
+        complete_callback();
+    }
+}
+
 /**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
@@ -1166,7 +1170,7 @@ page_pack_t pp_wifi = {
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,
     .post_bootup_run_priority = 100,
-    .post_bootup_run_function = page_wifi_update_settings,
+    .post_bootup_run_function = page_wifi_post_bootup_action,
 };
 
 /**

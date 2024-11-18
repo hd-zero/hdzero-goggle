@@ -16,7 +16,7 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
-extern void (*sdcard_ready_cb)(void(*)());
+extern void (*sdcard_ready_cb)();
 
 /**
  * Types
@@ -551,6 +551,14 @@ static void page_storage_on_click(uint8_t key, int sel) {
 static void page_storage_on_right_button(bool is_short) {
 }
 
+static void page_storage_post_bootup_action(void (*complete_callback)()) {
+    page_storage_init_auto_sd_repair();
+
+    if (complete_callback != NULL) {
+        complete_callback();
+    }
+}
+
 /**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
@@ -570,14 +578,13 @@ page_pack_t pp_storage = {
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,
     .post_bootup_run_priority = 50,
-    .post_bootup_run_function = page_storage_init_auto_sd_repair,
+    .post_bootup_run_function = page_storage_post_bootup_action,
 };
 
 /**
  * Worker thread for repairing SD Card.
  */
 static void *page_storage_repair_thread(void *arg) {
-    void (*complete_callback)() = arg;
     char buf[128];
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
@@ -592,9 +599,6 @@ static void *page_storage_repair_thread(void *arg) {
     page_storage.is_sd_repair_complete = true;
     sdcard_ready_cb = page_storage_init_auto_sd_repair;
 
-    if (complete_callback != NULL) {
-        complete_callback();
-    }
     pthread_exit(NULL);
 }
 
@@ -608,11 +612,11 @@ bool page_storage_is_sd_repair_active() {
 /**
  * Once initialized detach until completed.
  */
-void page_storage_init_auto_sd_repair(void (*complete_callback)()) {
+void page_storage_init_auto_sd_repair() {
     page_storage.is_sd_repair_complete = false;
     if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
-        if (!pthread_create(&tid, NULL, page_storage_repair_thread, complete_callback)) {
+        if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
         }
     } else {
