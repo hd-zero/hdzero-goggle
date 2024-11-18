@@ -64,7 +64,7 @@ bool language_config() {
             LOGI("%s found", language_config_file[i]);
             ini_putl("language", "lang", i, SETTING_INI);
             g_setting.language.lang = i;
-            return 1;
+            return true;
         }
 
         to_lowercase(buf);
@@ -72,8 +72,8 @@ bool language_config() {
             LOGI("%s found", language_config_file[i]);
             ini_putl("language", "lang", i, SETTING_INI);
             g_setting.language.lang = i;
-            return 1;
+            return true;
         }
     }
-    return 0;
+    return false;
 }
