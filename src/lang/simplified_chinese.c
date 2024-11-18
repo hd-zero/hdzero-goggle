@@ -47,8 +47,8 @@ const translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
     {"Wide", "宽带"},
     {"Narrow", "窄带"},
     {"Back", "返回"},
-    {"#00FF00 Detected#", "#00FF00 已连接#"},
-    {"#C0C0C0 Disconnected", "#C0C0C0 未连接"},
+    {"Detected", "已连接"},
+    {"Disconnected", "未连接"},
 
     // image setting
     {"Image Setting", "图像设置"},
@@ -138,8 +138,8 @@ const translate_t translate_simplified_chinese[TRANSLATE_STRING_NUM] = {
 
     // wifi module
     {"WiFi Module", "WiFi模块"},
-    {"#FF0000 Invalid Too Short#", "#FF0000 长度太短无效#"},
-    {"#FF0000 Invalid Format#", "#FF0000 格式无效#"},
+    {"Invalid Too Short", "长度太短无效"},
+    {"Invalid Format", "格式无效"},
     {"Password Requirements", "密码要求"},
     {"Minimum 8 characters", "最少8个字符"},
     {"maximum 64 characters", "最多64个字符"},
