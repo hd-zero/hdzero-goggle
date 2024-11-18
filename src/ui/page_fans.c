@@ -93,7 +93,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 static void fans_top_speed_inc() {
-    char buf[5];
+    char buf[12];
     int32_t value = lv_slider_get_value(slider_group[0].slider);
 
     if (value < MAX_FAN_TOP)
@@ -111,7 +111,7 @@ static void fans_top_speed_inc() {
 }
 
 static void fans_top_speed_dec() {
-    char buf[5];
+    char buf[12];
     int32_t value = lv_slider_get_value(slider_group[0].slider);
 
     if (value > MIN_FAN_TOP)
@@ -128,7 +128,7 @@ static void fans_top_speed_dec() {
 }
 
 static void fans_side_speed_inc() {
-    char buf[5];
+    char buf[12];
     int32_t value = lv_slider_get_value(slider_group[1].slider);
 
     if (value < MAX_FAN_SIDE)
@@ -146,7 +146,7 @@ static void fans_side_speed_inc() {
 }
 
 static void fans_side_speed_dec() {
-    char buf[5];
+    char buf[12];
     int32_t value = lv_slider_get_value(slider_group[1].slider);
 
     if (value > MIN_FAN_SIDE)

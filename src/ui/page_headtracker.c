@@ -233,7 +233,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
 
 static void ht_angle_inc(void) {
     int32_t value = 0;
-    char buf[5];
+    char buf[12];
 
     value = lv_slider_get_value(slider_group.slider);
     if (value < 360)
@@ -251,7 +251,7 @@ static void ht_angle_inc(void) {
 
 static void ht_angle_dec(void) {
     int32_t value = 0;
-    char buf[5];
+    char buf[12];
 
     value = lv_slider_get_value(slider_group.slider);
     if (value > 0)

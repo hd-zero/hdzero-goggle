@@ -846,7 +846,7 @@ static void page_wifi_on_roller(uint8_t key) {
                 value += 1;
             }
         }
-        char buf[3];
+        char buf[12];
         sprintf(buf, "%d", value + 1);
         lv_label_set_text(page_wifi.page_2.rf_channel.input.label, buf);
         lv_slider_set_value(page_wifi.page_2.rf_channel.input.slider, value, LV_ANIM_OFF);
