@@ -51,7 +51,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Record Option"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Record Option"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -72,7 +72,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_record_audio, cont, 2, _lang("Record Audio"), _lang("Yes"), _lang("No"), "", "", 3);
     create_btn_group_item(&btn_group_audio_source, cont, 3, _lang("Audio Source"), _lang("Mic"), _lang("Line In"), _lang("A/V In"), "", 4);
     create_btn_group_item(&btn_group_file_naming, cont, 2, _lang("Naming Scheme"), _lang("Digits"), _lang("Date"), "", "", 5);
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, 6, 1);
 
     btn_group_set_sel(&btn_group_record_mode, g_setting.record.mode_manual ? 1 : 0);

@@ -177,7 +177,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     slider_group->label = lv_label_create(parent);
     char buf[25];
     memset(buf, 0, sizeof(buf));
-    sprintf(buf, "%d", default_value);
+    snprintf(buf, sizeof(buf), "%d", default_value);
     lv_label_set_text(slider_group->label, buf);
     lv_obj_set_style_text_font(slider_group->label, font, 0);
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_LEFT, 0);
@@ -224,7 +224,7 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     slider_group->label = lv_label_create(parent);
     char buf[25];
     memset(buf, 0, sizeof(buf));
-    sprintf(buf, "%d", default_value);
+    snprintf(buf, sizeof(buf), "%d", default_value);
     lv_label_set_text(slider_group->label, buf);
     lv_obj_set_style_text_font(slider_group->label, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_CENTER, 0);
@@ -238,7 +238,7 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
 
 void update_slider_item_with_value(slider_group_t *slider_group, int value) {
     char str[20];
-    sprintf(str, "%d", value);
+    snprintf(str, sizeof(str), "%d", value);
     lv_slider_set_value(slider_group->slider, value, LV_ANIM_OFF);
     lv_label_set_text(slider_group->label, str);
 }

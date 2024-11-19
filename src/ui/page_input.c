@@ -221,7 +221,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
 
-    sprintf(buf, "%s:", _lang("Input"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Input"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *content = lv_obj_create(section);
@@ -236,41 +236,41 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, content);
 
-    sprintf(buf, "%s:", _lang("Roller"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Roller"));
     create_label_item(content, buf, 1, ROLLER, 1);
     pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[ROLLER], rollerIndexFromId(g_setting.inputs.roller));
 
-    sprintf(buf, "%s:", _lang("Left short"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Left short"));
     create_label_item(content, buf, 1, LEFT_SHORT, 1);
     pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[LEFT_SHORT], btnIndexFromId(g_setting.inputs.left_click));
 
-    sprintf(buf, "%s:", _lang("Left long"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Left long"));
     create_label_item(content, buf, 1, LEFT_LONG, 1);
     pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[LEFT_LONG], btnIndexFromId(g_setting.inputs.left_press));
 
-    sprintf(buf, "%s:", _lang("Right short"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Right short"));
     create_label_item(content, buf, 1, RIGHT_SHORT, 1);
     pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_SHORT], btnIndexFromId(g_setting.inputs.right_click));
 
-    sprintf(buf, "%s:", _lang("Right long"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Right long"));
     create_label_item(content, buf, 1, RIGHT_LONG, 1);
     pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_LONG], btnIndexFromId(g_setting.inputs.right_press));
 
-    sprintf(buf, "%s:", _lang("Right double"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Right double"));
     create_label_item(content, buf, 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
     lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], btnIndexFromId(g_setting.inputs.right_double_click));
 
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     pageItems[BACK_BTN] = create_label_item(content, buf, 1, BACK_BTN, 1);
 
     lv_obj_t *label = lv_label_create(content);
-    sprintf(buf, "*%s\n%s",
+    snprintf(buf, sizeof(buf), "*%s\n%s",
             _lang("Settings apply to video mode only"),
             _lang("'Toggle source' will switch between HDZero and Expansion module"));
     lv_label_set_text(label, buf);

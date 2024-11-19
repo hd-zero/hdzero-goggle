@@ -356,7 +356,7 @@ static void page_wifi_update_page_1_notes() {
     }
 
     static char buf[1024];
-    sprintf(buf, "%s:\n    %s,%s.\n\n%s:\n    1. %s.\n    2. %s:\n\n        rtsp://%s:8554/hdzero\n\n",
+    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n%s:\n    1. %s.\n    2. %s:\n\n        rtsp://%s:8554/hdzero\n\n",
             _lang("Password Requirements"),
             _lang("Minimum 8 characters"),
             _lang("maximum 64 characters"),
@@ -369,7 +369,7 @@ static void page_wifi_update_page_1_notes() {
 
 static void page_wifi_update_page_3_notes() {
     static char buf[256];
-    sprintf(buf, "%s:\n    %s,%s.\n\n",
+    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n",
             _lang("Password Requirements"),
             _lang("Minimum 8 characters"),
             _lang("maximum 64 characters"));
@@ -566,7 +566,7 @@ static void page_wifi_apply_settings_pending_cb(struct _lv_timer_t *timer) {
         static int dir = 20;
         static char buf[128];
         static uint8_t red = 150;
-        sprintf(buf, "#%02x0000 %s#", red, _lang("Apply Settings"));
+        snprintf(buf, sizeof(buf), "#%02x0000 %s#", red, _lang("Apply Settings"));
         lv_label_set_text(page_wifi.page_1.apply_settings, buf);
         lv_label_set_text(page_wifi.page_2.apply_settings, buf);
         lv_label_set_text(page_wifi.page_3.apply_settings, buf);
@@ -646,7 +646,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi_mask_password(page_wifi.page_1.passwd.input, strlen(g_setting.wifi.passwd[g_setting.wifi.mode]));
 
     page_wifi.page_1.apply_settings = create_label_item(parent, _lang("Apply Settings"), 1, 5, 3);
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     page_wifi.page_1.back = create_label_item(parent, buf, 1, 6, 3);
 
     page_wifi.page_1.note = lv_label_create(parent);
@@ -726,7 +726,7 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("WiFi Module"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("WiFi Module"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -847,7 +847,7 @@ static void page_wifi_on_roller(uint8_t key) {
             }
         }
         char buf[12];
-        sprintf(buf, "%d", value + 1);
+        snprintf(buf, sizeof(buf), "%d", value + 1);
         lv_label_set_text(page_wifi.page_2.rf_channel.input.label, buf);
         lv_slider_set_value(page_wifi.page_2.rf_channel.input.slider, value, LV_ANIM_OFF);
     }

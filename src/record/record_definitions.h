@@ -91,8 +91,8 @@ extern "C" {
 #define REC_packTypesNUM    2
 #define REC_starFORMAT      "%u:%02u star\n"
 
-#define REC_filePathGet(BUFF, PATH, PREFIX, INDEX, FILEFMT) \
-    sprintf((BUFF), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
+#define REC_filePathGet(BUFF, MAXLEN, PATH, PREFIX, INDEX, FILEFMT) \
+    snprintf((BUFF), (MAXLEN), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 

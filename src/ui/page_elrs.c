@@ -98,13 +98,13 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_btn_group_item(&elrs_group, cont, 2, _lang("Backpack"), _lang("On"), _lang("Off"), "", "", POS_PWR);
     btn_group_set_sel(&elrs_group, !g_setting.elrs.enable);
-    sprintf(buf, "%s VTX", _lang("Send"));
+    snprintf(buf, sizeof(buf), "%s VTX", _lang("Send"));
     btn_vtx_send = create_label_item(cont, buf, 1, POS_VTX, 1);
     btn_wifi = create_label_item(cont, "WiFi", 1, POS_WIFI, 1);
     label_wifi_status = create_label_item(cont, _lang("Click to start"), 2, POS_WIFI, 1);
     btn_bind = create_label_item(cont, _lang("Bind"), 1, POS_BIND, 1);
     label_bind_status = create_label_item(cont, _lang("Click to start"), 2, POS_BIND, 1);
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, POS_BACK, 1);
 
     cancel_label = lv_label_create(cont);
@@ -142,7 +142,7 @@ static void elrs_status_timer(struct _lv_timer_t *timer) {
     }
     lv_timer_del(timer);
     if (status[0] & 4) {
-        sprintf(label, "UID: %d,%d,%d,%d,%d,%d", status[1], status[2], status[3], status[4], status[5], status[6]);
+        snprintf(label, sizeof(label), "UID: %d,%d,%d,%d,%d,%d", status[1], status[2], status[3], status[4], status[5], status[6]);
         lv_label_set_text(label_bind_status, label);
     }
 }
@@ -188,28 +188,28 @@ static void page_elrs_on_click(uint8_t key, int sel) {
         msp_channel_update();
     } else if (sel == POS_WIFI) // start ESP Wifi
     {
-        sprintf(buf, "%s...", _lang("Starting"));
+        snprintf(buf, sizeof(buf), "%s...", _lang("Starting"));
         lv_label_set_text(label_wifi_status, buf);
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"W");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS) {
-            sprintf(buf, "#FF0000 %s#", _lang("FAILED"));
+            snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("FAILED"));
             lv_label_set_text(label_wifi_status, buf);
         } else {
-            sprintf(buf, "#00FF00 %s#", _lang("Success"));
+            snprintf(buf, sizeof(buf), "#00FF00 %s#", _lang("Success"));
             lv_label_set_text(label_wifi_status, buf);
         }
     } else if (sel == POS_BIND) // start ESP bind
     {
-        sprintf(buf, "%s...", _lang("Starting"));
+        snprintf(buf, sizeof(buf), "%s...", _lang("Starting"));
         lv_label_set_text(label_bind_status, buf);
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
         lv_timer_handler();
         if (msp_await_resposne(MSP_SET_MODE, 1, (uint8_t *)"P", 1000) != AWAIT_SUCCESS) {
-            sprintf(buf, "#FF0000 %s#", _lang("FAILED"));
+            snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("FAILED"));
             lv_label_set_text(label_bind_status, buf);
         } else {
-            sprintf(buf, "%s...", _lang("Binding"));
+            snprintf(buf, sizeof(buf), "%s...", _lang("Binding"));
             lv_label_set_text(label_bind_status, buf);
             lv_obj_clear_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
             binding = true;
@@ -219,20 +219,20 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             pthread_mutex_lock(&lvgl_mutex);
             switch (response) {
             case AWAIT_SUCCESS:
-                sprintf(buf, "#00FF00 %s#", _lang("Success"));
+                snprintf(buf, sizeof(buf), "#00FF00 %s#", _lang("Success"));
                 lv_label_set_text(label_bind_status, buf);
                 request_uid();
                 break;
             case AWAIT_TIMEDOUT:
-                sprintf(buf, "#FEBE00 %s#", _lang("Timeout"));
+                snprintf(buf, sizeof(buf), "#FEBE00 %s#", _lang("Timeout"));
                 lv_label_set_text(label_bind_status, buf);
                 break;
             case AWAIT_FAILED:
-                sprintf(buf, "#FF0000 %s#", _lang("FAILED"));
+                snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("FAILED"));
                 lv_label_set_text(label_bind_status, buf);
                 break;
             case AWAIT_CANCELLED:
-                sprintf(buf, "#FEBE00 %s#", _lang("Cancelled"));
+                snprintf(buf, sizeof(buf), "#FEBE00 %s#", _lang("Cancelled"));
                 lv_label_set_text(label_bind_status, buf);
                 // repower the module and re-request binding info
                 disable_esp32();

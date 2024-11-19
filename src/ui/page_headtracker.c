@@ -143,7 +143,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Head Tracker"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Head Tracker"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -180,7 +180,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group, cont, _lang("Max Angle"), 360, g_setting.ht.max_angle, 4);
     lv_slider_set_range(slider_group.slider, 0, 360);
 
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, 5, 1);
 
     btn_group_set_sel(&btn_group, !g_setting.ht.enable);
@@ -241,7 +241,7 @@ static void ht_angle_inc(void) {
 
     lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group.label, buf);
 
     ht_set_maxangle(value);
@@ -259,7 +259,7 @@ static void ht_angle_dec(void) {
 
     lv_slider_set_value(slider_group.slider, value, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group.label, buf);
 
     ht_set_maxangle(value);
@@ -305,7 +305,7 @@ static void page_headtracker_on_click_page1(uint8_t key, int sel) {
 
         update_visibility(curr_page);
     } else if (sel == 2) {
-        sprintf(buf, "%s...", _lang("Calibrating"));
+        snprintf(buf, sizeof(buf), "%s...", _lang("Calibrating"));
         lv_label_set_text(label_cali, buf);
         lv_timer_handler();
         ht_calibrate();
@@ -331,7 +331,7 @@ static void page_headtracker_on_click_page2(uint8_t key, int sel) {
         g_setting.ht.alarm_state = btn_group_get_sel(&alarm_state);
         ini_putl("ht", "alarm_state", g_setting.ht.alarm_state, SETTING_INI);
     } else if (sel == 2) {
-        sprintf(buf, "%s...", "Updating Angle");
+        snprintf(buf, sizeof(buf), "%s...", "Updating Angle");
         lv_label_set_text(label_alarm_angle, buf);
         set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
         lv_timer_set_repeat_count(set_alarm_angle_timer, 1);

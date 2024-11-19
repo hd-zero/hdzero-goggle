@@ -129,7 +129,7 @@ static int already_running(void)
         exit(1);
     }
     ftruncate(fd, 0);
-    sprintf(buf, "%ld", (long)getpid());
+    snprintf(buf, sizeof(buf), "%ld", (long)getpid());
     write(fd, buf, strlen(buf)+1);
     return(0);
 }
@@ -179,7 +179,7 @@ void live_checkConf(LiveContext_t* liveCtx, char* confSet)
         readlink("/proc/self/exe", sTemp, MAX_pathLEN);
         p = strrchr(sTemp,'/');
         *p = '\0';
-        sprintf(liveCtx->confFile, "%s/%s", sTemp, REC_confFILE);
+        snprintf(liveCtx->confFile, MAX_pathLEN, "%s/%s", sTemp, REC_confFILE);
     }
 }
 

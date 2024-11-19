@@ -72,7 +72,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1142, 894);
 
-    sprintf(buf, "%s:", _lang("Playback"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Playback"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -119,7 +119,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     }
 
     lv_obj_t *label = lv_label_create(cont);
-    sprintf(buf, "*%s\n**%s", _lang("Long press the Enter button to exit"), _lang("Long press the Func button to delete"));
+    snprintf(buf, sizeof(buf), "*%s\n**%s", _lang("Long press the Enter button to exit"), _lang("Long press the Func button to delete"));
     lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
@@ -149,9 +149,9 @@ static void show_pb_item(uint8_t pos, char *label, bool star) {
     lv_obj_set_pos(pb_ui[pos]._label, labelPosX, labelPosY);
     lv_obj_set_pos(pb_ui[pos]._arrow, labelPosX - lv_obj_get_width(pb_ui[pos]._arrow) - 5, labelPosY);
 
-    sprintf(fname, "%s/%s." REC_packJPG, TMP_DIR, label);
+    snprintf(fname, sizeof(fname), "%s/%s." REC_packJPG, TMP_DIR, label);
     if (fs_file_exists(fname))
-        sprintf(fname, "A:%s/%s." REC_packJPG, TMP_DIR, label);
+        snprintf(fname, sizeof(fname), "A:%s/%s." REC_packJPG, TMP_DIR, label);
     else
         osd_resource_path(fname, "%s", OSD_RESOURCE_720, DEF_VIDEOICON);
     lv_img_set_src(pb_ui[pos]._img, fname);
@@ -244,7 +244,7 @@ static int walk_sdcard() {
             continue;
         }
 
-        sprintf(fname, "%s%s", MEDIA_FILES_DIR, in_file->d_name);
+        snprintf(fname, sizeof(fname), "%s%s", MEDIA_FILES_DIR, in_file->d_name);
 
         long size = fs_filesize(fname);
         size >>= 20; // in MB
@@ -280,7 +280,7 @@ static int walk_sdcard() {
     free(namelist);
 
     // copy all thumbnail files to /tmp
-    sprintf(fname, "cp %s*." REC_packJPG " %s", MEDIA_FILES_DIR, TMP_DIR);
+    snprintf(fname, sizeof(fname), "cp %s*." REC_packJPG " %s", MEDIA_FILES_DIR, TMP_DIR);
     system_exec(fname);
 
     return media_db.count;
@@ -382,13 +382,13 @@ static void mark_video_file(int const seq) {
 
     char cmd[256];
     char newLabel[68];
-    sprintf(newLabel, "%s%s", REC_hotPREFIX, pnode->label);
+    snprintf(newLabel, sizeof(newLabel), "%s%s", REC_hotPREFIX, pnode->label);
 
-    sprintf(cmd, "mv %s%s %s%s.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
+    snprintf(cmd, sizeof(cmd), "mv %s%s %s%s.%s", MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
-    sprintf(cmd, "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
+    snprintf(cmd, sizeof(cmd), "mv %s%s." REC_packJPG " %s%s." REC_packJPG, MEDIA_FILES_DIR, pnode->label, MEDIA_FILES_DIR, newLabel);
     system_exec(cmd);
-    sprintf(cmd, "mv %s%s" REC_starSUFFIX " %s%s.%s" REC_starSUFFIX, MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
+    snprintf(cmd, sizeof(cmd), "mv %s%s" REC_starSUFFIX " %s%s.%s" REC_starSUFFIX, MEDIA_FILES_DIR, pnode->filename, MEDIA_FILES_DIR, newLabel, pnode->ext);
     system_exec(cmd);
 
     walk_sdcard();
@@ -404,7 +404,7 @@ static void delete_video_file(int seq) {
     }
 
     char cmd[128];
-    sprintf(cmd, "rm %s%s.*", MEDIA_FILES_DIR, pnode->label);
+    snprintf(cmd, sizeof(cmd), "rm %s%s.*", MEDIA_FILES_DIR, pnode->label);
 
     if (system_exec(cmd) != -1) {
         walk_sdcard();

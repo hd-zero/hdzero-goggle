@@ -292,28 +292,28 @@ static void page_storage_format_sd_timer_cb(struct _lv_timer_t *timer) {
 
     switch (page_storage_format_sd()) {
     case FMC_SUCCESS:
-        sprintf(buf, "%s.\n%s.", _lang("Format was successful"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Format was successful"), _lang("Press click to exit"));
         break;
     case FMC_FAILURE:
-        sprintf(buf, "%s.\n%s.", _lang("Format has failed"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Format has failed"), _lang("Press click to exit"));
         break;
     case FMC_ERR_SDCARD_NOT_INSERTED:
-        sprintf(buf, "%s.\n%s.", _lang("Please insert a SD Card"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Please insert a SD Card"), _lang("Press click to exit"));
         break;
     case FMC_ERR_RESULTS_NOT_EXTRACTED:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to extract results"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to extract results"), _lang("Press click to exit"));
         break;
     case FMC_ERR_RESULTS_NOT_ACCESSIBLE:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to access results"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to access results"), _lang("Press click to exit"));
         break;
     case FMC_ERR_RESULTS_FILE_MISSING:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to generate results"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to generate results"), _lang("Press click to exit"));
         break;
     case FMC_ERR_PROCESS_DID_NOT_START:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to start format"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to start format"), _lang("Press click to exit"));
         break;
     default:
-        sprintf(buf, "%s.\n%s.", _lang("Unsupported status code"), _lang("Press click to exit"));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Unsupported status code"), _lang("Press click to exit"));
         break;
     }
 
@@ -328,31 +328,31 @@ static void page_storage_repair_sd_timer_cb(struct _lv_timer_t *timer) {
     char buf[128];
     switch (page_storage_repair_sd()) {
     case RPC_SUCCESS_NO_CHANGES:
-        sprintf(buf, "%s.\n%s.", _lang("Filesystem is OK"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Filesystem is OK"), _lang("Press click to exit."));
         break;
     case RPC_SUCCESS_CARD_FIXED:
-        sprintf(buf, "%s.\n%s.", _lang("Filesystem was modified and fixed"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Filesystem was modified and fixed"), _lang("Press click to exit."));
         break;
     case RPC_ERR_SDCARD_NOT_INSERTED:
-        sprintf(buf, "%s.\n%s.", _lang("Please insert a SD Card"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Please insert a SD Card"), _lang("Press click to exit."));
         break;
     case RPC_ERR_RESULTS_NOT_EXTRACTED:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to extract results"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to extract results"), _lang("Press click to exit."));
         break;
     case RPC_ERR_RESULTS_NOT_ACCESSIBLE:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to access results"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to access results"), _lang("Press click to exit."));
         break;
     case RPC_ERR_FAILED_TO_REMOUNT_CARD:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to remount SD Card"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to remount SD Card"), _lang("Press click to exit."));
         break;
     case RPC_ERR_RESULTS_FILE_MISSING:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to generate results"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to generate results"), _lang("Press click to exit."));
         break;
     case RPC_ERR_PROCESS_DID_NOT_START:
-        sprintf(buf, "%s.\n%s.", _lang("Failed to start repair"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Failed to start repair"), _lang("Press click to exit."));
         break;
     default:
-        sprintf(buf, "%s.\n%s.", _lang("Unsupported status code"), _lang("Press click to exit."));
+        snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Unsupported status code"), _lang("Press click to exit."));
         break;
     }
 
@@ -375,7 +375,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Storage"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Storage"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -396,7 +396,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.format_sd = create_label_item(cont, _lang("Format SD Card"), 1, 1, 3);
     page_storage.repair_sd = create_label_item(cont, _lang("Repair SD Card"), 1, 2, 3);
     page_storage.clear_dvr = create_label_item(cont, _lang("Clear DVR Folder"), 1, 3, 3);
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     page_storage.back = create_label_item(cont, buf, 1, 4, 1);
 
     page_storage.note = lv_label_create(cont);
@@ -409,12 +409,12 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 5, 2);
 
     if (g_setting.storage.selftest) {
-        sprintf(buf, "%s,%s.", _lang("Self-Test is enabled"), _lang("All storage options are disabled"));
+        snprintf(buf, sizeof(buf), "%s,%s.", _lang("Self-Test is enabled"), _lang("All storage options are disabled"));
         lv_label_set_text(page_storage.note, buf);
         disable_controls();
     } else {
         if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
-            sprintf(buf, "%s, %s.\n%s:\n%s\n%s",
+            snprintf(buf, sizeof(buf), "%s, %s.\n%s:\n%s\n%s",
                     _lang("Detected files being accessed by SD Card"),
                     _lang("All storage options are disabled"),
                     _lang("Remove the following files from the SD Card and try again"),
@@ -494,11 +494,11 @@ static void page_storage_on_click(uint8_t key, int sel) {
                 page_storage.confirm_format = 2;
                 page_storage_format_sd_timer = lv_timer_create(page_storage_format_sd_timer_cb, 1000, NULL);
                 lv_timer_set_repeat_count(page_storage_format_sd_timer, 1);
-                sprintf(buf, "%s #FF0000 %s...#", _lang("Format SD Card"), _lang("Formatting"));
+                snprintf(buf, sizeof(buf), "%s #FF0000 %s...#", _lang("Format SD Card"), _lang("Formatting"));
                 lv_label_set_text(page_storage.format_sd, buf);
             } else {
                 page_storage.confirm_format = 1;
-                sprintf(buf, "%s #FFFF00 %s...#", _lang("Format SD Card"), _lang("Click to confirm or Scroll to cancel"));
+                snprintf(buf, sizeof(buf), "%s #FFFF00 %s...#", _lang("Format SD Card"), _lang("Click to confirm or Scroll to cancel"));
                 lv_label_set_text(page_storage.format_sd, buf);
             }
         }
@@ -509,12 +509,12 @@ static void page_storage_on_click(uint8_t key, int sel) {
                 page_storage.confirm_repair = 2;
                 page_storage_repair_sd_timer = lv_timer_create(page_storage_repair_sd_timer_cb, 1000, NULL);
                 lv_timer_set_repeat_count(page_storage_repair_sd_timer, 1);
-                sprintf(buf, "%s #FF0000 %s...#", _lang("Repair SD Card"), _lang("Repairing"));
+                snprintf(buf, sizeof(buf), "%s #FF0000 %s...#", _lang("Repair SD Card"), _lang("Repairing"));
                 lv_label_set_text(page_storage.repair_sd, buf);
 
             } else {
                 page_storage.confirm_repair = 1;
-                sprintf(buf, "%s #FFFF00 %s...#", _lang("Repair SD Card"), _lang("Click to confirm or Scroll to cancel"));
+                snprintf(buf, sizeof(buf), "%s #FFFF00 %s...#", _lang("Repair SD Card"), _lang("Click to confirm or Scroll to cancel"));
                 lv_label_set_text(page_storage.repair_sd, buf);
             }
         }
@@ -523,21 +523,21 @@ static void page_storage_on_click(uint8_t key, int sel) {
         if (!page_storage.disable_controls) {
             if (page_storage.confirm_clear) {
                 page_storage.confirm_clear = 2;
-                sprintf(buf, "%s #FF0000 %s...#", _lang("Clear DVR Folder"), _lang("Removing"));
+                snprintf(buf, sizeof(buf), "%s #FF0000 %s...#", _lang("Clear DVR Folder"), _lang("Removing"));
                 lv_label_set_text(page_storage.clear_dvr, buf);
                 lv_timer_handler();
                 LOGI("Clear dvr folder");
                 char buf[256];
-                sprintf(buf, "rm -rf %s%s", REC_diskPATH, REC_packPATH);
+                snprintf(buf, sizeof(buf), "rm -rf %s%s", REC_diskPATH, REC_packPATH);
                 system_exec(buf);
-                sprintf(buf, "%s #FFFF00 %s#", _lang("Clear DVR Folder"), _lang("Done"));
+                snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Clear DVR Folder"), _lang("Done"));
                 lv_label_set_text(page_storage.clear_dvr, buf);
                 LOGI("Clear done");
                 page_storage.confirm_clear = 3;
                 g_sdcard_det_req = 1;
             } else {
                 page_storage.confirm_clear = 1;
-                sprintf(buf, "%s #FF0000 %s...#", _lang("Clear DVR Folder"), _lang("Click to confirm or Scroll to cancel"));
+                snprintf(buf, sizeof(buf), "%s #FF0000 %s...#", _lang("Clear DVR Folder"), _lang("Click to confirm or Scroll to cancel"));
                 lv_label_set_text(page_storage.clear_dvr, buf);
             }
         }
@@ -594,7 +594,7 @@ static void *page_storage_repair_thread(void *arg) {
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
         disable_controls();
-        sprintf(buf, "%s, %s.", _lang("SD Card integrity check is active"), _lang("controls are disabled until process has completed"));
+        snprintf(buf, sizeof(buf), "%s, %s.", _lang("SD Card integrity check is active"), _lang("controls are disabled until process has completed"));
         lv_label_set_text(page_storage.note, buf);
         page_storage_repair_sd();
         enable_controls();

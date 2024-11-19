@@ -121,7 +121,7 @@ int already_running(void)
         exit(1);
     }
     ftruncate(fd, 0);
-    sprintf(buf, "%ld", (long)getpid());
+    snprintf(buf, sizeof(buf), "%ld", (long)getpid());
     write(fd, buf, strlen(buf)+1);
     return(0);
 }
@@ -203,7 +203,7 @@ void record_saveStatus(RecordContext_t* recCtx, RecordStatus_e recStatus)
         LOGE( "can't lock %s: %s", REC_dataFILE, strerror(errno));
     }
     ftruncate(fd, 0);
-    sprintf(buf, "%d", recCtx->status);
+    snprintf(buf, sizeof(buf), "%d", recCtx->status);
     write(fd, buf, strlen(buf)+1);
     close(fd);
 
@@ -354,13 +354,13 @@ int record_start(RecordContext_t* recCtx)
     char sFile[256];
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
-        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+        REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
         break;
     case NAMING_DATE: {
         const time_t t = time(0);
         const struct tm* date = localtime(&t);
-        sprintf(dateString, "%04d%02d%02d-%02d%02d%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
-        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
+        snprintf(dateString, sizeof(dateString), "%04d%02d%02d-%02d%02d%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        snprintf(sFile, sizeof(sFile), "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
         break;
     }
     }
@@ -429,7 +429,7 @@ int record_start(RecordContext_t* recCtx)
         strcpy(fileName, strrchr(sFile, '/') + 1);
         av_dict_set(&ff->ofmtContext->metadata, "title", fileName, 0);
 
-        sprintf(localDateString, "%04d-%02d-%02d %02d:%02d:%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        snprintf(localDateString, sizeof(localDateString), "%04d-%02d-%02d %02d:%02d:%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
         av_dict_set(&ff->ofmtContext->metadata, "date", localDateString, 0);
     }
 
@@ -462,10 +462,10 @@ int record_start(RecordContext_t* recCtx)
 
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
-        REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+        REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
         break;
     case NAMING_DATE:
-        sprintf(sFile, "%s%s.%s", recCtx->params.packPath, dateString, REC_packSnapTYPE);
+        snprintf(sFile, sizeof(sFile), "%s%s.%s", recCtx->params.packPath, dateString, REC_packSnapTYPE);
         break;
     }
     ret = record_takePicture(recCtx, sFile);
@@ -519,7 +519,7 @@ bool record_pack(RecordContext_t* recCtx)
     VencSpspps_t veHeader = { NULL, 0 };
     int  nbFileIndex = recCtx->nbFileIndex;
     char sFile[256];
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
 
     FFPack_t* ff = ffpack_openFile(sFile, NULL);
     if( ff == NULL ) {
@@ -577,7 +577,7 @@ bool record_pack(RecordContext_t* recCtx)
 
     pthread_mutex_unlock(&recCtx->mutex);
 
-    REC_filePathGet(sFile, recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
     record_takePicture(recCtx, sFile);
 
     return true;
@@ -888,7 +888,7 @@ void record_checkConf(RecordContext_t* recCtx, char* confSet)
         readlink("/proc/self/exe", sTemp, MAX_pathLEN);
         p = strrchr(sTemp,'/');
         *p = '\0';
-        sprintf(recCtx->confFile, "%s/%s", sTemp, REC_confFILE);
+        snprintf(recCtx->confFile, MAX_pathLEN, "%s/%s", sTemp, REC_confFILE);
     }
 }
 

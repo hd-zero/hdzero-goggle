@@ -53,7 +53,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Fans"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Fans"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -74,7 +74,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, 2);
     lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
 
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, 3, 1);
 
     btn_group_set_sel(&btn_group_fans, !g_setting.fans.auto_mode);
@@ -82,9 +82,9 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
     lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", g_setting.fans.top_speed);
+    snprintf(buf, sizeof(buf), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
-    sprintf(buf, "%d", g_setting.fans.left_speed);
+    snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
     lv_label_set_text(slider_group[1].label, buf);
 
     update_visibility();
@@ -101,7 +101,7 @@ static void fans_top_speed_inc() {
 
     lv_slider_set_value(slider_group[0].slider, value, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group[0].label, buf);
 
     fans_top_setspeed(value);
@@ -118,7 +118,7 @@ static void fans_top_speed_dec() {
         value -= 1;
 
     lv_slider_set_value(slider_group[0].slider, value, LV_ANIM_OFF);
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group[0].label, buf);
 
     fans_top_setspeed(value);
@@ -136,7 +136,7 @@ static void fans_side_speed_inc() {
 
     lv_slider_set_value(slider_group[1].slider, value, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group[1].label, buf);
 
     g_setting.fans.left_speed = value;
@@ -153,7 +153,7 @@ static void fans_side_speed_dec() {
         value -= 1;
 
     lv_slider_set_value(slider_group[1].slider, value, LV_ANIM_OFF);
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     lv_label_set_text(slider_group[1].label, buf);
 
     g_setting.fans.left_speed = value;
@@ -250,7 +250,7 @@ void step_topfan() {
     ini_putl("fans", "top_speed", g_setting.fans.top_speed, SETTING_INI);
 
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
-    sprintf(str, "%d", g_setting.fans.top_speed);
+    snprintf(str, sizeof(str), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, str);
 }
 

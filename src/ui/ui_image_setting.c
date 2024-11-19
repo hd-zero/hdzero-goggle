@@ -118,7 +118,7 @@ static void show_ims_slider(uint8_t index) {
     }
 
     default:
-        sprintf(buf, "%d", p_slider->value);
+        snprintf(buf, sizeof(buf), "%d", p_slider->value);
         break;
     }
 

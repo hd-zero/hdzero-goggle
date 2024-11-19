@@ -21,12 +21,12 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Focus Chart"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Focus Chart"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_menu_cont_create(section);
     lv_obj_t *desc_label = lv_label_create(cont);
-    sprintf(buf, "%s.\n%s.", _lang("Click the Enter Button to display the Back Focusing Chart"), _lang("Click the Enter Button again to exit"));
+    snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Click the Enter Button to display the Back Focusing Chart"), _lang("Click the Enter Button again to exit"));
     lv_label_set_text(desc_label, buf);
     lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);

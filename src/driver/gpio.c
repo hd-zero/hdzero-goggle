@@ -36,7 +36,7 @@ void gpio_open(int port_num) {
     }
 
     char buf[64];
-    sprintf(buf, "/sys/class/gpio/gpio%d/direction", port_num);
+    snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/direction", port_num);
 
     if (!fs_printf(buf, "out")) {
         return;
@@ -45,6 +45,6 @@ void gpio_open(int port_num) {
 
 void gpio_set(int port_num, bool val) {
     char buf[64];
-    sprintf(buf, "/sys/class/gpio/gpio%d/value", port_num);
+    snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d/value", port_num);
     fs_printf(buf, "%d", val ? 1 : 0);
 }
