@@ -24,7 +24,7 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Auto Scan"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Auto Scan"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -45,7 +45,7 @@ static lv_obj_t *page_autoscan_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_t btn_group;
     create_btn_group_item(&btn_group0, cont, 3, _lang("Auto Scan"), _lang("On"), _lang("Last"), _lang("Off"), "", 0);
     create_btn_group_item2(&btn_group1, cont, 5, _lang("Default"), _lang("Last"), _lang("HDZero"), _lang("Expansion"), _lang("AV In"), _lang("HDMI In"), " ", 1); // 2 rows
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, 3, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);

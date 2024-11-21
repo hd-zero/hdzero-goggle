@@ -442,7 +442,7 @@ static int ui_handle_click() {
         }
 
         lv_obj_set_style_text_font(label_cancel_osd_elements, &lv_font_montserrat_18, 0);
-        sprintf(buf, "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
+        snprintf(buf, sizeof(buf), "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
         lv_label_set_text(label_cancel_osd_elements, buf);
         cancel_changes_confirm = CONFIRMATION_CONFIRMED;
         return 0;
@@ -460,7 +460,7 @@ static int ui_handle_click() {
         }
 
         lv_obj_set_style_text_font(label_save_osd_elements, &lv_font_montserrat_18, 0);
-        sprintf(buf, "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
+        snprintf(buf, sizeof(buf), "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
         lv_label_set_text(label_save_osd_elements, buf);
         save_changes_confirm = CONFIRMATION_CONFIRMED;
         return 0;
@@ -476,13 +476,13 @@ static int ui_handle_click() {
 
             update_ui();
             osd_update_element_positions();
-            sprintf(buf, "#00FF00 %s.#", _lang("Elements reset"));
+            snprintf(buf, sizeof(buf), "#00FF00 %s.#", _lang("Elements reset"));
             lv_label_set_text(label_reset_all_osd_elements, buf);
             lv_timer_reset(reset_all_osd_elements_timer);
             lv_timer_resume(reset_all_osd_elements_timer);
             reset_all_elements_confirm = CONFIRMATION_TIMEOUT;
         } else {
-            sprintf(buf, "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
+            snprintf(buf, sizeof(buf), "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
             lv_label_set_text(label_reset_all_osd_elements, buf);
             reset_all_elements_confirm = CONFIRMATION_CONFIRMED;
         }
@@ -542,7 +542,7 @@ void ui_osd_element_pos_init(void) {
     // create all elements
     create_btn_group_item_compact(&btn_group_osd_mode, ui_root_container, 2, _lang("Mode"), "4x3", "16x9", "", "", ROW_OSD_MODE, 40, 80, &lv_font_montserrat_20);
 
-    sprintf(buf, "%s: ", _lang("Element"));
+    snprintf(buf, sizeof(buf), "%s: ", _lang("Element"));
     create_label_item_compact(ui_root_container, buf, 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, &lv_font_montserrat_20);
     fill_osd_elements_str();
     dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, &lv_font_montserrat_20);

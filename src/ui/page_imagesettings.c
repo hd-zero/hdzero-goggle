@@ -38,7 +38,7 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Image Setting"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Image Setting"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -57,10 +57,10 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_slider_item(&slider_group1, cont, _lang("Brightness"), 78, g_setting.image.brightness, 1);
     create_slider_item(&slider_group2, cont, _lang("Saturation"), 47, g_setting.image.saturation, 2);
     create_slider_item(&slider_group3, cont, _lang("Contrast"), 47, g_setting.image.contrast, 3);
-    sprintf(buf, "OLED %s", _lang("Auto Off"));
+    snprintf(buf, sizeof(buf), "OLED %s", _lang("Auto Off"));
     create_slider_item(&slider_group4, cont, buf, 3, g_setting.image.auto_off, 4);
 
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, 5, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
@@ -83,26 +83,26 @@ void set_slider_value() {
     //	LOGI("set_slider_value %d %d %d %d.",g_setting.image.oled,g_setting.image.brightness,
     //											 g_setting.image.saturation,g_setting.image.contrast);
 
-    sprintf(buf, "%d", g_setting.image.oled);
+    snprintf(buf, sizeof(buf), "%d", g_setting.image.oled);
     lv_label_set_text(slider_group.label, buf);
     lv_slider_set_value(slider_group.slider, g_setting.image.oled, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", g_setting.image.brightness);
+    snprintf(buf, sizeof(buf), "%d", g_setting.image.brightness);
     lv_label_set_text(slider_group1.label, buf);
     lv_slider_set_value(slider_group1.slider, g_setting.image.brightness, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", g_setting.image.saturation);
+    snprintf(buf, sizeof(buf), "%d", g_setting.image.saturation);
     lv_label_set_text(slider_group2.label, buf);
     lv_slider_set_value(slider_group2.slider, g_setting.image.saturation, LV_ANIM_OFF);
 
-    sprintf(buf, "%d", g_setting.image.contrast);
+    snprintf(buf, sizeof(buf), "%d", g_setting.image.contrast);
     lv_label_set_text(slider_group3.label, buf);
     lv_slider_set_value(slider_group3.slider, g_setting.image.contrast, LV_ANIM_OFF);
 
     if (g_setting.image.auto_off == 4)
         strcpy(buf, _lang("Never"));
     else
-        sprintf(buf, "%d %s", g_setting.image.auto_off * 2 + 1, _lang("min"));
+        snprintf(buf, sizeof(buf), "%d %s", g_setting.image.auto_off * 2 + 1, _lang("min"));
     lv_label_set_text(slider_group4.label, buf);
     lv_slider_set_value(slider_group4.slider, g_setting.image.auto_off, LV_ANIM_OFF);
 }

@@ -404,7 +404,7 @@ void conf_loadRecordParams(char* confFile, RecordParams_t* para)
         memset(para->diskPath, 0, sizeof(para->packPath));
         strcpy(para->diskPath, sTemp);
         memset(para->packPath, 0, sizeof(para->packPath));
-        sprintf(para->packPath, "%s%s", para->diskPath, REC_packPATH);
+        snprintf(para->packPath, MAX_pathLEN, "%s%s", para->diskPath, REC_packPATH);
     }
 
     lValue = ini_gets(SEC_RECORD, KEY_TYPE, REC_packTYPE, sTemp, sizearray(sTemp), confFile);

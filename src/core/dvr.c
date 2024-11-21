@@ -44,14 +44,14 @@ void dvr_update_status() {
 void dvr_enable_line_out(bool enable) {
     char buf[128];
     if (enable) {
-        sprintf(buf, "%s out_on", AUDIO_SEL_SH);
+        snprintf(buf, sizeof(buf), "%s out_on", AUDIO_SEL_SH);
         system_exec(buf);
-        sprintf(buf, "%s out_linein_on", AUDIO_SEL_SH);
+        snprintf(buf, sizeof(buf), "%s out_linein_on", AUDIO_SEL_SH);
         system_exec(buf);
-        sprintf(buf, "%s out_dac_off", AUDIO_SEL_SH);
+        snprintf(buf, sizeof(buf), "%s out_dac_off", AUDIO_SEL_SH);
         system_exec(buf);
     } else {
-        sprintf(buf, "%s out_off", AUDIO_SEL_SH);
+        snprintf(buf, sizeof(buf), "%s out_off", AUDIO_SEL_SH);
         system_exec(buf);
     }
 }
@@ -65,7 +65,7 @@ void dvr_select_audio_source(uint8_t source) {
 
     if (source > 2)
         source = 2;
-    sprintf(buf, "%s %s", AUDIO_SEL_SH, audio_source[source]);
+    snprintf(buf, sizeof(buf), "%s %s", AUDIO_SEL_SH, audio_source[source]);
     system_exec(buf);
 }
 

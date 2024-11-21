@@ -70,7 +70,7 @@ void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_t
 
     va_list args;
     va_start(args, osd_resource_type);
-    vsprintf(filename, fmt, args);
+    vsnprintf(filename, sizeof(filename), fmt, args);
     va_end(args);
     strcpy(buf2, buf);
     strcpy(buf, RESOURCE_PATH_SDCARD);
@@ -292,12 +292,12 @@ void osd_channel_show(bool bShow) {
     if (channel_osd_mode & 0x80) {
         ch = channel_osd_mode & 0x7F;
         color = lv_color_make(0xFF, 0x20, 0x20);
-        sprintf(buf, "  To %s?  ", channel2str(g_setting.source.hdzero_band, ch));
+        snprintf(buf, sizeof(buf), "  To %s?  ", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], LV_OPA_100, 0);
     } else {
         ch = g_setting.scan.channel & 0x7F;
         color = lv_color_make(0xFF, 0xFF, 0xFF);
-        sprintf(buf, "CH:%s", channel2str(g_setting.source.hdzero_band, ch));
+        snprintf(buf, sizeof(buf), "CH:%s", channel2str(g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], 0, 0);
     }
 
@@ -644,13 +644,13 @@ void osd_hdzero_update(void) {
         lv_obj_add_flag(g_osd_hdzero.ant3[is_fhd], LV_OBJ_FLAG_HIDDEN);
 
     if (g_setting.storage.selftest) {
-        sprintf(buf, "T:%d-%d", fan_speed.top, g_temperature.top / 10);
+        snprintf(buf, sizeof(buf), "T:%d-%d", fan_speed.top, g_temperature.top / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][0], buf);
 
-        sprintf(buf, "L:%d-%d", fan_speed.left, g_temperature.left / 10);
+        snprintf(buf, sizeof(buf), "L:%d-%d", fan_speed.left, g_temperature.left / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][1], buf);
 
-        sprintf(buf, "R:%d-%d", fan_speed.right, g_temperature.right / 10);
+        snprintf(buf, sizeof(buf), "R:%d-%d", fan_speed.right, g_temperature.right / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][2], buf);
     }
 }
@@ -929,13 +929,13 @@ void load_fc_osd_font(uint8_t fhd) {
     int i;
 
     if (fhd) {
-        sprintf(fp[0], "%s%s_FHD_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
-        sprintf(fp[1], "%s%s_FHD_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
-        sprintf(fp[2], "%sBTFL_FHD_000.bmp", FC_OSD_LOCAL_PATH);
+        snprintf(fp[0], sizeof(fp[0]), "%s%s_FHD_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
+        snprintf(fp[1], sizeof(fp[1]), "%s%s_FHD_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
+        snprintf(fp[2], sizeof(fp[2]), "%sBTFL_FHD_000.bmp", FC_OSD_LOCAL_PATH);
     } else {
-        sprintf(fp[0], "%s%s_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
-        sprintf(fp[1], "%s%s_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
-        sprintf(fp[2], "%sBTFL_000.bmp", FC_OSD_LOCAL_PATH);
+        snprintf(fp[0], sizeof(fp[0]), "%s%s_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
+        snprintf(fp[1], sizeof(fp[1]), "%s%s_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
+        snprintf(fp[2], sizeof(fp[2]), "%sBTFL_000.bmp", FC_OSD_LOCAL_PATH);
     }
 
     // Optimized for runtime execution

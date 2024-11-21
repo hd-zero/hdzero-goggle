@@ -227,7 +227,7 @@ const setting_t g_setting_defaults = {
 int settings_put_osd_element_shown(bool show, char *config_name) {
     char setting_key[128];
 
-    sprintf(setting_key, "element_%s_show", config_name);
+    snprintf(setting_key, sizeof(setting_key), "element_%s_show", config_name);
     return settings_put_bool("osd", setting_key, show);
 }
 
@@ -235,9 +235,9 @@ int settings_put_osd_element_pos_x(const setting_osd_goggle_element_positions_t 
     char setting_key[128];
     int ret = 0;
 
-    sprintf(setting_key, "element_%s_pos_4_3_x", config_name);
+    snprintf(setting_key, sizeof(setting_key), "element_%s_pos_4_3_x", config_name);
     ret = ini_putl("osd", setting_key, pos->mode_4_3.x, SETTING_INI);
-    sprintf(setting_key, "element_%s_pos_16_9_x", config_name);
+    snprintf(setting_key, sizeof(setting_key), "element_%s_pos_16_9_x", config_name);
     ret &= ini_putl("osd", setting_key, pos->mode_16_9.x, SETTING_INI);
     return ret;
 }
@@ -246,9 +246,9 @@ int settings_put_osd_element_pos_y(const setting_osd_goggle_element_positions_t 
     char setting_key[128];
     int ret = 0;
 
-    sprintf(setting_key, "element_%s_pos_4_3_y", config_name);
+    snprintf(setting_key, sizeof(setting_key), "element_%s_pos_4_3_y", config_name);
     ret = ini_putl("osd", setting_key, pos->mode_4_3.y, SETTING_INI);
-    sprintf(setting_key, "element_%s_pos_16_9_y", config_name);
+    snprintf(setting_key, sizeof(setting_key), "element_%s_pos_16_9_y", config_name);
     ret &= ini_putl("osd", setting_key, pos->mode_16_9.y, SETTING_INI);
     return ret;
 }
@@ -265,19 +265,19 @@ int settings_put_osd_element(const setting_osd_goggle_element_t *element, char *
 static void settings_load_osd_element(setting_osd_goggle_element_t *element, char *config_name, const setting_osd_goggle_element_t *defaults) {
     char buf[128];
 
-    sprintf(buf, "element_%s_show", config_name);
+    snprintf(buf, sizeof(buf), "element_%s_show", config_name);
     element->show = settings_get_bool("osd", buf, defaults->show);
 
-    sprintf(buf, "element_%s_pos_4_3_x", config_name);
+    snprintf(buf, sizeof(buf), "element_%s_pos_4_3_x", config_name);
     element->position.mode_4_3.x = ini_getl("osd", buf, defaults->position.mode_4_3.x, SETTING_INI);
 
-    sprintf(buf, "element_%s_pos_4_3_y", config_name);
+    snprintf(buf, sizeof(buf), "element_%s_pos_4_3_y", config_name);
     element->position.mode_4_3.y = ini_getl("osd", buf, defaults->position.mode_4_3.y, SETTING_INI);
 
-    sprintf(buf, "element_%s_pos_16_9_x", config_name);
+    snprintf(buf, sizeof(buf), "element_%s_pos_16_9_x", config_name);
     element->position.mode_16_9.x = ini_getl("osd", buf, defaults->position.mode_16_9.x, SETTING_INI);
 
-    sprintf(buf, "element_%s_pos_16_9_y", config_name);
+    snprintf(buf, sizeof(buf), "element_%s_pos_16_9_y", config_name);
     element->position.mode_16_9.y = ini_getl("osd", buf, defaults->position.mode_16_9.y, SETTING_INI);
 }
 
@@ -295,11 +295,11 @@ int settings_put_bool(char *section, char *key, bool value) {
 void settings_reset(void) {
     char buf[256];
 
-    sprintf(buf, "rm -f %s", SETTING_INI);
+    snprintf(buf, sizeof(buf), "rm -f %s", SETTING_INI);
     system_exec(buf);
     usleep(50);
 
-    sprintf(buf, "touch %s", SETTING_INI);
+    snprintf(buf, sizeof(buf), "touch %s", SETTING_INI);
     system_exec(buf);
     usleep(50);
 
@@ -310,7 +310,7 @@ void settings_init(void) {
     // check if backup of old settings file exists after goggle update
     if (fs_file_exists("/mnt/UDISK/setting.ini")) {
         char buf[256];
-        sprintf(buf, "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
+        snprintf(buf, sizeof(buf), "cp -f /mnt/UDISK/setting.ini %s", SETTING_INI);
         system_exec(buf);
         usleep(10);
         system_exec("rm /mnt/UDISK/setting.ini");

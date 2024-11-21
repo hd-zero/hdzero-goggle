@@ -316,7 +316,7 @@ int8_t scan_now(void) {
     uint8_t valid_index;
     char buf[128];
 
-    sprintf(buf, "%s...", _lang("Scanning"));
+    snprintf(buf, sizeof(buf), "%s...", _lang("Scanning"));
     lv_label_set_text(label, buf);
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     lv_timer_handler();

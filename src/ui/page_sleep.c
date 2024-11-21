@@ -20,12 +20,12 @@ lv_obj_t *page_sleep_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, 1053, 894);
 
-    sprintf(buf, "%s:", _lang("Go Sleep"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Go Sleep"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_menu_cont_create(section);
     lv_obj_t *desc_label = lv_label_create(cont);
-    sprintf(buf, "%s.\n%s.",
+    snprintf(buf, sizeof(buf), "%s.\n%s.",
             _lang("Click the Enter Button to go sleep"),
             _lang("Click any button to exit sleep mode"));
     lv_label_set_text(desc_label, buf);

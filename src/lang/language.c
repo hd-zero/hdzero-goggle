@@ -59,7 +59,7 @@ bool language_config() {
     int i = 0;
 
     for (i = 0; i < LANG_END; i++) {
-        sprintf(buf, "/mnt/extsd/%s", language_config_file[i]);
+        snprintf(buf, sizeof(buf), "/mnt/extsd/%s", language_config_file[i]);
         if (access(buf, F_OK) == 0) {
             LOGI("%s found", language_config_file[i]);
             ini_putl("language", "lang", i, SETTING_INI);

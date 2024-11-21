@@ -63,12 +63,12 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     // create menu entries
     create_label_item(cont, _lang("Adjust OSD Elements"), 1, ROW_ADJUST_OSD_ELEMENTS, 1);
-    sprintf(buf, "OSD %s", _lang("Orbit"));
+    snprintf(buf, sizeof(buf), "OSD %s", _lang("Orbit"));
     create_btn_group_item(&btn_group_osd_orbit, cont, 3, buf, _lang("Off"), _lang("Min"), _lang("Max"), "", ROW_OSD_ORBIT);
-    sprintf(buf, "OSD %s", _lang("Mode"));
+    snprintf(buf, sizeof(buf), "OSD %s", _lang("Mode"));
     create_btn_group_item(&btn_group_osd_mode, cont, 2, buf, "4x3", "16x9", "", "", ROW_OSD_MODE);
     create_btn_group_item(&btn_group_osd_startup_visibility, cont, 3, _lang("At Startup"), _lang("Show"), _lang("Hide"), _lang("Last"), "", ROW_OSD_STARTUP_VISIBILITY);
-    sprintf(buf, "< %s", _lang("Back"));
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, ROW_BACK, 1);
 
     lv_obj_t *label_user_hint = lv_label_create(cont);
