@@ -551,15 +551,11 @@ static void page_storage_on_click(uint8_t key, int sel) {
 static void page_storage_on_right_button(bool is_short) {
 }
 
-/**
- * Returns true once the thread has completed.
- */
-static bool page_storage_is_sd_repair_complete() {
-    if (page_storage.is_sd_repair_complete) {
-        sdcard_ready_cb = page_storage_init_auto_sd_repair;
-        return true;
-    } else {
-        return false;
+static void page_storage_post_bootup_action(void (*complete_callback)()) {
+    page_storage_init_auto_sd_repair();
+
+    if (complete_callback != NULL) {
+        complete_callback();
     }
 }
 
@@ -582,8 +578,7 @@ page_pack_t pp_storage = {
     .on_click = page_storage_on_click,
     .on_right_button = page_storage_on_right_button,
     .post_bootup_run_priority = 50,
-    .post_bootup_run_function = page_storage_init_auto_sd_repair,
-    .post_bootup_run_complete = page_storage_is_sd_repair_complete,
+    .post_bootup_run_function = page_storage_post_bootup_action,
 };
 
 /**
@@ -602,6 +597,8 @@ static void *page_storage_repair_thread(void *arg) {
         page_storage.is_auto_sd_repair_active = false;
     }
     page_storage.is_sd_repair_complete = true;
+    sdcard_ready_cb = page_storage_init_auto_sd_repair;
+
     pthread_exit(NULL);
 }
 

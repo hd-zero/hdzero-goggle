@@ -1,6 +1,7 @@
 #include "ui/ui_main_menu.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <log/log.h>
 #include <lvgl/lvgl.h>
@@ -66,9 +67,11 @@ static page_pack_t *page_packs[] = {
     &pp_sleep,
 };
 
-#define PAGE_COUNT (sizeof(page_packs) / sizeof(page_packs[0]))
+#define PAGE_COUNT (ARRAY_SIZE(page_packs))
 
-static page_pack_t *post_bootup_actions[PAGE_COUNT + 1];
+static page_pack_t *post_bootup_actions[PAGE_COUNT];
+static size_t post_bootup_actions_count = 0;
+static bool bootup_actions_fired = false;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
@@ -288,6 +291,19 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     }
 }
 
+static int post_bootup_actions_cmp(const void * lhs, const void * rhs) {
+    const int32_t leftPriority = ((page_pack_t*) lhs)->post_bootup_run_priority;
+    const int32_t rightPriority = ((page_pack_t*) rhs)->post_bootup_run_priority;
+
+    if (leftPriority < rightPriority) {
+        return -1;
+    } else if (leftPriority > rightPriority) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void main_menu_init(void) {
     menu = lv_menu_create(lv_scr_act());
     // lv_obj_add_flag(menu, LV_OBJ_FLAG_HIDDEN);
@@ -305,26 +321,15 @@ void main_menu_init(void) {
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
 
-    for (uint32_t i = 0, j = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);
-        if (page_packs[i]->post_bootup_run_priority > 0) {
-            post_bootup_actions[j++] = page_packs[i];
+        if (page_packs[i]->post_bootup_run_priority > 0 && page_packs[i]->post_bootup_run_function != NULL) {
+            post_bootup_actions[post_bootup_actions_count++] = page_packs[i];
         }
     }
 
     // Resort based on priority
-    for (uint32_t i = 0; i < PAGE_COUNT; ++i) {
-        for (uint32_t j = 1; j < PAGE_COUNT; ++j) {
-            if (post_bootup_actions[i] && post_bootup_actions[j]) {
-                if (post_bootup_actions[j]->post_bootup_run_priority <
-                    post_bootup_actions[i]->post_bootup_run_priority) {
-                    post_bootup_actions[PAGE_COUNT] = post_bootup_actions[i];
-                    post_bootup_actions[i] = post_bootup_actions[j];
-                    post_bootup_actions[j] = post_bootup_actions[PAGE_COUNT];
-                }
-            }
-        }
-    }
+    qsort(post_bootup_actions, post_bootup_actions_count, sizeof(page_pack_t*), post_bootup_actions_cmp);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
@@ -351,9 +356,21 @@ void main_menu_init(void) {
     keyboard_init();
 }
 
+static void bootup_action_completed() {
+    bootup_actions_fired = false;
+}
+
+static void handle_bootup_action() {
+    static page_pack_t **next_bootup_action = &post_bootup_actions[0];
+    if (next_bootup_action - &post_bootup_actions[0] >= post_bootup_actions_count) {
+        return;
+    }
+
+    (*next_bootup_action++)->post_bootup_run_function(bootup_action_completed);
+}
+
 void main_menu_update() {
     static uint32_t delta_ms = 0;
-    static uint32_t last_bootup_action = 0;
     uint32_t now_ms = time_ms();
     delta_ms = now_ms - delta_ms;
 
@@ -361,29 +378,11 @@ void main_menu_update() {
         if (page_packs[i]->on_update) {
             page_packs[i]->on_update(delta_ms);
         }
+    }
 
-        if (last_bootup_action == i && post_bootup_actions[i]) {
-            if (post_bootup_actions[i] != NULL) {
-                // Function invokation
-                if (post_bootup_actions[i]->post_bootup_run_complete == NULL) {
-                    if (post_bootup_actions[i]->post_bootup_run_function != NULL) {
-                        post_bootup_actions[i]->post_bootup_run_function();
-                        post_bootup_actions[i]->post_bootup_run_function = NULL;
-                        post_bootup_actions[i] = NULL;
-                        ++last_bootup_action;
-                    }
-                } else { // Thread invokation
-                    if (post_bootup_actions[i]->post_bootup_run_function) {
-                        post_bootup_actions[i]->post_bootup_run_function();
-                        post_bootup_actions[i]->post_bootup_run_function = NULL;
-                    } else if (post_bootup_actions[i]->post_bootup_run_complete()) {
-                        post_bootup_actions[i]->post_bootup_run_complete = NULL;
-                        post_bootup_actions[i] = NULL;
-                        ++last_bootup_action;
-                    }
-                }
-            }
-        }
+    if (!bootup_actions_fired) {
+        bootup_actions_fired = true;
+        handle_bootup_action();
     }
     delta_ms = now_ms;
 }

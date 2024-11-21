@@ -1143,6 +1143,14 @@ static void page_wifi_on_right_button(bool is_short) {
     }
 }
 
+void page_wifi_post_bootup_action(void (*complete_callback)()) {
+    page_wifi_update_settings();
+
+    if (complete_callback != NULL) {
+        complete_callback();
+    }
+}
+
 /**
  * Main Menu page data structure, notice max is set to zero
  * in order to allow us to override default user input logic.
@@ -1162,8 +1170,7 @@ page_pack_t pp_wifi = {
     .on_click = page_wifi_on_click,
     .on_right_button = page_wifi_on_right_button,
     .post_bootup_run_priority = 100,
-    .post_bootup_run_function = page_wifi_update_settings,
-    .post_bootup_run_complete = NULL,
+    .post_bootup_run_function = page_wifi_post_bootup_action,
 };
 
 /**
