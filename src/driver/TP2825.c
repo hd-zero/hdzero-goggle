@@ -187,6 +187,9 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
     }
 
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
+
+    I2C_Write(ADDR_TP2825, 0x4E, 0x77); //inverse CLKO pin polarity
+
 }
 
 void TP2825_Switch_Mode(int is_pal) {
