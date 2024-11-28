@@ -292,11 +292,14 @@ void vclk_phase_init() {
 }
 
 void vclk_phase_set(video_source_t source, uint8_t reg_8d_sel) {
-
-    if (reg_8d_sel)
-        I2C_Write(ADDR_FPGA, 0x8d, (((vclk_phase[source] >> 24) & 0xff) ^ (1 << 4)));
-    else
-        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
+    if(source == VIDEO_SOURCE_AV_IN) // force av in clock phase
+        I2C_Write(ADDR_FPGA, 0x8d, 0x14);
+    else {
+        if (reg_8d_sel)
+            I2C_Write(ADDR_FPGA, 0x8d, (((vclk_phase[source] >> 24) & 0xff) ^ (1 << 4)));
+        else
+            I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
+    }
 
     I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[source] >> 16) & 0xff);
     I2C_Write(ADDR_AL, 0x14, (vclk_phase[source] >> 8) & 0xff);
