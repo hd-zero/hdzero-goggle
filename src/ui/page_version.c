@@ -247,7 +247,7 @@ static void flash_vtx() {
             lv_label_set_text(btn_vtx, buf);
         }
     } else if (ret == 2) {
-        snprintf(buf, sizeof(buf), "$FFFF00 %s.#", _lang("No firmware found"));
+        snprintf(buf, sizeof(buf), "#FFFF00 %s.#", _lang("No firmware found"));
         lv_label_set_text(btn_vtx, buf);
     } else {
         snprintf(buf, sizeof(buf), "#FF0000 %s...#", _lang("Failed, check connection"));
@@ -337,11 +337,11 @@ int generate_current_version(sys_version_t *sys_ver) {
              sys_ver->rx, sys_ver->va);
 
         snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu-%s rx: %u va: %u",
-                sys_ver->app_major,
-                sys_ver->app_minor,
-                sys_ver->app_patch,
-                sys_ver->commit,
-                sys_ver->rx, sys_ver->va);
+                 sys_ver->app_major,
+                 sys_ver->app_minor,
+                 sys_ver->app_patch,
+                 sys_ver->commit,
+                 sys_ver->rx, sys_ver->va);
     } else {
         LOGI("app: %hhu.%hhu.%hhu rx: %u va: %u",
              sys_ver->app_major,
@@ -350,10 +350,10 @@ int generate_current_version(sys_version_t *sys_ver) {
              sys_ver->rx, sys_ver->va);
 
         snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu rx: %u va: %u",
-                sys_ver->app_major,
-                sys_ver->app_minor,
-                sys_ver->app_patch,
-                sys_ver->rx, sys_ver->va);
+                 sys_ver->app_major,
+                 sys_ver->app_minor,
+                 sys_ver->app_patch,
+                 sys_ver->rx, sys_ver->va);
     }
 
     return 0;
@@ -505,9 +505,9 @@ static void page_version_fw_scan_for_updates() {
 
         if (has_online_goggle_update || has_online_vtx_update) {
             snprintf(buf, sizeof(buf), "%s, %s\n%s.",
-                    _lang("To view release notes"),
-                    _lang("select either Update VTX or Update Goggle"),
-                    _lang("then press the Func button to display or hide the release notes"));
+                     _lang("To view release notes"),
+                     _lang("select either Update VTX or Update Goggle"),
+                     _lang("then press the Func button to display or hide the release notes"));
             lv_label_set_text(label_note, buf);
         } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
             snprintf(buf, sizeof(buf), "%s.", _lang("Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\nSD Card in order to install the latest online downloaded firmware files"));
