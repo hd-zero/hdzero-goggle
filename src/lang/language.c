@@ -90,22 +90,23 @@ void language_init() {
 }
 
 const char *translate_string(const char *str, lang_e lang) {
-    int i;
-
     if (lang == LANG_ENGLISH_DEFAULT || lang >= LANG_END)
-        return (char *)str;
+        return str;
 
+    const struct Language * const language = &languages[lang];
+    const size_t keyLength = strlen(str);
     // search str translate
-    for (i = 0; i < TRANSLATE_STRING_NUM; i++) {
-        if (translate_list[lang][i].in_english == NULL || translate_list[lang][i].in_english[0] == '\0')
+    for (int i = 0; i < TRANSLATE_STRING_NUM; i++) {
+        const translate_t * const translation = &language->translations[i];
+
+        if (translation->in_english == NULL || translation->in_english[0] == '\0')
             continue;
 
-        if (strcmp(str, translate_list[lang][i].in_english) == 0)
-            return translate_list[lang][i].translate;
+        if (strcmp(str, translation->in_english) == 0)
+            return translation->translate;
     }
 
-    // if str is undefined
-    return (char *)str;
+    return str;
 }
 
 static void to_lowercase(char *str) {
