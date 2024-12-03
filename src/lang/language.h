@@ -27,5 +27,4 @@ bool language_config();
 #define _(string)      _str(string, g_setting.language.lang)
 #define _lang(string)   _((string))
 
-extern const char *language_options[];
 #endif
