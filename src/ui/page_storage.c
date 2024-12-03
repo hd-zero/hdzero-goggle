@@ -195,6 +195,7 @@ static format_codes_t page_storage_format_sd() {
     }
 
     clear_videofile_cnt();
+    sdcard_update_free_size();
 
     // Restore logging if needed
     if (applogfile) {
