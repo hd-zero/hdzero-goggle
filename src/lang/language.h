@@ -22,7 +22,8 @@ const char *translate_string(const char *str, lang_e lang);
 bool language_config();
 
 #define _str(string, lang) translate_string(string, lang)
-#define _lang(string)      _str(string, g_setting.language.lang)
+#define _(string)      _str(string, g_setting.language.lang)
+#define _lang(string)   _((string))
 
 extern const char *language_options[];
 #endif
