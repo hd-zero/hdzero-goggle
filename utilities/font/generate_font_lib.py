@@ -4,7 +4,7 @@ import os
 
 
 def extract_simplified_chinese_unicode():
-    input_file_path = "../../src/lang/simplified_chinese.c"
+    input_file_path = "../../mkapp/app/language/zh_hans.ini"
     range_str = ""
     char_pattern = re.compile(r'[\u4e00-\u9fff]')
 
