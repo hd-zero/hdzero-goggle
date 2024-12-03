@@ -6,7 +6,6 @@
 
 #include "core/common.hh"
 #include "language.h"
-#include "simplified_chinese.h"
 #include "ui/page_common.h"
 
 #include <assert.h>
