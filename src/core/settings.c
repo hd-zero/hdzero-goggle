@@ -464,6 +464,8 @@ void settings_load(void) {
         g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
     }
 
+    language_init();
+
     // Check
     if (fs_file_exists(SELF_TEST_FILE)) {
         unlink(SELF_TEST_FILE);
