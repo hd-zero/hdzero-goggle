@@ -102,6 +102,9 @@ const char *translate_string(const char *str, lang_e lang) {
         if (translation->in_english == NULL || translation->in_english[0] == '\0')
             continue;
 
+        if (strlen(translation->in_english) != keyLength)
+            continue;
+
         if (strcmp(str, translation->in_english) == 0)
             return translation->translate;
     }
