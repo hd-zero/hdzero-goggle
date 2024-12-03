@@ -1,8 +1,6 @@
 #ifndef _LANGUAGE_H_
 #define _LANGUAGE_H_
 
-#include <lvgl/lvgl.h>
-
 #include "core/settings.h"
 
 #define TRANSLATE_STRING_NUM 268
