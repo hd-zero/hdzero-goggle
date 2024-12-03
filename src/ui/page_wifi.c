@@ -111,8 +111,8 @@ typedef struct {
 /**
  *  Constants
  */
-#define INVALID_TOO_SHORT_STR "#FF0000 Invalid Too Short#"
-#define INVALID_FORMAT_STR    "#FF0000 Invalid Format#"
+static char INVALID_TOO_SHORT_STR[64];
+static char INVALID_FORMAT_STR[64];
 
 /**
  *  Globals
@@ -715,6 +715,9 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
+    snprintf(INVALID_TOO_SHORT_STR, sizeof(INVALID_TOO_SHORT_STR), "#FF0000 %s#", _lang("Invalid Too Short"));
+    snprintf(INVALID_FORMAT_STR, sizeof(INVALID_FORMAT_STR), "#FF0000 %s#", _lang("Invalid Format"));
+
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
