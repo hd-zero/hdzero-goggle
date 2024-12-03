@@ -6,6 +6,7 @@
 #include "core/settings.h"
 
 #define TRANSLATE_STRING_NUM 273
+#define LANG_FOLDER "/mnt/app/language"
 
 typedef enum {
     LANG_ENGLISH_DEFAULT = 0,
@@ -14,10 +15,11 @@ typedef enum {
 } lang_e;
 
 typedef struct {
-    const char * const in_english;
-    const char * const translate;
+    const char *in_english;
+    const char *translate;
 } translate_t;
 
+void language_init();
 const char *translate_string(const char *str, lang_e lang);
 bool language_config();
 

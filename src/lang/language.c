@@ -4,20 +4,24 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "core/common.hh"
 #include "language.h"
 #include "simplified_chinese.h"
 #include "ui/page_common.h"
 
-const translate_t translate_english_default[TRANSLATE_STRING_NUM];
+#include <assert.h>
+#include <stdlib.h>
 
-const translate_t *translate_list[LANG_END] = {
-    translate_english_default,
-    translate_simplified_chinese,
+struct Language {
+    lang_e lang;
+    const char * const code;
+    const char * const name;
+    const translate_t *translations;
 };
 
-const char *language_options[] = {
-    "English",
-    "Simplified Chinese",
+static struct Language languages[] = {
+    {LANG_ENGLISH_DEFAULT, "en_us", "English", NULL},
+    {LANG_SIMPLIFIED_CHINESE, "zh_hans", "Simplified Chinese", NULL},
 };
 
 const char *language_config_file[] = {
@@ -25,6 +29,65 @@ const char *language_config_file[] = {
     "ENG.TXT",
     "CHN.TXT",
 };
+
+struct CallbackPayload {
+    translate_t translations[TRANSLATE_STRING_NUM];
+    size_t index;
+};
+
+int init_callback(const char* section, const char* key, const char* value, void* userData) {
+    struct CallbackPayload* payload = userData;
+
+    assert(key != NULL);
+    assert(value != NULL);
+
+    const size_t englishLength = strlen(key);
+    const size_t translateLength = strlen(value);
+
+    char* englishBuffer = malloc(englishLength + 1);
+    char* translateBuffer = malloc(translateLength + 1);
+
+    strncpy(englishBuffer, key, englishLength);
+    strncpy(translateBuffer, value, translateLength);
+
+    englishBuffer[englishLength] = 0;
+    translateBuffer[translateLength] = 0;
+
+    payload->translations[payload->index].in_english = englishBuffer;
+    payload->translations[payload->index].translate = translateBuffer;
+
+    payload->index++;
+    return 1;
+}
+
+void language_init() {
+    for (size_t i = 0; i < ARRAY_SIZE(languages); i++) {
+        char fileName[256];
+        sprintf(fileName, "%s/%s.ini", LANG_FOLDER, languages[i].code);
+
+        INI_FILETYPE file;
+        if (!ini_openread(fileName, &file)) {
+            LOGE("Failed to open %s", fileName);
+            languages[i].translations = NULL;
+            continue;
+        }
+
+        // Load translations
+        translate_t* translations = malloc(TRANSLATE_STRING_NUM * sizeof(translate_t));
+        struct CallbackPayload payload = {.index = 0};
+        ini_browse(init_callback, &payload, fileName);
+
+        // Copy translations
+        memcpy(translations, payload.translations, sizeof(payload.translations));
+        languages[i].translations = translations;
+
+        for (size_t index = 0; index < TRANSLATE_STRING_NUM; index++) {
+            LOGD("%s: %s", languages[i].translations[index].in_english, languages[i].translations[index].translate);
+        }
+
+        ini_close(&file);
+    }
+}
 
 const char *translate_string(const char *str, lang_e lang) {
     int i;
