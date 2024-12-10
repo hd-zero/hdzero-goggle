@@ -11,6 +11,8 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#include "lang/language.h"
+
 #ifdef EMULATOR_BUILD
 #include "SDLaccess.h"
 SDL_mutex *global_sdl_mutex;
@@ -155,6 +157,7 @@ int main(int argc, char *argv[]) {
     // 1. Recall configuration
     settings_init();
     settings_load();
+    language_init();
     vclk_phase_init();
 
     // 2. Initialize communications.

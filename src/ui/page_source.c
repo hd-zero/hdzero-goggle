@@ -88,7 +88,9 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 char *state2string(uint8_t status) {
-    return _lang(status ? "#00FF00 Detected#" : "#C0C0C0 Disconnected");
+    static char buf[32];
+    snprintf(buf, sizeof(buf), "#%s %s#", status ? "00FF00" : "C0C0C0", status ? _lang("Connected") : _lang("Disconnected"));
+    return buf;
 }
 
 void source_status_timer() {
