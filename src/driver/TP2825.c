@@ -72,7 +72,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x27, 0x2D);
         I2C_Write(ADDR_TP2825, 0x28, 0xC5); //---
         I2C_Write(ADDR_TP2825, 0x29, 0x18); //---
-        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //---
+        I2C_Write(ADDR_TP2825, 0x2A, 0x30); //[7] color killer (1/0: disabled/enable)
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2C, 0x1A);
         I2C_Write(ADDR_TP2825, 0x2D, 0x60);
@@ -144,7 +144,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
         I2C_Write(ADDR_TP2825, 0x27, 0x2D);
         I2C_Write(ADDR_TP2825, 0x28, 0xC5); //---
         I2C_Write(ADDR_TP2825, 0x29, 0x18); //---
-        I2C_Write(ADDR_TP2825, 0x2A, 0xB0); //---
+        I2C_Write(ADDR_TP2825, 0x2A, 0x30); //[7] color killer (1/0: disabled/enable)
         I2C_Write(ADDR_TP2825, 0x2B, 0x70);
         I2C_Write(ADDR_TP2825, 0x2C, 0x1A);
         I2C_Write(ADDR_TP2825, 0x2D, 0x68);
@@ -188,8 +188,7 @@ void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
 
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 
-    I2C_Write(ADDR_TP2825, 0x4E, 0x77); //inverse CLKO pin polarity
-
+    I2C_Write(ADDR_TP2825, 0x4E, 0x77); // inverse CLKO pin polarity
 }
 
 void TP2825_Switch_Mode(int is_pal) {
