@@ -416,11 +416,11 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     } else {
         if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
             snprintf(buf, sizeof(buf), "%s, %s.\n%s:\n%s\n%s",
-                    _lang("Detected files being accessed by SD Card"),
-                    _lang("All storage options are disabled"),
-                    _lang("Remove the following files from the SD Card and try again"),
-                    DEVELOP_SCRIPT,
-                    APP_BIN_FILE);
+                     _lang("Detected files being accessed by SD Card"),
+                     _lang("All storage options are disabled"),
+                     _lang("Remove the following files from the SD Card and try again"),
+                     DEVELOP_SCRIPT,
+                     APP_BIN_FILE);
             lv_label_set_text(page_storage.note, buf);
             disable_controls();
         }
@@ -529,7 +529,7 @@ static void page_storage_on_click(uint8_t key, int sel) {
                 lv_timer_handler();
                 LOGI("Clear dvr folder");
                 char buf[256];
-                snprintf(buf, sizeof(buf), "rm -rf %s%s", REC_diskPATH, REC_packPATH);
+                snprintf(buf, sizeof(buf), "rm -rf %s%s/*", REC_diskPATH, REC_packPATH);
                 system_exec(buf);
                 snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Clear DVR Folder"), _lang("Done"));
                 lv_label_set_text(page_storage.clear_dvr, buf);
