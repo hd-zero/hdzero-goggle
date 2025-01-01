@@ -56,6 +56,9 @@ cmd_font_simplified_chinese = " --font simhei.ttf"
 cmd_range_simplified_chinese = "  --range " + \
     extract_simplified_chinese_unicode()
 
+cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
+cmd_range_cyrillic = " --range 1024-1279"
+
 font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
              26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
 
@@ -72,6 +75,9 @@ for s in font_size:
     command += cmd_range_lvgl_privite
     command += cmd_font_simplified_chinese
     command += cmd_range_simplified_chinese
+    command += cmd_font_cyrillic
+    command += cmd_range_cyrillic
+
 
     command += cmd_format
     command += cmd_output + str(s) + ".c"

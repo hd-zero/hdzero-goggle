@@ -13,20 +13,22 @@
 
 struct Language {
     lang_e lang;
-    const char * const code;
-    const char * const name;
+    const char *const code;
+    const char *const name;
     const translate_t *translations;
 };
 
 static struct Language languages[] = {
     {LANG_ENGLISH_DEFAULT, "en_us", "English", NULL},
     {LANG_SIMPLIFIED_CHINESE, "zh_hans", "Simplified Chinese", NULL},
+    {LANG_RUSSIAN, "ru_ru", "Russian", NULL},
 };
 
 const char *language_config_file[] = {
     // uppercase
     "ENG.TXT",
     "CHN.TXT",
+    "RUS.TXT",
 };
 
 struct CallbackPayload {
@@ -34,8 +36,8 @@ struct CallbackPayload {
     size_t index;
 };
 
-int init_callback(const char* section, const char* key, const char* value, void* userData) {
-    struct CallbackPayload* payload = userData;
+int init_callback(const char *section, const char *key, const char *value, void *userData) {
+    struct CallbackPayload *payload = userData;
 
     assert(key != NULL);
     assert(value != NULL);
@@ -43,8 +45,8 @@ int init_callback(const char* section, const char* key, const char* value, void*
     const size_t englishLength = strlen(key);
     const size_t translateLength = strlen(value);
 
-    char* englishBuffer = malloc(englishLength + 1);
-    char* translateBuffer = malloc(translateLength + 1);
+    char *englishBuffer = malloc(englishLength + 1);
+    char *translateBuffer = malloc(translateLength + 1);
 
     strncpy(englishBuffer, key, englishLength);
     strncpy(translateBuffer, value, translateLength);
@@ -72,7 +74,7 @@ void language_init() {
         }
 
         // Load translations
-        translate_t* translations = malloc(TRANSLATE_STRING_NUM * sizeof(translate_t));
+        translate_t *translations = malloc(TRANSLATE_STRING_NUM * sizeof(translate_t));
         struct CallbackPayload payload = {.index = 0};
         ini_browse(init_callback, &payload, fileName);
 
@@ -92,11 +94,11 @@ const char *translate_string(const char *str, lang_e lang) {
     if (lang == LANG_ENGLISH_DEFAULT || lang >= LANG_END)
         return str;
 
-    const struct Language * const language = &languages[lang];
+    const struct Language *const language = &languages[lang];
     const size_t keyLength = strlen(str);
     // search str translate
     for (int i = 0; i < TRANSLATE_STRING_NUM; i++) {
-        const translate_t * const translation = &language->translations[i];
+        const translate_t *const translation = &language->translations[i];
 
         if (translation->in_english == NULL || translation->in_english[0] == '\0')
             continue;
