@@ -589,12 +589,19 @@ static void *page_storage_repair_thread(void *arg) {
     char buf[128];
     if (!page_storage.disable_controls) {
         page_storage.is_auto_sd_repair_active = true;
+        pthread_mutex_lock(&lvgl_mutex);
         disable_controls();
         snprintf(buf, sizeof(buf), "%s, %s.", _lang("SD Card integrity check is active"), _lang("controls are disabled until process has completed"));
         lv_label_set_text(page_storage.note, buf);
+        pthread_mutex_unlock(&lvgl_mutex);
+
         page_storage_repair_sd();
+
+        pthread_mutex_lock(&lvgl_mutex);
         enable_controls();
         lv_label_set_text(page_storage.note, "");
+        pthread_mutex_unlock(&lvgl_mutex);
+
         page_storage.is_auto_sd_repair_active = false;
     }
     page_storage.is_sd_repair_complete = true;
