@@ -37,21 +37,49 @@ pthread_mutex_t hardware_mutex;
 
 uint32_t vclk_phase_default[VIDEO_SOURCE_NUM] = {
     // 0x8d,  0x8e,  0x14,  hdmi_out
-    0x00000002, // VIDEO_SOURCE_VERSION
-    0x14840000, // VIDEO_SOURCE_MENU_UI
-    0x14840000, // VIDEO_SOURCE_HDZERO_IN_720P60_50
-    0x14840000, // VIDEO_SOURCE_HDZERO_IN_720P90
-    0x14840000, // VIDEO_SOURCE_HDZERO_IN_1080P30
-    0x1C840000, // VIDEO_SOURCE_AV_IN
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_1080P50
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_1080P60
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_1080POTHER
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_720P50
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_720P60
-    0x00040100, // VIDEO_SOURCE_HDMI_IN_720P100
+    0x00000006, // VIDEO_SOURCE_VERSION
+    0x10840000, // VIDEO_SOURCE_MENU_UI
+    0x10840000, // VIDEO_SOURCE_HDZERO_IN_720P60_50
+    0x10840000, // VIDEO_SOURCE_HDZERO_IN_720P90
+    0x10840000, // VIDEO_SOURCE_HDZERO_IN_1080P30
+    0x10840000, // VIDEO_SOURCE_AV_IN
+    0x10040000, // VIDEO_SOURCE_HDMI_IN_1080P50
+    0x10040000, // VIDEO_SOURCE_HDMI_IN_1080P60
+    0x10040000, // VIDEO_SOURCE_HDMI_IN_1080POTHER
+    0x00040000, // VIDEO_SOURCE_HDMI_IN_720P50
+    0x00040000, // VIDEO_SOURCE_HDMI_IN_720P60
+    0x10040000, // VIDEO_SOURCE_HDMI_IN_720P100
+    0x00000000, // VIDEO_SOURCE_TP2825_EX
 };
+
+/*
+bit[0]   hdmi in
+bit[1]   analog in
+bit[2]   osd
+bit[3]   dvr
+bit[5:4] hdmi out
+bit[6]   oled
+*/
+uint32_t pclk_phase_default[VIDEO_SOURCE_NUM] = {
+    0x00000001,
+    0x00000000, // VIDEO_SOURCE_MENU_UI
+    0x00000000, // VIDEO_SOURCE_HDZERO_IN_720P60_50
+    0x00000000, // VIDEO_SOURCE_HDZERO_IN_720P90
+    0x00000000, // VIDEO_SOURCE_HDZERO_IN_1080P30
+    0x00000000, // VIDEO_SOURCE_AV_IN
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_1080P50
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_1080P60
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_1080POTHER
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_720P50
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_720P60
+    0x00000000, // VIDEO_SOURCE_HDMI_IN_720P100
+    0x00000000, // VIDEO_SOURCE_TP2825_EX, DO NOT USE
+};
+
 uint32_t vclk_phase_load[VIDEO_SOURCE_NUM];
 uint32_t vclk_phase[VIDEO_SOURCE_NUM];
+uint32_t pclk_phase_load[VIDEO_SOURCE_NUM];
+uint32_t pclk_phase[VIDEO_SOURCE_NUM];
 
 uint8_t vclk_phase_read_file(char *file_path) {
     FILE *file;
@@ -105,6 +133,69 @@ uint8_t vclk_phase_read_file(char *file_path) {
                 vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P60] = value;
             else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P100") == 0)
                 vclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P100] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_TP2825_EX") == 0)
+                vclk_phase_load[VIDEO_SOURCE_TP2825_EX] = value;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+uint8_t pclk_phase_read_file(char *file_path) {
+    FILE *file;
+    char line[256];
+    char type_str[128];
+    char value_str[16];
+    char *endptr;
+    uint32_t value;
+    uint8_t i = 0;
+
+    LOGI("pclk_phase_read_file: %s", file_path);
+    for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+        pclk_phase_load[i] = 0xffffffff;
+    }
+
+    file = fopen(file_path, "r");
+    if (file == NULL) {
+        LOGI("%s open failed", file_path);
+        return 1;
+    } else {
+        while (fgets(line, sizeof(line), file)) {
+            sscanf(line, "%s %s", type_str, value_str);
+            value = strtoul(value_str, &endptr, 0);
+            if (*endptr != '\0') {
+                LOGI("pclk parse error: %s, %s", type_str, value_str);
+                break;
+            }
+            LOGI("%s    0x%08x", type_str, value);
+
+            if (strcmp(type_str, "VIDEO_SOURCE_VERSION") == 0)
+                pclk_phase_load[VIDEO_SOURCE_VERSION] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_MENU_UI") == 0)
+                pclk_phase_load[VIDEO_SOURCE_MENU_UI] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P60_50") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P60_50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_720P90") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDZERO_IN_720P90] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDZERO_IN_1080P30") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDZERO_IN_1080P30] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_AV_IN") == 0)
+                pclk_phase_load[VIDEO_SOURCE_AV_IN] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P50") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080P60") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_1080POTHER") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_1080POTHER] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P50") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P50] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P60") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P60] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_HDMI_IN_720P100") == 0)
+                pclk_phase_load[VIDEO_SOURCE_HDMI_IN_720P100] = value;
+            else if (strcmp(type_str, "VIDEO_SOURCE_TP2825_EX") == 0)
+                pclk_phase_load[VIDEO_SOURCE_TP2825_EX] = value;
         }
     }
 
@@ -159,6 +250,8 @@ uint8_t vclk_phase_inv_read_file(char *file_path) {
                 mode = 10;
             else if (strcmp(type_str, "MODE11") == 0 || strcmp(type_str, "mode11") == 0)
                 mode = 11;
+            else if (strcmp(type_str, "MODE12") == 0 || strcmp(type_str, "mode12") == 0)
+                mode = 12;
             else
                 break;
 
@@ -166,29 +259,33 @@ uint8_t vclk_phase_inv_read_file(char *file_path) {
 
             vclk_phase[mode] = vclk_phase_default[mode];
 
-            if ((value >> 0) & 1) // 14[0]
-                vclk_phase[mode] ^= (1 << 8);
+            if (mode == VIDEO_SOURCE_TP2825_EX) {
+                vclk_phase[mode] = value;
+            } else {
+                if ((value >> 0) & 1) // 14[0]
+                    vclk_phase[mode] ^= (1 << 8);
 
-            if ((value >> 1) & 1) // 8e[7]
-                vclk_phase[mode] ^= (1 << 23);
+                if ((value >> 1) & 1) // 8e[7]
+                    vclk_phase[mode] ^= (1 << 23);
 
-            if ((value >> 2) & 1) // 8d[2]
-                vclk_phase[mode] ^= (1 << 26);
+                if ((value >> 2) & 1) // 8d[2]
+                    vclk_phase[mode] ^= (1 << 26);
 
-            if ((value >> 3) & 1) // hdmi out_0
-                vclk_phase[mode] ^= (1 << 0);
+                if ((value >> 3) & 1) // hdmi out_0
+                    vclk_phase[mode] ^= (1 << 0);
 
-            if ((value >> 4) & 1) // hdmi out_1
-                vclk_phase[mode] ^= (1 << 1);
+                if ((value >> 4) & 1) // hdmi out_1
+                    vclk_phase[mode] ^= (1 << 1);
 
-            if ((value >> 5) & 1) // 8d[4]
-                vclk_phase[mode] ^= (1 << 28);
+                if ((value >> 5) & 1) // 8d[4]
+                    vclk_phase[mode] ^= (1 << 28);
 
-            if ((value >> 6) & 1) // 8d[3]
-                vclk_phase[mode] ^= (1 << 27);
+                if ((value >> 6) & 1) // 8d[3]
+                    vclk_phase[mode] ^= (1 << 27);
 
-            if ((value >> 7) & 1) // 8e[2]
-                vclk_phase[mode] ^= (1 << 18);
+                if ((value >> 7) & 1) // 8e[2]
+                    vclk_phase[mode] ^= (1 << 18);
+            }
 
             LOGI("%s 0x%02x, ori:0x%08x new:0x%08x", type_str, value, vclk_phase_default[mode], vclk_phase[mode]);
         }
@@ -221,22 +318,51 @@ uint8_t vclk_phase_write_file(char *file_path, uint32_t phase_p[]) {
     fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P50 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P50]);
     fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P60 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P60]);
     fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P100 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P100]);
+    fprintf(file, "VIDEO_SOURCE_TP2825_EX 0x%08x\r\n", phase_p[VIDEO_SOURCE_TP2825_EX]);
+
+    fclose(file);
+}
+uint8_t pclk_phase_write_file(char *file_path, uint32_t phase_p[]) {
+    FILE *file;
+
+    LOGI("pclk_phase_write_file %s", file_path);
+
+    file = fopen(file_path, "w");
+    if (file == NULL) {
+        LOGI("%s open failed", file_path);
+        return 1;
+    }
+
+    fprintf(file, "VIDEO_SOURCE_VERSION 0x%08x\r\n", phase_p[VIDEO_SOURCE_VERSION]);
+    fprintf(file, "VIDEO_SOURCE_MENU_UI 0x%08x\r\n", phase_p[VIDEO_SOURCE_MENU_UI]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P60_50 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDZERO_IN_720P60_50]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_720P90 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDZERO_IN_720P90]);
+    fprintf(file, "VIDEO_SOURCE_HDZERO_IN_1080P30 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDZERO_IN_1080P30]);
+    fprintf(file, "VIDEO_SOURCE_AV_IN 0x%08x\r\n", phase_p[VIDEO_SOURCE_AV_IN]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P50 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_1080P50]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080P60 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_1080P60]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_1080POTHER 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_1080POTHER]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P50 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P50]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P60 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P60]);
+    fprintf(file, "VIDEO_SOURCE_HDMI_IN_720P100 0x%08x\r\n", phase_p[VIDEO_SOURCE_HDMI_IN_720P100]);
+    fprintf(file, "VIDEO_SOURCE_TP2825_EX 0x%08x\r\n", phase_p[VIDEO_SOURCE_TP2825_EX]);
 
     fclose(file);
 }
 
 void vclk_phase_load_system() {
     uint8_t i;
+
     if (vclk_phase_read_file("/etc/vclk_phase.cfg")) {
         // if no .cfg file, write it.
-        vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase_default);
+        // vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase_default);
 
         for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
             vclk_phase[i] = vclk_phase_default[i];
         }
     } else if (vclk_phase_load[VIDEO_SOURCE_VERSION] != 0xffffffff && vclk_phase_load[VIDEO_SOURCE_VERSION] != vclk_phase_default[VIDEO_SOURCE_VERSION]) {
         // newer .cfg file version
-        vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase_default);
+        // vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase_default);
 
         for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
             vclk_phase[i] = vclk_phase_default[i];
@@ -249,12 +375,40 @@ void vclk_phase_load_system() {
     }
 }
 
+void pclk_phase_load_system() {
+    uint8_t i;
+
+    system_exec("cp /mnt/extsd/pclk_phase.cfg /etc/pclk_phase.cfg");
+    system_exec("rm /mnt/extsd/pclk_phase.cfg");
+
+    if (pclk_phase_read_file("/etc/pclk_phase.cfg")) {
+        // if no .cfg file, write it.
+        pclk_phase_write_file("/etc/pclk_phase.cfg", pclk_phase_default);
+
+        for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+            pclk_phase[i] = pclk_phase_default[i];
+        }
+    } else if (pclk_phase_load[VIDEO_SOURCE_VERSION] != 0xffffffff && pclk_phase_load[VIDEO_SOURCE_VERSION] != pclk_phase_default[VIDEO_SOURCE_VERSION]) {
+        // newer .cfg file version
+        pclk_phase_write_file("/etc/pclk_phase.cfg", pclk_phase_default);
+
+        for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+            pclk_phase[i] = pclk_phase_default[i];
+        }
+    } else {
+        for (i = 0; i < VIDEO_SOURCE_NUM; i++) {
+            if (pclk_phase_load[i] != 0xffffffff)
+                pclk_phase[i] = pclk_phase_load[i];
+        }
+    }
+}
+
 void vclk_phase_inv_load_sdcard() {
     if (vclk_phase_inv_read_file("/mnt/extsd/vclk_phase_inv.txt")) {
         return;
     }
 
-    vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase);
+    // vclk_phase_write_file("/etc/vclk_phase.cfg", vclk_phase);
 
     system_exec("rm /mnt/extsd/vclk_phase_inv.txt");
 }
@@ -270,43 +424,108 @@ void vclk_phase_dump() {
 
     vclk_phase_write_file(file_path, vclk_phase);
 }
+void pclk_phase_dump() {
+    FILE *file;
+    char *file_path = "/mnt/extsd/pclk_phase_dump.cfg";
+
+    file = fopen(file_path, "r");
+    if (file == NULL)
+        return;
+    fclose(file);
+
+    pclk_phase_write_file(file_path, pclk_phase);
+}
 
 void vclk_phase_init() {
     vclk_phase_load_system();
-    vclk_phase_inv_load_sdcard();
+    // vclk_phase_inv_load_sdcard();
     vclk_phase_dump();
+}
 
-    LOGI("vclk phase:");
-    LOGI("VIDEO_SOURCE_VERSION             0x%08x", vclk_phase[0]);
-    LOGI("VIDEO_SOURCE_MENU_UI             0x%08x", vclk_phase[1]);
-    LOGI("VIDEO_SOURCE_HDZERO_IN_720P60_50 0x%08x", vclk_phase[2]);
-    LOGI("VIDEO_SOURCE_HDZERO_IN_720P90    0x%08x", vclk_phase[3]);
-    LOGI("VIDEO_SOURCE_HDZERO_IN_1080P30   0x%08x", vclk_phase[4]);
-    LOGI("VIDEO_SOURCE_AV_IN               0x%08x", vclk_phase[5]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_1080P50     0x%08x", vclk_phase[6]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_1080P60     0x%08x", vclk_phase[7]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_1080POTHER  0x%08x", vclk_phase[8]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_720P50      0x%08x", vclk_phase[9]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_720P60      0x%08x", vclk_phase[10]);
-    LOGI("VIDEO_SOURCE_HDMI_IN_720P100     0x%08x", vclk_phase[11]);
+void pclk_phase_init() {
+    pclk_phase_load_system();
+    pclk_phase_dump();
 }
 
 void vclk_phase_set(video_source_t source, uint8_t reg_8d_sel) {
-    if(source == VIDEO_SOURCE_AV_IN) // force av in clock phase
-        I2C_Write(ADDR_FPGA, 0x8d, 0x14);
-    else {
-        if (reg_8d_sel)
-            I2C_Write(ADDR_FPGA, 0x8d, (((vclk_phase[source] >> 24) & 0xff) ^ (1 << 4)));
-        else
-            I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
-    }
+    if (reg_8d_sel)
+        I2C_Write(ADDR_FPGA, 0x8d, (((vclk_phase[source] >> 24) & 0xff) ^ (1 << 4)));
+    else
+        I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
 
     I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[source] >> 16) & 0xff);
     I2C_Write(ADDR_AL, 0x14, (vclk_phase[source] >> 8) & 0xff);
 
-    IT66121_set_phase(vclk_phase[source] & 3);
+    IT66121_set_phase(vclk_phase[source] & 3, 0);
 }
 
+/*
+DCLK_INVERT
+    0: Disable dclk invert
+    1: Enable dclk invert
+DCLK_DLY_EN
+    0: Disable
+    1: Enable
+DCLK_DLY_NUM[5:0]
+    Number= num+1
+*/
+void vdpo_sync_ctrl_set(bool dclk_invert, bool dclk_dly_en, uint8_t dvlk_dly_num) {
+    const uint32_t addr = 0x06542008;
+    uint32_t dat = 0x00000003;
+    char buf[32];
+
+    dat |= (dclk_invert << 3);
+    dat |= (dvlk_dly_num << 4);
+    dat |= (dclk_dly_en << 10);
+
+    snprintf(buf, sizeof(buf), "aww 0x%08x 0x%08x", addr, dat);
+    system_exec(buf);
+}
+
+/*
+used for dvr
+Pclk_dly
+default value : 9
+32 Step for adjust, 1 step = 0.2ns
+*/
+void csic_pclk_dly_set(uint8_t pclk_dly_num) {
+    const uint32_t addr = 0x06601500;
+    uint32_t dat = pclk_dly_num;
+    char buf[32];
+
+    snprintf(buf, sizeof(buf), "aww 0x%08x 0x%08x", addr, dat);
+    system_exec(buf);
+}
+
+void csic_pclk_invert_set(uint8_t is_invert) {
+    const uint32_t addr = 0x06601004;
+    uint32_t dat = is_invert ? 0x010000A0 : 0x010100A0;
+    char buf[32];
+
+    snprintf(buf, sizeof(buf), "aww 0x%08x 0x%08x", addr, dat);
+    system_exec(buf);
+}
+
+void pclk_phase_set(video_source_t source) {
+    LOGI("pclk_phase_set %d", pclk_phase[source]);
+    // bit[0] hdmi in
+    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1);
+
+    // bit[1] analog in
+    TP2825_Set_Pclk((pclk_phase[source] >> 1) & 1);
+
+    // bit[2] osd
+    vdpo_sync_ctrl_set((pclk_phase[source] >> 2) & 1, 0, 0);
+
+    // bit[3] dvr
+    csic_pclk_invert_set((pclk_phase[source] >> 3) & 1);
+
+    // bit [5:4] hdmi out  bit[7]
+    IT66121_set_phase((pclk_phase[source] >> 4) & 3, (pclk_phase[source] >> 7) & 1);
+
+    // bit[6] oled
+    I2C_Write(ADDR_AL, 0x14, (pclk_phase[source] >> 6) & 1);
+}
 void hw_stat_init() {
     g_hw_stat.source_mode = SOURCE_MODE_UI;
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
@@ -353,6 +572,7 @@ void Display_UI_init() {
     Display_VO_SWITCH(0);
 
     vclk_phase_set(VIDEO_SOURCE_MENU_UI, 0);
+    pclk_phase_set(VIDEO_SOURCE_MENU_UI);
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
@@ -378,6 +598,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     system_exec("dispw -s vdpo 720p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
     vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P60_50, 0);
+    pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P60_50);
 
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
@@ -403,6 +624,7 @@ void Display_720P90_t(int mode) {
     system_exec("dispw -s vdpo 720p90");
     g_hw_stat.vdpo_tmg = VDPO_TMG_720P90;
     vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90, 0);
+    pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90);
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
     DM5680_SetFPS(mode);
@@ -424,6 +646,7 @@ void Display_1080P30_t(int mode) {
     system_exec("dispw -s vdpo 1080p60");
     g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
     vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
+    pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30);
 
     I2C_Write(ADDR_FPGA, 0x80, 0x04);
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
@@ -459,14 +682,10 @@ void Display_1080P30(int mode) {
 }
 
 void HDZero_open(int bw) {
-    if (g_hw_stat.hdzero_open == 0) {
-        g_hw_stat.hdz_bw = bw;
-        DM5680_SetBR(g_hw_stat.hdz_bw);
-        DM6302_init(0, g_hw_stat.hdz_bw);
-        DM5680_SetBB(1);
-        g_hw_stat.hdzero_open = 1;
-    } else if (bw != g_hw_stat.hdz_bw) { // reopen with different bw
+    if (bw != g_hw_stat.hdz_bw) // reopen with different bw
         HDZero_Close();
+
+    if (g_hw_stat.hdzero_open == 0) {
         g_hw_stat.hdz_bw = bw;
         DM5680_SetBR(g_hw_stat.hdz_bw);
         DM6302_init(0, g_hw_stat.hdz_bw);
@@ -578,6 +797,8 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
 
     g_hw_stat.av_chid = sel ? 1 : 0;
 
+    TP2825_Config(sel, g_setting.source.analog_format);
+
     // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
     TP2825_Switch_Mode(g_setting.source.analog_format);
     TP2825_Switch_CH(g_hw_stat.av_chid);
@@ -588,6 +809,7 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
     vclk_phase_set(VIDEO_SOURCE_AV_IN, 0);
+    pclk_phase_set(VIDEO_SOURCE_AV_IN);
 
     I2C_Write(ADDR_FPGA, 0x89, 0x01);
 
@@ -768,6 +990,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 1080p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60);
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
                         OLED_SetTMG(2);
@@ -782,6 +1005,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50);
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x20);
 
@@ -797,6 +1021,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 1080p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080POTHER, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080POTHER);
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x40);
 
@@ -812,6 +1037,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 720p50");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P50, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P50);
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x60);
 
@@ -827,6 +1053,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 720p60");
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
                         OLED_SetTMG(1);
@@ -841,6 +1068,7 @@ void HDMI_in_detect() {
                         system_exec("dispw -s vdpo 720p30"); // 100fps actually
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P100, (freq_ref < 63));
+                        pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P100);
 
                         I2C_Write(ADDR_FPGA, 0x80, 0xA0);
 
@@ -951,9 +1179,9 @@ int Get_HAN_status() // ret: 0=error; 1=ok
     I2C_Write(ADDR_FPGA, 0x81, 0x01);
     sleep(1);
 
-    rdat = I2C_Read(ADDR_FPGA, 0x19);
+    rdat = I2C_Read(ADDR_FPGA, 0x18);
 
-    if (rdat > 0x9C && rdat < 0xA3)
+    if (rdat >= 0xE4 && rdat <= 0xE7)
         rdat = 1;
     else
         rdat = 0;
