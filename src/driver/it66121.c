@@ -120,7 +120,7 @@ void IT66121_init() {
     I2C_R_Write(ADDR_IT66121, 0xc6, 0x03);
 }
 
-oid IT66121_set_phase(uint8_t phase, uint8_t inv) {
+void IT66121_set_phase(uint8_t phase, uint8_t inv) {
     uint8_t rdat;
 
     inv &= 1;
