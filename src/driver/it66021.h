@@ -14,6 +14,8 @@ void IT66021_Set_CSMatrix(int cs);
 int IT66021_Get_PCLKFREQ();
 void IT66021_edid();
 
+void IT66021_Set_Pclk(int inv);
+
 #ifdef __cplusplus
 }
 #endif

@@ -339,3 +339,10 @@ void IT66021_edid() {
     usleep(2000);
     I2C_L_Write(0x49, 0xc0, 0x04);
 }
+
+void IT66021_Set_Pclk(int inv) {
+    if (inv)
+        I2C_L_Write(ADDR_IT66021, 0x50, 0xA2);
+    else
+        I2C_L_Write(ADDR_IT66021, 0x50, 0xB2);
+}

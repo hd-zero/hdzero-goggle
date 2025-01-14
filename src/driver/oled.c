@@ -382,14 +382,14 @@ void MFPGA_Set540P60() {
     I2C_Write(ADDR_FPGA, 0x40, 0xc0);
     I2C_Write(ADDR_FPGA, 0x41, 0x23);
     I2C_Write(ADDR_FPGA, 0x42, 0x1c);
-    I2C_Write(ADDR_FPGA, 0x43, 0x96);
-    I2C_Write(ADDR_FPGA, 0x44, 0x48);
+    I2C_Write(ADDR_FPGA, 0x43, 0x4B);
+    I2C_Write(ADDR_FPGA, 0x44, 0x44);
     I2C_Write(ADDR_FPGA, 0x45, 0x33);
     I2C_Write(ADDR_FPGA, 0x46, 0x00);
     I2C_Write(ADDR_FPGA, 0x47, 0x00);
     I2C_Write(ADDR_FPGA, 0x48, 0x28);
-    I2C_Write(ADDR_FPGA, 0x49, 0x09);
-    I2C_Write(ADDR_FPGA, 0x4a, 0x04);
+    I2C_Write(ADDR_FPGA, 0x49, 0x84);
+    I2C_Write(ADDR_FPGA, 0x4a, 0x00);
     I2C_Write(ADDR_FPGA, 0x4b, 0x05);
     I2C_Write(ADDR_FPGA, 0x4c, 0x11);
 
@@ -458,7 +458,7 @@ void MFPGA_Set1080P30() {
     I2C_Write(ADDR_FPGA, 0x46, 0x00);
     I2C_Write(ADDR_FPGA, 0x47, 0x00);
     I2C_Write(ADDR_FPGA, 0x48, 0x2c);
-    I2C_Write(ADDR_FPGA, 0x49, 0xa5);
+    I2C_Write(ADDR_FPGA, 0x49, 0xa9);
     I2C_Write(ADDR_FPGA, 0x4a, 0x00);
     I2C_Write(ADDR_FPGA, 0x4b, 0x05);
     I2C_Write(ADDR_FPGA, 0x4c, 0x28);
