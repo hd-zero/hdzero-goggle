@@ -816,6 +816,11 @@ void Source_AV(uint8_t sel) // 0=AV in, 1=AV module
     HDZero_Close();
     OLED_SetTMG(1);
 
+    if (g_setting.source.analog_ratio == SETTING_SOURCES_ANALOG_RATIO_4_3)
+        I2C_Write(ADDR_FPGA, 0x8f, 0x80); // bit[7]: 0=16:9, 1=original
+    else
+        I2C_Write(ADDR_FPGA, 0x8f, 0x00); // bit[7]: 0=16:9, 1=original
+
     I2C_Write(ADDR_FPGA, 0x8C, 0x02);
 
     g_hw_stat.source_mode = SOURCE_MODE_AV;

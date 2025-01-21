@@ -216,6 +216,7 @@ const setting_t g_setting_defaults = {
     },
     .source = {
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
+        .analog_ratio = SETTING_SOURCES_ANALOG_RATIO_4_3,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
         .hdzero_bw = SETTING_SOURCES_HDZERO_BW_WIDE,
     },
@@ -333,6 +334,7 @@ void settings_load(void) {
 
     // source
     g_setting.source.analog_format = ini_getl("source", "analog_format", g_setting_defaults.source.analog_format, SETTING_INI);
+    g_setting.source.analog_ratio = ini_getl("source", "analog_ratio", g_setting_defaults.source.analog_ratio, SETTING_INI);
     g_setting.source.hdzero_band = ini_getl("source", "hdzero_band", g_setting_defaults.source.hdzero_band, SETTING_INI);
     g_setting.source.hdzero_bw = ini_getl("source", "hdzero_bw", g_setting_defaults.source.hdzero_bw, SETTING_INI);
 
