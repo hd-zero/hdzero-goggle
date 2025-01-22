@@ -83,7 +83,10 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_file_naming, g_setting.record.naming);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, _lang("MP4 format requires properly closing files or the files will be corrupt. \nTS format is highly recommended."));
+    snprinrf(buf, sizeof(buf), "%s.\n%s.",
+             _lang("MP4 format requires properly closing files or the files will be corrupt"),
+             _lang("TS format is highly recommended"));
+    lv_label_set_text(label2, buf);
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);

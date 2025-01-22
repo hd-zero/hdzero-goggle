@@ -72,7 +72,13 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, buf, 1, ROW_BACK, 1);
 
     lv_obj_t *label_user_hint = lv_label_create(cont);
-    lv_label_set_text(label_user_hint, _lang("Note: The positioning preview will display all OSD elements. Some elements might\nnot show during normal operation, depending on input source and conditions.\nOSD Element positioning is based on a 1280x720 canvas.\nPositions can be set for 4x3 and 16x9 modes separately,\nthe Show Element toggle is shared between both modes."));
+    snprintf(buf, sizeof(buf), "%s\n%s.\n%s,\n%s.\n%s.",
+             _lang("Note: The positioning preview will display all OSD elements. Some elements might"),
+             _lang("not show during normal operation, depending on input source and conditions"),
+             _lang("OSD Element positioning is based on a 1280x720 canvas"),
+             _lang("Positions can be set for 4x3 and 16x9 modes separately"),
+             _lang("the Show Element toggle is shared between both modes"));
+    lv_label_set_text(label_user_hint, buf);
     lv_obj_set_style_text_font(label_user_hint, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label_user_hint, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label_user_hint, lv_color_make(255, 255, 255), 0);
