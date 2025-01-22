@@ -1,5 +1,6 @@
 #include "page_record.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <minIni.h>
