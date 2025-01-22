@@ -29,7 +29,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_T
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
-static btn_group_t btn_group0, btn_group1, btn_group2;
+static btn_group_t btn_group0, btn_group1, btn_group2, btn_group3;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
@@ -41,13 +41,13 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, 960, 894);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Source"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, 960, 894);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -74,15 +74,18 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", 6);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
+    create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", 7);
+    btn_group_set_sel(&btn_group3, g_setting.source.analog_ratio);
+
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     if (g_setting.storage.selftest) {
-        pp_source.p_arr.max = 9;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 7, 3);
-        create_label_item(cont, buf, 1, 8, 3);
+        pp_source.p_arr.max = 10;
+        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 8, 3);
+        create_label_item(cont, buf, 1, 9, 3);
     } else {
-        pp_source.p_arr.max = 8;
+        pp_source.p_arr.max = 9;
         label[4] = NULL;
-        create_label_item(cont, buf, 1, 7, 3);
+        create_label_item(cont, buf, 1, 8, 3);
     }
     return page;
 }
@@ -242,7 +245,13 @@ static void page_source_on_click(uint8_t key, int sel) {
         ini_putl("source", "hdzero_bw", g_setting.source.hdzero_bw, SETTING_INI);
         break;
 
-    case 7:
+    case 7: // Analog video format
+        btn_group_toggle_sel(&btn_group3);
+        g_setting.source.analog_ratio = btn_group_get_sel(&btn_group3);
+        ini_putl("source", "analog_ratio", g_setting.source.analog_ratio, SETTING_INI);
+        break;
+
+    case 8:
         if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
