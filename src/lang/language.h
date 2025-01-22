@@ -3,8 +3,8 @@
 
 #include "core/settings.h"
 
-#define TRANSLATE_STRING_NUM 268
-#define LANG_FOLDER "/mnt/app/language"
+#define TRANSLATE_STRING_NUM 278
+#define LANG_FOLDER          "/mnt/app/language"
 
 typedef enum {
     LANG_ENGLISH_DEFAULT = 0,
@@ -22,7 +22,7 @@ const char *translate_string(const char *str, lang_e lang);
 bool language_config();
 
 #define _str(string, lang) translate_string(string, lang)
-#define _(string)      _str(string, g_setting.language.lang)
-#define _lang(string)   _((string))
+#define _(string)          _str(string, g_setting.language.lang)
+#define _lang(string)      _((string))
 
 #endif

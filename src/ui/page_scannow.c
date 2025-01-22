@@ -193,6 +193,8 @@ void page_scannow_set_channel_label(void) {
 // 1420-256
 // 1164
 static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
+    char buf[256];
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1158, 900);
@@ -233,7 +235,11 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lv_obj_t *label2 = lv_label_create(cont1);
-    lv_label_set_text(label2, _lang("When scanning is complete, use the\n dial to select a channel and press\n the Enter button to choose"));
+    snprintf(buf, sizeof(buf), "%s\n %s\n %s",
+             _lang("When scanning is complete, use the"),
+             _lang("dial to select a channel and press"),
+             _lang("the Enter button to choose"));
+    lv_label_set_text(label2, buf);
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
