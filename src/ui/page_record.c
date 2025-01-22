@@ -84,7 +84,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_file_naming, g_setting.record.naming);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    snprinrf(buf, sizeof(buf), "%s.\n%s.",
+    snprintf(buf, sizeof(buf), "%s.\n%s.",
              _lang("MP4 format requires properly closing files or the files will be corrupt"),
              _lang("TS format is highly recommended"));
     lv_label_set_text(label2, buf);
