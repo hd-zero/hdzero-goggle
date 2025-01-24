@@ -128,8 +128,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        snprintf(buf, sizeof(buf), "%s %s", _lang("AnalogRX"), _lang("Power"));
-        create_btn_group_item(&btn_group_power_ana, cont, 2, buf, _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
     }
 
     // Back entry
