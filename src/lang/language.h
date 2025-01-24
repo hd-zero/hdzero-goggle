@@ -3,7 +3,7 @@
 
 #include "core/settings.h"
 
-#define TRANSLATE_STRING_NUM 278
+#define TRANSLATE_STRING_NUM 280
 #define LANG_FOLDER          "/mnt/app/language"
 
 typedef enum {
