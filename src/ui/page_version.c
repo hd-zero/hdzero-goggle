@@ -781,6 +781,8 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
 
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
+    static char page_name[32];
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -863,6 +865,9 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_version_fw_scan_for_updates();
     page_version_fw_select_create(_lang("Goggle"), &fw_select_goggle, flash_goggle);
     page_version_fw_select_create("VTX", &fw_select_vtx, flash_vtx);
+
+    snprintf(page_name, sizeof(page_name), "%s   ", _lang("Firmware"));
+    pp_version.name = page_name;
 
     return page;
 }
@@ -1218,7 +1223,7 @@ page_pack_t pp_version = {
         .cur = 0,
         .max = ROW_COUNT,
     },
-    .name = "Firmware   ", // Spaces are necessary to include alert icon.
+    .name = "Firmware   ", // Spaces are necessary to include alert icon. Note name will be overwritten when page_version_create() is called
     .create = page_version_create,
     .enter = page_version_enter,
     .exit = page_version_exit,
