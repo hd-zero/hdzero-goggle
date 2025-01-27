@@ -4,6 +4,7 @@
 
 #include "core/common.hh"
 #include "core/osd.h"
+#include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_style.h"
 
@@ -86,6 +87,7 @@ static void keyboard_update(uint8_t key) {
  * External Functions
  */
 void keyboard_init() {
+    char buf[128];
     if (!g_keyboard.input || !g_keyboard.text) {
         char filename[128];
 
@@ -121,7 +123,7 @@ void keyboard_init() {
 
         g_keyboard.dial_scroll_text = lv_label_create(lv_scr_act());
         lv_obj_add_style(g_keyboard.dial_scroll_text, &style_rootmenu, LV_PART_MAIN);
-        lv_label_set_text(g_keyboard.dial_scroll_text, "Highlight Key");
+        lv_label_set_text(g_keyboard.dial_scroll_text, _lang("Highlight Key"));
         lv_obj_set_style_text_font(g_keyboard.dial_scroll_text, &lv_font_montserrat_26, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_scroll_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.dial_scroll_text, 620, 130);
@@ -136,7 +138,7 @@ void keyboard_init() {
 
         g_keyboard.dial_click_text = lv_label_create(lv_scr_act());
         lv_obj_add_style(g_keyboard.dial_click_text, &style_rootmenu, LV_PART_MAIN);
-        lv_label_set_text(g_keyboard.dial_click_text, "Select Key");
+        lv_label_set_text(g_keyboard.dial_click_text, _lang("Select Key"));
         lv_obj_set_style_text_font(g_keyboard.dial_click_text, &lv_font_montserrat_26, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_click_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.dial_click_text, 1020, 130);
@@ -152,7 +154,8 @@ void keyboard_init() {
 
         g_keyboard.right_button_text = lv_label_create(lv_scr_act());
         lv_obj_add_style(g_keyboard.right_button_text, &style_rootmenu, LV_PART_MAIN);
-        lv_label_set_text(g_keyboard.right_button_text, "Click: Close Keyboard\nHold: Erase Text");
+        snprintf(buf, sizeof(buf), "%s: %s\n%s: %s", _lang("Click"), _lang("Close Keyboard"), _lang("Hold"), _lang("Erase Text"));
+        lv_label_set_text(g_keyboard.right_button_text, buf);
         lv_obj_set_style_text_font(g_keyboard.right_button_text, &lv_font_montserrat_26, 0);
         lv_obj_set_style_text_align(g_keyboard.right_button_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.right_button_text, 1360, 116);

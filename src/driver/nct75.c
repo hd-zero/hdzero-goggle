@@ -27,7 +27,7 @@ int nct_read_temperature(nct_type_t type) {
 
     int dev_id = type + (getHwRevision() == HW_REV_1 ? 1 : 0);
 
-    snprintf(buf, sizeof(buf), "/sys/bus/iio/devices/iio:device%d/in_voltage0_raw", dev_id);
+    sprintf(buf, "/sys/bus/iio/devices/iio:device%d/in_voltage0_raw", dev_id);
     fp = fopen(buf, "r");
     if (!fp) {
         static bool bFirst = true;

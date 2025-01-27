@@ -510,7 +510,9 @@ static void page_version_fw_scan_for_updates() {
                      _lang("then press the Func button to display or hide the release notes"));
             lv_label_set_text(label_note, buf);
         } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
-            snprintf(buf, sizeof(buf), "%s.", _lang("Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of\nSD Card in order to install the latest online downloaded firmware files"));
+            snprintf(buf, sizeof(buf), "%s\n%s.",
+                     _lang("Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of"),
+                     _lang("SD Card in order to install the latest online downloaded firmware files"));
             lv_label_set_text(label_note, buf);
         }
     } else {
@@ -779,6 +781,8 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
 
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
+    static char page_name[32];
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
@@ -834,10 +838,16 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
                          LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
     lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_update_complete = create_msgbox_item(_lang("Update complete"), _lang("Goggle update completed successfully.\nPlease repower goggle now."));
+    snprintf(buf, sizeof(buf), "%s.\n%s.",
+             _lang("Goggle update completed successfully"),
+             _lang("Please repower goggle now"));
+    msgbox_update_complete = create_msgbox_item(_lang("Update complete"), buf);
     lv_obj_add_flag(msgbox_update_complete, LV_OBJ_FLAG_HIDDEN);
 
-    msgbox_settings_reset = create_msgbox_item(_lang("Settings reset"), _lang("All settings have been reset.\nPlease repower goggle now."));
+    snprintf(buf, sizeof(buf), "%s.\n%s.",
+             _lang("All settings have been reset"),
+             _lang("Please repower goggle now"));
+    msgbox_settings_reset = create_msgbox_item(_lang("Settings reset"), buf);
     lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
 
     msgbox_release_notes = create_msgbox_item(_lang("Release Notes"), _lang("Empty"));
@@ -855,6 +865,9 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_version_fw_scan_for_updates();
     page_version_fw_select_create(_lang("Goggle"), &fw_select_goggle, flash_goggle);
     page_version_fw_select_create("VTX", &fw_select_vtx, flash_vtx);
+
+    snprintf(page_name, sizeof(page_name), "%s   ", _lang("Firmware"));
+    pp_version.name = page_name;
 
     return page;
 }
@@ -1210,7 +1223,7 @@ page_pack_t pp_version = {
         .cur = 0,
         .max = ROW_COUNT,
     },
-    .name = "Firmware   ", // Spaces are necessary to include alert icon.
+    .name = "Firmware   ", // Spaces are necessary to include alert icon. Note name will be overwritten when page_version_create() is called
     .create = page_version_create,
     .enter = page_version_enter,
     .exit = page_version_exit,

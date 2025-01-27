@@ -64,7 +64,10 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, buf, 1, 5, 1);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_label_set_text(label2, _lang("To change image settings, click the Enter button to enter video mode. \nMake sure a HDZero VTX or analog VTX is powered on for live video."));
+    snprintf(buf, sizeof(buf), "%s.\n %s.",
+             _lang("To change image settings, click the Enter button to enter video mode"),
+             _lang("Make sure a HDZero VTX or analog VTX is powered on for live video"));
+    lv_label_set_text(label2, buf);
     lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);

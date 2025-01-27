@@ -357,22 +357,22 @@ static void page_wifi_update_page_1_notes() {
 
     static char buf[1024];
     snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n%s:\n    1. %s.\n    2. %s:\n\n        rtsp://%s:8554/hdzero\n\n",
-            _lang("Password Requirements"),
-            _lang("Minimum 8 characters"),
-            _lang("maximum 64 characters"),
-            _lang("Live Stream"),
-            _lang("Connect to the WiFi network identified above"),
-            _lang("Use VLC Player to open a Network Stream"),
-            address ? address : page_wifi.page_2.ip_addr.text);
+             _lang("Password Requirements"),
+             _lang("Minimum 8 characters"),
+             _lang("maximum 64 characters"),
+             _lang("Live stream"),
+             _lang("Connect to the WiFi network identified above"),
+             _lang("Use VLC Player to open a Network Stream"),
+             address ? address : page_wifi.page_2.ip_addr.text);
     lv_label_set_text(page_wifi.page_1.note, buf);
 }
 
 static void page_wifi_update_page_3_notes() {
     static char buf[256];
     snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n",
-            _lang("Password Requirements"),
-            _lang("Minimum 8 characters"),
-            _lang("maximum 64 characters"));
+             _lang("Password Requirements"),
+             _lang("Minimum 8 characters"),
+             _lang("maximum 64 characters"));
     lv_label_set_text(page_wifi.page_3.note, buf);
 }
 
@@ -859,7 +859,7 @@ static void page_wifi_on_roller(uint8_t key) {
 /**
  * Common handling method of the three "apply settings" buttons.
  */
-static void page_wifi_handle_apply_button(lv_obj_t* apply_button) {
+static void page_wifi_handle_apply_button(lv_obj_t *apply_button) {
     if (page_wifi.confirm_settings) {
         lv_label_set_text(apply_button, "#FF0000 Updating WiFi...#");
         page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
@@ -1015,7 +1015,6 @@ static void page_wifi_on_click(uint8_t key, int sel) {
         }
         break;
     }
-
 
     // Enable/Disable panel scrolling when elements are in focus
     pp_wifi.p_arr.max =

@@ -120,8 +120,11 @@ void IT66121_init() {
     I2C_R_Write(ADDR_IT66121, 0xc6, 0x03);
 }
 
-void IT66121_set_phase(uint8_t phase) {
+void IT66121_set_phase(uint8_t phase, uint8_t inv) {
     uint8_t rdat;
+
+    inv &= 1;
+    I2C_R_Write(ADDR_IT66121, 0x59, 0x40 | (inv << 3));
 
     rdat = I2C_R_Read(ADDR_IT66121, 0x02);
     if (rdat == 0x12) {
