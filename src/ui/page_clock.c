@@ -386,12 +386,12 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
     page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 3, 3);
-    page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_OBJ;
+    page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 4, 1);
-    page_clock_items[ITEM_BACK].type = ITEM_TYPE_OBJ;
+    page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_BACK].panel = arr->panel[4];
 
     page_clock_create_datetime_item(cont, 5);
@@ -441,7 +441,7 @@ static void page_clock_exit() {
     for (int i = 0; i < ITEM_LIST_TOTAL; ++i) {
         switch (page_clock_items[i].type) {
         case ITEM_TYPE_OBJ:
-            lv_dropdown_close(page_clock_items[page_clock_item_selected].data.obj);
+            lv_dropdown_close(page_clock_items[i].data.obj);
         }
     }
 
