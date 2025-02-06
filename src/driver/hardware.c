@@ -26,6 +26,7 @@
 #include "msp_displayport.h"
 #include "oled.h"
 #include "uart.h"
+#include "ui/ui_porting.h"
 #include "util/system.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -964,11 +965,12 @@ void Source_HDMI_in() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
-void HDMI_in_detect() {
+int HDMI_in_detect() {
     static int vtmg_last = -1;
     static int cs_last = -1;
     static int last_vld = 0;
     int vtmg, cs, freq_ref;
+    int ret = 0;
 
     pthread_mutex_lock(&hardware_mutex);
 
@@ -982,6 +984,7 @@ void HDMI_in_detect() {
                 vtmg = IT66021_Get_VTMG(&freq_ref);
                 if (vtmg_last != vtmg) {
                     vtmg_last = vtmg;
+                    ret = 1;
                     LOGI("IT66021: VTMG change: %d", vtmg);
 
                     OLED_display(0);
@@ -993,6 +996,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_1080P60:
                         system_exec("dispw -s vdpo 1080p60");
+                        dvr_update_vi_conf(VR_1080P60);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60);
@@ -1008,6 +1012,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_1080P50:
                         system_exec("dispw -s vdpo 1080p50");
+                        dvr_update_vi_conf(VR_1080P50);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50);
@@ -1024,6 +1029,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_1080Pother:
                         system_exec("dispw -s vdpo 1080p50");
+                        dvr_update_vi_conf(VR_1080P50);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_1080P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080POTHER, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080POTHER);
@@ -1040,6 +1046,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_720P50:
                         system_exec("dispw -s vdpo 720p50");
+                        dvr_update_vi_conf(VR_720P50);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P50;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P50, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P50);
@@ -1056,6 +1063,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_720P60:
                         system_exec("dispw -s vdpo 720p60");
+                        dvr_update_vi_conf(VR_720P60);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60);
@@ -1071,6 +1079,7 @@ void HDMI_in_detect() {
 
                     case HDMIIN_VTMG_720P100:
                         system_exec("dispw -s vdpo 720p30"); // 100fps actually
+                        dvr_update_vi_conf(VR_540P90);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
                         vclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P100, (freq_ref < 63));
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P100);
@@ -1107,6 +1116,8 @@ void HDMI_in_detect() {
         }
     }
     pthread_mutex_unlock(&hardware_mutex);
+
+    return ret;
 }
 
 void Display_Osd(bool enable) {
