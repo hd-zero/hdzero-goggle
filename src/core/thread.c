@@ -112,13 +112,11 @@ static void check_source_signal(int vtmg_change) {
         cnt = 0;
     }
 
-    // Auto DVT HDMI_IN VTMG change -> stop recording first
-    if (g_source_info.source == SOURCE_HDMI_IN) {
-        if (vtmg_change && dvr_is_recording) {
-            LOGI("HDMI IN VTMG change");
-            dvr_cmd(DVR_STOP);
-            dvr_cmd(DVR_START);
-        }
+    // HDMI VTMG change -> Restart recording
+    if (g_source_info.source == SOURCE_HDMI_IN && vtmg_change) {
+        LOGI("HDMI IN VTMG change");
+        dvr_cmd(DVR_STOP);
+        cnt = 0;
     }
 
     if (dvr_is_recording) { // in-recording

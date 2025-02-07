@@ -36,6 +36,8 @@ void dvr_update_status() {
         }
         if (ret != 1) {
             dvr_is_recording = false;
+            system_script(REC_STOP);
+            sleep(2); // wait for record process
         }
     }
     pthread_mutex_unlock(&dvr_mutex);
