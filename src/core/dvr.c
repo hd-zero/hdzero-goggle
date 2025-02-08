@@ -122,7 +122,7 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
     case VR_1080P60:
         ini_putl("vi", "width", 1920, REC_CONF);
         ini_putl("vi", "height", 1080, REC_CONF);
-        ini_putl("vi", "fps", 60, REC_CONF);
+        ini_putl("vi", "fps", 59, REC_CONF); // If set fps to 60, DVR is wrong. I don't why. 59 or 61 is ok.
         break;
     }
     pthread_mutex_unlock(&dvr_mutex);
