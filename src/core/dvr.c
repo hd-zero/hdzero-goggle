@@ -160,7 +160,7 @@ void dvr_star() {
 }
 
 static void dvr_update_record_conf() {
-    if (g_setting.record.format_ts)
+    if (g_setting.record.format_ts || (g_source_info.source == SOURCE_HDMI_IN))
         ini_puts("record", "type", "ts", REC_CONF);
     else
         ini_puts("record", "type", "mp4", REC_CONF);
