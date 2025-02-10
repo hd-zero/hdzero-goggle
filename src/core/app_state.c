@@ -97,7 +97,9 @@ void app_switch_to_hdmi_in() {
     IT66121_close();
     sleep(2);
 
-    if (g_hw_stat.hdmiin_vtmg == 1)
+    if (g_hw_stat.hdmiin_vtmg == HDMIIN_VTMG_1080P60 ||
+        g_hw_stat.hdmiin_vtmg == HDMIIN_VTMG_1080P50 ||
+        g_hw_stat.hdmiin_vtmg == HDMIIN_VTMG_1080Pother)
         lvgl_switch_to_1080p();
     else
         lvgl_switch_to_720p();
@@ -106,7 +108,8 @@ void app_switch_to_hdmi_in() {
     osd_clear();
     lv_timer_handler();
 
-    dvr_update_vi_conf((g_hw_stat.hdmiin_vtmg == 1) ? VR_1080P30 : VR_720P60);
+    // update vi conf at HDMI_in_detect()
+    // dvr_update_vi_conf((g_hw_stat.hdmiin_vtmg == 1) ? VR_1080P30 : VR_720P60);
 
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDMI_IN;

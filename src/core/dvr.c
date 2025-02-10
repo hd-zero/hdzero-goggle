@@ -36,6 +36,8 @@ void dvr_update_status() {
         }
         if (ret != 1) {
             dvr_is_recording = false;
+            system_script(REC_STOP);
+            sleep(2); // wait for record process
         }
     }
     pthread_mutex_unlock(&dvr_mutex);
@@ -71,19 +73,57 @@ void dvr_select_audio_source(uint8_t source) {
 
 void dvr_update_vi_conf(video_resolution_t fmt) {
     pthread_mutex_lock(&dvr_mutex);
-    if (fmt == VR_1080P30) {
+    switch (fmt) {
+    case VR_720P50:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 50, REC_CONF);
+        break;
+    case VR_720P60:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 60, REC_CONF);
+        break;
+    case VR_720P30:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 30, REC_CONF);
+        break;
+    case VR_540P90:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 90, REC_CONF);
+        break;
+    case VR_540P60:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 60, REC_CONF);
+        break;
+    case VR_960x720P60:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 60, REC_CONF);
+        break;
+    case VR_540P90_CROP:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 90, REC_CONF);
+        break;
+    case VR_1080P30:
+        ini_putl("vi", "width", 1920, REC_CONF);
+        ini_putl("vi", "height", 1080, REC_CONF);
+        ini_putl("vi", "fps", 30, REC_CONF);
+        break;
+    case VR_1080P50:
         ini_putl("vi", "width", 1920, REC_CONF);
         ini_putl("vi", "height", 1080, REC_CONF);
         ini_putl("vi", "fps", 50, REC_CONF);
-    } else {
-        ini_putl("vi", "width", 1280, REC_CONF);
-        ini_putl("vi", "height", 720, REC_CONF);
-        if ((fmt == VR_540P90) || (fmt == VR_540P90_CROP))
-            ini_putl("vi", "fps", 90, REC_CONF);
-        else if (fmt == VR_720P50)
-            ini_putl("vi", "fps", 50, REC_CONF);
-        else
-            ini_putl("vi", "fps", 60, REC_CONF);
+        break;
+    case VR_1080P60:
+        ini_putl("vi", "width", 1920, REC_CONF);
+        ini_putl("vi", "height", 1080, REC_CONF);
+        ini_putl("vi", "fps", 59, REC_CONF); // If set fps to 60, DVR is wrong. I don't why. 59 or 61 is ok.
+        break;
     }
     pthread_mutex_unlock(&dvr_mutex);
 
@@ -120,13 +160,13 @@ void dvr_star() {
 }
 
 static void dvr_update_record_conf() {
-    LOGI("CAM_MODE=%d", CAM_MODE);
-    if (g_setting.record.format_ts)
+    if (g_setting.record.format_ts || (g_source_info.source == SOURCE_HDMI_IN))
         ini_puts("record", "type", "ts", REC_CONF);
     else
         ini_puts("record", "type", "mp4", REC_CONF);
 
     if (g_source_info.source == SOURCE_HDZERO) {
+        LOGI("CAM_MODE=%d", CAM_MODE);
         if (CAM_MODE == VR_1080P30) {
             ini_putl("venc", "width", 1920, REC_CONF);
             ini_putl("venc", "height", 1080, REC_CONF);
@@ -148,7 +188,7 @@ static void dvr_update_record_conf() {
             ini_putl("venc", "kbps", 24000, REC_CONF);
             ini_putl("venc", "h265", 1, REC_CONF);
         }
-    } else if (g_source_info.source != SOURCE_HDMI_IN) { // AV  (HDMI no record)
+    } else if (g_source_info.source == SOURCE_AV_IN || g_source_info.source == SOURCE_EXPANSION) { // Analog
         ini_putl("venc", "width", 1280, REC_CONF);
         ini_putl("venc", "height", 720, REC_CONF);
 
@@ -158,6 +198,59 @@ static void dvr_update_record_conf() {
             ini_putl("venc", "fps", 50, REC_CONF);
         else
             ini_putl("venc", "fps", 60, REC_CONF);
+    } else if (g_source_info.source == SOURCE_HDMI_IN) {
+        LOGI("g_hw_stat.hdmiin_vtmg=%d", g_hw_stat.hdmiin_vtmg);
+        switch (g_hw_stat.hdmiin_vtmg) {
+        case HDMIIN_VTMG_1080P60:
+            ini_putl("venc", "width", 1920, REC_CONF);
+            ini_putl("venc", "height", 1080, REC_CONF);
+            ini_putl("venc", "fps", 60, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        case HDMIIN_VTMG_1080P50:
+            ini_putl("venc", "width", 1920, REC_CONF);
+            ini_putl("venc", "height", 1080, REC_CONF);
+            ini_putl("venc", "fps", 50, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        case HDMIIN_VTMG_1080Pother:
+            ini_putl("venc", "width", 1920, REC_CONF);
+            ini_putl("venc", "height", 1080, REC_CONF);
+            ini_putl("venc", "fps", 50, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        case HDMIIN_VTMG_720P50:
+            ini_putl("venc", "width", 1280, REC_CONF);
+            ini_putl("venc", "height", 720, REC_CONF);
+            ini_putl("venc", "fps", 50, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        case HDMIIN_VTMG_720P60:
+            ini_putl("venc", "width", 1280, REC_CONF);
+            ini_putl("venc", "height", 720, REC_CONF);
+            ini_putl("venc", "fps", 60, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        case HDMIIN_VTMG_720P100:
+            ini_putl("venc", "width", 1280, REC_CONF);
+            ini_putl("venc", "height", 720, REC_CONF);
+            ini_putl("venc", "fps", 90, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        default:
+            ini_putl("venc", "width", 1280, REC_CONF);
+            ini_putl("venc", "height", 720, REC_CONF);
+            ini_putl("venc", "fps", 60, REC_CONF);
+            ini_putl("venc", "kbps", 34000, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+            break;
+        }
     }
 
     ini_putl("record", "audio", g_setting.record.audio, REC_CONF);
@@ -185,11 +278,6 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
     case DVR_START:
         start_rec = true;
         break;
-    }
-
-    if (g_source_info.source == SOURCE_HDMI_IN) {
-        // no record for hdmi-in :<
-        start_rec = false;
     }
 
     if (start_rec) {
