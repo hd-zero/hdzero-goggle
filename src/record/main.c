@@ -491,8 +491,20 @@ bool record_pack(RecordContext_t *recCtx) {
 
     VencSpspps_t veHeader = {NULL, 0};
     int nbFileIndex = recCtx->nbFileIndex;
+    char dateString[16];
     char sFile[256];
-    REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
+        break;
+    case NAMING_DATE: {
+        const time_t t = time(0);
+        const struct tm *date = localtime(&t);
+        snprintf(dateString, sizeof(dateString), "%04d%02d%02d-%02d%02d%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+        snprintf(sFile, sizeof(sFile), "%s%s.%s", recCtx->params.packPath, dateString, recCtx->params.packType);
+        break;
+    }
+    }
 
     FFPack_t *ff = ffpack_openFile(sFile, NULL);
     if (ff == NULL) {
@@ -550,7 +562,14 @@ bool record_pack(RecordContext_t *recCtx) {
 
     pthread_mutex_unlock(&recCtx->mutex);
 
-    REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+    switch (recCtx->params.fileNaming) {
+    case NAMING_CONTIGUOUS:
+        REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
+        break;
+    case NAMING_DATE:
+        snprintf(sFile, sizeof(sFile), "%s%s.%s", recCtx->params.packPath, dateString, REC_packSnapTYPE);
+        break;
+    }
     record_takePicture(recCtx, sFile);
 
     return true;
