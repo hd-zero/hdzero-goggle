@@ -13,8 +13,9 @@
 #include "dm5680.h"
 #include "i2c.h"
 #include "uart.h"
+#include "util/system.h"
 
-#define WAIT(ms) usleep((ms)*1000)
+#define WAIT(ms) usleep((ms) * 1000)
 
 // DM6302: RF receiver
 /*  �����ź�:
@@ -1709,6 +1710,8 @@ int DM6302_init(uint8_t freq, uint8_t bw) {
     int to_cnt = 0;
     uint32_t r0 = 1, r1 = 1;
 
+    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
+
     while (r0) {
         DM5680_ResetRF(0);
         usleep(1000);
@@ -1793,6 +1796,8 @@ int DM6302_init(uint8_t freq, uint8_t bw) {
 
     DM6302_M0();
     LOGI("M0 done");
+
+    system_exec("aww 0x05002814 0x00000058"); // set i2c speed to 200KHz
 
     return 0;
 }
