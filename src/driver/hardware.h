@@ -104,7 +104,7 @@ void Analog_Module_Power(bool Force);
 
 int HDZERO_detect();
 int AV_in_detect();
-void HDMI_in_detect();
+int HDMI_in_detect();
 
 int Get_VideoLatancy_status(); // ret: 0=unlocked, 1=locked
 int Get_HAN_status();          // ret: 0=error; 1=ok

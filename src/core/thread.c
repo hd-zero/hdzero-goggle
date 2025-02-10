@@ -67,7 +67,7 @@ static void detect_sdcard(void) {
 // Signal loss|accquire processing
 #define SIGNAL_LOSS_DURATION_THR 20 // 25=4 seconds,
 #define SIGNAL_ACCQ_DURATION_THR 10
-static void check_hdzero_signal(int vtmg_change) {
+static void check_source_signal(int vtmg_change) {
     static uint8_t cnt = 0;
     uint8_t is_valid;
 
@@ -78,7 +78,9 @@ static void check_hdzero_signal(int vtmg_change) {
         tune_channel_timer();
     }
 
-    if (g_source_info.source == SOURCE_AV_IN)
+    if (g_source_info.source == SOURCE_HDMI_IN)
+        is_valid = g_source_info.hdmi_in_status;
+    else if (g_source_info.source == SOURCE_AV_IN)
         is_valid = g_source_info.av_in_status;
     else if (g_source_info.source == SOURCE_EXPANSION)
         is_valid = g_source_info.av_bay_status;
@@ -90,11 +92,7 @@ static void check_hdzero_signal(int vtmg_change) {
     }
 
     // exit if no SD card or not in video mode
-    if (g_setting.record.mode_manual || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
-        return;
-
-    // exit if HDMI in
-    if (g_source_info.source == SOURCE_HDMI_IN)
+    if ((g_setting.record.mode_manual && (g_source_info.source != SOURCE_HDMI_IN)) || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
         return;
 
     // Analog VTMG change -> Restart recording
@@ -111,6 +109,13 @@ static void check_hdzero_signal(int vtmg_change) {
         LOGI("HDZero VTMG change (A)\n");
         dvr_cmd(DVR_STOP);
         system_script(REC_STOP_LIVE);
+        cnt = 0;
+    }
+
+    // HDMI VTMG change -> Restart recording
+    if (g_source_info.source == SOURCE_HDMI_IN && vtmg_change) {
+        LOGI("HDMI IN VTMG change");
+        dvr_cmd(DVR_STOP);
         cnt = 0;
     }
 
@@ -132,8 +137,9 @@ static void check_hdzero_signal(int vtmg_change) {
                 cnt = 0;
                 LOGI("Signal accquired");
                 sdcard_update_free_size();
-                if (!sdcard_is_full())
+                if (!sdcard_is_full()) {
                     dvr_cmd(DVR_START);
+                }
             }
         } else
             cnt = 0;
@@ -167,11 +173,11 @@ static void *thread_peripheral(void *ptr) {
             g_source_info.av_bay_status = g_hw_stat.av_valid[1];
 
             // detect HDMI in
-            HDMI_in_detect();
+            record_vtmg_change |= HDMI_in_detect();
             g_source_info.hdmi_in_status = g_hw_stat.hdmiin_valid;
 
             g_latency_locked = (bool)Get_VideoLatancy_status();
-            check_hdzero_signal(record_vtmg_change);
+            check_source_signal(record_vtmg_change);
             record_vtmg_change = 0;
         }
         j++;
