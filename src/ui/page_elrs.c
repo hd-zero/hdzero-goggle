@@ -201,7 +201,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
         }
     } else if (sel == POS_BIND) // start ESP bind
     {
-        snprintf(buf, sizeof(buf), "%s...", _lang("Starting"));
+        snprintf(buf, sizeof(buf), "%s...", _lang("Starting..."));
         lv_label_set_text(label_bind_status, buf);
         msp_send_packet(MSP_SET_MODE, MSP_PACKET_COMMAND, 1, (uint8_t *)"B");
         lv_timer_handler();
@@ -209,7 +209,7 @@ static void page_elrs_on_click(uint8_t key, int sel) {
             snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("FAILED"));
             lv_label_set_text(label_bind_status, buf);
         } else {
-            snprintf(buf, sizeof(buf), "%s...", _lang("Binding"));
+            snprintf(buf, sizeof(buf), "%s...", _lang("Binding..."));
             lv_label_set_text(label_bind_status, buf);
             lv_obj_clear_flag(cancel_label, LV_OBJ_FLAG_HIDDEN);
             binding = true;
