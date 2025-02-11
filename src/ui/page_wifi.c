@@ -860,13 +860,16 @@ static void page_wifi_on_roller(uint8_t key) {
  * Common handling method of the three "apply settings" buttons.
  */
 static void page_wifi_handle_apply_button(lv_obj_t *apply_button) {
+    uint8_t buf[256];
     if (page_wifi.confirm_settings) {
-        lv_label_set_text(apply_button, "#FF0000 Updating WiFi...#");
+        snprintf(buf, sizeof(buf), "#FF0000 %s...#", _lang("Updating WiFi"));
+        lv_label_set_text(apply_button, buf);
         page_wifi_apply_settings_timer = lv_timer_create(page_wifi_apply_settings_timer_cb, 1000, NULL);
         lv_timer_set_repeat_count(page_wifi_apply_settings_timer, 1);
         page_wifi.confirm_settings = 2;
     } else {
-        lv_label_set_text(apply_button, "#FFFF00 Click to confirm or Scroll to cancel...#");
+        snprintf(buf, sizeof(buf), "#FFFF00 %s...#", _lang("Click to confirm or Scroll to cancel"));
+        lv_label_set_text(apply_button, buf);
         page_wifi.confirm_settings = 1;
     }
 }
