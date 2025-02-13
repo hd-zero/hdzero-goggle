@@ -10,7 +10,7 @@ extern "C" {
 #define CALIBRATION_BCNT   8 // calibartion loop cnt = (1<<CALIBRATION_BCNT)
 #define gyroWeightTiltRoll 0.98
 
-#define MOTION_GYRO_THR    3000
+#define MOTION_GYRO_THR    500
 #define MOTION_DUR_1MINUTE 60
 
 #include "bmi270/bmi2_defs.h"
