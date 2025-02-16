@@ -196,7 +196,7 @@ static bool is_any_dropdown_open() {
  * Main allocation routine for this page
  */
 static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
-    char buf[128];
+    char buf[256];
     int contentHeight = 0;
     for (size_t i = 0; i < (ARRAY_SIZE(row_dsc) - 1); i++) {
         contentHeight += row_dsc[i];
@@ -271,8 +271,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *label = lv_label_create(content);
     snprintf(buf, sizeof(buf), "*%s\n%s",
-            _lang("Settings apply to video mode only"),
-            _lang("'Toggle source' will switch between HDZero and Expansion module"));
+             _lang("Settings apply to video mode only"),
+             _lang("'Toggle source' will switch between HDZero and Expansion module"));
     lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_pad_top(label, 12, 0);

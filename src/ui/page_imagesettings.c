@@ -27,7 +27,7 @@ static slider_group_t slider_group4;
 static slider_group_t slider_group5;
 
 static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
-    char buf[256];
+    char buf[288];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);

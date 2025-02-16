@@ -36,7 +36,7 @@ static btn_group_t btn_group_osd_mode;
 static btn_group_t btn_group_osd_startup_visibility;
 
 static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
-    char buf[325];
+    char buf[640];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, 1053, 900);
