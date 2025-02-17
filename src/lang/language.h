@@ -9,6 +9,7 @@
 typedef enum {
     LANG_ENGLISH_DEFAULT = 0,
     LANG_SIMPLIFIED_CHINESE,
+    LANG_RUSSIAN,
     LANG_END,
 } lang_e;
 

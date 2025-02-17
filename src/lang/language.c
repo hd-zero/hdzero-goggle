@@ -21,12 +21,14 @@ struct Language {
 static struct Language languages[] = {
     {LANG_ENGLISH_DEFAULT, "en_us", "English", NULL},
     {LANG_SIMPLIFIED_CHINESE, "zh_hans", "Simplified Chinese", NULL},
+    {LANG_RUSSIAN, "ru_ru", "Russian", NULL},
 };
 
 const char *language_config_file[] = {
     // uppercase
     "ENG.TXT",
     "CHN.TXT",
+    "RUS.TXT",
 };
 
 struct CallbackPayload {
