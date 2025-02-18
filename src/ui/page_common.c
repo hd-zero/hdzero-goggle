@@ -9,7 +9,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 bool g_sdcard_enable = false;
 bool g_sdcard_det_req = false;
-int g_sdcard_size = 0;
 bool g_autoscan_exit = true;
 bool g_scanning = false;
 bool g_latency_locked = false;
