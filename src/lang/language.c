@@ -155,7 +155,7 @@ bool language_config() {
  */
 char *languageList(char *buffer, size_t len) {
     for (size_t i = 0; i < ARRAY_SIZE(languages) && len > 0; i++) {
-        const char * const currentLanguageName = languages[i].name;
+        const char * const currentLanguageName = _lang(languages[i].name);
         const size_t nameLength = strlen(currentLanguageName);
 
         if (nameLength >= len) {
