@@ -7,6 +7,7 @@
 #include "core/common.hh"
 #include "language.h"
 #include "ui/page_common.h"
+#include "util/system.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -131,19 +132,28 @@ bool language_config() {
     int i = 0;
 
     for (i = 0; i < LANG_END; i++) {
+        bool languageFound = false;
+
         snprintf(buf, sizeof(buf), "/mnt/extsd/%s", language_config_file[i]);
         if (access(buf, F_OK) == 0) {
             LOGI("%s found", language_config_file[i]);
             ini_putl("language", "lang", i, SETTING_INI);
             g_setting.language.lang = i;
-            return true;
+            languageFound = true;
+        } else {
+            to_lowercase(buf);
+            if (access(buf, F_OK) == 0) {
+                LOGI("%s found", language_config_file[i]);
+                ini_putl("language", "lang", i, SETTING_INI);
+                g_setting.language.lang = i;
+                languageFound = true;
+            }
         }
 
-        to_lowercase(buf);
-        if (access(buf, F_OK) == 0) {
-            LOGI("%s found", language_config_file[i]);
-            ini_putl("language", "lang", i, SETTING_INI);
-            g_setting.language.lang = i;
+        if (languageFound) {
+            char cmd[259];
+            snprintf(cmd, sizeof(cmd), "rm %s", buf);
+            system_exec(cmd);
             return true;
         }
     }
