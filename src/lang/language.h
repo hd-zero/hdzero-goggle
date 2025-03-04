@@ -23,6 +23,7 @@ typedef struct {
 void language_init();
 const char *translate_string(const char *str, lang_e lang);
 bool language_config();
+char *languageList(char *buffer, size_t len);
 
 #define _str(string, lang) translate_string(string, lang)
 #define _(string)          _str(string, g_setting.language.lang)

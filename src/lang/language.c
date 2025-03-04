@@ -149,3 +149,29 @@ bool language_config() {
     }
     return false;
 }
+
+/**
+ * Build a '\n'-separated list of all available languages
+ */
+char *languageList(char *buffer, size_t len) {
+    for (size_t i = 0; i < ARRAY_SIZE(languages) && len > 0; i++) {
+        const char * const currentLanguageName = languages[i].name;
+        const size_t nameLength = strlen(currentLanguageName);
+
+        if (nameLength >= len) {
+            char tmp[256];
+            snprintf(tmp, len, "%s", currentLanguageName);
+            strcat(buffer, tmp);
+            len = 0;
+        } else {
+            strcat(buffer, currentLanguageName);
+            len -= nameLength;
+            if (i < ARRAY_SIZE(languages) - 1 && len > 1) {
+                strcat(buffer, "\n");
+                len--;
+            }
+        }
+    }
+
+    return buffer;
+}
