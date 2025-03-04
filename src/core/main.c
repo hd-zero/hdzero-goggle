@@ -108,14 +108,14 @@ void start_running(void) {
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
             sleep(2);
-            g_source_info.hdmi_in_status = IT66021_Sig_det();
-            if (g_source_info.hdmi_in_status) {
-                app_switch_to_hdmi_in();
-                g_source_info.source = SOURCE_HDMI_IN;
-            } else {
-                g_source_info.source = SOURCE_HDZERO;
-                app_state_push(APP_STATE_MAINMENU);
-            }
+            // g_source_info.hdmi_in_status = IT66021_Sig_det();
+            // if (g_source_info.hdmi_in_status) {
+            app_switch_to_hdmi_in();
+            g_source_info.source = SOURCE_HDMI_IN;
+            //} else {
+            //    g_source_info.source = SOURCE_HDZERO;
+            //    app_state_push(APP_STATE_MAINMENU);
+            //}
         }
     }
 

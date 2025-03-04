@@ -540,7 +540,7 @@ void hw_stat_init() {
     g_hw_stat.av_valid[0] = g_hw_stat.av_valid[1] = 0;
 
     g_hw_stat.hdmiin_valid = 0;
-    g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_UNKNOW;
+    g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
     g_hw_stat.IS_TP2825_L = 0;
 
     pthread_mutex_init(&hardware_mutex, NULL);
