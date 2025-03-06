@@ -22,6 +22,7 @@ static struct Language languages[] = {
     {LANG_ENGLISH_DEFAULT, "en_us", "English", NULL},
     {LANG_SIMPLIFIED_CHINESE, "zh_hans", "Simplified Chinese", NULL},
     {LANG_RUSSIAN, "ru_ru", "Russian", NULL},
+    {LANG_SPANISH, "es_es", "Spanish", NULL},
 };
 
 const char *language_config_file[] = {
@@ -29,6 +30,7 @@ const char *language_config_file[] = {
     "ENG.TXT",
     "CHN.TXT",
     "RUS.TXT",
+    "SPA.TXT",
 };
 
 struct CallbackPayload {
