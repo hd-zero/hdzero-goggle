@@ -22,7 +22,40 @@ gpio_export()
 		echo "258">/sys/class/gpio/export
 	        echo "out">/sys/class/gpio/gpio258/direction
 	fi
+        if [ ! -f /sys/class/gpio/gpio131/direction ] 
+        then                                                          
+                echo "131">/sys/class/gpio/export
+                echo "out">/sys/class/gpio/gpio131/direction                     
+        fi
 }
+
+beep_success()
+{
+    	echo "1">/sys/class/gpio/gpio131/value
+		sleep 0.1
+    	echo "0">/sys/class/gpio/gpio131/value
+		sleep 0.5
+    	echo "1">/sys/class/gpio/gpio131/value
+		sleep 0.05
+    	echo "0">/sys/class/gpio/gpio131/value
+}
+
+
+beep_failure()
+{
+    	echo "1">/sys/class/gpio/gpio131/value
+		sleep 1
+    	echo "0">/sys/class/gpio/gpio131/value
+		sleep 0.5
+    	echo "1">/sys/class/gpio/gpio131/value
+		sleep 1
+    	echo "0">/sys/class/gpio/gpio131/value
+		sleep 0.5
+    	echo "1">/sys/class/gpio/gpio131/value
+		sleep 0.05
+    	echo "0">/sys/class/gpio/gpio131/value
+}
+
 
 gpio_set_reset()
 {
@@ -68,6 +101,23 @@ untar_file()
 	mv ${TMP_DIR}/HDZGOGGLE_RX*.bin ${TMP_DIR}/HDZGOGGLE_RX.bin
 	mv ${TMP_DIR}/HDZGOGGLE_VA*.bin ${TMP_DIR}/HDZGOGGLE_VA.bin
 }
+ 
+# eg: check_mtd_write /dev/mtdX check-size erase-size file-size bin-file
+check_mtd_write()
+{
+	mtd_info=`mtd_debug info $1`
+	echo "$mtd_info"
+	value=`echo "$mtd_info" | grep mtd.size | grep "($2)"`                
+	if [ ! -z "$value" ];then
+	    echo "$1 size is ($2)" 
+		mtd_debug erase $1 0 $3
+		mtd_debug write $1 0 $4 $5
+		beep_success
+	else
+	    echo "$1 size is NOT ($2) !" 
+		beep_failure
+	fi
+}
 
 update_rx()
 {
@@ -76,12 +126,13 @@ update_rx()
 	gpio_export
 	gpio_set_reset
 	insmod /mnt/app/ko/w25q128.ko
-
-	mtd_debug erase /dev/mtd8 0 65536
-	mtd_debug write /dev/mtd8 0 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
-	mtd_debug erase /dev/mtd9 0 65536
-	mtd_debug write /dev/mtd9 0 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
-
+	check_mtd_write /dev/mtd8 1M 65536 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
+    echo "5"                                                                          
+    echo "5" > /tmp/progress_goggle
+	sleep 1
+	check_mtd_write /dev/mtd9 1M 65536 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
+    echo "10"                                                                          
+    echo "10" > /tmp/progress_goggle
 	echo "update finish RX, running"
 	gpio_clear_reset
 	sleep 1
@@ -96,9 +147,9 @@ update_fpga()
 	gpio_set_reset
 	disconnect_fpga_flash
 	insmod /mnt/app/ko/w25q128.ko
-
-	mtd_debug erase /dev/mtd10 0 16777216
-	mtd_debug write /dev/mtd10 0 $filesize2 ${TMP_DIR}/HDZGOGGLE_VA.bin
+	check_mtd_write /dev/mtd10 16M 16777216 $filesize2 ${TMP_DIR}/HDZGOGGLE_VA.bin
+    echo "45"                                                                         
+    echo "45" > /tmp/progress_goggle  
 	echo "update finish VA, running"
 	gpio_clear_reset
 	sleep 1
@@ -123,12 +174,8 @@ then
 	cp -f /mnt/app/setting.ini /mnt/UDISK/
 	#disable it66021
 	i2cset -y 3 0x49 0x10 0xff
-	update_rx
-	echo "1"
-	echo "1" > /tmp/progress_goggle
+        update_rx
 	update_fpga
-	echo "45"
-	echo "45" > /tmp/progress_goggle
 	hdz_upgrade_app.sh
 	echo "100"
 	echo "100" > /tmp/progress_goggle
@@ -141,4 +188,3 @@ else
 		echo "repeat"
 	fi
 fi
-
