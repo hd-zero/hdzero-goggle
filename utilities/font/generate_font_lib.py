@@ -22,6 +22,35 @@ def extract_simplified_chinese_unicode():
     return range_str[:-1]
 
 
+def extract_spanish_unicode():
+    input_file_path = "../../mkapp/app/language/es_es.ini"
+    # Lista de caracteres especiales en español
+    spanish_special_chars = set(['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú', 
+                                'ñ', 'Ñ', '¿', '¡', 'ü', 'Ü'])
+    
+    # También buscaremos otros caracteres no ASCII que puedan estar en el archivo
+    char_pattern = re.compile(r'[^\x00-\x7F]')
+    
+    unique_chars = set()
+
+    try:
+        with open(input_file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                # Añadir caracteres especiales de español
+                for char in line:
+                    if char in spanish_special_chars or char_pattern.match(char):
+                        unique_chars.add(char)
+        
+        range_str = ""
+        for char in sorted(unique_chars):
+            range_str += f"{ord(char)},"
+            
+        return range_str[:-1] if range_str else ""
+    except FileNotFoundError:
+        print(f"Advertencia: Archivo {input_file_path} no encontrado.")
+        return ""
+
+
 def patch():
     folder_path = "out"
 
@@ -47,20 +76,28 @@ cmd_format = " --format lvgl"
 cmd_output = " -o out/lv_font_montserrat_"
 
 cmd_font_default = " --font Montserrat-Medium.ttf"
-cmd_range_default = " --range 32-127,176,8226"
+# Añadimos los caracteres especiales de español al rango por defecto
+cmd_range_default = " --range 32-127,161,191,176,8226,193-218,224-252"  # Incluye ¡, ¿ y letras acentuadas
 
 cmd_font_lvgl_privite = " --font FontAwesome5-Solid+Brands+Regular.woff"
 cmd_range_lvgl_privite = " --range 61441,61448,61451,61452,61452,61453,61457,61459,61461,61465,61468,61473,61478,61479,61480,61502,61507,61512,61515,61516,61517,61521,61522,61523,61524,61543,61544,61550,61552,61553,61556,61559,61560,61561,61563,61587,61589,61636,61637,61639,61641,61664,61671,61674,61683,61724,61732,61787,61931,62016,62017,62018,62019,62020,62087,62099,62212,62189,62810,63426,63650"
 
 cmd_font_simplified_chinese = " --font simhei.ttf"
-cmd_range_simplified_chinese = "  --range " + \
-    extract_simplified_chinese_unicode()
+cmd_range_simplified_chinese = " --range " + extract_simplified_chinese_unicode()
+
+# Extracción específica de caracteres españoles
+spanish_unicode = extract_spanish_unicode()
+cmd_range_spanish = " --range " + spanish_unicode if spanish_unicode else ""
 
 cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
 cmd_range_cyrillic = " --range 1024-1279"
 
 font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
              26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
+
+# Crear directorio de salida si no existe
+if not os.path.exists("out"):
+    os.makedirs("out")
 
 for s in font_size:
     command = ""
@@ -75,14 +112,24 @@ for s in font_size:
     command += cmd_range_lvgl_privite
     command += cmd_font_simplified_chinese
     command += cmd_range_simplified_chinese
+    
+    # Añadir caracteres específicos del español si se encontraron
+    if spanish_unicode:
+        command += " --font Montserrat-Medium.ttf"
+        command += cmd_range_spanish
+    
     command += cmd_font_cyrillic
     command += cmd_range_cyrillic
-
 
     command += cmd_format
     command += cmd_output + str(s) + ".c"
     print(command)
-    subprocess.run(command, text=True, shell=True, capture_output=True)
+    result = subprocess.run(command, text=True, shell=True, capture_output=True)
+    
+    # Mostrar errores si los hay
+    if result.returncode != 0:
+        print(f"Error generando fuente de tamaño {s}:")
+        print(result.stderr)
     
 print("Patch")
 patch()
