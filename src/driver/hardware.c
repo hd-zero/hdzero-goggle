@@ -578,6 +578,7 @@ void Display_UI_init() {
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     OLED_SetTMG(0);
+    system_exec("aww 0x0300b084 0x00015565"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
