@@ -5,25 +5,23 @@ function gpio_export()
 	if [ ! -f /sys/class/gpio/gpio224/direction ]
 	then
 	      echo "224">/sys/class/gpio/export
-	      echo "out">/sys/class/gpio/gpio224/direction
 	fi
-
+	echo "out">/sys/class/gpio/gpio224/direction
 	if [ ! -f /sys/class/gpio/gpio228/direction ]
 	then
 		echo "228">/sys/class/gpio/export
-        	echo "out">/sys/class/gpio/gpio228/direction
 	fi
-
+        echo "out">/sys/class/gpio/gpio228/direction
 	if [ ! -f /sys/class/gpio/gpio258/direction ]
 	then
 		echo "258">/sys/class/gpio/export
-	        echo "out">/sys/class/gpio/gpio258/direction
 	fi
-        if [ ! -f /sys/class/gpio/gpio131/direction ] 
+	echo "out">/sys/class/gpio/gpio258/direction
+	if [ ! -f /sys/class/gpio/gpio131/direction ] 
         then                                                          
                 echo "131">/sys/class/gpio/export
-                echo "out">/sys/class/gpio/gpio131/direction                     
         fi
+        echo "out">/sys/class/gpio/gpio131/direction
 }
 
 function beep_on()
