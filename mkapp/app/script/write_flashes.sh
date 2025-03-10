@@ -106,7 +106,7 @@ function gpio_set_send()
 }
 
 # eg: check_mtd_write /dev/mtdX check-size erase-size file-size bin-file
-check_mtd_write()
+function check_mtd_write()
 {
 	mtd_info=`mtd_debug info $1`
 	echo "$mtd_info"
