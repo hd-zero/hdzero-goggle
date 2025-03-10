@@ -3,7 +3,7 @@
 GOGGLE_BIN="$1"
 TMP_DIR=/tmp/goggle_update
 
-gpio_export()
+function gpio_export()
 {
 	if [ ! -f /sys/class/gpio/gpio224/direction ]
 	then
@@ -27,7 +27,7 @@ gpio_export()
         echo "out">/sys/class/gpio/gpio131/direction
 }
 
-beep_success()
+function beep_success()
 {
     	echo "1">/sys/class/gpio/gpio131/value
 		sleep 0.1
@@ -39,7 +39,7 @@ beep_success()
 }
 
 
-beep_failure()
+function beep_failure()
 {
     	echo "1">/sys/class/gpio/gpio131/value
 		sleep 1
@@ -55,35 +55,35 @@ beep_failure()
 }
 
 
-gpio_set_reset()
+function gpio_set_reset()
 {
         echo "0">/sys/class/gpio/gpio224/value
         echo "1">/sys/class/gpio/gpio228/value
 }
 
-gpio_clear_reset()
+function gpio_clear_reset()
 {
         echo "1">/sys/class/gpio/gpio224/value
         echo "0">/sys/class/gpio/gpio228/value
 }
 
-gpio_set_send()
+function gpio_set_send()
 {
         echo "1">/sys/class/gpio/gpio224/value
         echo "0">/sys/class/gpio/gpio228/value
 }
 
-disconnect_fpga_flash()
+function disconnect_fpga_flash()
 {
         echo "1">/sys/class/gpio/gpio258/value
 }
 
-connect_fpga_flash()
+function connect_fpga_flash()
 {
         echo "0">/sys/class/gpio/gpio258/value
 }
 
-untar_file()
+function untar_file()
 {
 	FILE_TARGET="$1"
 
@@ -101,7 +101,7 @@ untar_file()
 }
  
 # eg: check_mtd_write /dev/mtdX check-size erase-size file-size bin-file
-check_mtd_write()
+function check_mtd_write()
 {
 	mtd_info=`mtd_debug info $1`
 	echo "$mtd_info"
@@ -117,7 +117,7 @@ check_mtd_write()
 	fi
 }
 
-update_rx()
+function update_rx()
 {
 	echo "find RX update file, start update"
 	filesize=`ls -l ${TMP_DIR}/HDZGOGGLE_RX*.bin| awk '{print $5}'`
@@ -137,7 +137,7 @@ update_rx()
 	rmmod /mnt/app/ko/w25q128.ko
 }
 
-update_fpga()
+function update_fpga()
 {
 	echo "find VA update file, start update"
 	filesize2=`ls -l ${TMP_DIR}/HDZGOGGLE_VA*.bin| awk '{print $5}'`
