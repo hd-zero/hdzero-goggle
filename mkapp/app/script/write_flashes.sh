@@ -1,5 +1,12 @@
 #!/bin/sh
 
+VAbin=/mnt/extsd/HDZGOGGLE_VA.bin
+VAcount=1
+VAwrites=0
+RXbin=/mnt/extsd/HDZGOGGLE_RX.bin
+RXcount=2
+RXwrites=0
+
 function gpio_export()
 {
 	if [ ! -f /sys/class/gpio/gpio224/direction ]
@@ -41,7 +48,7 @@ function beep()
         echo "0">/sys/class/gpio/gpio131/value
 }
 
-beep_success()
+function beep_success()
 {
     echo "1">/sys/class/gpio/gpio131/value
 		sleep 0.1
@@ -53,7 +60,7 @@ beep_success()
 }
 
 
-beep_failure()
+function beep_failure()
 {
     echo "1">/sys/class/gpio/gpio131/value
 		sleep 1
@@ -108,7 +115,15 @@ check_mtd_write()
 	        echo "$1 size is ($2)" 
 		mtd_debug erase $1 0 $3
 		mtd_debug write $1 0 $4 $5
-		beep_success
+		if [ $? == 0 ]; then
+			beep_success
+			if [ "$5" == "$VAbin" ]; then
+				VAwrites=$((VAwrites + 1))
+			fi
+			if [ "$5" == "$RXbin" ]; then
+				RXwrites=$((RXwrites + 1))
+			fi
+		fi 
 	else
 	        echo "$1 size is NOT ($2) !" 
 		beep_failure
@@ -120,10 +135,10 @@ check_mtd_write()
 
 echo "<<<<-------------------------------------------------------------------->>>>"
 
-if [ -e /mnt/extsd/HDZGOGGLE_VA.bin ]
+if [ -e $VAbin ]
 then
     echo "find VA update file, start update"
-        filesize2=`ls -l /mnt/extsd/HDZGOGGLE_VA.bin| awk '{print $5}'`
+        filesize2=`ls -l $VAbin| awk '{print $5}'`
     gpio_export
     gpio_set_reset
     disconnect_fpga_flash
@@ -132,51 +147,56 @@ then
 
 
 		touch /tmp/update.ing
-    #	check_mtd_write /dev/mtd8 16M 16777216 $filesize2 ${TMP_DIR}/HDZGOGGLE_VA.bin
-    #	check_mtd_write /dev/mtd9 16M 16777216 $filesize2 ${TMP_DIR}/HDZGOGGLE_VA.bin
-	  check_mtd_write /dev/mtd10 16M 16777216 $filesize2 ${TMP_DIR}/HDZGOGGLE_VA.bin
+    # normally the VA is mounted at /dev/mtd10 
+    #	check_mtd_write /dev/mtd8 16M 16777216 $filesize2 $VAbin
+    #	check_mtd_write /dev/mtd9 16M 16777216 $filesize2 $VAbin
+	  check_mtd_write /dev/mtd10 16M 16777216 $filesize2 $VAbin
 		rm /tmp/update.ing -rf
 
-		if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
-		then
-			rm /mnt/extsd/HDZGOGGLE_VA.bin -rf
+		if [ "$VAwrites" == "$VAcount" ]; then
+			if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
+			then
+				rm $VAbin -rf
+			fi
 		fi
 
-    echo "update finish VA, running"
+    echo "update finish $VAwrites VA, running"
     gpio_clear_reset
 	  sleep 1
     rmmod /mnt/app/ko/w25q128.ko
 else
-    echo "no update file,skip"
+    echo "no VA update file,skip" 
 fi
 
 
-if [ -e /mnt/extsd/HDZGOGGLE_RX.bin ]
+if [ -e $RXbin ]
 then
     echo "find RX update file, start update"
-        filesize=`ls -l /mnt/extsd/HDZGOGGLE_RX.bin| awk '{print $5}'`
+        filesize=`ls -l $RXbin| awk '{print $5}'`
     gpio_export
     gpio_set_reset
 		sleep 1
     insmod /mnt/app/ko/w25q128.ko
+    # normally the RX modules are mounted at /dev/mtd8 and /dev/mtd9
+	  check_mtd_write /dev/mtd8 1M 65536 $filesize $RXbin
+	  check_mtd_write /dev/mtd9 1M 65536 $filesize $RXbin
+    #	check_mtd_write /dev/mtd10 1M 65536 $filesize $RXbin
 
-	  check_mtd_write /dev/mtd8 1M 65536 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
-	  check_mtd_write /dev/mtd9 1M 65536 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
-    #	check_mtd_write /dev/mtd10 1M 65536 $filesize ${TMP_DIR}/HDZGOGGLE_RX.bin
-
-		if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
-		then
-			rm /mnt/extsd/HDZGOGGLE_RX.bin -rf
+		if [ "$RXwrites" == "$RXcount" ]; then
+			if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
+			then
+				rm $RXbin -rf
+			fi
 		fi
 
-    echo "update finish RX, running"
+    echo "update finish $RXwrites RX, running"
     gpio_clear_reset
 		sleep 1
     rmmod /mnt/app/ko/w25q128.ko
 		
 		beep
 else
-    echo "no update file,skip"
+    echo "no RX update file,skip"
 fi
 
 echo "<<<<-------------------------------------------------------------------->>>>"
