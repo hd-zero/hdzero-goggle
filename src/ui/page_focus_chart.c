@@ -28,7 +28,7 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *desc_label = lv_label_create(cont);
     snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Click the Enter Button to display the Back Focusing Chart"), _lang("Click the Enter Button again to exit"));
     lv_label_set_text(desc_label, buf);
-    lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_22, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(desc_label, 12, 0);
     lv_label_set_long_mode(desc_label, LV_LABEL_LONG_WRAP);
