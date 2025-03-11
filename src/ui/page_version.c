@@ -760,7 +760,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
         lv_obj_set_style_bg_color(fw_select->this.panel[i], lv_color_make(0x44, 0x44, 0x44), 0);
     }
     fw_select->page = pp_version.p_arr;
-    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_22);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
     snprintf(text, sizeof(text), "< %s", _lang("Back"));
     fw_select->back = create_label_item(fw_select->container, text, 1, 2, 4);

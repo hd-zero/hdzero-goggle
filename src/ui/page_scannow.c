@@ -226,7 +226,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label = lv_label_create(cont1);
     lv_label_set_text(label, _lang("Scan Ready"));
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_22, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label, 12, 0);
@@ -240,7 +240,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("dial to select a channel and press"),
              _lang("the Enter button to choose"));
     lv_label_set_text(label2, buf);
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label2, &lv_font_montserrat_22, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label2, 12, 0);
