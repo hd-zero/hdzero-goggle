@@ -301,8 +301,8 @@ static void roller_up(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0) // dialed before done with init, cancel auto scan
-        g_init_done = -1;
+    if (g_init_done == 0) // disable roller before init done
+        return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
@@ -336,8 +336,8 @@ static void roller_down(void) {
     if (g_scanning)
         return;
 
-    if (g_init_done == 0) // dialed before done with init, cancel auto scan
-        g_init_done = -1;
+    if (g_init_done == 0) // disable roller before init done
+        return;
 
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
