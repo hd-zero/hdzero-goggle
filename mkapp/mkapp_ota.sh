@@ -2,7 +2,7 @@
 set -e
 
 function make_img_md5() {
-    ${BIN_DIR}/md5sum $1 | awk '{print $1}' > $1.md5
+    md5sum $1 | awk '{print $1}' > $1.md5
 }
 
 function get_app_version() {
@@ -10,7 +10,7 @@ function get_app_version() {
 
     # check if we are on a tag
     git describe --exact-match --tags HEAD > /dev/null 2>&1
-    if [ $? -ne 0 ]; then 
+    if [ $? -ne 0 ]; then
         # no? attach commit hash
         echo "${base_version}-$(git rev-parse --short HEAD)"
     else
@@ -29,12 +29,15 @@ APP_SIZE=8388608
 APP_IMAGE=${IMG_DIR}/app.fex
 APP_VERSION=$(get_app_version)
 
+# append BIN_DIR to PATH, preferring tooling which is already in PATH
+export PATH="${PATH:+$PATH:}${BIN_DIR}"
+
 echo "${APP_VERSION}" > ${APP_DIR}/version
 
 rm -rf $IMG_DIR
 mkdir -p $IMG_DIR
 
-${BIN_DIR}/mkfs.jffs2 \
+mkfs.jffs2 \
     --little-endian \
     --eraseblock=0x10000 \
     --root=${APP_DIR} \
@@ -57,14 +60,14 @@ HAL_VA_VER=${HAL_VERSION#*-}
 
 OTA_VERSION="${HAL_VERSION}-${APP_VERSION}"
 
-cp $MKAPP_DIR/hal/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin 
-cp $MKAPP_DIR/hal/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin 
+cp $MKAPP_DIR/hal/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin
+cp $MKAPP_DIR/hal/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin
 
 echo -e "\npacking ota:"
 rm $ROOT_DIR/out/HDZERO_GOGGLE-* || true
 tar cvf $ROOT_DIR/out/HDZERO_GOGGLE-${OTA_VERSION}.bin \
     hdzgoggle_app_ota-${APP_VERSION}.tar \
     HDZGOGGLE_RX-${HAL_RX_VER}.bin \
-    HDZGOGGLE_VA-${HAL_VA_VER}.bin 
+    HDZGOGGLE_VA-${HAL_VA_VER}.bin
 
 echo -e "\ngenerated out/HDZERO_GOGGLE-${OTA_VERSION}.bin"
