@@ -37,11 +37,14 @@ Where x.x.x is the OTA_VER.RX_VER.VA_VER
 
 ## Loading the Firmware
 
-Firmware can be either flashed via goggle menu or alternatively be executed via the SD Card with a custom development script.  An example of this development script is provided below.  The goggles automatically checks to see if the develop.sh script exists in the root of the SD Card and if found develop.sh is then executed.
+There following methods can be used to load the firmware:
+- flash it via the goggle menu
+- temporarily execute it from an sdcard
+- temporarily execute it via ssh
 
-The following files must be placed in the root of SD Card in this example. This script will then check to see if HDZGOGGLE binary has been found during bootup and if found then executed.
+### Executing firmware via sdcard
 
-Otherwise, if the HDZGOOGLE binary is not detected, the goggles will continue to load the built-in executable which was previously flashed.
+On boot, the goggles check the root of the sdcard for a `develop.sh` file. If it exists, it gets executed. This can be used to launch a custom build of the `HDZGOGGLE` executable.
 
 SD Card File Hierarchy:
 
@@ -50,9 +53,9 @@ SD Card File Hierarchy:
 /HDZGOGGLE
 ```
 
-Development script (develop.sh):
+`develop.sh` to launch HDZGOGGLE from sdcard or fall back to builtin executable if not found:
 
-```
+```bash
 #!/bin/sh
 
 # Load via SD Card if found
@@ -62,6 +65,24 @@ else
 	/mnt/app/app/HDZGOGGLE &
 fi
 ```
+
+### Execute firmware via ssh
+
+Use the script `./utilities/ssh-deploy.sh` inside this repo to temporarily run a custom build of the `HDZGOGGLE` executable on the goggles.
+
+Setup:
+
+1. Have the [HDZero Expansion Module](https://www.hd-zero.com/product-page/hdzero-goggle-expansion-module) installed, as this provides wifi capabilities
+2. Enable the wifi via the goggle menu and connect it to a network which is reachable from the dev machine
+3. Enter the wifi menu again on the goggle to find its IP address (for example `192.168.1.5`)
+3. Execute `./utilities/ssh-deploy.sh <host> <HDZGOGGLE_binary>`
+
+Example:
+```shellSession
+./utilities/ssh-deploy.sh root@192.168.1.5 ./build/HDZGOGGLE
+```
+
+A powercycle will switch the goggles back to the builtin `HDZGOGGLE`.
 
 ## Building the Emulator
 
