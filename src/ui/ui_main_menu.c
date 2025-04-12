@@ -291,13 +291,15 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     }
 }
 
-static int post_bootup_actions_cmp(const void * lhs, const void * rhs) {
-    const int32_t leftPriority = ((page_pack_t*) lhs)->post_bootup_run_priority;
-    const int32_t rightPriority = ((page_pack_t*) rhs)->post_bootup_run_priority;
+static int post_bootup_actions_cmp(const void *lhs, const void *rhs) {
+    page_pack_t *lpp = *(page_pack_t **)lhs;
+    page_pack_t *rpp = *(page_pack_t **)rhs;
+    const int32_t lpri = lpp->post_bootup_run_priority;
+    const int32_t rpri = rpp->post_bootup_run_priority;
 
-    if (leftPriority < rightPriority) {
+    if (lpri < rpri) {
         return -1;
-    } else if (leftPriority > rightPriority) {
+    } else if (lpri > rpri) {
         return 1;
     }
 
@@ -329,7 +331,7 @@ void main_menu_init(void) {
     }
 
     // Resort based on priority
-    qsort(post_bootup_actions, post_bootup_actions_count, sizeof(page_pack_t*), post_bootup_actions_cmp);
+    qsort(post_bootup_actions, post_bootup_actions_count, sizeof(post_bootup_actions[0]), post_bootup_actions_cmp);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
     lv_obj_set_size(section, 250, 975);
