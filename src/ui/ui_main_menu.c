@@ -72,7 +72,6 @@ static page_pack_t *page_packs[] = {
 static page_pack_t *post_bootup_actions[PAGE_COUNT];
 static size_t post_bootup_actions_count = 0;
 static bool bootup_actions_fired = false;
-bool bootup_actions_completed = false;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
     for (uint32_t i = 0; i < PAGE_COUNT; i++) {
@@ -366,7 +365,6 @@ static void bootup_action_completed() {
 static void handle_bootup_action() {
     static page_pack_t **next_bootup_action = &post_bootup_actions[0];
     if (next_bootup_action - &post_bootup_actions[0] >= post_bootup_actions_count) {
-        bootup_actions_completed = true;
         return;
     }
 
