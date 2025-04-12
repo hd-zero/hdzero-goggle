@@ -34,6 +34,7 @@ hw_revision_t getHwRevision();
 
 extern atomic_int g_key;
 extern atomic_int g_init_done;
+extern atomic_int g_bootup_sdcard_state;
 extern pthread_mutex_t lvgl_mutex;
 
 #ifdef __cplusplus

@@ -122,6 +122,7 @@ static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPL
 static page_options_t page_wifi = {0};
 static lv_timer_t *page_wifi_apply_settings_timer = NULL;
 static lv_timer_t *page_wifi_apply_settings_pending_timer = NULL;
+static bool page_wifi_pending = true;
 
 /**
  * Refresh WiFi service configuration parameters.
@@ -1152,6 +1153,7 @@ void page_wifi_post_bootup_action(void (*complete_callback)()) {
     page_wifi_update_settings();
 
     if (complete_callback != NULL) {
+        page_wifi_pending = false;
         complete_callback();
     }
 }
@@ -1182,20 +1184,24 @@ page_pack_t pp_wifi = {
  * Provides the WiFi status string referenced by ui_statusbar.
  */
 void page_wifi_get_statusbar_text(char *buffer, int size) {
-    if (g_setting.wifi.enable) {
-        switch (g_setting.wifi.mode) {
-        case WIFI_MODE_AP:
-            snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
-            break;
-        case WIFI_MODE_STA:
-            if (page_wifi_get_real_address()) {
-                snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
-            } else {
-                snprintf(buffer, size, "WiFi: %s", _lang("Searching"));
+    if (!page_wifi_pending) {
+        if (g_setting.wifi.enable) {
+            switch (g_setting.wifi.mode) {
+            case WIFI_MODE_AP:
+                snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_AP]);
+                break;
+            case WIFI_MODE_STA:
+                if (page_wifi_get_real_address()) {
+                    snprintf(buffer, size, "WiFi: %s", g_setting.wifi.ssid[WIFI_MODE_STA]);
+                } else {
+                    snprintf(buffer, size, "WiFi: %s", _lang("Searching"));
+                }
+                break;
             }
-            break;
+        } else {
+            snprintf(buffer, size, "WiFi: %s", _lang("Off"));
         }
     } else {
-        snprintf(buffer, size, "WiFi: %s", _lang("Off"));
+        snprintf(buffer, size, "WiFi: %s", _lang("Pending"));
     }
 }

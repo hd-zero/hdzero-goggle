@@ -51,6 +51,7 @@ SDL_mutex *global_sdl_mutex;
 #include "ui/ui_osd_element_pos.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_statusbar.h"
+#include "util/sdcard.h"
 
 int gif_cnt = 0;
 
@@ -199,6 +200,7 @@ int main(int argc, char *argv[]) {
     }
 
     // 7. Start threads
+    g_bootup_sdcard_state = sdcard_mounted() ? 1 : 0;
     start_running();
     create_threads();
 
