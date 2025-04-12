@@ -56,7 +56,7 @@ static void detect_sdcard(void) {
                 g_sdcard_det_req = 0;
             }
 
-            // Only repair card at when inserted
+            // Only repair sd card when inserted
             if (sdcard_init_scan && g_sdcard_enable) {
                 if (sdcard_ready_cb) {
                     sdcard_ready_cb();
