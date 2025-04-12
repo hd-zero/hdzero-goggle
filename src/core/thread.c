@@ -31,35 +31,41 @@
 #include "util/sdcard.h"
 #include "util/system.h"
 
+extern bool bootup_actions_completed;
+
 void (*sdcard_ready_cb)() = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SD card exist
 static void detect_sdcard(void) {
-    static bool sdcard_init_scan = true;
-    static bool sdcard_enable_last = false;
+    // Skip detection during bootup
+    if (bootup_actions_completed) {
+        static bool sdcard_init_scan = true;
+        static bool sdcard_enable_last = false;
 
-    if (!page_storage_is_sd_repair_active()) {
-        g_sdcard_enable = sdcard_mounted();
+        if (!page_storage_is_sd_repair_active()) {
+            g_sdcard_enable = sdcard_mounted();
 
-        if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-            sdcard_update_free_size();
-            g_sdcard_det_req = 0;
-        }
-
-        // Only repair card at bootup or when inserted
-        if (g_init_done) {
-            if (sdcard_init_scan && g_sdcard_enable) {
-                if (sdcard_ready_cb) {
-                    sdcard_ready_cb();
-                }
-                sdcard_init_scan = false;
-            } else if (!g_sdcard_enable && sdcard_enable_last) {
-                sdcard_init_scan = true;
+            if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
+                sdcard_update_free_size();
+                g_sdcard_det_req = 0;
             }
-        }
 
-        sdcard_enable_last = g_sdcard_enable;
+            // Repair when inserted
+            if (g_init_done) {
+                if (sdcard_init_scan && g_sdcard_enable) {
+                    if (sdcard_ready_cb) {
+                        sdcard_ready_cb();
+                    }
+                    sdcard_init_scan = false;
+                    sdcard_ready_cb = page_storage_init_auto_sd_repair;
+                } else if (!g_sdcard_enable && sdcard_enable_last) {
+                    sdcard_init_scan = true;
+                }
+            }
+
+            sdcard_enable_last = g_sdcard_enable;
+        }
     }
 }
 
