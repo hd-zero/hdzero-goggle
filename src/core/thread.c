@@ -39,16 +39,24 @@ static void detect_sdcard(void) {
     static bool sdcard_init_scan = true;
     static bool sdcard_enable_last = false;
 
-    if (!page_storage_is_sd_repair_active()) {
+    bool ok_to_execute =
+        page_storage_was_sd_repair_invoked() &&
+        !page_storage_is_sd_repair_active();
+
+    // Only run this logic when page storage repair thread
+    // has been invoked at least once and that the sdcard
+    // repair is not currently executing.
+    if (ok_to_execute) {
         g_sdcard_enable = sdcard_mounted();
 
-        if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
-            sdcard_update_free_size();
-            g_sdcard_det_req = 0;
-        }
+        // General Runtime behavior
+        if (-1 == g_bootup_sdcard_state) {
+            if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
+                sdcard_update_free_size();
+                g_sdcard_det_req = 0;
+            }
 
-        // Only repair card at bootup or when inserted
-        if (g_init_done) {
+            // Only repair sd card when inserted
             if (sdcard_init_scan && g_sdcard_enable) {
                 if (sdcard_ready_cb) {
                     sdcard_ready_cb();
@@ -57,9 +65,38 @@ static void detect_sdcard(void) {
             } else if (!g_sdcard_enable && sdcard_enable_last) {
                 sdcard_init_scan = true;
             }
-        }
 
-        sdcard_enable_last = g_sdcard_enable;
+            sdcard_enable_last = g_sdcard_enable;
+        }
+        // SDCard detected at bootup
+        else if (1 == g_bootup_sdcard_state) {
+            // Wait until card is mounted and ready.
+            if (g_sdcard_enable) {
+                sdcard_update_free_size();
+
+                // Invoke post bootup completed action
+                if (sdcard_ready_cb) {
+                    sdcard_ready_cb();
+                }
+
+                // Prevent sd repair from re-running twice once
+                // we transition into General Runtime behavior!
+                sdcard_init_scan = false;
+                sdcard_enable_last = true;
+                g_bootup_sdcard_state = -1;
+                sdcard_ready_cb = page_storage_init_auto_sd_repair;
+            }
+        }
+        // SDCard NOT found during bootup
+        else {
+            // Invoke post bootup completed action
+            if (sdcard_ready_cb) {
+                sdcard_ready_cb();
+            }
+
+            g_bootup_sdcard_state = -1;
+            sdcard_ready_cb = page_storage_init_auto_sd_repair;
+        }
     }
 }
 
@@ -198,7 +235,6 @@ static void threads_instance(threads_obj_t *obj) {
 
 int create_threads() {
     int ret = 0;
-
     threads_obj_t *obj = &threads_obj;
     threads_instance(obj);
     for (int i = 0; i < THREAD_COUNT; i++) {

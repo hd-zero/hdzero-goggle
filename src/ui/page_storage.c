@@ -66,8 +66,8 @@ typedef struct {
     lv_obj_t *note;
     bool disable_controls;
     bool is_sd_repair_active;
+    bool was_sd_repair_invoked;
     bool is_auto_sd_repair_active;
-    bool is_sd_repair_complete;
 } page_options_t;
 
 /**
@@ -554,10 +554,7 @@ static void page_storage_on_right_button(bool is_short) {
 
 static void page_storage_post_bootup_action(void (*complete_callback)()) {
     page_storage_init_auto_sd_repair();
-
-    if (complete_callback != NULL) {
-        complete_callback();
-    }
+    sdcard_ready_cb = complete_callback;
 }
 
 /**
@@ -587,7 +584,9 @@ page_pack_t pp_storage = {
  */
 static void *page_storage_repair_thread(void *arg) {
     char buf[128];
+
     if (!page_storage.disable_controls) {
+        page_storage.was_sd_repair_invoked = true;
         page_storage.is_auto_sd_repair_active = true;
         pthread_mutex_lock(&lvgl_mutex);
         disable_controls();
@@ -604,10 +603,15 @@ static void *page_storage_repair_thread(void *arg) {
 
         page_storage.is_auto_sd_repair_active = false;
     }
-    page_storage.is_sd_repair_complete = true;
-    sdcard_ready_cb = page_storage_init_auto_sd_repair;
 
     pthread_exit(NULL);
+}
+
+/**
+ * Returns true if a repair was ever activated.
+ */
+bool page_storage_was_sd_repair_invoked() {
+    return page_storage.was_sd_repair_invoked;
 }
 
 /**
@@ -621,13 +625,10 @@ bool page_storage_is_sd_repair_active() {
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
-    page_storage.is_sd_repair_complete = false;
     if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
         if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
         }
-    } else {
-        page_storage.is_sd_repair_complete = true;
     }
 }
