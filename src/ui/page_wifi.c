@@ -179,6 +179,8 @@ static void page_wifi_update_services() {
         fprintf(fp, "ssid=%s\n", g_setting.wifi.ssid[WIFI_MODE_AP]);
         fprintf(fp, "channel=%d\n", g_setting.wifi.rf_channel);
         fprintf(fp, "hw_mode=g\n");
+        fprintf(fp, "ieee80211n=1\n");
+        fprintf(fp, "wmm_enabled=1\n");
         fprintf(fp, "ignore_broadcast_ssid=0\n");
         fprintf(fp, "auth_algs=1\n");
         fprintf(fp, "wpa=3\n");
