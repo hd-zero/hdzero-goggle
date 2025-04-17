@@ -319,6 +319,7 @@ static void page_wifi_update_settings() {
         } else {
             system_script(WIFI_STA_ON);
         }
+        system_script(SERVE_MEDIA);
     }
 }
 
