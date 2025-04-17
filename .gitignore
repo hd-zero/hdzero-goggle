@@ -15,3 +15,7 @@ media.tar.gz
 /.vscode/settings.json
 .DS_Store
 utilities/font/out
+
+# nix related
+result
+result-*

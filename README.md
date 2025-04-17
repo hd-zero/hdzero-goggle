@@ -9,7 +9,7 @@ Note: decompressing the repository in Windows system may damage some files and p
 ### Devcontainer Setup
 
 This repository supports the [vscode devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) integration.
-To get started install docker, vscode and the decontainer extension.
+To get started, install docker, vscode and the devcontainer extension.
 A [prompt](https://code.visualstudio.com/docs/devcontainers/create-dev-container#_add-configuration-files-to-a-repository) to reopen this repository in a container should appear.
 
 ### Native Setup
@@ -28,11 +28,25 @@ An appropiate vscode build task ships with this repository as well.
 
 ```
 ~/hdzero-goggle$ cd build
-~/hdzero-goggle/build$ make clean all -j `nproc`
+~/hdzero-goggle/build$ make clean all -j $(nproc)
 ```
 
-The firmware is generated as ~/hdz_goggle/code/out/HDZERO_GOGGLE-x.x.x.bin
+The firmware is generated as hdzero-goggle/out/HDZERO_GOGGLE-x.x.x.bin
 Where x.x.x is the OTA_VER.RX_VER.VA_VER
+
+### Building the firmware using nix
+
+The nix build system can be used to build the firmware on any linux system.  
+Make sure that nix [is installed](https://nixos.org/download/), and the [flakes feature](https://wiki.nixos.org/wiki/Flakes) is enabled.  
+No bootstrapping or installation of any tools is required.
+
+Use this command to build the firmware
+
+```shellSession
+nix build .#goggle-app
+```
+
+After this succeeds, the firmware can be found under `./result` in the current directory.
 
 
 ## Loading the Firmware
@@ -81,7 +95,7 @@ sudo apt-get install build-essential libsdl2-dev
 ~/hdzero-goggle$ mkdir build_emu
 ~/hdzero-goggle$ cd build_emu
 ~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
-~/hdzero-goggle/build_emu$ make -j `nproc`
+~/hdzero-goggle/build_emu$ make -j $(nproc)
 ~/hdzero-goggle/build_emu$ ./HDZGOGGLE
 ```
 
