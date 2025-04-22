@@ -118,7 +118,7 @@ int statusbar_init(void) {
         lv_obj_set_grid_cell(label[i], LV_GRID_ALIGN_CENTER, ((i + 1) * 2), 1, LV_GRID_ALIGN_CENTER, 0, 1);
     }
 
-    snprintf(buf, sizeof(buf), "%s                 ", _lang("SD Card"));
+    snprintf(buf, sizeof(buf), "%s", _lang("Detecting"));
 
     lv_label_set_text(label[STS_SDCARD], buf);
     lv_label_set_recolor(label[STS_SDCARD], true);
