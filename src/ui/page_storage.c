@@ -625,7 +625,10 @@ bool page_storage_is_sd_repair_active() {
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
-    if (!page_storage.is_auto_sd_repair_active) {
+    if (page_storage.disable_controls) {
+        // Mark invoked when using dev script.
+        page_storage.was_sd_repair_invoked = true;
+    } else if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
         if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
