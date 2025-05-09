@@ -118,7 +118,7 @@ int statusbar_init(void) {
         lv_obj_set_grid_cell(label[i], LV_GRID_ALIGN_CENTER, ((i + 1) * 2), 1, LV_GRID_ALIGN_CENTER, 0, 1);
     }
 
-    snprintf(buf, sizeof(buf), "%s                 ", _lang("SD Card"));
+    snprintf(buf, sizeof(buf), "%s", _lang("Detecting"));
 
     lv_label_set_text(label[STS_SDCARD], buf);
     lv_label_set_recolor(label[STS_SDCARD], true);
@@ -211,7 +211,7 @@ void statubar_update(void) {
     if (page_storage_is_sd_repair_active()) {
         lv_img_set_src(img_sdc, &img_sdcard);
         lv_label_set_text(label[STS_SDCARD], _lang("Integrity check"));
-    } else {
+    } else if (-1 == g_bootup_sdcard_state) {
         if (g_sdcard_enable) {
             int cnt = get_videofile_cnt();
             float gb = sdcard_free_size() / 1024.0;

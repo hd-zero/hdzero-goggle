@@ -84,6 +84,12 @@ typedef enum {
 } setting_record_audio_source_t;
 
 typedef enum {
+    SETTING_RECORD_BITRATE_SCALE_NORMAL = 0,
+    SETTING_RECORD_BITRATE_SCALE_HALF = 1,
+    SETTING_RECORD_BITRATE_SCALE_QUARTER = 2,
+} setting_record_bitrate_scale_t;
+
+typedef enum {
     SETTING_NAMING_CONTIGUOUS,
     SETTING_NAMING_DATE
 } setting_record_naming_t;
@@ -91,6 +97,7 @@ typedef enum {
 typedef struct {
     bool mode_manual;
     bool format_ts;
+    setting_record_bitrate_scale_t bitrate_scale;
     bool osd;
     bool audio;
     setting_record_audio_source_t audio_source;
