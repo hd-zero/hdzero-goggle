@@ -22,6 +22,8 @@
 #include "ui/ui_style.h"
 #include "util/filesystem.h"
 #include "util/system.h"
+#include "driver/rtc.h"
+#include "util/ntp_client.h"
 
 /**
  * Types
@@ -818,10 +820,52 @@ static void page_wifi_exit() {
 /**
  *  Invoked periodically.
  */
-static void page_wifi_on_update(uint32_t delta_ms) {
+ static void page_wifi_on_update(uint32_t delta_ms) {
     static uint32_t elapsed = -1;
+    static bool was_connected = false;
+    bool is_connected = false;
+    
+    // Only proceed if WiFi is enabled and in client mode
+    if (g_setting.wifi.enable && g_setting.wifi.mode == WIFI_MODE_STA) {
+        // Check if we're connected by looking for a valid IP address
+        const char *current_ip = page_wifi_get_real_address();
+        is_connected = (current_ip != NULL);
+        
+        // If we just connected (transition from disconnected to connected)
+        if (is_connected && !was_connected) {
+            LOGI("WiFi client connection established, syncing time via NTP");
+            
+            // Sync clock from NTP
+            if (clock_sync_from_ntp() == 0) {
+                LOGI("NTP time sync successful");
+                
+                // Update settings with new time values
+                struct rtc_date date;
+                rtc_get_clock(&date);
+                g_setting.clock.year = date.year;
+                g_setting.clock.month = date.month;
+                g_setting.clock.day = date.day;
+                g_setting.clock.hour = date.hour;
+                g_setting.clock.min = date.min;
+                g_setting.clock.sec = date.sec;
+                
+                // Save to settings file
+                ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
+                ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
+                ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
+                ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
+                ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
+                ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
+            } else {
+                LOGE("NTP time sync failed");
+            }
+        }
+        
+        // Update connection status for next check
+        was_connected = is_connected;
+    }
 
-    // Check immediately after running, then every 5 minutes.
+    // Check immediately after running, then every 5 minutes for updates.
     if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:
