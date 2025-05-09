@@ -1,4 +1,5 @@
 #include "page_clock.h"
+#include "util/ntp_client.h"  // Incluir la cabecera aquí
 
 #include <errno.h>
 #include <stdlib.h>
@@ -45,6 +46,7 @@ typedef enum {
     ITEM_SECOND,
     ITEM_FORMAT,
     ITEM_SET_CLOCK,
+    ITEM_SYNC_NTP,  // Nueva opción para sincronización NTP
     ITEM_BACK,
 
     ITEM_LIST_TOTAL
@@ -66,7 +68,7 @@ typedef struct {
  */
 static const int MAX_YEARS_DROPDOWN = 300; // 2023 + 300 == 2323
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
 static item_t page_clock_items[ITEM_LIST_TOTAL] = {0};
 static int page_clock_item_selected = ITEM_YEAR;
 static int page_clock_item_focused = 0;
@@ -244,6 +246,13 @@ static void page_clock_set_clock_reset() {
 }
 
 /**
+ * Reset the 'Sync from Internet' text back to its initial state.
+ */
+static void page_clock_sync_reset_cb(struct _lv_timer_t *timer) {
+    lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, _lang("Sync from Internet"));
+}
+
+/**
  * Determine if the type of object selected is a lv_obj_t.
  */
 static int page_clock_selected_item_is_obj(int selected_item) {
@@ -389,12 +398,17 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 4, 1);
-    page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_BACK].panel = arr->panel[4];
+    // Nuevo botón para sincronización NTP
+    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 4, 3);
+    page_clock_items[ITEM_SYNC_NTP].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[4];
 
-    page_clock_create_datetime_item(cont, 5);
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 5, 1);
+    page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_BACK].panel = arr->panel[5];
+
+    page_clock_create_datetime_item(cont, 6);
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
@@ -405,7 +419,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
         lv_obj_set_style_pad_top(note, 12, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
-        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
+        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     }
 
     page_clock_clear_datetime();
@@ -531,60 +545,104 @@ static void page_clock_on_click(uint8_t key, int sel) {
             page_clock_set_clock_confirm = 1;
         }
         break;
-    case ITEM_BACK:
-        submenu_exit();
-        break;
-    default:
-        if (!page_clock_item_focused) {
-            page_clock_items[page_clock_item_selected].last_option =
-                lv_dropdown_get_selected(page_clock_items[page_clock_item_selected].data.obj);
-
-            lv_obj_t *list = lv_dropdown_get_list(page_clock_items[page_clock_item_selected].data.obj);
-            lv_dropdown_open(page_clock_items[page_clock_item_selected].data.obj);
-            lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
-            lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
-            page_clock_item_focused = 1;
+    case ITEM_SYNC_NTP:
+        if (page_clock_set_clock_confirm) {
+            snprintf(buf, sizeof(buf), "#FF0000 %s %s...#", _lang("Syncing"), _lang("Clock"));
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
+            
+            // Sincronizar desde NTP
+            if (clock_sync_from_ntp() == 0) {
+                // Éxito, actualizar la interfaz
+                rtc_get_clock(&page_clock_rtc_date);
+                page_clock_build_options_from_date(&page_clock_rtc_date);
+                page_clock_refresh_datetime();
+                
+                // Guardar en settings
+                g_setting.clock.year = page_clock_rtc_date.year;
+                g_setting.clock.month = page_clock_rtc_date.month;
+                g_setting.clock.day = page_clock_rtc_date.day;
+                g_setting.clock.hour = page_clock_rtc_date.hour;
+                g_setting.clock.min = page_clock_rtc_date.min;
+                g_setting.clock.sec = page_clock_rtc_date.sec;
+                
+                // Actualizar archivo de configuración
+                ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
+                ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
+                ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
+                ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
+                ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
+                ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
+                
+                snprintf(buf, sizeof(buf), "#00FF00 %s#", _lang("Sync Complete"));
+            } else {
+                // Error
+                snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("Sync Failed"));
+            }
+            
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
+            lv_timer_t *reset_timer = lv_timer_create(page_clock_sync_reset_cb, 2000, NULL);
+            lv_timer_set_repeat_count(reset_timer, 1);
+            page_clock_set_clock_confirm = 0;
         } else {
-            lv_event_send(page_clock_items[page_clock_item_selected].data.obj, LV_EVENT_RELEASED, NULL);
-            page_clock_item_focused = 0;
-            int option = lv_dropdown_get_selected(page_clock_items[page_clock_item_selected].data.obj);
+            snprintf(buf, sizeof(buf), "#FFFF00 %s...#", _lang("Click to confirm or Scroll to cancel"));
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
+            page_clock_set_clock_confirm = 1;
+       }
+       break;
+   case ITEM_BACK:
+       submenu_exit();
+       break;
+   default:
+       if (!page_clock_item_focused) {
+           page_clock_items[page_clock_item_selected].last_option =
+               lv_dropdown_get_selected(page_clock_items[page_clock_item_selected].data.obj);
 
-            if (page_clock_items[page_clock_item_selected].last_option != option) {
-                page_clock_items[page_clock_item_selected].last_option = option;
-                page_clock_is_dirty = 1;
-                if (!page_clock_set_clock_pending_timer) {
-                    page_clock_set_clock_pending_timer = lv_timer_create(page_clock_set_clock_pending_cb, 50, NULL);
-                    lv_timer_set_repeat_count(page_clock_set_clock_pending_timer, -1);
-                }
-            }
+           lv_obj_t *list = lv_dropdown_get_list(page_clock_items[page_clock_item_selected].data.obj);
+           lv_dropdown_open(page_clock_items[page_clock_item_selected].data.obj);
+           lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
+           lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
+           page_clock_item_focused = 1;
+       } else {
+           lv_event_send(page_clock_items[page_clock_item_selected].data.obj, LV_EVENT_RELEASED, NULL);
+           page_clock_item_focused = 0;
+           int option = lv_dropdown_get_selected(page_clock_items[page_clock_item_selected].data.obj);
 
-            if (page_clock_item_selected == ITEM_YEAR ||
-                page_clock_item_selected == ITEM_MONTH) {
-                struct rtc_date date;
-                page_clock_build_date_from_selected(&date);
-                page_clock_build_options_from_date(&date);
-            }
-        }
-        break;
-    }
+           if (page_clock_items[page_clock_item_selected].last_option != option) {
+               page_clock_items[page_clock_item_selected].last_option = option;
+               page_clock_is_dirty = 1;
+               if (!page_clock_set_clock_pending_timer) {
+                   page_clock_set_clock_pending_timer = lv_timer_create(page_clock_set_clock_pending_cb, 50, NULL);
+                   lv_timer_set_repeat_count(page_clock_set_clock_pending_timer, -1);
+               }
+           }
+
+           if (page_clock_item_selected == ITEM_YEAR ||
+               page_clock_item_selected == ITEM_MONTH) {
+               struct rtc_date date;
+               page_clock_build_date_from_selected(&date);
+               page_clock_build_options_from_date(&date);
+           }
+       }
+       break;
+   }
 }
 
 /**
- * Main Menu page data structure, notice max is set to zero
- * in order to allow us to override default user input logic.
- */
+* Main Menu page data structure, notice max is set to zero
+* in order to allow us to override default user input logic.
+*/
 page_pack_t pp_clock = {
-    .p_arr = {
-        .cur = 0,
-        .max = 0,
-    },
-    .name = "Clock",
-    .create = page_clock_create,
-    .enter = page_clock_enter,
-    .exit = page_clock_exit,
-    .on_created = NULL,
-    .on_update = NULL,
-    .on_roller = page_clock_on_roller,
-    .on_click = page_clock_on_click,
-    .on_right_button = NULL,
+   .p_arr = {
+       .cur = 0,
+       .max = 0,
+   },
+   .name = "Clock",
+   .create = page_clock_create,
+   .enter = page_clock_enter,
+   .exit = page_clock_exit,
+   .on_created = NULL,
+   .on_update = NULL,
+   .on_roller = page_clock_on_roller,
+   .on_click = page_clock_on_click,
+   .on_right_button = NULL,
 };
