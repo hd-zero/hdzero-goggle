@@ -1,9 +1,12 @@
 #!/bin/sh
 
-VAbin=/mnt/extsd/HDZGOGGLE_VA.bin
+GOGGLE_BIN="$1"
+TMP_DIR=/tmp/goggle_update
+
+VAbin=${TMP_DIR}/HDZGOGGLE_VA.bin
 VAcount=1
 VAwrites=0
-RXbin=/mnt/extsd/HDZGOGGLE_RX.bin
+RXbin=${TMP_DIR}/HDZGOGGLE_RX.bin
 RXcount=2
 RXwrites=0
 
@@ -62,6 +65,19 @@ function beep_failure()
 	sleep 1
 }
 
+
+function gpio_set_reset()
+{
+        echo "0">/sys/class/gpio/gpio224/value
+        echo "1">/sys/class/gpio/gpio228/value
+}
+
+function gpio_clear_reset()
+{
+        echo "1">/sys/class/gpio/gpio224/value
+        echo "0">/sys/class/gpio/gpio228/value
+}
+
 function disconnect_fpga_flash()
 {
         echo "1">/sys/class/gpio/gpio258/value
@@ -99,7 +115,7 @@ function check_mtd_write()
 		echo mtd_debug write $1 0 $filesize $3
 		mtd_debug write $1 0 $filesize $3
 		if [ $? == 0 ]; then
-			beep_success
+#			beep_success
 			if [ "$3" == "$VAbin" ]; then
 				VAwrites=$((VAwrites + 1))
 			fi
@@ -112,69 +128,84 @@ function check_mtd_write()
 		beep_failure
 	fi
 }
+function untar_file()
+{
+	FILE_TARGET="$1"
 
+	if [ ! -e ${TMP_DIR} ]
+	then
+		mkdir ${TMP_DIR}
+	else
+		rm ${TMP_DIR} -rf
+		mkdir ${TMP_DIR}
+	fi
 
-echo "<<<<-------------------------------------------------------------------->>>>"
+	tar xf ${FILE_TARGET} -C ${TMP_DIR} 2>&1 > /dev/null
+	mv ${TMP_DIR}/HDZGOGGLE_RX*.bin $RXbin
+	mv ${TMP_DIR}/HDZGOGGLE_VA*.bin $VAbin
+}
+ 
 
-if [ -e $VAbin ]
-then
-    echo "find VA update file, start update"
-    gpio_export
-    gpio_set_reset
-    disconnect_fpga_flash
-		sleep 1
-    insmod /mnt/app/ko/w25q128.ko
+function update_rx()
+{
+	echo "find RX update file, start update"
+	gpio_export
+	gpio_set_reset
+	insmod /mnt/app/ko/w25q128.ko
+	check_mtd_write /dev/mtd8 1M $RXbin
+    echo "5"                                                                          
+    echo "5" > /tmp/progress_goggle
+	sleep 1
 
-		touch /tmp/update.ing
-    # normally the VA is mounted at /dev/mtd10 
-    #	check_mtd_write /dev/mtd8 16M $VAbin
-    #	check_mtd_write /dev/mtd9 16M $VAbin
-	  check_mtd_write /dev/mtd10 16M $VAbin
-		rm /tmp/update.ing -rf
+	check_mtd_write /dev/mtd9 1M $RXbin
+    echo "10"                                                                          
+    echo "10" > /tmp/progress_goggle
+	echo "update finish RX, running"
+	gpio_clear_reset
+	sleep 1
+	rmmod /mnt/app/ko/w25q128.ko
+}
 
-		if [ "$VAwrites" == "$VAcount" ]; then
-			if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
-			then
-				rm $VAbin -rf
-			fi
-		fi
+function update_fpga()
+{
+	echo "find VA update file, start update"
+	gpio_export
+	gpio_set_reset
+	disconnect_fpga_flash
+	insmod /mnt/app/ko/w25q128.ko
+	check_mtd_write /dev/mtd10 16M $VAbin
+    echo "45"                                                                         
+    echo "45" > /tmp/progress_goggle  
+	echo "update finish VA, running"
+	gpio_clear_reset
+	sleep 1
+	rmmod /mnt/app/ko/w25q128.ko
+}
 
-    echo "update finish $VAwrites VA, running"
-    gpio_clear_reset
-	  sleep 1
-    rmmod /mnt/app/ko/w25q128.ko
-else
-    echo "no VA update file,skip" 
+# If firmware file was NOT supplied then default to primary location for emergency restore
+if [ -z "$GOGGLE_BIN" ]; then
+    if [ `ls /mnt/extsd/HDZERO_GOGGLE*.bin | grep bin | wc -l` -eq 1 ]
+    then
+        GOGGLE_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
+    fi
 fi
 
-
-if [ -e $RXbin ]
+if [ ! -z "$GOGGLE_BIN" ]
 then
-    echo "find RX update file, start update"
-    gpio_export
-    gpio_set_reset
-		sleep 1
-    insmod /mnt/app/ko/w25q128.ko
-    # normally rx1 is /dev/mtd8 and rx0 is /dev/mtd9
-	  check_mtd_write /dev/mtd8 1M $RXbin
-	  check_mtd_write /dev/mtd9 1M $RXbin
-    #	check_mtd_write /dev/mtd10 1M $RXbin
-
-		if [ "$RXwrites" == "$RXcount" ]; then
-			if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
-			then
-				rm $RXbin -rf
-			fi
-		fi
-
-    echo "update finish $RXwrites RX, running"
-    gpio_clear_reset
-		sleep 1
-    rmmod /mnt/app/ko/w25q128.ko
-		
-		beep 2
+	echo "Flashing $GOGGLE_BIN"
+	echo "0" > /tmp/progress_goggle
+	echo "0"
+	untar_file "$GOGGLE_BIN"
+	mv ${TMP_DIR}/hdzgoggle_app_ota*.tar ${TMP_DIR}/hdzgoggle_app_ota.tar
+	cp -f /mnt/app/setting.ini /mnt/UDISK/
+	#disable it66021
+	i2cset -y 3 0x49 0x10 0xff
+        update_rx
+	update_fpga
+	hdz_upgrade_app.sh
+	echo "100"
+	echo "100" > /tmp/progress_goggle
+	echo "all done"
 else
-    echo "no RX update file,skip"
+	echo "skip"
 fi
-
-echo "<<<<-------------------------------------------------------------------->>>>"
