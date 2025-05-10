@@ -117,13 +117,13 @@ function check_mtd_write()
 echo "<<<<-------------------------------------------------------------------->>>>"
 
 if [ -e $VAbin ] | [ -e $RXbin ]; then 
-	beep 1
+	gpio_export
+ 	beep 1
 fi
 
 if [ -e $VAbin ]
 then
     echo "find VA update file, start update"
-    gpio_export
     gpio_set_reset
     disconnect_fpga_flash
 		sleep 1
@@ -155,7 +155,6 @@ fi
 if [ -e $RXbin ]
 then
     echo "find RX update file, start update"
-    gpio_export
     gpio_set_reset
 		sleep 1
     insmod /mnt/app/ko/w25q128.ko
