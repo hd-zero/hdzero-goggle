@@ -153,13 +153,8 @@ function update_rx()
 	gpio_set_reset
 	insmod /mnt/app/ko/w25q128.ko
 	check_mtd_write /dev/mtd8 1M $RXbin
-    echo "5"                                                                          
-    echo "5" > /tmp/progress_goggle
 	sleep 1
-
 	check_mtd_write /dev/mtd9 1M $RXbin
-    echo "10"                                                                          
-    echo "10" > /tmp/progress_goggle
 	echo "update finish RX, running"
 	gpio_clear_reset
 	sleep 1
@@ -174,8 +169,6 @@ function update_fpga()
 	disconnect_fpga_flash
 	insmod /mnt/app/ko/w25q128.ko
 	check_mtd_write /dev/mtd10 16M $VAbin
-    echo "45"                                                                         
-    echo "45" > /tmp/progress_goggle  
 	echo "update finish VA, running"
 	gpio_clear_reset
 	sleep 1
@@ -200,8 +193,14 @@ then
 	cp -f /mnt/app/setting.ini /mnt/UDISK/
 	#disable it66021
 	i2cset -y 3 0x49 0x10 0xff
-        update_rx
+	echo "1"
+	echo "1" > /tmp/progress_goggle
+	update_rx
+	echo "6"
+	echo "6" > /tmp/progress_goggle
 	update_fpga
+ 	echo "45"
+	echo "45" > /tmp/progress_goggle
 	hdz_upgrade_app.sh
 	echo "100"
 	echo "100" > /tmp/progress_goggle
