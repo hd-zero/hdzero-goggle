@@ -12,7 +12,8 @@ extern "C" {
 #define COMMIT_VER_MAX  (10)
 
 typedef struct {
-    uint8_t rx;
+    uint8_t rx0;
+    uint8_t rx1;
     uint8_t va;
     uint8_t app_major;
     uint8_t app_minor;

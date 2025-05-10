@@ -31,50 +31,36 @@ function gpio_export()
         echo "out">/sys/class/gpio/gpio131/direction
 }
 
-function beep_on()
-{
-        echo "1">/sys/class/gpio/gpio131/value
-}
-
-function beep_off()
-{
-        echo "0">/sys/class/gpio/gpio131/value
-}
-
 function beep()
 {
-				echo "1">/sys/class/gpio/gpio131/value
-				sleep 1
+	if [ ! -z "$1" ];then
+	delay=$1
+	else
+	delay=1
+	fi
+	echo "1">/sys/class/gpio/gpio131/value
+	sleep $delay
         echo "0">/sys/class/gpio/gpio131/value
 }
 
 function beep_success()
 {
-    echo "1">/sys/class/gpio/gpio131/value
-		sleep 0.1
-    echo "0">/sys/class/gpio/gpio131/value
-		sleep 0.5
-    echo "1">/sys/class/gpio/gpio131/value
-		sleep 0.05
-    echo "0">/sys/class/gpio/gpio131/value
+	beep 0.1
+	sleep 0.5
+	beep 0.05
+	sleep 1
 }
 
 
 function beep_failure()
 {
-    echo "1">/sys/class/gpio/gpio131/value
-		sleep 1
-    echo "0">/sys/class/gpio/gpio131/value
-		sleep 0.5
-    echo "1">/sys/class/gpio/gpio131/value
-		sleep 1
-    echo "0">/sys/class/gpio/gpio131/value
-		sleep 0.5
-    echo "1">/sys/class/gpio/gpio131/value
-		sleep 0.05
-    echo "0">/sys/class/gpio/gpio131/value
+	beep 1
+	sleep 0.5
+	beep 1
+	sleep 0.5
+	beep 0.05
+	sleep 1
 }
-
 
 function disconnect_fpga_flash()
 {
@@ -85,7 +71,6 @@ function connect_fpga_flash()
 {
         echo "0">/sys/class/gpio/gpio258/value
 }
-
 
 function gpio_set_reset()
 {
@@ -99,28 +84,26 @@ function gpio_clear_reset()
         echo "0">/sys/class/gpio/gpio228/value
 }
 
-function gpio_set_send()
-{
-        echo "1">/sys/class/gpio/gpio224/value
-        echo "0">/sys/class/gpio/gpio228/value
-}
-
-# eg: check_mtd_write /dev/mtdX check-size erase-size file-size bin-file
+# eg: check_mtd_write /dev/mtdX required-size bin-file
 function check_mtd_write()
 {
+	filesize=`ls -l $3 | awk '{print $5}'`
 	mtd_info=`mtd_debug info $1`
 	echo "$mtd_info"
-	value=`echo "$mtd_info" | grep mtd.size | grep "($2)"`                
-	if [ ! -z "$value" ];then
+	mtdsize=`echo "$mtd_info" | grep mtd.size | grep "($2)"`                
+	if [ ! -z "$mtdsize" ];then
 	        echo "$1 size is ($2)" 
-		mtd_debug erase $1 0 $3
-		mtd_debug write $1 0 $4 $5
+		mtdsizeB=`echo "$mtdsize" |cut -d " " -f 3`
+		echo mtd_debug erase $1 0 $mtdsizeB
+		mtd_debug erase $1 0 $mtdsizeB
+		echo mtd_debug write $1 0 $filesize $3
+		mtd_debug write $1 0 $filesize $3
 		if [ $? == 0 ]; then
 			beep_success
-			if [ "$5" == "$VAbin" ]; then
+			if [ "$3" == "$VAbin" ]; then
 				VAwrites=$((VAwrites + 1))
 			fi
-			if [ "$5" == "$RXbin" ]; then
+			if [ "$3" == "$RXbin" ]; then
 				RXwrites=$((RXwrites + 1))
 			fi
 		fi 
@@ -131,26 +114,26 @@ function check_mtd_write()
 }
 
 
-
-
 echo "<<<<-------------------------------------------------------------------->>>>"
+
+if [ -e $VAbin ] | [ -e $RXbin ]; then 
+	gpio_export
+ 	beep 1
+fi
 
 if [ -e $VAbin ]
 then
     echo "find VA update file, start update"
-        filesize2=`ls -l $VAbin| awk '{print $5}'`
-    gpio_export
     gpio_set_reset
     disconnect_fpga_flash
 		sleep 1
     insmod /mnt/app/ko/w25q128.ko
 
-
 		touch /tmp/update.ing
     # normally the VA is mounted at /dev/mtd10 
-    #	check_mtd_write /dev/mtd8 16M 16777216 $filesize2 $VAbin
-    #	check_mtd_write /dev/mtd9 16M 16777216 $filesize2 $VAbin
-	  check_mtd_write /dev/mtd10 16M 16777216 $filesize2 $VAbin
+    #	check_mtd_write /dev/mtd8 16M $VAbin
+    #	check_mtd_write /dev/mtd9 16M $VAbin
+	  check_mtd_write /dev/mtd10 16M $VAbin
 		rm /tmp/update.ing -rf
 
 		if [ "$VAwrites" == "$VAcount" ]; then
@@ -172,15 +155,13 @@ fi
 if [ -e $RXbin ]
 then
     echo "find RX update file, start update"
-        filesize=`ls -l $RXbin| awk '{print $5}'`
-    gpio_export
     gpio_set_reset
 		sleep 1
     insmod /mnt/app/ko/w25q128.ko
-    # normally the RX modules are mounted at /dev/mtd8 and /dev/mtd9
-	  check_mtd_write /dev/mtd8 1M 65536 $filesize $RXbin
-	  check_mtd_write /dev/mtd9 1M 65536 $filesize $RXbin
-    #	check_mtd_write /dev/mtd10 1M 65536 $filesize $RXbin
+    # normally rx1 is /dev/mtd8 and rx0 is /dev/mtd9
+	  check_mtd_write /dev/mtd8 1M $RXbin
+	  check_mtd_write /dev/mtd9 1M $RXbin
+    #	check_mtd_write /dev/mtd10 1M $RXbin
 
 		if [ "$RXwrites" == "$RXcount" ]; then
 			if [ ! -f /mnt/extsd/DONOTREMOVE.txt ]
@@ -194,7 +175,7 @@ then
 		sleep 1
     rmmod /mnt/app/ko/w25q128.ko
 		
-		beep
+		beep 2
 else
     echo "no RX update file,skip"
 fi
