@@ -116,6 +116,10 @@ function check_mtd_write()
 
 echo "<<<<-------------------------------------------------------------------->>>>"
 
+if [ -e $VAbin ] | [ -e $RXbin ]; then 
+	beep 1
+fi
+
 if [ -e $VAbin ]
 then
     echo "find VA update file, start update"
