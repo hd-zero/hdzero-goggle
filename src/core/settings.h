@@ -198,6 +198,7 @@ typedef struct {
     int min;
     int sec;
     int format;
+    int utc_offset;
 } setting_clock_t;
 
 #define WIFI_RF_CHANNELS  14 // World Channels

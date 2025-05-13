@@ -178,6 +178,7 @@ const setting_t g_setting_defaults = {
             },
         },
     },
+    // En la inicialización de g_setting_defaults en settings.c
     .clock = {
         .year = 2023,
         .month = 3,
@@ -186,6 +187,7 @@ const setting_t g_setting_defaults = {
         .min = 30,
         .sec = 30,
         .format = 0,
+        .utc_offset = 0, // UTC±00:00 por defecto
     },
     // Refer to `page_input.c`'s arrays `rollerFunctionPointers` and `btnFunctionPointers`
     .inputs = {
@@ -467,6 +469,9 @@ void settings_load(void) {
     if (!language_config()) {
         g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
     }
+
+    // UTC
+    g_setting.clock.utc_offset = ini_getl("clock", "utc_offset", 0, SETTING_INI); // Por defecto UTC±00:00
 
     // Check
     if (fs_file_exists(SELF_TEST_FILE)) {
