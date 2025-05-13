@@ -46,10 +46,10 @@ typedef enum {
     ITEM_MINUTE,
     ITEM_SECOND,
     ITEM_FORMAT,
-    ITEM_UTC,          
-    ITEM_AUTO_SYNC,    // New item
     ITEM_SET_CLOCK,
+    ITEM_UTC,          
     ITEM_SYNC_NTP,
+    ITEM_AUTO_SYNC,    // New item
     ITEM_BACK,
 
     ITEM_LIST_TOTAL
@@ -71,7 +71,7 @@ typedef struct {
  */
 static const int MAX_YEARS_DROPDOWN = 300; // 2023 + 300 == 2323
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,  LV_GRID_TEMPLATE_LAST};
 static item_t page_clock_items[ITEM_LIST_TOTAL] = {0};
 static int page_clock_item_selected = ITEM_YEAR;
 static int page_clock_item_focused = 0;
@@ -446,30 +446,35 @@ static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
-    char buf[256];
+    char buf[288];
+    int contentHeight = 0;
+    for (size_t i = 0; i < (ARRAY_SIZE(row_dsc) - 1); i++) {
+        contentHeight += row_dsc[i];
+    }
+    contentHeight += row_dsc[1];
+    int contentWidth = 0;
+    for (size_t i = 0; i < (ARRAY_SIZE(col_dsc) - 1); i++) {
+        contentWidth += col_dsc[i];
+    }
+
     rtc_get_clock(&page_clock_rtc_date);
     page_clock_build_options_from_date(&page_clock_rtc_date);
 
-    // Incrementar el tamaño de las filas para evitar solapamiento
-    static lv_coord_t col_dsc[] = {160, 200, 160, 200, 160, 160, LV_GRID_TEMPLATE_LAST};
-    static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 15, 10, 60, 60, LV_GRID_TEMPLATE_LAST};
-
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, contentWidth + 93, contentHeight + 300);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
     lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Clock"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    // Aumentar el tamaño del contenedor
-    lv_obj_set_size(cont, 1280, 900);
+    lv_obj_set_size(cont, contentWidth, contentHeight);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -480,74 +485,59 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    // Current date/time or last saved setting.
+    // Row 0: Year/Month/Day dropdowns
     page_clock_create_dropdown(cont, ITEM_YEAR, page_clock_rtc_date.year, 1, 0);
     page_clock_create_dropdown(cont, ITEM_MONTH, page_clock_rtc_date.month, 2, 0);
     page_clock_create_dropdown(cont, ITEM_DAY, page_clock_rtc_date.day, 3, 0);
+
+    // Row 1: Hour/Minute/Second dropdowns
     page_clock_create_dropdown(cont, ITEM_HOUR, page_clock_rtc_date.hour, 1, 1);
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
-    // Format selection - Row 2
+    // Row 2: Format selection (AM/PM vs 24 Hour)
     snprintf(buf, sizeof(buf), "%s/%s", _lang("AM"), _lang("PM"));
     create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, _lang("Format"), buf, _lang("24 Hour"), "", "", 2);
     page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
-    // Time Zone label y dropdown - Row 3
-    lv_obj_t* label = create_label_item(cont, _lang("Time Zone"), 1, 3, 1);
-    
-    lv_obj_t* utc_dropdown = create_dropdown_item(
-        cont,                    
-        "",                     
-        2,                      // col
-        3,                      // row
-        200,                    
-        row_dsc[3],            
-        2,                      
-        10,                     
-        LV_GRID_ALIGN_START,    
-        &lv_font_montserrat_26  
-    );
+    // Row 3: Set Clock
+    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 3, 3);
+    page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
-    // Agregar las opciones al dropdown
+    // Row 4: Time Zone
+    create_label_item(cont, _lang("Time Zone"), 1, 4, 1);
+    lv_obj_t* utc_dropdown = create_dropdown_item(cont,"",2,4,200,row_dsc[4],2,10,LV_GRID_ALIGN_START,&lv_font_montserrat_26);
     lv_dropdown_clear_options(utc_dropdown);
     for (int i = 0; i < sizeof(utc_options)/sizeof(utc_options[0]); i++) {
         lv_dropdown_add_option(utc_dropdown, utc_options[i], LV_DROPDOWN_POS_LAST);
     }
     lv_dropdown_set_selected(utc_dropdown, utc_offset_to_index(g_setting.clock.utc_offset));
-
     page_clock_items[ITEM_UTC].data.obj = utc_dropdown;
     page_clock_items[ITEM_UTC].type = ITEM_TYPE_OBJ;
-    page_clock_items[ITEM_UTC].panel = arr->panel[3];
+    page_clock_items[ITEM_UTC].panel = arr->panel[4];
 
-    // Add Auto Sync selection - Row 4 
-    create_btn_group_item(&page_clock_items[ITEM_AUTO_SYNC].data.btn, cont, 2, 
-                         _lang("Auto Sync"), 
-                         _lang("Enable"), 
-                         _lang("Disable"), "", "", 4);    // Changed row from 2 to 4
+    // Row 5: Sync from Internet
+    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 5, 3);
+    page_clock_items[ITEM_SYNC_NTP].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[5];
+
+    // Row 6: Auto Sync
+    create_btn_group_item(&page_clock_items[ITEM_AUTO_SYNC].data.btn, cont, 2, _lang("Auto Sync"), 
+                         _lang("Enable"), _lang("Disable"), "", "", 6);
     page_clock_items[ITEM_AUTO_SYNC].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_AUTO_SYNC].panel = arr->panel[4];
+    page_clock_items[ITEM_AUTO_SYNC].panel = arr->panel[6];
     btn_group_set_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn, !g_setting.clock.auto_sync);
 
-    // Set Clock (now in row 5)
-    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 5, 3);
-    page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[5];
-
-    // Sync from Internet (now in row 6)
-    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 6, 3);
-    page_clock_items[ITEM_SYNC_NTP].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[6];
-
-    // Back (now in row 7)
+    // Row 7: Back
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 7, 1);
     page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_BACK].panel = arr->panel[7];
 
-    // Current date/time (now in row 8)
+    // Row 8: Current Date/Time Display
     page_clock_create_datetime_item(cont, 8);
 
     if (rtc_has_battery() != 0) {
@@ -559,7 +549,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
         lv_obj_set_style_pad_top(note, 12, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
-        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 8, 2);
+        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 9, 2);
     }
 
     page_clock_clear_datetime();
