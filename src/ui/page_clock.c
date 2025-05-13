@@ -495,15 +495,26 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
     // Time Zone label y dropdown - En una nueva fila
-    create_label_item(cont, _lang("Time Zone"), 1, 3, 1);
+    lv_obj_t* label = create_label_item(cont, _lang("Time Zone"), 1, 3, 1);
     
-    lv_obj_t* utc_dropdown = lv_dropdown_create(cont);
+    lv_obj_t* utc_dropdown = create_dropdown_item(
+        cont,                      // parent
+        "",                       // inicialmente vacío
+        2,                        // columna
+        3,                        // fila
+        200,                      // ancho
+        row_dsc[3],              // altura (usar la altura de la fila)
+        2,                        // col_span
+        10,                       // padding_top fijo de 10
+        LV_GRID_ALIGN_START,      // alineación
+        &lv_font_montserrat_26    // fuente
+    );
+
+    // Agregar las opciones al dropdown
     lv_dropdown_clear_options(utc_dropdown);
     for (int i = 0; i < sizeof(utc_options)/sizeof(utc_options[0]); i++) {
         lv_dropdown_add_option(utc_dropdown, utc_options[i], LV_DROPDOWN_POS_LAST);
     }
-    lv_obj_set_size(utc_dropdown, 200, 40);
-    lv_obj_set_grid_cell(utc_dropdown, LV_GRID_ALIGN_START, 2, 2, LV_GRID_ALIGN_START, 3, 1);
     lv_dropdown_set_selected(utc_dropdown, utc_offset_to_index(g_setting.clock.utc_offset));
 
     page_clock_items[ITEM_UTC].data.obj = utc_dropdown;
