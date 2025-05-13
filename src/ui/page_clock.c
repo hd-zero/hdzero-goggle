@@ -15,6 +15,7 @@
 #include "ui/ui_attribute.h"
 #include "ui/ui_style.h"
 #include "util/ntp_client.h"
+#include "ui/page_wifi.h"
 
 /**
  * Various data types used to
@@ -401,6 +402,16 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
  */
 static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
     page_clock_refresh_datetime();
+    
+    // Actualizar estado del botón Sync from Internet
+    bool wifi_connected = page_wifi_is_sta_connected();
+    if (wifi_connected) {
+        lv_obj_clear_state(page_clock_items[ITEM_SYNC_NTP].data.obj, LV_STATE_DISABLED);
+        lv_obj_set_style_text_color(page_clock_items[ITEM_SYNC_NTP].data.obj, lv_color_make(255, 255, 255), 0);
+    } else {
+        lv_obj_add_state(page_clock_items[ITEM_SYNC_NTP].data.obj, LV_STATE_DISABLED);
+        lv_obj_set_style_text_color(page_clock_items[ITEM_SYNC_NTP].data.obj, lv_color_make(128, 128, 128), 0);
+    }
 }
 
 /**
@@ -629,34 +640,46 @@ static void page_clock_on_roller(uint8_t key) {
  */
 static void ntp_sync_check_timer_cb(lv_timer_t* timer) {
     if (!clock_is_syncing_from_ntp()) {
-        struct rtc_date date;
-        rtc_get_clock(&date);
+        clock_sync_status_t sync_status = clock_get_last_sync_status();
         
-        if (date.year > 2020) { // Probable success
-            // Update screen date
-            page_clock_rtc_date = date;
-            page_clock_build_options_from_date(&page_clock_rtc_date);
-            page_clock_refresh_datetime();
+        switch(sync_status) {
+            case CLOCK_SYNC_SUCCESS: {
+                // Get updated time after successful sync
+                struct rtc_date date;
+                rtc_get_clock(&date);
+                
+                // Update screen date
+                page_clock_rtc_date = date;
+                page_clock_build_options_from_date(&page_clock_rtc_date);
+                page_clock_refresh_datetime();
+                
+                // Save to settings
+                g_setting.clock.year = date.year;
+                g_setting.clock.month = date.month;
+                g_setting.clock.day = date.day;
+                g_setting.clock.hour = date.hour;
+                g_setting.clock.min = date.min;
+                g_setting.clock.sec = date.sec;
+                
+                // Update configuration file
+                ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
+                ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
+                ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
+                ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
+                ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
+                ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
+                
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#00FF00 Sync Complete#");
+                break;
+            }
             
-            // Save to settings
-            g_setting.clock.year = date.year;
-            g_setting.clock.month = date.month;
-            g_setting.clock.day = date.day;
-            g_setting.clock.hour = date.hour;
-            g_setting.clock.min = date.min;
-            g_setting.clock.sec = date.sec;
-            
-            // Update configuration file
-            ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
-            ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
-            ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
-            ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
-            ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
-            ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
-            
-            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#00FF00 Sync Complete#");
-        } else {
-            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 Sync Failed#");
+            case CLOCK_SYNC_FAILED:
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 Sync Failed#");
+                break;
+                
+            default:
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 Sync Error#");
+                break;
         }
         
         // Create timer to restore text
@@ -723,6 +746,14 @@ static void page_clock_on_click(uint8_t key, int sel) {
         }
         break;
     case ITEM_SYNC_NTP:
+        // Verificar si el WiFi está habilitado y conectado
+        if (!page_wifi_is_sta_connected()) {
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 WiFi Client Mode Required#");
+            lv_timer_t *reset_timer = lv_timer_create(page_clock_sync_reset_cb, 2000, NULL);
+            lv_timer_set_repeat_count(reset_timer, 1);
+            return;
+        }
+
         if (page_clock_set_clock_confirm) {
             snprintf(buf, sizeof(buf), "#FF0000 %s %s...#", _lang("Syncing"), _lang("Clock"));
             lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);

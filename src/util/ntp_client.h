@@ -5,6 +5,12 @@
 extern "C" {
 #endif
 
+// Error codes
+#define NTP_SUCCESS 0
+#define NTP_ERR_CONNECT -1 
+#define NTP_ERR_TIMEOUT -2
+#define NTP_ERR_INVALID -3
+
 /**
  * @brief Tipo de función de callback para la sincronización NTP asíncrona
  * 
@@ -12,6 +18,16 @@ extern "C" {
  * @param user_data Datos proporcionados por el usuario en la llamada inicial
  */
 typedef void (*ntp_callback_t)(int result, void* user_data);
+
+/**
+ * @brief Clock sync status values 
+ */
+typedef enum {
+    CLOCK_SYNC_NONE = 0,
+    CLOCK_SYNC_IN_PROGRESS,
+    CLOCK_SYNC_SUCCESS,
+    CLOCK_SYNC_FAILED
+} clock_sync_status_t;
 
 /**
  * @brief Inicia la sincronización del reloj con un servidor NTP (bloqueante)
@@ -41,6 +57,13 @@ int clock_sync_from_ntp_async(ntp_callback_t callback_fn, void* user_data);
  * @return 1 si hay una sincronización en progreso, 0 en caso contrario
  */
 int clock_is_syncing_from_ntp(void);
+
+/**
+ * @brief Obtiene el estado de la última sincronización
+ * 
+ * @return Estado de la última sincronización usando clock_sync_status_t
+ */
+clock_sync_status_t clock_get_last_sync_status(void);
 
 #ifdef __cplusplus
 }

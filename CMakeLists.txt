@@ -87,7 +87,9 @@ if(EMULATOR_BUILD)
 else()
 	list(APPEND SRC_FILES ${SRC_FILES_PLAYER})
 endif()
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES}
+	src/util/wifi_status.c
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 	src/

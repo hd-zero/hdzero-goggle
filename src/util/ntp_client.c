@@ -307,6 +307,9 @@ static void* ntp_sync_thread(void* arg) {
             LOGE("NTP returned invalid date: %04d-%02d-%02d %02d:%02d:%02d", 
                  rd.year, rd.month, rd.day, rd.hour, rd.min, rd.sec);
             result = -1;
+        } else if (rd.year < 2023) {  // Validación adicional para asegurar fecha razonable
+            LOGE("NTP returned unreasonable date: %04d", rd.year);
+            result = -1;
         } else {
             // Actualizar el RTC
             rtc_set_clock(&rd);
@@ -452,4 +455,33 @@ int clock_sync_from_ntp(void) {
     }
     
     return result;
+}
+
+// Función pública para obtener el estado de la última sincronización
+clock_sync_status_t clock_get_last_sync_status(void) {
+    clock_sync_status_t status;
+    
+    pthread_mutex_lock(&g_ntp_mutex);
+    
+    switch (g_ntp_sync_state) {
+        case NTP_SYNC_IDLE:
+            status = CLOCK_SYNC_NONE;
+            break;
+        case NTP_SYNC_IN_PROGRESS:
+            status = CLOCK_SYNC_IN_PROGRESS; 
+            break;
+        case NTP_SYNC_SUCCESS:
+            status = CLOCK_SYNC_SUCCESS;
+            break;
+        case NTP_SYNC_FAILED:
+            status = CLOCK_SYNC_FAILED;
+            break;
+        default:
+            status = CLOCK_SYNC_NONE;
+            break;
+    }
+    
+    pthread_mutex_unlock(&g_ntp_mutex);
+    
+    return status;
 }

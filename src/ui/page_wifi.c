@@ -24,6 +24,7 @@
 #include "util/system.h"
 #include "driver/rtc.h"
 #include "util/ntp_client.h"
+#include "util/wifi_status.h"
 
 /**
  * Types
@@ -821,11 +822,27 @@ static void page_wifi_exit() {
  * Callback function for background NTP synchronization
  */
 static void wifi_ntp_sync_callback(int result, void* user_data) {
-    if (result == 0) {
-        LOGI("Background NTP time sync successful");
-        // Settings are already updated inside ntp_sync_thread
-    } else {
-        LOGE("Background NTP time sync failed");
+    switch (result) {
+        case NTP_SUCCESS:
+            LOGI("Background NTP time sync successful");
+            // Settings are already updated inside ntp_sync_thread
+            break;
+            
+        case NTP_ERR_CONNECT:
+            LOGE("Background NTP time sync failed - Connection error");
+            break;
+            
+        case NTP_ERR_TIMEOUT:  
+            LOGE("Background NTP time sync failed - Timeout");
+            break;
+            
+        case NTP_ERR_INVALID:
+            LOGE("Background NTP time sync failed - Invalid data received");
+            break;
+            
+        default:
+            LOGE("Background NTP time sync failed with error: %d", result);
+            break;
     }
 }
 
@@ -844,7 +861,8 @@ static void page_wifi_on_update(uint32_t delta_ms) {
         if (is_connected && !was_connected) {
             LOGI("WiFi client connection established");
             
-            if (!clock_is_syncing_from_ntp()) {
+            if (!clock_is_syncing_from_ntp() && 
+                clock_get_last_sync_status() != NTP_SUCCESS) {
                 LOGI("Starting background NTP sync after connection established");
                 clock_sync_from_ntp_async(wifi_ntp_sync_callback, NULL);
             }
@@ -1253,4 +1271,12 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
             break;
         }
     }
+}
+
+bool page_wifi_is_sta_connected(void) {
+    WIFI_STA_CONNECT_STATUS_S connect_status;
+    if (wifi_sta_get_connect_status("wlan0", &connect_status) == 0) {
+        return connect_status.state == WIFI_STA_STATUS_CONNECTED;
+    }
+    return false;
 }
