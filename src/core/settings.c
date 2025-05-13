@@ -323,6 +323,8 @@ void settings_init(void) {
     int file_version = ini_getl("settings", "file_version", SETTINGS_INI_VERSION_UNKNOWN, SETTING_INI);
     if (file_version != SETTING_INI_VERSION)
         settings_reset();
+
+    g_setting.clock.auto_sync = ini_getl("clock", "auto_sync", 0, SETTING_INI);
 }
 
 void settings_load(void) {

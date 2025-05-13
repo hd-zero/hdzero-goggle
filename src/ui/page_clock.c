@@ -46,7 +46,8 @@ typedef enum {
     ITEM_MINUTE,
     ITEM_SECOND,
     ITEM_FORMAT,
-    ITEM_UTC,          // Nuevo elemento para seleccionar UTC
+    ITEM_UTC,          
+    ITEM_AUTO_SYNC,    // New item
     ITEM_SET_CLOCK,
     ITEM_SYNC_NTP,
     ITEM_BACK,
@@ -487,27 +488,27 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
-    // Format selection (AM/PM or 24H) - Ahora en una fila dedicada
+    // Format selection - Row 2
     snprintf(buf, sizeof(buf), "%s/%s", _lang("AM"), _lang("PM"));
     create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, _lang("Format"), buf, _lang("24 Hour"), "", "", 2);
     page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
-    // Time Zone label y dropdown - En una nueva fila
+    // Time Zone label y dropdown - Row 3
     lv_obj_t* label = create_label_item(cont, _lang("Time Zone"), 1, 3, 1);
     
     lv_obj_t* utc_dropdown = create_dropdown_item(
-        cont,                      // parent
-        "",                       // inicialmente vacío
-        2,                        // columna
-        3,                        // fila
-        200,                      // ancho
-        row_dsc[3],              // altura (usar la altura de la fila)
-        2,                        // col_span
-        10,                       // padding_top fijo de 10
-        LV_GRID_ALIGN_START,      // alineación
-        &lv_font_montserrat_26    // fuente
+        cont,                    
+        "",                     
+        2,                      // col
+        3,                      // row
+        200,                    
+        row_dsc[3],            
+        2,                      
+        10,                     
+        LV_GRID_ALIGN_START,    
+        &lv_font_montserrat_26  
     );
 
     // Agregar las opciones al dropdown
@@ -521,24 +522,33 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_clock_items[ITEM_UTC].type = ITEM_TYPE_OBJ;
     page_clock_items[ITEM_UTC].panel = arr->panel[3];
 
-    // Set Clock (ahora en fila 4)
-    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 4, 3);
+    // Add Auto Sync selection - Row 4 
+    create_btn_group_item(&page_clock_items[ITEM_AUTO_SYNC].data.btn, cont, 2, 
+                         _lang("Auto Sync"), 
+                         _lang("Enable"), 
+                         _lang("Disable"), "", "", 4);    // Changed row from 2 to 4
+    page_clock_items[ITEM_AUTO_SYNC].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_AUTO_SYNC].panel = arr->panel[4];
+    btn_group_set_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn, !g_setting.clock.auto_sync);
+
+    // Set Clock (now in row 5)
+    page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 5, 3);
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[4];
+    page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[5];
 
-    // Sync from Internet (ahora en fila 5)
-    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 5, 3);
+    // Sync from Internet (now in row 6)
+    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 6, 3);
     page_clock_items[ITEM_SYNC_NTP].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[5];
+    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[6];
 
-    // Back (ahora en fila 6)
+    // Back (now in row 7)
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 6, 1);
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 7, 1);
     page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_BACK].panel = arr->panel[6];
+    page_clock_items[ITEM_BACK].panel = arr->panel[7];
 
-    // Fecha/hora actual (ahora en fila 7)
-    page_clock_create_datetime_item(cont, 7);
+    // Current date/time (now in row 8)
+    page_clock_create_datetime_item(cont, 8);
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
@@ -742,6 +752,12 @@ static void page_clock_on_click(uint8_t key, int sel) {
                 }
             }
         }
+        break;
+    case ITEM_AUTO_SYNC:
+        page_clock_is_dirty = 1;
+        btn_group_toggle_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn);
+        g_setting.clock.auto_sync = !btn_group_get_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn); 
+        ini_putl("clock", "auto_sync", g_setting.clock.auto_sync, SETTING_INI);
         break;
     case ITEM_SET_CLOCK:
         if (page_clock_set_clock_confirm) {

@@ -340,6 +340,16 @@ static void page_wifi_update_settings() {
             system_exec("dropbear");
         }
     }
+
+    // Check if we should sync time when connected as client
+    if (g_setting.wifi.mode == WIFI_MODE_STA && g_setting.clock.auto_sync) {
+        WIFI_STA_CONNECT_STATUS_S status;
+        if (wifi_sta_get_connect_status("wlan0", &status) == 0 && 
+            status.state == WIFI_STA_STATUS_CONNECTED) {
+            // Trigger NTP sync
+            clock_sync_from_ntp();
+        }
+    }
 }
 
 /**
