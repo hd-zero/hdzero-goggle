@@ -12,10 +12,10 @@ extern "C" {
 #define NTP_ERR_INVALID -3
 
 /**
- * @brief Tipo de función de callback para la sincronización NTP asíncrona
+ * @brief Callback function type for asynchronous NTP synchronization
  * 
- * @param result Resultado de la sincronización (0 = éxito, -1 = error)
- * @param user_data Datos proporcionados por el usuario en la llamada inicial
+ * @param result Synchronization result (0 = success, -1 = error)
+ * @param user_data User data provided in initial call
  */
 typedef void (*ntp_callback_t)(int result, void* user_data);
 

@@ -881,7 +881,7 @@ static void page_wifi_on_update(uint32_t delta_ms) {
         was_connected = is_connected;
     }
 
-    // Verificar inmediatamente después de ejecutar, luego cada 5 minutos para actualizaciones.
+    // Check immediately after executing, then every 5 minutes for updates.
     if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:

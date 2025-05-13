@@ -84,7 +84,7 @@ static int page_clock_set_clock_confirm = 0;
 static int page_clock_is_dirty = 0;
 static struct rtc_date page_clock_rtc_date = {0};
 
-// Opciones de zona horaria UTC
+// UTC timezone options
 static char* utc_options[] = {
     "UTC-12:00", "UTC-11:00", "UTC-10:00", "UTC-09:00", "UTC-08:00",
     "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:00",
@@ -94,7 +94,7 @@ static char* utc_options[] = {
     "UTC+13:00", "UTC+14:00"
 };
 
-// Valores de offset en segundos correspondientes a las opciones
+// Offset values in seconds corresponding to the options
 static const int utc_seconds[] = {
 -43200,  // UTC−12:00
 -39600,  // UTC−11:00
@@ -125,10 +125,10 @@ static const int utc_seconds[] = {
  50400   // UTC+14:00
 };
 
-// Convertir offset en segundos a índice en el array
+// Convert seconds offset to array index
 int utc_offset_to_index(int offset_seconds) {
-    // Buscar el offset más cercano
-    int index = 12; // Por defecto UTC±00:00
+    // Find closest offset
+    int index = 12; // Default UTC±00:00
     int min_diff = abs(offset_seconds);
     
     for (int i = 0; i < sizeof(utc_seconds)/sizeof(utc_seconds[0]); i++) {
@@ -142,13 +142,13 @@ int utc_offset_to_index(int offset_seconds) {
     return index;
 }
 
-// Convertir índice a offset en segundos
+// Convert index to seconds offset 
 int index_to_utc_offset(int index) {
     if (index >= 0 && index < sizeof(utc_seconds)/sizeof(utc_seconds[0])) {
         return utc_seconds[index];
     }
     
-    return 0; // Por defecto UTC±00:00
+    return 0; // Default UTC±00:00
 }
 
 /**

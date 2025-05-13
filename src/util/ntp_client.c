@@ -21,11 +21,11 @@
 #include "ui/page_clock.h"
 #include "util/ntp_client.h"
 
-#define NTP_TIMESTAMP_DELTA 2208988800ull  // Segundos entre 1900 (NTP) y 1970 (epoch)
+#define NTP_TIMESTAMP_DELTA 2208988800ull  // Seconds between 1900 (NTP) and 1970 (epoch)
 #define NTP_PORT 123
-#define NTP_TIMEOUT_SEC 3                  // Timeout reducido a 3 segundos
+#define NTP_TIMEOUT_SEC 3                  // Timeout reduced to 3 seconds
 
-// Estados para la sincronización NTP
+// NTP synchronization states
 typedef enum {
     NTP_SYNC_IDLE = 0,
     NTP_SYNC_IN_PROGRESS,
@@ -33,7 +33,7 @@ typedef enum {
     NTP_SYNC_FAILED
 } ntp_sync_state_t;
 
-// Estructura del paquete NTP según RFC 5905
+// NTP packet structure according to RFC 5905
 typedef struct {
     uint8_t li_vn_mode;      /* leap indicator, version and mode */
     uint8_t stratum;         /* stratum level */
@@ -52,13 +52,13 @@ typedef struct {
     uint32_t xmitts_frac;    /* transmit timestamp fraction */
 } ntp_packet_t;
 
-// Estructura para el callback
+// Callback structure
 typedef struct {
     ntp_callback_t callback_fn;
     void* user_data;
 } ntp_callback_data_t;
 
-// Variables globales
+// Global variables
 static volatile ntp_sync_state_t g_ntp_sync_state = NTP_SYNC_IDLE;
 static pthread_mutex_t g_ntp_mutex = PTHREAD_MUTEX_INITIALIZER;
 static char* g_ntp_servers[] = {
@@ -70,7 +70,7 @@ static char* g_ntp_servers[] = {
 };
 static const int g_ntp_server_count = sizeof(g_ntp_servers) / sizeof(g_ntp_servers[0]);
 
-// Lista de direcciones IP estáticas como respaldo
+// List of static IP addresses as backup
 static char* g_ntp_fallback_ips[] = {
     "162.159.200.1",    // time.cloudflare.com
     "216.239.35.4",     // time.google.com
@@ -79,12 +79,12 @@ static char* g_ntp_fallback_ips[] = {
 };
 static const int g_ntp_fallback_count = sizeof(g_ntp_fallback_ips) / sizeof(g_ntp_fallback_ips[0]);
 
-// Función para convertir el tiempo NTP a unix time
+// Function to convert NTP time to unix time
 static time_t ntp_time_to_unix_time(uint32_t ntp_time) {
     return (time_t)(ntp_time - NTP_TIMESTAMP_DELTA);
 }
 
-// Función para establecer socket no bloqueante
+// Function to set non-blocking socket
 static int set_socket_nonblocking(int sockfd) {
     int flags = fcntl(sockfd, F_GETFL, 0);
     if (flags == -1) {
@@ -93,7 +93,7 @@ static int set_socket_nonblocking(int sockfd) {
     return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
 }
 
-// Función para intentar resolver y conectar a un servidor NTP
+// Function to attempt resolving and connecting to an NTP server
 static int connect_to_ntp_server(const char* server, struct sockaddr_in* serv_addr) {
     int sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sockfd < 0) {
@@ -101,7 +101,7 @@ static int connect_to_ntp_server(const char* server, struct sockaddr_in* serv_ad
         return -1;
     }
 
-    // Configurar timeout
+    // Set timeout
     struct timeval tv;
     tv.tv_sec = NTP_TIMEOUT_SEC;
     tv.tv_usec = 0;
@@ -112,7 +112,7 @@ static int connect_to_ntp_server(const char* server, struct sockaddr_in* serv_ad
         return -1;
     }
 
-    // Intentar resolver el nombre del servidor
+    // Attempt to resolve server name
     struct hostent *host_entry = gethostbyname(server);
     if (host_entry == NULL) {
         LOGI("Could not resolve %s", server);
@@ -120,7 +120,7 @@ static int connect_to_ntp_server(const char* server, struct sockaddr_in* serv_ad
         return -1;
     }
 
-    // Configurar dirección del servidor
+    // Set server address
     memset(serv_addr, 0, sizeof(struct sockaddr_in));
     serv_addr->sin_family = AF_INET;
     memcpy(&serv_addr->sin_addr.s_addr, host_entry->h_addr, host_entry->h_length);
@@ -129,7 +129,7 @@ static int connect_to_ntp_server(const char* server, struct sockaddr_in* serv_ad
     return sockfd;
 }
 
-// Función para intentar conectar a una IP de servidor NTP específica
+// Function to attempt connecting to a specific NTP server IP
 static int connect_to_ntp_ip(const char* ip_address, struct sockaddr_in* serv_addr) {
     int sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sockfd < 0) {
@@ -137,7 +137,7 @@ static int connect_to_ntp_ip(const char* ip_address, struct sockaddr_in* serv_ad
         return -1;
     }
 
-    // Configurar timeout
+    // Set timeout
     struct timeval tv;
     tv.tv_sec = NTP_TIMEOUT_SEC;
     tv.tv_usec = 0;
@@ -148,7 +148,7 @@ static int connect_to_ntp_ip(const char* ip_address, struct sockaddr_in* serv_ad
         return -1;
     }
     
-    // Configurar dirección del servidor
+    // Set server address
     memset(serv_addr, 0, sizeof(struct sockaddr_in));
     serv_addr->sin_family = AF_INET;
     serv_addr->sin_port = htons(NTP_PORT);
@@ -162,30 +162,30 @@ static int connect_to_ntp_ip(const char* ip_address, struct sockaddr_in* serv_ad
     return sockfd;
 }
 
-// Función para enviar y recibir paquete NTP (con reintentos)
+// Function to send and receive NTP packet (with retries)
 static int send_receive_ntp_packet(int sockfd, struct sockaddr_in* serv_addr, ntp_packet_t* packet) {
     int retries = 3;
     socklen_t addr_len = sizeof(struct sockaddr_in);
     
-    // Inicializar paquete NTP
+    // Initialize NTP packet
     memset(packet, 0, sizeof(ntp_packet_t));
-    packet->li_vn_mode = 0x1b; // LI = 0, Version = 3, Mode = 3 (cliente)
+    packet->li_vn_mode = 0x1b; // LI = 0, Version = 3, Mode = 3 (client)
     
     while (retries--) {
-        // Enviar paquete
+        // Send packet
         if (sendto(sockfd, packet, sizeof(ntp_packet_t), 0, 
                   (struct sockaddr *)serv_addr, addr_len) < 0) {
             LOGE("Error sending NTP packet (retry %d): %s", 2-retries, strerror(errno));
             continue;
         }
         
-        // Configurar select para timeout
+        // Set select for timeout
         fd_set readfds;
         FD_ZERO(&readfds);
         FD_SET(sockfd, &readfds);
         
         struct timeval timeout;
-        timeout.tv_sec = 1;  // 1 segundo por intento
+        timeout.tv_sec = 1;  // 1 second per attempt
         timeout.tv_usec = 0;
         
         int select_result = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
@@ -199,28 +199,28 @@ static int send_receive_ntp_packet(int sockfd, struct sockaddr_in* serv_addr, nt
             continue;
         }
         
-        // Recibir respuesta
+        // Receive response
         if (recvfrom(sockfd, packet, sizeof(ntp_packet_t), 0, 
                     (struct sockaddr *)serv_addr, &addr_len) < 0) {
             LOGE("Error receiving NTP packet (retry %d): %s", 2-retries, strerror(errno));
             continue;
         }
         
-        // Éxito
+        // Success
         return 0;
     }
     
-    // Agotados los intentos
+    // Attempts exhausted
     return -1;
 }
 
-// Función para calcular correctamente la diferencia de zona horaria
+// Function to correctly calculate timezone difference
 static time_t apply_timezone_offset(time_t utc_time, int offset_seconds) {
-    // Simplemente sumar el offset en segundos
+    // Simply add the offset in seconds
     return utc_time + offset_seconds;
 }
 
-// Función que realiza la sincronización NTP (ejecutada en un hilo)
+// Function that performs NTP synchronization (executed in a thread)
 static void* ntp_sync_thread(void* arg) {
     ntp_callback_data_t* callback_data = (ntp_callback_data_t*)arg;
     int result = -1;
@@ -230,17 +230,17 @@ static void* ntp_sync_thread(void* arg) {
     
     LOGI("NTP sync thread started");
     
-    // Verificar si WiFi está habilitado
+    // Check if WiFi is enabled
     if (!g_setting.wifi.enable) {
         LOGE("WiFi disabled, cannot sync time from NTP");
         goto cleanup;
     }
     
-    // Asegurarse de que WiFi esté activo
+    // Ensure WiFi is active
     system_exec("ifconfig wlan0 up");
-    usleep(500000); // Espera reducida a 0.5 segundos
+    usleep(500000); // Wait reduced to 0.5 seconds
     
-    // Intentar varios servidores NTP
+    // Attempt multiple NTP servers
     for (int i = 0; i < g_ntp_server_count; i++) {
         LOGI("Trying NTP server: %s", g_ntp_servers[i]);
         
@@ -258,7 +258,7 @@ static void* ntp_sync_thread(void* arg) {
         sockfd = -1;
     }
     
-    // Si ningún servidor funciona, intentar con las IPs de respaldo
+    // If no server works, try the backup IPs
     if (result != 0) {
         LOGI("Trying fallback NTP server IPs");
         for (int i = 0; i < g_ntp_fallback_count; i++) {
@@ -280,21 +280,21 @@ static void* ntp_sync_thread(void* arg) {
     }
     
     if (result == 0) {
-        // Convertir tiempo recibido
+        // Convert received time
         uint32_t txTm = ntohl(packet.xmitts_sec);
         time_t utc_time = ntp_time_to_unix_time(txTm);
         
         LOGI("NTP time received (UTC): %u", (unsigned int)utc_time);
         
-        // Usar el offset configurado por el usuario 
+        // Use the user-configured offset 
         int timezone_offset = g_setting.clock.utc_offset;
         LOGI("Using configured timezone offset: %d seconds", timezone_offset);
         
-        // Aplicar la zona horaria para obtener la hora local
+        // Apply the timezone to get local time
         time_t local_time = apply_timezone_offset(utc_time, timezone_offset);
         LOGI("Local time after timezone adjustment: %u", (unsigned int)local_time);
         
-        // Actualizar RTC con el tiempo recibido ajustado a zona horaria local
+        // Update RTC with the received time adjusted to local timezone
         struct timeval tv_now;
         tv_now.tv_sec = local_time;
         tv_now.tv_usec = 0;
@@ -302,21 +302,21 @@ static void* ntp_sync_thread(void* arg) {
         struct rtc_date rd;
         rtc_tv2rd(&tv_now, &rd);
         
-        // Validar la fecha
+        // Validate the date
         if (rtc_has_valid_date(&rd) != 0) {
             LOGE("NTP returned invalid date: %04d-%02d-%02d %02d:%02d:%02d", 
                  rd.year, rd.month, rd.day, rd.hour, rd.min, rd.sec);
             result = -1;
-        } else if (rd.year < 2023) {  // Validación adicional para asegurar fecha razonable
+        } else if (rd.year < 2023) {  // Additional validation to ensure reasonable date
             LOGE("NTP returned unreasonable date: %04d", rd.year);
             result = -1;
         } else {
-            // Actualizar el RTC
+            // Update the RTC
             rtc_set_clock(&rd);
             LOGI("NTP time sync successful: %04d-%02d-%02d %02d:%02d:%02d", 
                  rd.year, rd.month, rd.day, rd.hour, rd.min, rd.sec);
             
-            // Guardar en settings
+            // Save to settings
             g_setting.clock.year = rd.year;
             g_setting.clock.month = rd.month;
             g_setting.clock.day = rd.day;
@@ -324,7 +324,7 @@ static void* ntp_sync_thread(void* arg) {
             g_setting.clock.min = rd.min;
             g_setting.clock.sec = rd.sec;
             
-            // Actualizar archivo de configuración
+            // Update configuration file
             ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
             ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
             ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
@@ -339,12 +339,12 @@ cleanup:
         close(sockfd);
     }
     
-    // Actualizar estado
+    // Update state
     pthread_mutex_lock(&g_ntp_mutex);
     g_ntp_sync_state = (result == 0) ? NTP_SYNC_SUCCESS : NTP_SYNC_FAILED;
     pthread_mutex_unlock(&g_ntp_mutex);
     
-    // Llamar al callback si existe
+    // Call the callback if it exists
     if (callback_data != NULL) {
         if (callback_data->callback_fn != NULL) {
             callback_data->callback_fn(result, callback_data->user_data);
@@ -356,7 +356,7 @@ cleanup:
     return NULL;
 }
 
-// Función pública para verificar si hay una sincronización en progreso
+// Public function to check if synchronization is in progress
 int clock_is_syncing_from_ntp(void) {
     int is_syncing = 0;
     
@@ -367,23 +367,23 @@ int clock_is_syncing_from_ntp(void) {
     return is_syncing;
 }
 
-// Función pública para iniciar la sincronización NTP (asíncrona con callback)
+// Public function to start NTP synchronization (asynchronous with callback)
 int clock_sync_from_ntp_async(ntp_callback_t callback_fn, void* user_data) {
     int ret = -1;
     
     pthread_mutex_lock(&g_ntp_mutex);
     
-    // Verificar si ya hay una sincronización en progreso
+    // Check if synchronization is already in progress
     if (g_ntp_sync_state == NTP_SYNC_IN_PROGRESS) {
         LOGI("NTP sync already in progress");
         pthread_mutex_unlock(&g_ntp_mutex);
         return -1;
     }
     
-    // Actualizar estado
+    // Update state
     g_ntp_sync_state = NTP_SYNC_IN_PROGRESS;
     
-    // Preparar datos para el callback
+    // Prepare data for the callback
     ntp_callback_data_t* callback_data = malloc(sizeof(ntp_callback_data_t));
     if (callback_data == NULL) {
         LOGE("Failed to allocate memory for callback data");
@@ -395,7 +395,7 @@ int clock_sync_from_ntp_async(ntp_callback_t callback_fn, void* user_data) {
     callback_data->callback_fn = callback_fn;
     callback_data->user_data = user_data;
     
-    // Crear hilo para sincronización
+    // Create thread for synchronization
     pthread_t thread_id;
     if (pthread_create(&thread_id, NULL, ntp_sync_thread, callback_data) != 0) {
         LOGE("Error creating NTP thread");
@@ -411,23 +411,23 @@ int clock_sync_from_ntp_async(ntp_callback_t callback_fn, void* user_data) {
     return ret;
 }
 
-// Función pública para compatibilidad con el código existente (bloqueante)
+// Public function for compatibility with existing code (blocking)
 int clock_sync_from_ntp(void) {
-    // Verificar si ya hay una sincronización en progreso
+    // Check if synchronization is already in progress
     if (clock_is_syncing_from_ntp()) {
         LOGI("NTP sync already in progress");
         return -1;
     }
     
-    // Intentar iniciar sincronización asíncrona sin callback
+    // Attempt to start asynchronous synchronization without callback
     if (clock_sync_from_ntp_async(NULL, NULL) != 0) {
         return -1;
     }
     
-    // Esperar resultado (pero con timeout)
+    // Wait for result (but with timeout)
     int result = -1;
     int timeout_count = 0;
-    const int max_timeout = 10; // 10 * 100ms = 1 segundo máximo
+    const int max_timeout = 10; // 10 * 100ms = 1 second max
     
     while (timeout_count < max_timeout) {
         usleep(100000); // 100ms
@@ -449,7 +449,7 @@ int clock_sync_from_ntp(void) {
         timeout_count++;
     }
     
-    // Si aún está en progreso después del timeout, asumimos que continuará en segundo plano
+    // If still in progress after timeout, assume it will continue in background
     if (timeout_count >= max_timeout) {
         LOGI("NTP sync still in progress, continuing in background");
     }
@@ -457,7 +457,7 @@ int clock_sync_from_ntp(void) {
     return result;
 }
 
-// Función pública para obtener el estado de la última sincronización
+// Public function to get last synchronization status
 clock_sync_status_t clock_get_last_sync_status(void) {
     clock_sync_status_t status;
     
