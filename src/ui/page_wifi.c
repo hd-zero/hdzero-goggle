@@ -22,6 +22,9 @@
 #include "ui/ui_style.h"
 #include "util/filesystem.h"
 #include "util/system.h"
+#include "driver/rtc.h"
+#include "util/ntp_client.h"
+#include "util/wifi_status.h"
 
 /**
  * Types
@@ -335,6 +338,16 @@ static void page_wifi_update_settings() {
 
         if (g_setting.wifi.ssh) {
             system_exec("dropbear");
+        }
+    }
+
+    // Check if we should sync time when connected as client
+    if (g_setting.wifi.mode == WIFI_MODE_STA && g_setting.clock.auto_sync) {
+        WIFI_STA_CONNECT_STATUS_S status;
+        if (wifi_sta_get_connect_status("wlan0", &status) == 0 && 
+            status.state == WIFI_STA_STATUS_CONNECTED) {
+            // Trigger NTP sync
+            clock_sync_from_ntp();
         }
     }
 }
@@ -816,12 +829,59 @@ static void page_wifi_exit() {
 }
 
 /**
+ * Callback function for background NTP synchronization
+ */
+static void wifi_ntp_sync_callback(int result, void* user_data) {
+    switch (result) {
+        case NTP_SUCCESS:
+            LOGI("Background NTP time sync successful");
+            // Settings are already updated inside ntp_sync_thread
+            break;
+            
+        case NTP_ERR_CONNECT:
+            LOGE("Background NTP time sync failed - Connection error");
+            break;
+            
+        case NTP_ERR_TIMEOUT:  
+            LOGE("Background NTP time sync failed - Timeout");
+            break;
+            
+        case NTP_ERR_INVALID:
+            LOGE("Background NTP time sync failed - Invalid data received");
+            break;
+            
+        default:
+            LOGE("Background NTP time sync failed with error: %d", result);
+            break;
+    }
+}
+
+/**
  *  Invoked periodically.
  */
 static void page_wifi_on_update(uint32_t delta_ms) {
     static uint32_t elapsed = -1;
+    static bool was_connected = false;
+    bool is_connected = false;
+    
+    if (g_setting.wifi.enable && g_setting.wifi.mode == WIFI_MODE_STA) {
+        const char *current_ip = page_wifi_get_real_address();
+        is_connected = (current_ip != NULL);
+        
+        if (is_connected && !was_connected) {
+            LOGI("WiFi client connection established");
+            
+            if (!clock_is_syncing_from_ntp() && 
+                clock_get_last_sync_status() != NTP_SUCCESS) {
+                LOGI("Starting background NTP sync after connection established");
+                clock_sync_from_ntp_async(wifi_ntp_sync_callback, NULL);
+            }
+        }
+        
+        was_connected = is_connected;
+    }
 
-    // Check immediately after running, then every 5 minutes.
+    // Check immediately after executing, then every 5 minutes for updates.
     if (g_setting.wifi.enable && (elapsed == -1 || (elapsed += delta_ms) > 300000)) {
         switch (g_setting.wifi.mode) {
         case WIFI_MODE_STA:
@@ -836,7 +896,8 @@ static void page_wifi_on_update(uint32_t delta_ms) {
 
         elapsed = 0;
     }
-}
+
+ }
 
 /**
  * Main navigation routine for this page.
@@ -1220,4 +1281,12 @@ void page_wifi_get_statusbar_text(char *buffer, int size) {
             break;
         }
     }
+}
+
+bool page_wifi_is_sta_connected(void) {
+    WIFI_STA_CONNECT_STATUS_S connect_status;
+    if (wifi_sta_get_connect_status("wlan0", &connect_status) == 0) {
+        return connect_status.state == WIFI_STA_STATUS_CONNECTED;
+    }
+    return false;
 }

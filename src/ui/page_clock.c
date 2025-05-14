@@ -14,6 +14,8 @@
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
 #include "ui/ui_style.h"
+#include "util/ntp_client.h"
+#include "ui/page_wifi.h"
 
 /**
  * Various data types used to
@@ -45,6 +47,9 @@ typedef enum {
     ITEM_SECOND,
     ITEM_FORMAT,
     ITEM_SET_CLOCK,
+    ITEM_UTC,          
+    ITEM_SYNC_NTP,
+    ITEM_AUTO_SYNC,    // New item
     ITEM_BACK,
 
     ITEM_LIST_TOTAL
@@ -66,7 +71,7 @@ typedef struct {
  */
 static const int MAX_YEARS_DROPDOWN = 300; // 2023 + 300 == 2323
 static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,  LV_GRID_TEMPLATE_LAST};
 static item_t page_clock_items[ITEM_LIST_TOTAL] = {0};
 static int page_clock_item_selected = ITEM_YEAR;
 static int page_clock_item_focused = 0;
@@ -78,6 +83,90 @@ static lv_timer_t *page_clock_set_clock_timer = NULL;
 static int page_clock_set_clock_confirm = 0;
 static int page_clock_is_dirty = 0;
 static struct rtc_date page_clock_rtc_date = {0};
+
+// UTC timezone options
+static char* utc_options[] = {
+    "UTC-12:00", "UTC-11:00", "UTC-10:00", "UTC-09:00", "UTC-08:00",
+    "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:00",
+    "UTC-02:00", "UTC-01:00", "UTC 00:00", "UTC+01:00", "UTC+02:00",
+    "UTC+03:00", "UTC+04:00", "UTC+05:00", "UTC+06:00", "UTC+07:00",
+    "UTC+08:00", "UTC+09:00", "UTC+10:00", "UTC+11:00", "UTC+12:00",
+    "UTC+13:00", "UTC+14:00"
+};
+
+// Offset values in seconds corresponding to the options
+static const int utc_seconds[] = {
+-43200,  // UTC−12:00
+-39600,  // UTC−11:00
+-36000,  // UTC−10:00
+-32400,  // UTC−09:00
+-28800,  // UTC−08:00
+-25200,  // UTC−07:00
+-21600,  // UTC−06:00
+-18000,  // UTC−05:00
+-14400,  // UTC−04:00
+-10800,  // UTC−03:00
+ -7200,  // UTC−02:00
+ -3600,  // UTC−01:00
+     0,  // UTC±00:00
+  3600,  // UTC+01:00
+  7200,  // UTC+02:00
+ 10800,  // UTC+03:00
+ 14400,  // UTC+04:00
+ 18000,  // UTC+05:00
+ 21600,  // UTC+06:00
+ 25200,  // UTC+07:00
+ 28800,  // UTC+08:00
+ 32400,  // UTC+09:00
+ 36000,  // UTC+10:00
+ 39600,  // UTC+11:00
+ 43200,  // UTC+12:00
+ 46800,  // UTC+13:00
+ 50400   // UTC+14:00
+};
+
+// Convert seconds offset to array index
+int utc_offset_to_index(int offset_seconds) {
+    // Find closest offset
+    int index = 12; // Default UTC±00:00
+    int min_diff = abs(offset_seconds);
+    
+    for (int i = 0; i < sizeof(utc_seconds)/sizeof(utc_seconds[0]); i++) {
+        int diff = abs(offset_seconds - utc_seconds[i]);
+        if (diff < min_diff) {
+            min_diff = diff;
+            index = i;
+        }
+    }
+    
+    return index;
+}
+
+// Convert index to seconds offset 
+int index_to_utc_offset(int index) {
+    if (index >= 0 && index < sizeof(utc_seconds)/sizeof(utc_seconds[0])) {
+        return utc_seconds[index];
+    }
+    
+    return 0; // Default UTC±00:00
+}
+
+/**
+ * Callback para sincronización NTP asíncrona
+ */
+static void ntp_sync_callback(int result, void* user_data) {
+    if (result == 0) {
+        // Éxito, actualizar la interfaz en el hilo principal
+        // Usamos lv_async_call o enviamos un mensaje al hilo principal
+        // Esto dependerá de la implementación específica del sistema
+        
+        // En este caso, el UI se actualizará automáticamente en el próximo ciclo
+        // porque refrescamos la fecha/hora cada 250ms
+    }
+    
+    // El mensaje de éxito/error se mostrará directamente en la interfaz
+    // cuando el usuario inicia la sincronización
+}
 
 /**
  * Acquire index from selected dropdown option as a string.
@@ -244,6 +333,13 @@ static void page_clock_set_clock_reset() {
 }
 
 /**
+ * Reset the 'Sync from Internet' text back to its initial state.
+ */
+static void page_clock_sync_reset_cb(struct _lv_timer_t *timer) {
+    lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, _lang("Sync from Internet"));
+}
+
+/**
  * Determine if the type of object selected is a lv_obj_t.
  */
 static int page_clock_selected_item_is_obj(int selected_item) {
@@ -254,6 +350,7 @@ static int page_clock_selected_item_is_obj(int selected_item) {
     case ITEM_HOUR:
     case ITEM_MINUTE:
     case ITEM_SECOND:
+    case ITEM_UTC:
         return 1;
     default:
         return 0;
@@ -306,14 +403,22 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
  */
 static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
     page_clock_refresh_datetime();
+    
+    // Actualizar estado del botón Sync from Internet
+    bool wifi_connected = page_wifi_is_sta_connected();
+    if (wifi_connected) {
+        lv_obj_clear_state(page_clock_items[ITEM_SYNC_NTP].data.obj, LV_STATE_DISABLED);
+        lv_obj_set_style_text_color(page_clock_items[ITEM_SYNC_NTP].data.obj, lv_color_make(255, 255, 255), 0);
+    } else {
+        lv_obj_add_state(page_clock_items[ITEM_SYNC_NTP].data.obj, LV_STATE_DISABLED);
+        lv_obj_set_style_text_color(page_clock_items[ITEM_SYNC_NTP].data.obj, lv_color_make(128, 128, 128), 0);
+    }
 }
 
 /**
  * Callback invoked once `Set Clock` is triggered and confirmed via the menu.
  */
 static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
-    char text[512];
-
     page_clock_build_date_from_selected(&page_clock_rtc_date);
 
     g_setting.clock.year = page_clock_rtc_date.year;
@@ -330,7 +435,6 @@ static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
     ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
     ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
     ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
-    ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
 
     rtc_set_clock(&page_clock_rtc_date);
     page_clock_refresh_datetime();
@@ -342,25 +446,35 @@ static void page_clock_set_clock_timer_cb(struct _lv_timer_t *timer) {
  * Main allocation routine for this page.
  */
 static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
-    char buf[256];
+    char buf[288];
+    int contentHeight = 0;
+    for (size_t i = 0; i < (ARRAY_SIZE(row_dsc) - 1); i++) {
+        contentHeight += row_dsc[i];
+    }
+    contentHeight += row_dsc[1];
+    int contentWidth = 0;
+    for (size_t i = 0; i < (ARRAY_SIZE(col_dsc) - 1); i++) {
+        contentWidth += col_dsc[i];
+    }
+
     rtc_get_clock(&page_clock_rtc_date);
     page_clock_build_options_from_date(&page_clock_rtc_date);
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, contentWidth + 93, contentHeight + 300);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
     lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Clock"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 1280, 800);
+    lv_obj_set_size(cont, contentWidth, contentHeight);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -371,30 +485,60 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    // Current date/time or last saved setting.
+    // Row 0: Year/Month/Day dropdowns
     page_clock_create_dropdown(cont, ITEM_YEAR, page_clock_rtc_date.year, 1, 0);
     page_clock_create_dropdown(cont, ITEM_MONTH, page_clock_rtc_date.month, 2, 0);
     page_clock_create_dropdown(cont, ITEM_DAY, page_clock_rtc_date.day, 3, 0);
+
+    // Row 1: Hour/Minute/Second dropdowns
     page_clock_create_dropdown(cont, ITEM_HOUR, page_clock_rtc_date.hour, 1, 1);
     page_clock_create_dropdown(cont, ITEM_MINUTE, page_clock_rtc_date.min, 2, 1);
     page_clock_create_dropdown(cont, ITEM_SECOND, page_clock_rtc_date.sec, 3, 1);
 
+    // Row 2: Format selection (AM/PM vs 24 Hour)
     snprintf(buf, sizeof(buf), "%s/%s", _lang("AM"), _lang("PM"));
     create_btn_group_item(&page_clock_items[ITEM_FORMAT].data.btn, cont, 2, _lang("Format"), buf, _lang("24 Hour"), "", "", 2);
     page_clock_items[ITEM_FORMAT].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_FORMAT].panel = arr->panel[2];
     btn_group_set_sel(&page_clock_items[ITEM_FORMAT].data.btn, g_setting.clock.format);
 
+    // Row 3: Set Clock
     page_clock_items[ITEM_SET_CLOCK].data.obj = create_label_item(cont, _lang("Set Clock"), 1, 3, 3);
     page_clock_items[ITEM_SET_CLOCK].type = ITEM_TYPE_BTN;
     page_clock_items[ITEM_SET_CLOCK].panel = arr->panel[3];
 
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 4, 1);
-    page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
-    page_clock_items[ITEM_BACK].panel = arr->panel[4];
+    // Row 4: Time Zone
+    create_label_item(cont, _lang("Time Zone"), 1, 4, 1);
+    lv_obj_t* utc_dropdown = create_dropdown_item(cont,"",2,4,200,row_dsc[4],2,10,LV_GRID_ALIGN_START,&lv_font_montserrat_26);
+    lv_dropdown_clear_options(utc_dropdown);
+    for (int i = 0; i < sizeof(utc_options)/sizeof(utc_options[0]); i++) {
+        lv_dropdown_add_option(utc_dropdown, utc_options[i], LV_DROPDOWN_POS_LAST);
+    }
+    lv_dropdown_set_selected(utc_dropdown, utc_offset_to_index(g_setting.clock.utc_offset));
+    page_clock_items[ITEM_UTC].data.obj = utc_dropdown;
+    page_clock_items[ITEM_UTC].type = ITEM_TYPE_OBJ;
+    page_clock_items[ITEM_UTC].panel = arr->panel[4];
 
-    page_clock_create_datetime_item(cont, 5);
+    // Row 5: Sync from Internet
+    page_clock_items[ITEM_SYNC_NTP].data.obj = create_label_item(cont, _lang("Sync from Internet"), 1, 5, 3);
+    page_clock_items[ITEM_SYNC_NTP].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_SYNC_NTP].panel = arr->panel[5];
+
+    // Row 6: Auto Sync
+    create_btn_group_item(&page_clock_items[ITEM_AUTO_SYNC].data.btn, cont, 2, _lang("Auto Sync"), 
+                         _lang("Enable"), _lang("Disable"), "", "", 6);
+    page_clock_items[ITEM_AUTO_SYNC].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_AUTO_SYNC].panel = arr->panel[6];
+    btn_group_set_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn, !g_setting.clock.auto_sync);
+
+    // Row 7: Back
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    page_clock_items[ITEM_BACK].data.obj = create_label_item(cont, buf, 1, 7, 1);
+    page_clock_items[ITEM_BACK].type = ITEM_TYPE_BTN;
+    page_clock_items[ITEM_BACK].panel = arr->panel[7];
+
+    // Row 8: Current Date/Time Display
+    page_clock_create_datetime_item(cont, 8);
 
     if (rtc_has_battery() != 0) {
         lv_obj_t *note = lv_label_create(cont);
@@ -405,7 +549,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
         lv_obj_set_style_pad_top(note, 12, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
-        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
+        lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 9, 2);
     }
 
     page_clock_clear_datetime();
@@ -505,6 +649,59 @@ static void page_clock_on_roller(uint8_t key) {
 /**
  * Main input selection routine for this page.
  */
+static void ntp_sync_check_timer_cb(lv_timer_t* timer) {
+    if (!clock_is_syncing_from_ntp()) {
+        clock_sync_status_t sync_status = clock_get_last_sync_status();
+        
+        switch(sync_status) {
+            case CLOCK_SYNC_SUCCESS: {
+                // Get updated time after successful sync
+                struct rtc_date date;
+                rtc_get_clock(&date);
+                
+                // Update screen date
+                page_clock_rtc_date = date;
+                page_clock_build_options_from_date(&page_clock_rtc_date);
+                page_clock_refresh_datetime();
+                
+                // Save to settings
+                g_setting.clock.year = date.year;
+                g_setting.clock.month = date.month;
+                g_setting.clock.day = date.day;
+                g_setting.clock.hour = date.hour;
+                g_setting.clock.min = date.min;
+                g_setting.clock.sec = date.sec;
+                
+                // Update configuration file
+                ini_putl("clock", "year", g_setting.clock.year, SETTING_INI);
+                ini_putl("clock", "month", g_setting.clock.month, SETTING_INI);
+                ini_putl("clock", "day", g_setting.clock.day, SETTING_INI);
+                ini_putl("clock", "hour", g_setting.clock.hour, SETTING_INI);
+                ini_putl("clock", "min", g_setting.clock.min, SETTING_INI);
+                ini_putl("clock", "sec", g_setting.clock.sec, SETTING_INI);
+                
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#00FF00 Sync Complete#");
+                break;
+            }
+            
+            case CLOCK_SYNC_FAILED:
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 Sync Failed#");
+                break;
+                
+            default:
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 Sync Error#");
+                break;
+        }
+        
+        // Create timer to restore text
+        lv_timer_t *reset_timer = lv_timer_create(page_clock_sync_reset_cb, 2000, NULL);
+        lv_timer_set_repeat_count(reset_timer, 1);
+        
+        // Delete this timer
+        lv_timer_del(timer);
+    }
+}
+
 static void page_clock_on_click(uint8_t key, int sel) {
     char buf[128];
     // Ignore commands until timer has expired before allowing user to proceed.
@@ -518,6 +715,40 @@ static void page_clock_on_click(uint8_t key, int sel) {
         g_setting.clock.format = btn_group_get_sel(&page_clock_items[ITEM_FORMAT].data.btn);
         ini_putl("clock", "format", g_setting.clock.format, SETTING_INI);
         break;
+    case ITEM_UTC:
+        if (!page_clock_item_focused) {
+            page_clock_items[ITEM_UTC].last_option =
+                lv_dropdown_get_selected(page_clock_items[ITEM_UTC].data.obj);
+
+            lv_obj_t *list = lv_dropdown_get_list(page_clock_items[ITEM_UTC].data.obj);
+            lv_dropdown_open(page_clock_items[ITEM_UTC].data.obj);
+            lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
+            lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
+            page_clock_item_focused = 1;
+        } else {
+            lv_event_send(page_clock_items[ITEM_UTC].data.obj, LV_EVENT_RELEASED, NULL);
+            page_clock_item_focused = 0;
+            int option = lv_dropdown_get_selected(page_clock_items[ITEM_UTC].data.obj);
+
+            if (page_clock_items[ITEM_UTC].last_option != option) {
+                page_clock_items[ITEM_UTC].last_option = option;
+                g_setting.clock.utc_offset = index_to_utc_offset(option);
+                ini_putl("clock", "utc_offset", g_setting.clock.utc_offset, SETTING_INI);
+                page_clock_is_dirty = 1;
+                
+                if (!page_clock_set_clock_pending_timer) {
+                    page_clock_set_clock_pending_timer = lv_timer_create(page_clock_set_clock_pending_cb, 50, NULL);
+                    lv_timer_set_repeat_count(page_clock_set_clock_pending_timer, -1);
+                }
+            }
+        }
+        break;
+    case ITEM_AUTO_SYNC:
+        page_clock_is_dirty = 1;
+        btn_group_toggle_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn);
+        g_setting.clock.auto_sync = !btn_group_get_sel(&page_clock_items[ITEM_AUTO_SYNC].data.btn); 
+        ini_putl("clock", "auto_sync", g_setting.clock.auto_sync, SETTING_INI);
+        break;
     case ITEM_SET_CLOCK:
         if (page_clock_set_clock_confirm) {
             snprintf(buf, sizeof(buf), "#FF0000 %s %s...#", _lang("Updating"), _lang("Clock"));
@@ -528,6 +759,35 @@ static void page_clock_on_click(uint8_t key, int sel) {
         } else {
             snprintf(buf, sizeof(buf), "#FFFF00 %s...#", _lang("Click to confirm or Scroll to cancel"));
             lv_label_set_text(page_clock_items[ITEM_SET_CLOCK].data.obj, buf);
+            page_clock_set_clock_confirm = 1;
+        }
+        break;
+    case ITEM_SYNC_NTP:
+        // Verificar si el WiFi está habilitado y conectado
+        if (!page_wifi_is_sta_connected()) {
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, "#FF0000 WiFi Client Mode Required#");
+            lv_timer_t *reset_timer = lv_timer_create(page_clock_sync_reset_cb, 2000, NULL);
+            lv_timer_set_repeat_count(reset_timer, 1);
+            return;
+        }
+
+        if (page_clock_set_clock_confirm) {
+            snprintf(buf, sizeof(buf), "#FF0000 %s %s...#", _lang("Syncing"), _lang("Clock"));
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
+            
+            if (clock_sync_from_ntp_async(ntp_sync_callback, NULL) == 0) {
+                lv_timer_t *check_timer = lv_timer_create(ntp_sync_check_timer_cb, 500, NULL);
+                lv_timer_set_repeat_count(check_timer, 20); // Timeout after 10 seconds
+            } else {
+                snprintf(buf, sizeof(buf), "#FF0000 %s#", _lang("Sync Failed"));
+                lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
+                lv_timer_t *reset_timer = lv_timer_create(page_clock_sync_reset_cb, 2000, NULL);
+                lv_timer_set_repeat_count(reset_timer, 1);
+            }
+            page_clock_set_clock_confirm = 0;
+        } else {
+            snprintf(buf, sizeof(buf), "#FFFF00 %s...#", _lang("Click to confirm or Scroll to cancel"));
+            lv_label_set_text(page_clock_items[ITEM_SYNC_NTP].data.obj, buf);
             page_clock_set_clock_confirm = 1;
         }
         break;
@@ -570,21 +830,21 @@ static void page_clock_on_click(uint8_t key, int sel) {
 }
 
 /**
- * Main Menu page data structure, notice max is set to zero
- * in order to allow us to override default user input logic.
- */
+* Main Menu page data structure, notice max is set to zero
+* in order to allow us to override default user input logic.
+*/
 page_pack_t pp_clock = {
-    .p_arr = {
-        .cur = 0,
-        .max = 0,
-    },
-    .name = "Clock",
-    .create = page_clock_create,
-    .enter = page_clock_enter,
-    .exit = page_clock_exit,
-    .on_created = NULL,
-    .on_update = NULL,
-    .on_roller = page_clock_on_roller,
-    .on_click = page_clock_on_click,
-    .on_right_button = NULL,
+   .p_arr = {
+       .cur = 0,
+       .max = 0,
+   },
+   .name = "Clock",
+   .create = page_clock_create,
+   .enter = page_clock_enter,
+   .exit = page_clock_exit,
+   .on_created = NULL,
+   .on_update = NULL,
+   .on_roller = page_clock_on_roller,
+   .on_click = page_clock_on_click,
+   .on_right_button = NULL,
 };
