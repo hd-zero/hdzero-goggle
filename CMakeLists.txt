@@ -11,6 +11,17 @@ if(NOT EMULATOR_BUILD)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -mfpu=neon -mfloat-abi=hard")
 endif()
 
+option(HDZ_GOGGLE "Target Goggles" ON)
+if (HDZ_GOGGLE)
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZGOGGLE=1")
+	file(WRITE ${PROJECT_SOURCE_DIR}/mkapp/app/platform "HDZGOGGLE")
+endif()
+
+option(HDZ_BOXPRO "Target BoxPRO" OFF)
+if (HDZ_BOXPRO)
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZBOXPRO=1")
+	file(WRITE ${PROJECT_SOURCE_DIR}/mkapp/app/platform "HDZBOXPRO")
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS}")
@@ -40,6 +51,7 @@ add_definitions(
 	-D_GNU_SOURCE 
 	-DUSE_LOG_LIB_GLOG
 )
+
 if(EMULATOR_BUILD)
 	add_definitions(
 		-DEMULATOR_BUILD
@@ -52,13 +64,13 @@ add_subdirectory(lib/minIni)
 add_subdirectory(lib/log)
 add_subdirectory(lib/esp-loader)
 add_subdirectory(lib/softwinner)
+
 if(EMULATOR_BUILD)
 	find_package(SDL2 REQUIRED)
 else()
 	add_subdirectory(lib/ffmpeg)
 	add_subdirectory(lib/live)
 endif()
-
 
 # main application
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
@@ -82,11 +94,13 @@ set(SRC_FILES
 	${SRC_FILES_UTIL}
 	${SRC_FILES_LANG}
 )
+
 if(EMULATOR_BUILD)
 	list(APPEND SRC_FILES ${SRC_FILES_EMULATOR})
 else()
 	list(APPEND SRC_FILES ${SRC_FILES_PLAYER})
 endif()
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -115,7 +129,7 @@ endif()
 
 if(NOT EMULATOR_BUILD)
 	# record application
-	file(GLOB SRC_FILES_RECORD   "src/record/*.c" "src/record/*.h")
+	file(GLOB SRC_FILES_RECORD "src/record/*.c" "src/record/*.h")
 
 	add_executable(record
 		${SRC_FILES_RECORD}
