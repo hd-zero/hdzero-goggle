@@ -79,7 +79,7 @@ static page_options_t page_storage;
 static lv_timer_t *page_storage_format_sd_timer = NULL;
 static lv_timer_t *page_storage_repair_sd_timer = NULL;
 
-static void disable_controls() {
+static void page_storage_disable_controls() {
     page_storage.disable_controls = true;
 
     for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
@@ -91,7 +91,7 @@ static void disable_controls() {
     lv_obj_add_state(page_storage.clear_dvr, STATE_DISABLED);
 }
 
-static void enable_controls() {
+static void page_storage_enable_controls() {
     page_storage.disable_controls = false;
 
     for (int i = 0; i < ITEM_LIST_TOTAL - 1; i++) {
@@ -101,6 +101,28 @@ static void enable_controls() {
     lv_obj_clear_state(page_storage.format_sd, STATE_DISABLED);
     lv_obj_clear_state(page_storage.repair_sd, STATE_DISABLED);
     lv_obj_clear_state(page_storage.clear_dvr, STATE_DISABLED);
+}
+
+static void page_storage_update_controls() {
+    char buf[256];
+
+    if (g_setting.storage.selftest) {
+        snprintf(buf, sizeof(buf), "%s,%s.", _lang("Self-Test is enabled"), _lang("All storage options are disabled"));
+        lv_label_set_text(page_storage.note, buf);
+        page_storage_disable_controls();
+    } else if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
+        snprintf(buf, sizeof(buf), "%s, %s.\n%s:\n%s\n%s",
+                 _lang("Detected files being accessed by SD Card"),
+                 _lang("All storage options are disabled"),
+                 _lang("Remove the following files from the SD Card and try again"),
+                 DEVELOP_SCRIPT,
+                 APP_BIN_FILE);
+        lv_label_set_text(page_storage.note, buf);
+        page_storage_disable_controls();
+    } else {
+        lv_label_set_text(page_storage.note, "");
+        page_storage_enable_controls();
+    }
 }
 
 /**
@@ -401,7 +423,6 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.back = create_label_item(cont, buf, 1, 4, 1);
 
     page_storage.note = lv_label_create(cont);
-    lv_label_set_text(page_storage.note, "");
     lv_obj_set_style_text_font(page_storage.note, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(page_storage.note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
@@ -409,25 +430,10 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_long_mode(page_storage.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 5, 2);
 
-    if (g_setting.storage.selftest) {
-        snprintf(buf, sizeof(buf), "%s,%s.", _lang("Self-Test is enabled"), _lang("All storage options are disabled"));
-        lv_label_set_text(page_storage.note, buf);
-        disable_controls();
-    } else {
-        if (fs_file_exists(DEVELOP_SCRIPT) || fs_file_exists(APP_BIN_FILE)) {
-            snprintf(buf, sizeof(buf), "%s, %s.\n%s:\n%s\n%s",
-                     _lang("Detected files being accessed by SD Card"),
-                     _lang("All storage options are disabled"),
-                     _lang("Remove the following files from the SD Card and try again"),
-                     DEVELOP_SCRIPT,
-                     APP_BIN_FILE);
-            lv_label_set_text(page_storage.note, buf);
-            disable_controls();
-        }
-    }
-
     page_storage.status = create_msgbox_item(_lang("Status"), _lang("None"));
     lv_obj_add_flag(page_storage.status, LV_OBJ_FLAG_HIDDEN);
+
+    page_storage_update_controls();
 
     return page;
 }
@@ -589,7 +595,7 @@ static void *page_storage_repair_thread(void *arg) {
         page_storage.was_sd_repair_invoked = true;
         page_storage.is_auto_sd_repair_active = true;
         pthread_mutex_lock(&lvgl_mutex);
-        disable_controls();
+        page_storage_disable_controls();
         snprintf(buf, sizeof(buf), "%s, %s.", _lang("SD Card integrity check is active"), _lang("controls are disabled until process has completed"));
         lv_label_set_text(page_storage.note, buf);
         pthread_mutex_unlock(&lvgl_mutex);
@@ -597,7 +603,7 @@ static void *page_storage_repair_thread(void *arg) {
         page_storage_repair_sd();
 
         pthread_mutex_lock(&lvgl_mutex);
-        enable_controls();
+        page_storage_enable_controls();
         lv_label_set_text(page_storage.note, "");
         pthread_mutex_unlock(&lvgl_mutex);
 
@@ -625,7 +631,12 @@ bool page_storage_is_sd_repair_active() {
  * Once initialized detach until completed.
  */
 void page_storage_init_auto_sd_repair() {
-    if (!page_storage.is_auto_sd_repair_active) {
+    page_storage_update_controls();
+
+    if (page_storage.disable_controls) {
+        // Mark invoked when using dev script.
+        page_storage.was_sd_repair_invoked = true;
+    } else if (!page_storage.is_auto_sd_repair_active) {
         pthread_t tid;
         if (!pthread_create(&tid, NULL, page_storage_repair_thread, NULL)) {
             pthread_detach(tid);
