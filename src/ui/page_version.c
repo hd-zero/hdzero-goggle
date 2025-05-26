@@ -312,7 +312,8 @@ static void flash_goggle() {
 
 int generate_current_version(sys_version_t *sys_ver) {
     sys_ver->va = I2C_Read(ADDR_FPGA, 0xff);
-    sys_ver->rx = rx_status[0].rx_ver;
+    sys_ver->rx0 = rx_status[0].rx_ver;
+    sys_ver->rx1 = rx_status[1].rx_ver;
     memset(sys_ver->commit, 0, sizeof(sys_ver->commit));
 
     FILE *fp = fopen("/mnt/app/version", "r");
@@ -329,31 +330,31 @@ int generate_current_version(sys_version_t *sys_ver) {
     fclose(fp);
 
     if (strlen(sys_ver->commit)) {
-        LOGI("app: %hhu.%hhu.%hhu-%s rx: %u va: %u",
+        LOGI("app: %hhu.%hhu.%hhu-%s rx0: %u rx1: %u va: %u",
              sys_ver->app_major,
              sys_ver->app_minor,
              sys_ver->app_patch,
              sys_ver->commit,
-             sys_ver->rx, sys_ver->va);
+             sys_ver->rx0, sys_ver->rx1, sys_ver->va);
 
-        snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu-%s rx: %u va: %u",
+        snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu-%s rx0: %u rx1: %u va: %u",
                  sys_ver->app_major,
                  sys_ver->app_minor,
                  sys_ver->app_patch,
                  sys_ver->commit,
-                 sys_ver->rx, sys_ver->va);
+                 sys_ver->rx0, sys_ver->rx1, sys_ver->va);
     } else {
-        LOGI("app: %hhu.%hhu.%hhu rx: %u va: %u",
+        LOGI("app: %hhu.%hhu.%hhu rx0: %u rx1: %u va: %u",
              sys_ver->app_major,
              sys_ver->app_minor,
              sys_ver->app_patch,
-             sys_ver->rx, sys_ver->va);
+             sys_ver->rx0, sys_ver->rx1, sys_ver->va);
 
-        snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu rx: %u va: %u",
+        snprintf(sys_ver->current, CURRENT_VER_MAX, "app: %hhu.%hhu.%hhu rx0: %u rx1: %u va: %u",
                  sys_ver->app_major,
                  sys_ver->app_minor,
                  sys_ver->app_patch,
-                 sys_ver->rx, sys_ver->va);
+                 sys_ver->rx0, sys_ver->rx1, sys_ver->va);
     }
 
     return 0;
