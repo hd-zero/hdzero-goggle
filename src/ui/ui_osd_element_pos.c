@@ -9,7 +9,7 @@
 #include "core/common.hh"
 #include "core/osd.h"
 #include "driver/hardware.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "log/log.h"
 #include "ui/page_common.h"

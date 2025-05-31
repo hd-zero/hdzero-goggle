@@ -10,7 +10,7 @@
 #include "core/app_state.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "ui/page_autoscan.h"
 #include "ui/page_clock.h"

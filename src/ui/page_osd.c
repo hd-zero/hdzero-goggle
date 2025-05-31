@@ -106,24 +106,14 @@ void page_osd_update_ui_elements() {
 }
 
 static void open_element_pos_preview() {
-    switch (g_source_info.source) {
-    case SOURCE_HDZERO:
+    if (SOURCE_HDZERO == g_source_info.source) {
         progress_bar.start = 1;
         HDZero_open(g_setting.source.hdzero_bw);
         app_switch_to_hdzero(true);
-        break;
-
-    case SOURCE_HDMI_IN:
+    } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_switch_to_hdmi_in();
-        break;
-
-    case SOURCE_AV_IN:
-        app_switch_to_analog(0);
-        break;
-
-    case SOURCE_EXPANSION:
-        app_switch_to_analog(1);
-        break;
+    } else {
+        app_switch_to_analog(g_source_info.source);
     }
 
     ui_osd_element_pos_on_enter();

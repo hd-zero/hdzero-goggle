@@ -11,7 +11,7 @@ if(NOT EMULATOR_BUILD)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -mfpu=neon -mfloat-abi=hard")
 endif()
 
-option(HDZ_GOGGLE "Target Goggles" ON)
+option(HDZ_GOGGLE "Target Goggles" OFF)
 if (HDZ_GOGGLE)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZGOGGLE=1")
 	file(WRITE ${PROJECT_SOURCE_DIR}/mkapp/app/platform "HDZGOGGLE")
@@ -76,13 +76,18 @@ endif()
 file(GLOB SRC_FILES_CORE   "src/core/*.c" "src/core/*.h")
 file(GLOB SRC_FILES_DRIVER "src/driver/*.c" "src/driver/*.h")
 file(GLOB SRC_FILES_FONTS  "src/fonts/*.c" "src/fonts/*.h")
-file(GLOB SRC_FILES_IMAGE  "src/image/*.c" "src/image/*.h")
 file(GLOB SRC_FILES_UI   "src/ui/*.c" "src/ui/*.h")
 file(GLOB SRC_FILES_BMI   "src/bmi270/*.c" "src/bmi270/*.h")
 file(GLOB SRC_FILES_UTIL "src/util/*.c" "src/util/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 file(GLOB SRC_FILES_EMULATOR "src/emulator/*.c" "src/emulator/*.h")
 file(GLOB SRC_FILES_LANG "src/lang/*.c" "src/lang/*.h")
+
+if(HDZ_GOGGLE)
+	file(GLOB SRC_FILES_IMAGE  "src/image/goggle/*.c" "src/image/goggle/*.h")
+elseif(HDZ_BOXPRO)
+	file(GLOB SRC_FILES_IMAGE  "src/image/boxpro/*.c" "src/image/boxpro/*.h")
+endif()
 
 set(SRC_FILES
 	${SRC_FILES_CORE}

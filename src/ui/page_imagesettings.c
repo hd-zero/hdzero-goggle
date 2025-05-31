@@ -7,7 +7,7 @@
 #include "core/common.hh"
 #include "core/settings.h"
 #include "driver/hardware.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"
@@ -112,28 +112,17 @@ void set_slider_value() {
 
 static void page_imagesettings_enter() {
     app_state_push(APP_STATE_IMS);
-    switch (g_source_info.source) {
-    case SOURCE_HDZERO:
+    if (SOURCE_HDZERO == g_source_info.source) {
         progress_bar.start = 1;
         HDZero_open(g_setting.source.hdzero_bw);
         app_switch_to_hdzero(true);
         g_bShowIMS = true;
-        break;
-
-    case SOURCE_HDMI_IN: // no image setting support for HDMI in
+    } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_state_push(APP_STATE_SUBMENU);
         g_bShowIMS = false;
-        break;
-
-    case SOURCE_AV_IN:
-        app_switch_to_analog(0);
+    } else {
+        app_switch_to_analog(g_source_info.source);
         g_bShowIMS = true;
-        break;
-
-    case SOURCE_EXPANSION:
-        app_switch_to_analog(1);
-        g_bShowIMS = true;
-        break;
     }
 }
 

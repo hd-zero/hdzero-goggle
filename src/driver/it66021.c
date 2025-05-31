@@ -12,7 +12,7 @@
 #include "dm5680.h"
 #include "hardware.h"
 #include "i2c.h"
-#include "oled.h"
+#include "screen.h"
 
 #define ADDR_IT66021_RING 0x70
 

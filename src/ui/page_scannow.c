@@ -21,7 +21,7 @@
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "driver/uart.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
@@ -339,7 +339,7 @@ int8_t scan_now(void) {
     lv_bar_set_value(progressbar, 4, LV_ANIM_OFF);
     lv_timer_handler();
 
-    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+    for (ch = 0; ch < HDZERO_CHANNEL_NUM; ch++) {
         scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
         if (valid) {
             channel_status_tb[ch].is_valid = 1;
@@ -352,7 +352,7 @@ int8_t scan_now(void) {
     lv_bar_set_value(progressbar, 14, LV_ANIM_OFF);
 
     valid_index = 0;
-    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+    for (ch = 0; ch < HDZERO_CHANNEL_NUM; ch++) {
         if (channel_status_tb[ch].is_valid) {
             valid_channel_tb[valid_index++] = ch;
         }

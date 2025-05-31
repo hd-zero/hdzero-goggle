@@ -123,7 +123,20 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], buf);
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
+    if (g_source_info.source == SOURCE_HDZERO)
+        snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(1, g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
+    else if (g_source_info.source == SOURCE_HDMI_IN)
+        snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
+    else if (g_source_info.source == SOURCE_AV_IN)
+        snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
+    else if (g_source_info.source == SOURCE_AV_MODULE)
+#if HDZGOGGLE
+        sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif HDZBOXPRO
+        sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
+    else
+        sprintf(buf, " ");
     lv_label_set_text(label[STS_SOURCE], buf);
 
     snprintf(buf, sizeof(buf), "ELRS: %s", _lang("Off"));
@@ -192,15 +205,20 @@ void statubar_update(void) {
     static setting_sources_hdzero_band_t hdzero_band_last = SETTING_SOURCES_HDZERO_BAND_RACEBAND;
     if ((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source) || (hdzero_band_last != g_setting.source.hdzero_band)) {
         memset(buf, 0, sizeof(buf));
-        if (g_source_info.source == SOURCE_HDZERO) { // HDZero
-            int ch = g_setting.scan.channel & 0x7F;
-            snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
-        } else if (g_source_info.source == SOURCE_HDMI_IN)
+        if (g_source_info.source == SOURCE_HDZERO)
+            snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(1, g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
+        else if (g_source_info.source == SOURCE_HDMI_IN)
             snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
         else if (g_source_info.source == SOURCE_AV_IN)
             snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
+        else if (g_source_info.source == SOURCE_AV_MODULE)
+#if HDZGOGGLE
+            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif HDZBOXPRO
+            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
         else
-            snprintf(buf, sizeof(buf), "%s", _lang("Expansion Module"));
+            sprintf(buf, " ");
 
         lv_label_set_text(label[STS_SOURCE], buf);
     }

@@ -33,7 +33,8 @@
 #include "driver/hardware.h"
 #include "driver/i2c.h"
 #include "driver/it66121.h"
-#include "driver/oled.h"
+#include "driver/rtc6715.h"
+#include "driver/screen.h"
 #include "driver/uart.h"
 #include "ui/page_common.h"
 #include "ui/page_fans.h"
@@ -73,8 +74,13 @@ void tune_channel(uint8_t action) {
     if (g_setting.ease.no_dial)
         return;
 
+#if HDZGOGGLE
     if (g_source_info.source != SOURCE_HDZERO)
         return;
+#elif HDZBOXPRO
+    if (g_source_info.source != SOURCE_HDZERO && g_source_info.source != SOURCE_AV_MODULE)
+        return;
+#endif
 
     LOGI("tune_channel:%d", action);
 
@@ -87,16 +93,26 @@ void tune_channel(uint8_t action) {
         if ((action == DIAL_KEY_UP) || (action == DIAL_KEY_DOWN)) {
             tune_timer = TUNER_TIMER_LEN;
             tune_state = 2;
+#if HDZGOGGLE
             channel = g_setting.scan.channel;
+#elif HDZBOXPRO
+            if (g_source_info.source == SOURCE_HDZERO)
+                channel = g_setting.scan.channel;
+            else if (g_source_info.source == SOURCE_AV_MODULE)
+                channel = g_setting.source.analog_channel;
+            else
+                return;
+#endif
         }
     }
 
     if (tune_state != 2)
         return;
 
+#if HDZGOGGLE
     switch (action) {
     case DIAL_KEY_UP: // Tune up
-        if (channel == CHANNEL_NUM)
+        if (channel == HDZERO_CHANNEL_NUM)
             channel = 1;
         else
             channel++;
@@ -104,7 +120,7 @@ void tune_channel(uint8_t action) {
 
     case DIAL_KEY_DOWN: // Tune down
         if (channel == 1)
-            channel = CHANNEL_NUM;
+            channel = HDZERO_CHANNEL_NUM;
         else
             channel--;
         break;
@@ -129,12 +145,74 @@ void tune_channel(uint8_t action) {
         perror("TuneChannel: bad command");
         break;
     }
+#elif HDZBOXPRO
+    uint8_t channel_num;
+    if (g_source_info.source == SOURCE_HDZERO)
+        channel_num = HDZERO_CHANNEL_NUM;
+    else if (g_source_info.source == SOURCE_AV_MODULE)
+        channel_num = ANALOG_CHANNEL_NUM;
+    else
+        return;
+
+    switch (action) {
+    case DIAL_KEY_UP: // Tune up
+        if (channel == channel_num)
+            channel = 1;
+        else
+            channel++;
+        break;
+
+    case DIAL_KEY_DOWN: // Tune down
+        if (channel == 1)
+            channel = channel_num;
+        else
+            channel--;
+        break;
+
+    case DIAL_KEY_PRESS: // confirm to tune with VTX freq send
+    case DIAL_KEY_CLICK: // confirm to tune
+        if (g_source_info.source == SOURCE_HDZERO) {
+            if (g_setting.scan.channel != channel) {
+                g_setting.scan.channel = channel;
+                ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
+                dvr_cmd(DVR_STOP);
+                app_switch_to_hdzero(true);
+                if (action == DIAL_KEY_PRESS) {
+                    msp_channel_update();
+                }
+            }
+        } else if (g_source_info.source == SOURCE_AV_MODULE) {
+            if (g_setting.source.analog_channel != channel) {
+                g_setting.source.analog_channel = channel;
+                ini_putl("source", "analog_channel", g_setting.source.analog_channel, SETTING_INI);
+                dvr_cmd(DVR_STOP);
+                RTC6715_SetCH(g_setting.source.analog_channel - 1);
+                if (action == DIAL_KEY_PRESS) {
+                    msp_channel_update();
+                }
+            }
+        }
+        tune_timer = 0;
+        tune_state = 1;
+        channel_osd_mode = CHANNEL_SHOWTIME;
+        return;
+
+    default:
+        perror("TuneChannel: bad command");
+        break;
+    }
+#endif
+
     channel_osd_mode = 0x80 | channel;
     tune_timer = TUNER_TIMER_LEN;
 }
 
 void tune_channel_confirm() {
+#if HDZGOGGLE
     if (g_source_info.source == SOURCE_HDZERO) {
+#elif HDZBOXPRO
+    if (g_source_info.source == SOURCE_HDZERO || g_source_info.source == SOURCE_AV_MODULE) {
+#endif
         tune_channel(DIAL_KEY_CLICK);
     }
 }
@@ -186,7 +264,11 @@ static void btn_press(void) // long press left key
         app_exit_menu();
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) { // video -> Main menu
+#if HDZGOGGLE
         if (tune_timer && g_source_info.source == SOURCE_HDZERO)
+#elif HDZBOXPRO
+        if (tune_timer && (g_source_info.source == SOURCE_HDZERO || g_source_info.source == SOURCE_AV_MODULE))
+#endif
             tune_channel(DIAL_KEY_PRESS);
         else
             (*btn_press_callback)();

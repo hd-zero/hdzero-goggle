@@ -14,7 +14,7 @@
 #include "driver/beep.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/page_scannow.h"
@@ -151,7 +151,7 @@ static void page_source_select_hdmi() {
 }
 
 static void page_source_select_av_in() {
-    app_switch_to_analog(0);
+    app_switch_to_analog(SOURCE_AV_IN);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_IN;
     dvr_select_audio_source(2);
@@ -159,9 +159,9 @@ static void page_source_select_av_in() {
 }
 
 static void page_source_select_expansion() {
-    app_switch_to_analog(1);
+    app_switch_to_analog(SOURCE_AV_MODULE);
     app_state_push(APP_STATE_VIDEO);
-    g_source_info.source = SOURCE_EXPANSION;
+    g_source_info.source = SOURCE_AV_MODULE;
     dvr_select_audio_source(2);
     dvr_enable_line_out(true);
 }
@@ -172,7 +172,7 @@ void source_toggle() {
     case SOURCE_HDZERO:
         page_source_select_expansion();
         break;
-    case SOURCE_EXPANSION:
+    case SOURCE_AV_MODULE:
         page_source_select_hdzero();
         break;
     case SOURCE_AV_IN:
@@ -195,7 +195,7 @@ void source_cycle() {
             page_source_select_av_in();
         }
         break;
-    case SOURCE_EXPANSION:
+    case SOURCE_AV_MODULE:
         page_source_select_hdzero();
         break;
     case SOURCE_AV_IN:
@@ -256,7 +256,7 @@ static void page_source_on_click(uint8_t key, int sel) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
             // LOGI("OLED TE=%d,TM=%d",oled_te,oled_tm);
-            OLED_Pattern(oled_te, oled_tm, 4);
+            Screen_Pattern(oled_te, oled_tm, 4);
             oled_tst_mode++;
             if (oled_tst_mode >= 6)
                 oled_tst_mode = 0;
@@ -273,7 +273,7 @@ static void page_source_enter() {
 static void page_source_exit() {
     // LOGI("page_source_exit %d",oled_tst_mode);
     if ((oled_tst_mode != 0) && g_setting.storage.selftest) {
-        OLED_Pattern(0, 0, 4);
+        Screen_Pattern(0, 0, 4);
         oled_tst_mode = 0;
     }
     in_sourcepage = false;

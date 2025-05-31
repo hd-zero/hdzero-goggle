@@ -1,3 +1,8 @@
 {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "self_test.h": "c",
+        "hardware.h": "c",
+        "rtc6715.h": "c"
+    }
 }

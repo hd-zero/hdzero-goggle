@@ -9,7 +9,7 @@
 #include "core/common.hh"
 #include "core/osd.h"
 #include "driver/hardware.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 
@@ -185,7 +185,7 @@ void ims_init(void) {
     ims_page_init(defs);
     g_bShowIMS = false;
 
-    OLED_Brightness(defs[0]);
+    Screen_Brightness(defs[0]);
     Set_Brightness(defs[1]);
     Set_Saturation(defs[2]);
     Set_Contrast(defs[3]);
@@ -194,7 +194,7 @@ void ims_init(void) {
 void ims_save() {
     g_setting.image.oled = ims_page.items[0].value;
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    OLED_Brightness(g_setting.image.oled);
+    Screen_Brightness(g_setting.image.oled);
 
     g_setting.image.brightness = ims_page.items[1].value;
     ini_putl("image", "brightness", g_setting.image.brightness, SETTING_INI);
@@ -216,13 +216,13 @@ void ims_save() {
 
 void change_oled_brightness(uint8_t key) {
     if (key == DIAL_KEY_UP) {
-        if (g_setting.image.oled != MAX_OLED_BRIGHTNESS) {
+        if (g_setting.image.oled != MAX_SCREEN_BRIGHTNESS) {
             g_setting.image.oled += 1;
         } else {
             return;
         }
     } else if (key == DIAL_KEY_DOWN) {
-        if (g_setting.image.oled != MIN_OLED_BRIGHTNESS) {
+        if (g_setting.image.oled != MIN_SCREEN_BRIGHTNESS) {
             g_setting.image.oled -= 1;
         } else {
             return;
@@ -230,7 +230,7 @@ void change_oled_brightness(uint8_t key) {
     }
 
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    OLED_Brightness(g_setting.image.oled);
+    Screen_Brightness(g_setting.image.oled);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ uint8_t ims_key(uint8_t key) {
 
         switch (ims_page.selection) {
         case 0:
-            OLED_Brightness(value);
+            Screen_Brightness(value);
             break;
 
         case 1:
