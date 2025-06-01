@@ -6,6 +6,7 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
 #include "core/common.hh"
 #include "core/osd.h"
 #include "driver/hardware.h"
@@ -181,7 +182,7 @@ void ims_init(void) {
     lv_obj_add_flag(canvas_ims, LV_OBJ_FLAG_HIDDEN);
     lv_draw_line_dsc_init(&line_dsc);
     lv_draw_label_dsc_init(&label_dsc);
-    label_dsc.font = &lv_font_montserrat_16; // LV_FONT_DEFAULT;
+    label_dsc.font = UI_MENU_LABEL_FONT;
     ims_page_init(defs);
     g_bShowIMS = false;
 

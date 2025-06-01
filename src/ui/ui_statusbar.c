@@ -2,12 +2,11 @@
 
 #include <stdio.h>
 
-#include <lvgl/lvgl.h>
+#include "../conf/ui.h"
 
 #include "core/battery.h"
 #include "core/common.hh"
 #include "core/osd.h"
-#include "core/settings.h"
 #include "driver/beep.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
@@ -31,24 +30,27 @@ enum STATUS {
 };
 
 static lv_obj_t *label[STS_TOTAL];
-
 static lv_obj_t *img_sdc;
+static lv_obj_t *img_battery;
+
+LV_IMG_DECLARE(img_bat);
+LV_IMG_DECLARE(img_esp);
+LV_IMG_DECLARE(img_ic);
+LV_IMG_DECLARE(img_logo);
+LV_IMG_DECLARE(img_lowBattery);
 LV_IMG_DECLARE(img_sdcard);
 LV_IMG_DECLARE(img_noSdcard);
-
-static lv_obj_t *img_battery;
-LV_IMG_DECLARE(img_bat);
-LV_IMG_DECLARE(img_lowBattery);
+LV_IMG_DECLARE(img_wifi);
 
 int statusbar_init(void) {
     char buf[128];
 
-    static lv_coord_t col_dsc[] = {264, 64, 267, 64, 267, 64, 267, 64, 267, 64, 267, LV_GRID_TEMPLATE_LAST};
-    static lv_coord_t row_dsc[] = {48, 96, LV_GRID_TEMPLATE_LAST};
+    lv_coord_t *col_dsc = UI_STATUS_BAR_COLS();
+    lv_coord_t *row_dsc = UI_STATUS_BAR_ROWS();
 
     /*Create a container with grid*/
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(cont, DRAW_HOR_RES_FHD, 96);
+    lv_obj_set_size(cont, DRAW_HOR_RES_FHD, img_logo.header.h);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -62,52 +64,48 @@ int statusbar_init(void) {
     lv_obj_set_style_grid_column_dsc_array(cont, col_dsc, 0);
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
-    LV_IMG_DECLARE(img_logo);
     lv_obj_t *img0 = lv_img_create(cont);
     lv_img_set_src(img0, &img_logo);
-    lv_obj_set_size(img0, 264, 96);
+    lv_obj_set_size(img0, img_logo.header.w, img_logo.header.h);
     lv_obj_set_grid_cell(img0, LV_GRID_ALIGN_CENTER, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     img_sdc = lv_img_create(cont);
     lv_img_set_src(img_sdc, &img_sdcard);
-    lv_obj_set_size(img_sdc, 64, 96);
+    lv_obj_set_size(img_sdc, img_sdcard.header.w, img_sdcard.header.h);
     lv_obj_set_grid_cell(img_sdc, LV_GRID_ALIGN_CENTER, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    LV_IMG_DECLARE(img_ic);
     lv_obj_t *img2 = lv_img_create(cont);
     lv_img_set_src(img2, &img_ic);
-    lv_obj_set_size(img2, 64, 96);
+    lv_obj_set_size(img2, img_ic.header.w, img_ic.header.h);
     lv_obj_set_grid_cell(img2, LV_GRID_ALIGN_CENTER, 3, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    LV_IMG_DECLARE(img_esp);
     lv_obj_t *img3 = lv_img_create(cont);
     lv_img_set_src(img3, &img_esp);
-    lv_obj_set_size(img3, 64, 96);
+    lv_obj_set_size(img3, img_esp.header.w, img_esp.header.h);
     lv_obj_set_grid_cell(img3, LV_GRID_ALIGN_CENTER, 5, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    LV_IMG_DECLARE(img_wifi);
     lv_obj_t *img4 = lv_img_create(cont);
     lv_img_set_src(img4, &img_wifi);
-    lv_obj_set_size(img4, 64, 96);
+    lv_obj_set_size(img4, img_wifi.header.w, img_wifi.header.h);
     lv_obj_set_grid_cell(img4, LV_GRID_ALIGN_CENTER, 7, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     img_battery = lv_img_create(cont);
     lv_img_set_src(img_battery, &img_bat);
-    lv_obj_set_size(img_battery, 64, 96);
+    lv_obj_set_size(img_battery, img_bat.header.w, img_bat.header.h);
     lv_obj_set_grid_cell(img_battery, LV_GRID_ALIGN_CENTER, 9, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     for (int i = 0; i < STS_TOTAL; ++i) {
         label[i] = lv_label_create(cont);
-        lv_obj_set_width(label[i], 267); /*Set smaller width to make the lines wrap*/
+        lv_obj_set_width(label[i], UI_STATUS_BAR_LABEL_WIDTH()); /*Set smaller width to make the lines wrap*/
         lv_obj_set_style_text_align(label[i], LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(label[i], lv_color_make(255, 255, 255), 0);
-        lv_obj_set_style_text_font(label[i], &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(label[i], UI_MENU_ENTRY_FONT, 0);
 
         if (i == STS_SDCARD) {
             lv_label_set_long_mode(label[i], LV_LABEL_LONG_SCROLL_CIRCULAR);

@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 #include <log/log.h>
-#include <lvgl/lvgl.h>
+
+#include "../conf/ui.h"
 
 #include "common.hh"
 #include "core/app_state.h"
@@ -276,14 +277,14 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
 
     pp->label = lv_label_create(cont);
     lv_label_set_text(pp->label, _lang(pp->name));
-    lv_obj_set_style_text_font(pp->label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(pp->label, UI_MENU_ENTRY_FONT, 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     pp->icon = lv_img_create(cont);
     lv_img_set_src(pp->icon, &img_arrow);
     lv_obj_add_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_set_style_text_font(cont, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(cont, UI_MENU_ENTRY_FONT, 0);
     lv_menu_set_load_page_event(menu, cont, pp->page);
 
     if (pp->on_created) {
@@ -315,8 +316,8 @@ void main_menu_init(void) {
     lv_obj_set_style_border_width(menu, 2, 0);
     lv_obj_set_style_border_color(menu, lv_color_make(255, 0, 0), 0);
     lv_obj_set_style_border_side(menu, LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT, 0);
-    lv_obj_set_size(menu, lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96);
-    lv_obj_set_pos(menu, 250, 96);
+    lv_obj_set_size(menu, UI_MENU_SIZE);
+    lv_obj_set_pos(menu, UI_MENU_POSITION);
 
     root_page = lv_menu_page_create(menu, "aaa");
 
@@ -334,10 +335,10 @@ void main_menu_init(void) {
     qsort(post_bootup_actions, post_bootup_actions_count, sizeof(post_bootup_actions[0]), post_bootup_actions_cmp);
 
     lv_obj_add_style(section, &style_rootmenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 250, 975);
+    lv_obj_set_size(section, UI_MENU_ROOT_SIZE);
     lv_obj_set_pos(section, 0, 0);
 
-    lv_obj_set_size(root_page, 250, 975);
+    lv_obj_set_size(root_page, UI_MENU_ROOT_SIZE);
     lv_obj_set_pos(root_page, 0, 0);
     lv_obj_set_style_border_width(root_page, 0, 0);
     lv_obj_set_style_radius(root_page, 0, 0);
@@ -348,7 +349,7 @@ void main_menu_init(void) {
     lv_obj_clear_flag(lv_menu_get_cur_sidebar_page(menu), LV_OBJ_FLAG_SCROLLABLE);
 
     progress_bar.bar = lv_bar_create(lv_scr_act());
-    lv_obj_set_size(progress_bar.bar, 320, 20);
+    lv_obj_set_size(progress_bar.bar, UI_MENU_PROG_BAR_SIZE);
     lv_obj_align(progress_bar.bar, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_flag(progress_bar.bar, LV_OBJ_FLAG_HIDDEN);
     progress_bar.start = 0;

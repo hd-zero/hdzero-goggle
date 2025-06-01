@@ -3,6 +3,10 @@
     "files.associations": {
         "self_test.h": "c",
         "hardware.h": "c",
-        "rtc6715.h": "c"
+        "rtc6715.h": "c",
+        "random": "cpp",
+        "common.hh": "c",
+        "ui_statusbar.h": "c",
+        "page_common.h": "c"
     }
 }
