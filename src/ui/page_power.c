@@ -5,10 +5,11 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
-#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
@@ -45,8 +46,8 @@ static btn_group_t btn_group_power_ana;
 
 static slider_group_t *selected_slider_group = NULL;
 
-static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_POWER_COLS};
+static lv_coord_t row_dsc[] = {UI_POWER_ROWS};
 lv_obj_t *label_cell_count;
 
 static void page_power_update_cell_count() {
@@ -92,19 +93,19 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1063, 980);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1063, 984);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Power"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 970, 680);
+    lv_obj_set_size(cont, UI_PAGE_GRID_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);

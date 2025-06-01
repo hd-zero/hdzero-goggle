@@ -65,6 +65,25 @@ extern "C" {
 #define UI_CLOCK_DATE_PAD                 8
 #define UI_ELRS_COLS                      160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_ELRS_ROWS                      60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_FANS_COLS                      160, 160, 160, 160, 140, 160, LV_GRID_TEMPLATE_LAST
+#define UI_FANS_ROWS                      60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_HT_COLS                        160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
+#define UI_HT_ROWS                        55, 55, 55, 55, 55, 55, 60, 30, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_HT_CALIBRATION_SIZE            500, 25
+#define UI_IMAGESETTING_COLS              160, 160, 160, 160, 140, 220, LV_GRID_TEMPLATE_LAST
+#define UI_IMAGESETTING_ROWS              60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_COLS                     160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_ROWS                     60, 60, 60, 60, 60, 60, 60, 60, 80, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_OPTION_HEIGHT            300
+#define UI_INPUT_DROPDOWN_WIDTH           320
+#define UI_OSD_COLS                       160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
+#define UI_OSD_ROWS                       160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
+#define UI_PLAYBACK_COLS                  320, 320, 320, LV_GRID_TEMPLATE_LAST
+#define UI_PLAYBACK_ROWS                  150, 30, 150, 30, 150, 30, 30, LV_GRID_TEMPLATE_LAST
+#define UI_POWER_COLS                     160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
+#define UI_POWER_ROWS                     60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_RECORD_COLS                    160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LAST
+#define UI_RECORD_ROWS                    60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t c[] = {264, 64, 267, 64, 267, 64, 267, 64, 267, 64, 267, LV_GRID_TEMPLATE_LAST};
@@ -137,6 +156,25 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_CLOCK_DATE_PAD                 6
 #define UI_ELRS_COLS                      106, 140, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
 #define UI_ELRS_ROWS                      40, 40, 40, 40, 40, 26, 26, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_FANS_COLS                      106, 106, 106, 106, 92, 106, LV_GRID_TEMPLATE_LAST
+#define UI_FANS_ROWS                      40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_HT_COLS                        106, 106, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
+#define UI_HT_ROWS                        40, 40, 40, 40, 40, 40, 26, 26, 26, 40, LV_GRID_TEMPLATE_LAST
+#define UI_HT_CALIBRATION_SIZE            320, 16
+#define UI_IMAGESETTING_COLS              106, 106, 106, 106, 92, 146, LV_GRID_TEMPLATE_LAST
+#define UI_IMAGESETTING_ROWS              40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_COLS                     106, 130, 106, 106, 106, 80, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_ROWS                     40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_INPUT_OPTION_HEIGHT            200
+#define UI_INPUT_DROPDOWN_WIDTH           210
+#define UI_OSD_COLS                       106, 120, 106, 106, 80, 106, LV_GRID_TEMPLATE_LAST
+#define UI_OSD_ROWS                       40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_PLAYBACK_COLS                  210, 210, 210, LV_GRID_TEMPLATE_LAST
+#define UI_PLAYBACK_ROWS                  100, 20, 100, 20, 100, 20, 20, LV_GRID_TEMPLATE_LAST
+#define UI_POWER_COLS                     106, 132, 106, 106, 80, 106, LV_GRID_TEMPLATE_LAST
+#define UI_POWER_ROWS                     40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_RECORD_COLS                    106, 132, 132, 106, 80, 80, LV_GRID_TEMPLATE_LAST
+#define UI_RECORD_ROWS                    40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t pro[] = {176, 42, 178, 42, 178, 42, 178, 42, 178, 42, 178, LV_GRID_TEMPLATE_LAST};

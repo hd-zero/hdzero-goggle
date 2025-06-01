@@ -2,6 +2,8 @@
 
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/dvr.h"
@@ -44,8 +46,8 @@ typedef struct Action {
 /**
  * Compile-unit local variables, constants and fields
  */
-static lv_coord_t col_dsc[] = {160, 200, 160, 160, 160, 120, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 80, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_INPUT_COLS};
+static lv_coord_t row_dsc[] = {UI_INPUT_ROWS};
 
 static void nop() {}
 static void rollerNop(uint8_t key) { (void)key; }
@@ -213,13 +215,13 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, contentWidth + 93, contentHeight + 300);
+    lv_obj_set_size(page, contentWidth + UI_PAGE_TOP_PAD, contentHeight + UI_INPUT_OPTION_HEIGHT);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, contentWidth + 93, contentHeight + 294);
+    lv_obj_set_size(section, contentWidth + UI_PAGE_TOP_PAD, contentHeight + UI_INPUT_OPTION_HEIGHT);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Input"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
@@ -238,32 +240,32 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Roller"));
     create_label_item(content, buf, 1, ROLLER, 1);
-    pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, 320, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[ROLLER] = create_dropdown_item(content, rollerOptionsStr, 2, ROLLER, UI_INPUT_DROPDOWN_WIDTH, row_dsc[ROLLER], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[ROLLER], rollerIndexFromId(g_setting.inputs.roller));
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Left short"));
     create_label_item(content, buf, 1, LEFT_SHORT, 1);
-    pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, 320, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[LEFT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_SHORT, UI_INPUT_DROPDOWN_WIDTH, row_dsc[LEFT_SHORT], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[LEFT_SHORT], btnIndexFromId(g_setting.inputs.left_click));
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Left long"));
     create_label_item(content, buf, 1, LEFT_LONG, 1);
-    pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, 320, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[LEFT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, LEFT_LONG, UI_INPUT_DROPDOWN_WIDTH, row_dsc[LEFT_LONG], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[LEFT_LONG], btnIndexFromId(g_setting.inputs.left_press));
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Right short"));
     create_label_item(content, buf, 1, RIGHT_SHORT, 1);
-    pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, 320, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[RIGHT_SHORT] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_SHORT, UI_INPUT_DROPDOWN_WIDTH, row_dsc[RIGHT_SHORT], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[RIGHT_SHORT], btnIndexFromId(g_setting.inputs.right_click));
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Right long"));
     create_label_item(content, buf, 1, RIGHT_LONG, 1);
-    pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, 320, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[RIGHT_LONG] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_LONG, UI_INPUT_DROPDOWN_WIDTH, row_dsc[RIGHT_LONG], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[RIGHT_LONG], btnIndexFromId(g_setting.inputs.right_press));
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Right double"));
     create_label_item(content, buf, 1, RIGHT_DOUBLE, 1);
-    pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, 320, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, UI_INPUT_DROPDOWN_WIDTH, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], btnIndexFromId(g_setting.inputs.right_double_click));
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
@@ -274,8 +276,8 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("Settings apply to video mode only"),
              _lang("'Toggle source' will switch between HDZero and Expansion module"));
     lv_label_set_text(label, buf);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
+    lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
 
     update_inputs();
