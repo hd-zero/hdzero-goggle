@@ -7,6 +7,7 @@
         "random": "cpp",
         "common.hh": "c",
         "ui_statusbar.h": "c",
-        "page_common.h": "c"
+        "page_common.h": "c",
+        "settings.h": "c"
     }
 }

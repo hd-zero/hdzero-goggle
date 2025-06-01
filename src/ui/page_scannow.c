@@ -72,10 +72,10 @@ int user_select_index = 0;
 static int auto_scaned_cnt = 0;
 static lv_obj_t *progressbar;
 static lv_obj_t *label;
-static lv_coord_t *col_dsc1 = NULL;
-static lv_coord_t *row_dsc1 = NULL;
-static lv_coord_t *col_dsc2 = NULL;
-static lv_coord_t *row_dsc2 = NULL;
+static lv_coord_t col_dsc1[] = {UI_SCANNOW_SCANNER_COLS};
+static lv_coord_t row_dsc1[] = {UI_SCANNOW_SCANNER_ROWS};
+static lv_coord_t col_dsc2[] = {UI_SCANNOW_SIGNAL_COLS};
+static lv_coord_t row_dsc2[] = {UI_SCANNOW_SIGNAL_ROWS};
 
 static void select_signal(channel_t *channel) {
     for (int i = 0; i < BASE_CH_NUM; i++) {
@@ -195,14 +195,9 @@ void page_scannow_set_channel_label(void) {
 static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[256];
 
-    col_dsc1 = UI_SCANNOW_SCANNER_COLS();
-    row_dsc1 = UI_SCANNOW_SCANNER_ROWS();
-    col_dsc2 = UI_SCANNOW_SIGNAL_COLS();
-    row_dsc2 = UI_SCANNOW_SIGNAL_ROWS();
-
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, UI_SCANNOW_PAGE_SIZE);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_scan, LV_PART_MAIN);
     lv_obj_set_style_pad_top(page, UI_SCANNOW_PAGE_PAD, 0);
 
