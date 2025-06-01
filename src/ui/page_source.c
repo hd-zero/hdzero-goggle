@@ -6,11 +6,12 @@
 
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/dvr.h"
 #include "core/osd.h"
-#include "core/settings.h"
 #include "driver/beep.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
@@ -23,8 +24,8 @@
 #include "ui/ui_style.h"
 
 // local
-static lv_coord_t col_dsc[] = {160, 160, 200, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_SOURCE_COLS};
+static lv_coord_t row_dsc[] = {UI_SOURCE_ROWS};
 
 static lv_obj_t *label[5];
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
@@ -35,19 +36,19 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 960, 894);
+    lv_obj_set_size(section, UI_PAGE_GRID_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Source"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 894);
+    lv_obj_set_size(cont, UI_PAGE_GRID_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
