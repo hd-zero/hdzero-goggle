@@ -53,11 +53,11 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_slider_item(&slider_group, cont, "OLED", 12, g_setting.image.oled, 0);
+    create_slider_item(&slider_group, cont, "Panel", 12, g_setting.image.oled, 0);
     create_slider_item(&slider_group1, cont, _lang("Brightness"), 78, g_setting.image.brightness, 1);
     create_slider_item(&slider_group2, cont, _lang("Saturation"), 47, g_setting.image.saturation, 2);
     create_slider_item(&slider_group3, cont, _lang("Contrast"), 47, g_setting.image.contrast, 3);
-    snprintf(buf, sizeof(buf), "OLED %s", _lang("Auto Off"));
+    snprintf(buf, sizeof(buf), "Panel %s", _lang("Auto Off"));
     create_slider_item(&slider_group4, cont, buf, 3, g_setting.image.auto_off, 4);
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));

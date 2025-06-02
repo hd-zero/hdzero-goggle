@@ -11,6 +11,8 @@
         "settings.h": "c",
         "page_headtracker.h": "c",
         "page_imagesettings.h": "c",
-        "page_record.h": "c"
+        "page_record.h": "c",
+        "typeindex": "c",
+        "typeinfo": "c"
     }
 }

@@ -33,16 +33,25 @@ static btn_group_t btn_group_fans;
 static slider_group_t slider_group[2];
 
 static void update_visibility() {
-    slider_enable(&slider_group[1], btn_group_fans.current != 0);
+    slider_enable(&slider_group[0], btn_group_fans.current != 0);
+    if (btn_group_fans.current == 0) {
+        lv_obj_clear_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
+    }
 
+#if HDZGOGGLE
+    slider_enable(&slider_group[1], btn_group_fans.current != 0);
     if (btn_group_fans.current == 0) {
         lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
     } else {
         lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
     }
+#endif
 }
 
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
+    int rows = 0;
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -53,7 +62,7 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
-    snprintf(buf, sizeof(buf), "%s:", _lang("Fans"));
+    snprintf(buf, sizeof(buf), "%s:", _lang(pp_fans.name));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
@@ -68,24 +77,26 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&btn_group_fans, cont, 2, _lang("Auto Control"), _lang("On"), _lang("Off"), "", "", 0);
-    create_slider_item(&slider_group[0], cont, _lang("Top Fan"), MAX_FAN_TOP, 2, 1);
-    lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
-    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, 2);
-    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
-
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, 3, 1);
-
+    create_btn_group_item(&btn_group_fans, cont, 2, _lang("Auto Control"), _lang("On"), _lang("Off"), "", "", rows++);
     btn_group_set_sel(&btn_group_fans, !g_setting.fans.auto_mode);
 
+    create_slider_item(&slider_group[0], cont, _lang("Top Fan"), MAX_FAN_TOP, 2, rows++);
+    lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
-    lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
-
     snprintf(buf, sizeof(buf), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
+
+#if HDZGOGGLE
+    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
+    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
+    lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
     snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
     lv_label_set_text(slider_group[1].label, buf);
+#endif
+
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, rows++, 1);
+    pp_fans.p_arr.max = rows;
 
     update_visibility();
 
@@ -223,10 +234,14 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
     } else if (sel == 1) {
         slider = slider_group[0].slider;
         fans_mode = FANS_MODE_TOP;
-    } else if (sel == 2) {
+    }
+#if HDZGOGGLE
+    else if (sel == 2) {
         slider = slider_group[1].slider;
         fans_mode = FANS_MODE_SIDE;
-    } else {
+    }
+#endif
+    else {
         return;
     }
 
@@ -418,7 +433,7 @@ page_pack_t pp_fans = {
         .cur = 0,
         .max = 4,
     },
-    .name = "Fans",
+    .name = "Fan Control",
     .create = page_fans_create,
     .enter = NULL,
     .exit = page_fans_mode_exit,

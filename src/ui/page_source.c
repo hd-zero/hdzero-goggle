@@ -27,13 +27,15 @@
 static lv_coord_t col_dsc[] = {UI_SOURCE_COLS};
 static lv_coord_t row_dsc[] = {UI_SOURCE_ROWS};
 
-static lv_obj_t *label[5];
+static lv_obj_t *label[5] = {NULL};
 static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
 static bool in_sourcepage = false;
 static btn_group_t btn_group0, btn_group1, btn_group2, btn_group3;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
+    int rows = 0;
     char buf[128];
+
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
@@ -58,35 +60,36 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    label[0] = create_label_item(cont, "HDZero", 1, 0, 3);
+    label[0] = create_label_item(cont, "HDZero", 1, rows++, 3);
+    snprintf(buf, sizeof(buf), "%s", _lang("Analog"));
+    label[1] = create_label_item(cont, buf, 1, rows++, 3);
     snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
-    label[1] = create_label_item(cont, buf, 1, 1, 3);
+    label[2] = create_label_item(cont, buf, 1, rows++, 3);
     snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
-    label[2] = create_label_item(cont, buf, 1, 2, 3);
-    label[3] = create_label_item(cont, _lang("Expansion Module"), 1, 3, 3);
+    label[3] = create_label_item(cont, buf, 1, rows++, 3);
 
-    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", 4);
-    btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
-
-    create_btn_group_item(&btn_group1, cont, 2, _lang("HDZero Band"), _lang("Raceband"), _lang("Lowband"), "", "", 5);
+    create_btn_group_item(&btn_group1, cont, 2, _lang("HDZero Band"), _lang("Raceband"), _lang("Lowband"), "", "", rows++);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
-    create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", 6);
+    create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", rows++);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
-    create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", 7);
+    create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", rows++);
     btn_group_set_sel(&btn_group3, g_setting.source.analog_ratio);
 
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+#if HDZGOGGLE
+    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", rows++);
+    btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
+#endif
+
     if (g_setting.storage.selftest) {
-        pp_source.p_arr.max = 10;
-        label[4] = create_label_item(cont, "OLED Pattern: Normal", 1, 8, 3);
-        create_label_item(cont, buf, 1, 9, 3);
-    } else {
-        pp_source.p_arr.max = 9;
-        label[4] = NULL;
-        create_label_item(cont, buf, 1, 8, 3);
+        label[4] = create_label_item(cont, "Display Pattern: Normal", 1, rows++, 3);
     }
+
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, rows++, 3);
+    pp_source.p_arr.max = rows;
+
     return page;
 }
 
@@ -118,20 +121,24 @@ void source_status_timer() {
     }
     lv_label_set_text(label[0], buf);
 
-    snprintf(buf, sizeof(buf), "HDMI %s: %s", _lang("In"), state2string(g_source_info.hdmi_in_status));
+#if HDZGOGGLE
+    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), state2string(g_source_info.av_bay_status));
+#elif HDZBOXPRO
+    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
     lv_label_set_text(label[1], buf);
 
-    snprintf(buf, sizeof(buf), "AV %s: %s", _lang("In"), state2string(g_source_info.av_in_status));
+    snprintf(buf, sizeof(buf), "HDMI %s: %s", _lang("In"), state2string(g_source_info.hdmi_in_status));
     lv_label_set_text(label[2], buf);
 
-    snprintf(buf, sizeof(buf), "%s: %s", _lang("Expansion Module"), state2string(g_source_info.av_bay_status));
+    snprintf(buf, sizeof(buf), "AV %s: %s", _lang("In"), state2string(g_source_info.av_in_status));
     lv_label_set_text(label[3], buf);
 
     if (g_setting.storage.selftest && label[3]) {
         uint8_t oled_tm = oled_tst_mode & 0x0F;
         char *pattern_label[6] = {"Normal", "Color Bar", "Grid", "All Black", "All White", "Boot logo"};
         char str[32];
-        snprintf(str, sizeof(buf), "OLED Pattern: %s", pattern_label[oled_tm]);
+        snprintf(str, sizeof(buf), "Display Pattern: %s", pattern_label[oled_tm]);
         lv_label_set_text(label[4], str);
     }
 }
