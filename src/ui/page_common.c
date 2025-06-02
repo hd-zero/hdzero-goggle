@@ -314,9 +314,14 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
     lv_obj_set_size(btn_a->btn, UI_PAGE_ARROW_GROUP_SIZE);
     lv_obj_set_grid_cell(btn_a->btn, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
 
+    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
     lv_obj_set_style_pad_column(btn_a->container, 0, 0);
+
+#if HDZBOXPRO
+    lv_obj_set_style_translate_y(btn_a->arrow, -10, LV_PART_MAIN);
+    lv_obj_set_style_translate_y(btn_a->btn, -10, LV_PART_MAIN);
+#endif
 }
 
 void btn_group_set_sel(btn_group_t *btn_group, int sel) {

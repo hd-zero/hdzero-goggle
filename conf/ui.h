@@ -16,9 +16,8 @@ extern "C" {
 #define UI_MENU_POSITION                  250, 96
 #define UI_MENU_ROOT_SIZE                 250, 975
 #define UI_MENU_PROG_BAR_SIZE             320, 20
-#define UI_PAGE_VIEW_SIZE                 1053, 900
+#define UI_PAGE_VIEW_SIZE                 1200, 900
 #define UI_PAGE_GRID_SIZE                 960, 600
-#define UI_PAGE_TOP_PAD                   94
 #define UI_PAGE_TEXT_SIZE                 320, 60
 #define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_26
 #define UI_PAGE_TEXT_PAD                  12
@@ -40,8 +39,6 @@ extern "C" {
 #define UI_PAGE_ARROW_COMPACT_SIZE        200
 #define UI_PAGE_ARROW_COMPACT_GROUP_SIZE  160
 #define UI_PAGE_DROPDOWN_SIZE             160, 40
-#define UI_OSD_TEXT_FONT                  &lv_font_montserrat_20
-#define UI_OSD_LABEL_FONT                 &lv_font_montserrat_18
 #define UI_PLAYER_TEXT_FONT               &lv_font_montserrat_26
 #define UI_AUTOSCAN_COLS                  160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST
 #define UI_AUTOSCAN_ROWS                  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
@@ -61,7 +58,6 @@ extern "C" {
 #define UI_SCANNOW_FREQ_SIZE              1164, 500
 #define UI_CLOCK_COLS                     160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_CLOCK_ROWS                     60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST
-#define UI_CLOCK_PAD                      94
 #define UI_CLOCK_DATE_PAD                 8
 #define UI_ELRS_COLS                      160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_ELRS_ROWS                      60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST
@@ -77,7 +73,8 @@ extern "C" {
 #define UI_INPUT_OPTION_HEIGHT            300
 #define UI_INPUT_DROPDOWN_WIDTH           320
 #define UI_OSD_COLS                       160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
-#define UI_OSD_ROWS                       160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
+#define UI_OSD_ROWS                       60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_OSD_TEXT_FONT                  &lv_font_montserrat_20
 #define UI_PLAYBACK_COLS                  320, 320, 320, LV_GRID_TEMPLATE_LAST
 #define UI_PLAYBACK_ROWS                  150, 30, 150, 30, 150, 30, 30, LV_GRID_TEMPLATE_LAST
 #define UI_POWER_COLS                     160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST
@@ -127,7 +124,6 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_MENU_PROG_BAR_SIZE             210, 12
 #define UI_PAGE_VIEW_SIZE                 780, 600
 #define UI_PAGE_GRID_SIZE                 UI_PAGE_VIEW_SIZE
-#define UI_PAGE_TOP_PAD                   62
 #define UI_PAGE_TEXT_SIZE                 210, 40
 #define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_18
 #define UI_PAGE_TEXT_PAD                  8
@@ -149,8 +145,6 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_PAGE_ARROW_COMPACT_SIZE        160
 #define UI_PAGE_ARROW_COMPACT_GROUP_SIZE  106
 #define UI_PAGE_DROPDOWN_SIZE             106, 26
-#define UI_OSD_TEXT_FONT                  &lv_font_montserrat_14
-#define UI_OSD_LABEL_FONT                 &lv_font_montserrat_14
 #define UI_PLAYER_TEXT_FONT               &lv_font_montserrat_14
 #define UI_AUTOSCAN_COLS                  106, 100, 120, 146, 120, 106, LV_GRID_TEMPLATE_LAST
 #define UI_AUTOSCAN_ROWS                  40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
@@ -170,7 +164,6 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_SCANNOW_FREQ_SIZE              788, 320
 #define UI_CLOCK_COLS                     106, 106, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
 #define UI_CLOCK_ROWS                     40, 40, 40, 40, 40, 10, 6, 40, 40, 40, LV_GRID_TEMPLATE_LAST
-#define UI_CLOCK_PAD                      62
 #define UI_CLOCK_DATE_PAD                 6
 #define UI_ELRS_COLS                      106, 140, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
 #define UI_ELRS_ROWS                      40, 40, 40, 40, 40, 26, 26, 40, 40, 40, LV_GRID_TEMPLATE_LAST
@@ -187,6 +180,7 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_INPUT_DROPDOWN_WIDTH           210
 #define UI_OSD_COLS                       106, 120, 106, 106, 80, 106, LV_GRID_TEMPLATE_LAST
 #define UI_OSD_ROWS                       40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
+#define UI_OSD_TEXT_FONT                  &lv_font_montserrat_14
 #define UI_PLAYBACK_COLS                  210, 210, 210, LV_GRID_TEMPLATE_LAST
 #define UI_PLAYBACK_ROWS                  100, 20, 100, 20, 100, 20, 20, LV_GRID_TEMPLATE_LAST
 #define UI_POWER_COLS                     106, 132, 106, 106, 80, 106, LV_GRID_TEMPLATE_LAST

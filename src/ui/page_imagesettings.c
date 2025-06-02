@@ -33,7 +33,6 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
@@ -69,7 +68,7 @@ static lv_obj_t *page_imagesettings_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("To change image settings, click the Enter button to enter video mode"),
              _lang("Make sure a HDZero VTX or analog VTX is powered on for live video"));
     lv_label_set_text(label2, buf);
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label2, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
     lv_obj_set_style_pad_top(label2, UI_PAGE_TEXT_PAD, 0);
