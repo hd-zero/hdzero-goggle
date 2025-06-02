@@ -8,12 +8,13 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
 #include "core/osd.h"
-#include "core/settings.h"
 #include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
@@ -65,8 +66,8 @@ typedef struct {
     bool ready;
 } fw_select_t;
 
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_VERSION_COLS};
+static lv_coord_t row_dsc[] = {UI_VERSION_ROWS};
 
 static lv_obj_t *btn_reset_all_settings = NULL;
 static lv_obj_t *bar_vtx = NULL;
@@ -533,7 +534,7 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
     FILE *notes = fopen(buff, "r");
 
     if (notes) {
-        int max_msg_box_width = 1280;
+        int max_msg_box_width = UI_VERSION_RELEASE_NOTES_MAX_SIZE;
         int max_line_length = 1;
         size_t written = 0;
         size_t nbytes = 0;
@@ -558,16 +559,16 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
         lv_obj_t *title = lv_msgbox_get_title(msgbox_release_notes);
         lv_obj_t *message = lv_msgbox_get_text(msgbox_release_notes);
         int msg_box_width = ((max_line_length / 10)) * 100;
-        if (msg_box_width > 1280) {
-            msg_box_width = 1280;
-        } else if (msg_box_width < 600) {
-            msg_box_width = 600;
+        if (msg_box_width > UI_VERSION_RELEASE_NOTES_MAX_SIZE) {
+            msg_box_width = UI_VERSION_RELEASE_NOTES_MAX_SIZE;
+        } else if (msg_box_width < UI_VERSION_RELEASE_NOTES_MIN_SIZE) {
+            msg_box_width = UI_VERSION_RELEASE_NOTES_MIN_SIZE;
         }
 
         snprintf(tbuff, sizeof(tbuff), "%s: %s", _lang("Release Notes"), fs_basename(fw_select->path));
         lv_label_set_text_static(title, tbuff);
         lv_label_set_text_static(message, mbuff);
-        lv_obj_set_style_text_font(message, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(message, UI_PAGE_LABEL_FONT, 0);
         lv_obj_set_width(msgbox_release_notes, msg_box_width);
         lv_obj_clear_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
 
@@ -636,15 +637,15 @@ static void page_version_fw_select_populate(fw_select_t *fw_select) {
 
     int text_width = ((max_line_length / 10)) * 175;
     int msg_box_width = text_width + 200;
-    if (msg_box_width > 825) {
-        msg_box_width = 825;
-    } else if (msg_box_width < 600) {
-        msg_box_width = 600;
+    if (msg_box_width > UI_VERSION_FIRMWARE_MAX_SIZE) {
+        msg_box_width = UI_VERSION_FIRMWARE_MAX_SIZE;
+    } else if (msg_box_width < UI_VERSION_FIRMWARE_MIN_SIZE) {
+        msg_box_width = UI_VERSION_FIRMWARE_MIN_SIZE;
     }
 
-    lv_obj_set_size(fw_select->container, msg_box_width - 50, 200);
+    lv_obj_set_size(fw_select->container, msg_box_width - 50, UI_VERSION_FIRMWARE_HEIGHT);
     lv_obj_set_width(fw_select->msgbox, msg_box_width);
-    lv_obj_set_width(fw_select->dropdown, msg_box_width - 150);
+    lv_obj_set_width(fw_select->dropdown, msg_box_width - UI_VERSION_FIRMWARE_WIDTH_OFFSET);
 }
 
 static void page_version_fw_select_show(const char *title, fw_select_t *fw_select) {
@@ -734,8 +735,8 @@ static void page_version_on_click_fw_select(uint8_t key, int sel) {
 }
 
 static void page_version_fw_select_create(const char *device, fw_select_t *fw_select, void (*flash)()) {
-    static lv_coord_t msgbox_col_dsc[] = {40, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-    static lv_coord_t mbsbox_row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t msgbox_col_dsc[] = {UI_VERSION_FIRMWARE_MSGBOX_COLS};
+    static lv_coord_t mbsbox_row_dsc[] = {UI_VERSION_FIRMWARE_MSGBOX_ROWS};
 
     char text[256];
     char buf[128];
@@ -760,7 +761,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
         lv_obj_set_style_bg_color(fw_select->this.panel[i], lv_color_make(0x44, 0x44, 0x44), 0);
     }
     fw_select->page = pp_version.p_arr;
-    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, UI_VERSION_FIRMWARE_MSGBOX_SIZE, 1, 4, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
     snprintf(text, sizeof(text), "< %s", _lang("Back"));
     fw_select->back = create_label_item(fw_select->container, text, 1, 2, 4);
@@ -785,19 +786,19 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Firmware"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_GRID_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -855,10 +856,10 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label_note = lv_label_create(cont);
     lv_label_set_text(label_note, "");
-    lv_obj_set_style_text_font(label_note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label_note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label_note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label_note, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label_note, 12, 0);
+    lv_obj_set_style_pad_top(label_note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label_note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label_note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
 
@@ -881,7 +882,7 @@ static void page_version_on_created() {
     lv_obj_add_flag(alert_img, LV_OBJ_FLAG_FLOATING);
     lv_obj_clear_flag(alert_img, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_flag(alert_img, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_pos(alert_img, 125, 0);
+    lv_obj_set_pos(alert_img, UI_VERSION_FIRMWARE_ALERT_SIZE, 0);
 
     /**
      * If user reads release notes, then we can remove the alert.

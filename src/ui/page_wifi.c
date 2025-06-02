@@ -11,10 +11,11 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/dvr.h"
-#include "core/settings.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_attribute.h"
@@ -117,8 +118,8 @@ static char INVALID_FORMAT_STR[64];
 /**
  *  Globals
  */
-static lv_coord_t col_dsc[] = {160, 160, 160, 180, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_WIFI_COLS};
+static lv_coord_t row_dsc[] = {UI_WIFI_ROWS};
 static page_options_t page_wifi = {0};
 static lv_timer_t *page_wifi_apply_settings_timer = NULL;
 static lv_timer_t *page_wifi_apply_settings_pending_timer = NULL;
@@ -668,10 +669,10 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi.page_1.back = create_label_item(parent, buf, 1, 6, 3);
 
     page_wifi.page_1.note = lv_label_create(parent);
-    lv_obj_set_style_text_font(page_wifi.page_1.note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(page_wifi.page_1.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_wifi.page_1.note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(page_wifi.page_1.note, 12, 0);
+    lv_obj_set_style_pad_top(page_wifi.page_1.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_wifi.page_1.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_wifi.page_1.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
 
@@ -740,19 +741,19 @@ static lv_obj_t *page_wifi_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
+    lv_obj_set_style_pad_top(page, UI_PAGE_TOP_PAD, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("WiFi Module"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 1280, 800);
+    lv_obj_set_size(cont, UI_PAGE_GRID_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
