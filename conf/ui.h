@@ -17,7 +17,6 @@ extern "C" {
 #define UI_MENU_ROOT_SIZE                 250, 975
 #define UI_MENU_PROG_BAR_SIZE             320, 20
 #define UI_PAGE_VIEW_SIZE                 1200, 900
-#define UI_PAGE_GRID_SIZE                 960, 600
 #define UI_PAGE_TEXT_SIZE                 320, 60
 #define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_26
 #define UI_PAGE_TEXT_PAD                  12
@@ -123,7 +122,6 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_MENU_ROOT_SIZE                 240, 672
 #define UI_MENU_PROG_BAR_SIZE             210, 12
 #define UI_PAGE_VIEW_SIZE                 780, 600
-#define UI_PAGE_GRID_SIZE                 UI_PAGE_VIEW_SIZE
 #define UI_PAGE_TEXT_SIZE                 210, 40
 #define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_18
 #define UI_PAGE_TEXT_PAD                  8

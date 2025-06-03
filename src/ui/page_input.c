@@ -199,14 +199,6 @@ static bool is_any_dropdown_open() {
  */
 static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[256];
-    int contentHeight = 0;
-    for (size_t i = 0; i < (ARRAY_SIZE(row_dsc) - 1); i++) {
-        contentHeight += row_dsc[i];
-    }
-    int contentWidth = 0;
-    for (size_t i = 0; i < (ARRAY_SIZE(col_dsc) - 1); i++) {
-        contentWidth += col_dsc[i];
-    }
 
     char rollerOptionsStr[256] = "";
     build_options_string(rollerActions, ARRAY_SIZE(rollerActions), rollerOptionsStr);
@@ -215,18 +207,18 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, contentWidth, contentHeight + UI_INPUT_OPTION_HEIGHT);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, contentWidth, contentHeight + UI_INPUT_OPTION_HEIGHT);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Input"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *content = lv_obj_create(section);
-    lv_obj_set_size(content, contentWidth, contentHeight);
+    lv_obj_set_size(content, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(content, 0, 0);
     lv_obj_set_layout(content, LV_LAYOUT_GRID);
     lv_obj_clear_flag(content, LV_OBJ_FLAG_SCROLLABLE);

@@ -23,17 +23,70 @@
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
+enum {
+    ROW_GOGGLE_HDZERO = 0,
+    ROW_GOGGLE_ANALOG,
+    ROW_GOGGLE_HDMI,
+    ROW_GOGGLE_AV,
+    ROW_GOGGLE_HDZ_BAND,
+    ROW_GOGGLE_HDZ_WIDTH,
+    ROW_GOGGLE_ANALOG_RATIO,
+    ROW_GOGGLE_ANALOG_VIDEO,
+    ROW_GOGGLE_TEST_PATTERN,
+    ROW_GOGGLE_BACK,
+    ROW_GOGGLE_COUNT
+};
+
+enum {
+    ROW_BOXPRO_ANALOG_VIDEO = -1,
+    ROW_BOXPRO_HDZERO = 0,
+    ROW_BOXPRO_ANALOG,
+    ROW_BOXPRO_HDMI,
+    ROW_BOXPRO_AV,
+    ROW_BOXPRO_HDZ_BAND,
+    ROW_BOXPRO_HDZ_WIDTH,
+    ROW_BOXPRO_ANALOG_RATIO,
+    ROW_BOXPRO_TEST_PATTERN,
+    ROW_BOXPRO_BACK,
+    ROW_BOXPRO_COUNT
+};
+
+#if HDZGOGGLE
+#define ROW_HDZERO       ROW_GOGGLE_HDZERO
+#define ROW_ANALOG       ROW_GOGGLE_ANALOG
+#define ROW_HDMI         ROW_GOGGLE_HDMI
+#define ROW_AV           ROW_GOGGLE_AV
+#define ROW_HDZ_BAND     ROW_GOGGLE_HDZ_BAND
+#define ROW_HDZ_WIDTH    ROW_GOGGLE_HDZ_WIDTH
+#define ROW_ANALOG_RATIO ROW_GOGGLE_ANALOG_RATIO
+#define ROW_ANALOG_VIDEO ROW_GOGGLE_ANALOG_VIDEO
+#define ROW_TEST_PATTERN ROW_GOGGLE_TEST_PATTERN
+#define ROW_BACK         ROW_GOGGLE_BACK
+#define ROW_COUNT        ROW_GOGGLE_COUNT
+#elif HDZBOXPRO
+#define ROW_HDZERO       ROW_BOXPRO_HDZERO
+#define ROW_ANALOG       ROW_BOXPRO_ANALOG
+#define ROW_HDMI         ROW_BOXPRO_HDMI
+#define ROW_AV           ROW_BOXPRO_AV
+#define ROW_HDZ_BAND     ROW_BOXPRO_HDZ_BAND
+#define ROW_HDZ_WIDTH    ROW_BOXPRO_HDZ_WIDTH
+#define ROW_ANALOG_RATIO ROW_BOXPRO_ANALOG_RATIO
+#define ROW_ANALOG_VIDEO ROW_BOXPRO_ANALOG_VIDEO
+#define ROW_TEST_PATTERN ROW_BOXPRO_TEST_PATTERN
+#define ROW_BACK         ROW_BOXPRO_BACK
+#define ROW_COUNT        ROW_BOXPRO_COUNT
+#endif
+
 // local
 static lv_coord_t col_dsc[] = {UI_SOURCE_COLS};
 static lv_coord_t row_dsc[] = {UI_SOURCE_ROWS};
 
 static lv_obj_t *label[5] = {NULL};
-static uint8_t oled_tst_mode = 0; // 0=Normal,1=CB; 2-Grid; 3=All Black; 4=All White,5=Boot logo
+static uint8_t oled_tst_mode = 0; // 0=Normal, 1=CB, 2=Grid, 3=All Black, 4=All White, 5=Boot logo
 static bool in_sourcepage = false;
 static btn_group_t btn_group0, btn_group1, btn_group2, btn_group3;
 
 static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
-    int rows = 0;
     char buf[128];
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
@@ -49,7 +102,7 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, UI_PAGE_GRID_SIZE);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -60,35 +113,40 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    label[0] = create_label_item(cont, "HDZero", 1, rows++, 3);
+    label[0] = create_label_item(cont, "HDZero", 1, ROW_HDZERO, 3);
     snprintf(buf, sizeof(buf), "%s", _lang("Analog"));
-    label[1] = create_label_item(cont, buf, 1, rows++, 3);
+    label[1] = create_label_item(cont, buf, 1, ROW_ANALOG, 3);
     snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
-    label[2] = create_label_item(cont, buf, 1, rows++, 3);
+    label[2] = create_label_item(cont, buf, 1, ROW_HDMI, 3);
     snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
-    label[3] = create_label_item(cont, buf, 1, rows++, 3);
+    label[3] = create_label_item(cont, buf, 1, ROW_AV, 3);
 
-    create_btn_group_item(&btn_group1, cont, 2, _lang("HDZero Band"), _lang("Raceband"), _lang("Lowband"), "", "", rows++);
+    create_btn_group_item(&btn_group1, cont, 2, _lang("HDZero Band"), _lang("Raceband"), _lang("Lowband"), "", "", ROW_HDZ_BAND);
     btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 
-    create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", rows++);
+    create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", ROW_HDZ_WIDTH);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
-    create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", rows++);
+    create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", ROW_ANALOG_RATIO);
     btn_group_set_sel(&btn_group3, g_setting.source.analog_ratio);
 
-#if HDZGOGGLE
-    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", rows++);
-    btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
-#endif
+    if (ROW_ANALOG_VIDEO > 0) {
+        create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", ROW_ANALOG_VIDEO);
+        btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
+    }
 
+    // By default this Row is hidden unless selftest is detected.
+    label[4] = create_label_item(cont, "Display Pattern: Normal", 1, ROW_TEST_PATTERN, 3);
+    lv_obj_add_flag(label[4], LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(pp_source.p_arr.panel[ROW_TEST_PATTERN], FLAG_SELECTABLE);
     if (g_setting.storage.selftest) {
-        label[4] = create_label_item(cont, "Display Pattern: Normal", 1, rows++, 3);
+        lv_obj_clear_flag(label[4], LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(pp_source.p_arr.panel[ROW_TEST_PATTERN], FLAG_SELECTABLE);
     }
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, rows++, 3);
-    pp_source.p_arr.max = rows;
+    create_label_item(cont, buf, 1, ROW_BACK, 3);
+    pp_source.p_arr.max = ROW_COUNT;
 
     return page;
 }
@@ -165,7 +223,7 @@ static void page_source_select_av_in() {
     dvr_enable_line_out(true);
 }
 
-static void page_source_select_expansion() {
+static void page_source_select_analog() {
     app_switch_to_analog(SOURCE_AV_MODULE);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_MODULE;
@@ -177,7 +235,7 @@ void source_toggle() {
     beep_dur(BEEP_SHORT);
     switch (g_source_info.source) {
     case SOURCE_HDZERO:
-        page_source_select_expansion();
+        page_source_select_analog();
         break;
     case SOURCE_AV_MODULE:
         page_source_select_hdzero();
@@ -206,7 +264,7 @@ void source_cycle() {
         page_source_select_hdzero();
         break;
     case SOURCE_AV_IN:
-        page_source_select_expansion();
+        page_source_select_analog();
         break;
     case SOURCE_HDMI_IN:
         page_source_select_av_in();
@@ -216,60 +274,43 @@ void source_cycle() {
 }
 
 static void page_source_on_click(uint8_t key, int sel) {
-    switch (sel) {
-    case 0: // HDZero in
+    if (sel == ROW_HDZERO) {
         page_source_select_hdzero();
-        break;
-
-    case 1: // HDMI in
-        page_source_select_hdmi();
-        break;
-
-    case 2: // AV in
+    } else if (sel == ROW_ANALOG) {
+        page_source_select_analog();
+    } else if (sel == ROW_HDMI) {
+        app_switch_to_hdmi_in();
+    } else if (sel == ROW_AV) {
         page_source_select_av_in();
-        break;
-
-    case 3: // Expansion module in
-        page_source_select_expansion();
-        break;
-
-    case 4: // Analog video format
-        btn_group_toggle_sel(&btn_group0);
-        g_setting.source.analog_format = btn_group_get_sel(&btn_group0);
-        ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
-        break;
-
-    case 5: // HDZero band format
+    } else if (sel == ROW_HDZ_BAND) {
         btn_group_toggle_sel(&btn_group1);
         g_setting.source.hdzero_band = btn_group_get_sel(&btn_group1);
         page_scannow_set_channel_label();
         ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
-        break;
-
-    case 6: // HDZero bw format
+    } else if (sel == ROW_HDZ_WIDTH) {
         btn_group_toggle_sel(&btn_group2);
         g_setting.source.hdzero_bw = btn_group_get_sel(&btn_group2);
         ini_putl("source", "hdzero_bw", g_setting.source.hdzero_bw, SETTING_INI);
-        break;
-
-    case 7: // Analog video format
+    } else if (sel == ROW_ANALOG_RATIO) {
         btn_group_toggle_sel(&btn_group3);
         g_setting.source.analog_ratio = btn_group_get_sel(&btn_group3);
         ini_putl("source", "analog_ratio", g_setting.source.analog_ratio, SETTING_INI);
-        break;
-
-    case 8:
+    } else if (sel == ROW_ANALOG_VIDEO) {
+        btn_group_toggle_sel(&btn_group0);
+        g_setting.source.analog_format = btn_group_get_sel(&btn_group0);
+        ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
+    } else if (sel == ROW_TEST_PATTERN) {
         if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
             // LOGI("OLED TE=%d,TM=%d",oled_te,oled_tm);
             Screen_Pattern(oled_te, oled_tm, 4);
-            oled_tst_mode++;
-            if (oled_tst_mode >= 6)
+            if (++oled_tst_mode > 5) {
                 oled_tst_mode = 0;
-            break;
+            }
         }
     }
+
     Analog_Module_Power(0);
 }
 
@@ -289,7 +330,6 @@ static void page_source_exit() {
 page_pack_t pp_source = {
     .p_arr = {
         .cur = 0,
-        .max = 6,
     },
 
     .name = "Source",
