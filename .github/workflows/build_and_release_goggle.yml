@@ -1,4 +1,4 @@
-name: Build Firmware
+name: Build Google Firmware
 
 on: [push, pull_request]
 
@@ -18,7 +18,7 @@ jobs:
 
       - name: Get Firmware Name
         id: vars
-        run: echo "firmware_name=$(basename out/*bin)" >> $GITHUB_ENV
+        run: echo "firmware_name=$(basename out/*GOGGLE*bin)" >> $GITHUB_ENV
 
       - name: Upload Firmware Package
         uses: actions/upload-artifact@v4
