@@ -88,8 +88,6 @@ static void page_power_update_calibration_offset() {
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
-    // Update number of rows based on Batch 2 vs Batch 1 options
-    pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
@@ -126,9 +124,18 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, _lang("Display Mode"), _lang("Total"), _lang("Cell Avg."), "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, _lang("Warning Type"), _lang("Beep"), _lang("Visual"), _lang("Both"), "", ROW_WARN_TYPE);
 
-    // Batch 2 goggles only
-    if (getHwRevision() >= HW_REV_2) {
-        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+    switch (getTarget()) {
+    case TARGET_GOGGLE:
+        if (getHwRevision() >= HW_REV_2) {
+            create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+            pp_power.p_arr.max = ROW_COUNT;
+        } else {
+            pp_power.p_arr.max = ROW_COUNT - 1;
+        }
+        break;
+    case TARGET_BOXPRO:
+        pp_power.p_arr.max = ROW_COUNT - 1;
+        break;
     }
 
     // Back entry
@@ -333,7 +340,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (getHwRevision() >= HW_REV_2) {
+        if (TARGET_GOGGLE == getTarget() && getHwRevision() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);

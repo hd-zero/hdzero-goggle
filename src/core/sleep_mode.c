@@ -39,15 +39,18 @@ void go_sleep() {
     // Turn off HDZero Receiver
     HDZero_Close();
 
-#if HDZGOGGLE
-    // Turn off Analog Receiver  -- Batch 2 goggles only
-    if (getHwRevision() >= HW_REV_2) {
-        DM5680_Power_AnalogModule(1);
+    switch (getTarget()) {
+    case TARGET_GOGGLE:
+        // Turn off Analog Receiver  -- Batch 2 goggles only
+        if (getHwRevision() == HW_REV_2) {
+            DM5680_Power_AnalogModule(1);
+        }
+        break;
+    case TARGET_BOXPRO:
+        // Turn off Analog Receiver
+        RTC6715_Open(0);
+        break;
     }
-#elif HDZBOXPRO
-    // Turn off Analog Receiver
-    RTC6715_Open(0);
-#endif
 
     // Minimum fan
     fans_auto_mode_save = g_setting.fans.auto_mode;
