@@ -96,15 +96,15 @@ static void detect_motion(bool is_moving) {
 #endif
         if (is_moving) {
             // we got motion, turn oled back on, start over
-#if HDZGOGGLE
-            Screen_Brightness(g_setting.image.oled);
-#elif HDZBOXPRO
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                Screen_Brightness(7);
-            } else {
+            if (TARGET_GOGGLE == getTargetType()) {
                 Screen_Brightness(g_setting.image.oled);
+            } else if (TARGET_BOXPRO == getTargetType()) {
+                if (g_source_info.source == SOURCE_AV_MODULE) {
+                    Screen_Brightness(7);
+                } else {
+                    Screen_Brightness(g_setting.image.oled);
+                }
             }
-#endif
             state = OLED_MD_DETECTING;
             cnt = 0;
         }
@@ -116,17 +116,17 @@ static void detect_motion(bool is_moving) {
             beep();
             Screen_ON(0); // Turn of display
 
-#if HDZGOGGLE
-            if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
-                HDZero_Close(); // Turn off RF
+            if (TARGET_GOGGLE == getTargetType()) {
+                if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
+                    HDZero_Close(); // Turn off RF
+                }
+            } else if (TARGET_BOXPRO == getTargetType()) {
+                if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
+                    HDZero_Close(); // Turn off RF
+                } else if (g_hw_stat.source_mode == SOURCE_MODE_AV) {
+                    RTC6715_Open(0);
+                }
             }
-#elif HDZBOXPRO
-            if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
-                HDZero_Close(); // Turn off RF
-            } else if (g_hw_stat.source_mode == SOURCE_MODE_AV) {
-                RTC6715_Open(0);
-            }
-#endif
 
             state = OLED_MD_OFF;
             cnt = 0;
@@ -156,17 +156,17 @@ static void detect_motion(bool is_moving) {
                 RTC6715_Open(1);
             }
 #endif
-
             LOGI("OLED ON from protection.");
-#if HDZGOGGLE
-            Screen_Brightness(g_setting.image.oled);
-#elif HDZBOXPRO
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                Screen_Brightness(7);
-            } else {
+            if (TARGET_GOGGLE == getTargetType()) {
                 Screen_Brightness(g_setting.image.oled);
+            } else if (TARGET_BOXPRO == getTargetType()) {
+                if (g_source_info.source == SOURCE_AV_MODULE) {
+                    Screen_Brightness(7);
+                } else {
+                    Screen_Brightness(g_setting.image.oled);
+                }
             }
-#endif
+
             Screen_ON(1);
             state = OLED_MD_DETECTING;
             cnt = 0;
@@ -227,11 +227,11 @@ void ht_init() {
     ht_data.rollAngle = 0;
     ht_data.panAngle = 0;
 
-#if HDZGOGGLE
-    ht_data.tiltInverse = 1;
-#elif HDZBOXPRO
-    ht_data.tiltInverse = -1;
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        ht_data.tiltInverse = 1;
+    } else if (TARGET_GOGGLE == getTargetType()) {
+        ht_data.tiltInverse = -1;
+    }
 
     ht_data.rollInverse = -1;
     ht_data.panInverse = -1;
@@ -365,18 +365,20 @@ static void calculate_orientation() {
     ht_data.htChannels[0] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
 
     tmp = normalize(ht_data.tiltAngle, -180.0, 180.0) * ht_data.tiltInverse * ht_data.tiltFactor + 0.5;
-#if HDZGOGGLE
-    ht_data.htChannels[1] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
-#elif HDZBOXPRO
-    ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
-#endif
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        ht_data.htChannels[1] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
+    }
 
     tmp = normalize(ht_data.rollAngle, -180.0, 180.0) * ht_data.rollInverse * ht_data.rollFactor + 0.5;
-#if HDZGOGGLE
-    ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
-#elif HDZBOXPRO
-    ht_data.htChannels[1] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
-#endif
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        ht_data.htChannels[2] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        ht_data.htChannels[1] = constrain(tmp, ppmMinPulse, ppmMaxPulse) + ppmCenter;
+    }
 
     Set_HT_dat(ht_data.htChannels[0], ht_data.htChannels[1], ht_data.htChannels[2]);
 

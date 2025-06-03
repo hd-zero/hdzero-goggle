@@ -529,15 +529,15 @@ static void page_version_fw_scan_for_updates() {
         fw_select_goggle.alt_title = _lang("SD Card");
     }
 
-#if HDZGOGGLE
-    page_version_fw_select_reset(&fw_select_vtx);
-    snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
-    page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
+    if (TARGET_GOGGLE == getTargetType()) {
+        page_version_fw_select_reset(&fw_select_vtx);
+        snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
+        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
 
-    if (fw_select_vtx.ready) {
-        fw_select_vtx.alt_title = _lang("SD Card");
+        if (fw_select_vtx.ready) {
+            fw_select_vtx.alt_title = _lang("SD Card");
+        }
     }
-#endif
 
     if (g_setting.wifi.enable) {
         if (!fw_select_goggle.ready) {
@@ -546,13 +546,13 @@ static void page_version_fw_scan_for_updates() {
                 0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
         }
 
-#if HDZGOGGLE
-        if (!fw_select_vtx.ready) {
-            has_online_vtx_update =
-                0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
-                0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
+        if (TARGET_GOGGLE == getTargetType()) {
+            if (!fw_select_vtx.ready) {
+                has_online_vtx_update =
+                    0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
+                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
+            }
         }
-#endif
 
         if (has_online_goggle_update || has_online_vtx_update) {
             snprintf(buf, sizeof(buf), "%s\n%s.",

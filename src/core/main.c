@@ -211,10 +211,10 @@ int main(int argc, char *argv[]) {
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
 
-#if HDZGOGGLE
     // 8.1 set initial analog module power state
-    Analog_Module_Power(0);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        Analog_Module_Power(0);
+    }
 
     // Head alarm
     head_alarm_init();

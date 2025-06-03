@@ -135,20 +135,21 @@ int statusbar_init(void) {
     lv_label_set_text(label[STS_SDCARD], buf);
     lv_label_set_recolor(label[STS_SDCARD], true);
 
-    if (g_source_info.source == SOURCE_HDZERO)
+    if (g_source_info.source == SOURCE_HDZERO) {
         snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(1, g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
-    else if (g_source_info.source == SOURCE_HDMI_IN)
+    } else if (g_source_info.source == SOURCE_HDMI_IN) {
         snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
-    else if (g_source_info.source == SOURCE_AV_IN)
+    } else if (g_source_info.source == SOURCE_AV_IN) {
         snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
-    else if (g_source_info.source == SOURCE_AV_MODULE)
-#if HDZGOGGLE
-        sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-#elif HDZBOXPRO
-        sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-#endif
-    else
+    } else if (g_source_info.source == SOURCE_AV_MODULE) {
+        if (TARGET_GOGGLE == getTargetType()) {
+            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+        } else if (TARGET_BOXPRO == getTargetType()) {
+            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+        }
+    } else {
         sprintf(buf, " ");
+    }
 
     lv_label_set_text(label[STS_SOURCE], buf);
 
@@ -222,20 +223,21 @@ void statubar_update(void) {
     uint8_t channel_changed = (hdzero_channel_last != g_setting.scan.channel) || (analog_channel_last != g_setting.source.analog_channel);
     if (channel_changed || (source_last != g_source_info.source) || (hdzero_band_last != g_setting.source.hdzero_band)) {
         memset(buf, 0, sizeof(buf));
-        if (g_source_info.source == SOURCE_HDZERO)
+        if (g_source_info.source == SOURCE_HDZERO) {
             snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(1, g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
-        else if (g_source_info.source == SOURCE_HDMI_IN)
+        } else if (g_source_info.source == SOURCE_HDMI_IN) {
             snprintf(buf, sizeof(buf), "HDMI %s", _lang("In"));
-        else if (g_source_info.source == SOURCE_AV_IN)
+        } else if (g_source_info.source == SOURCE_AV_IN) {
             snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
-        else if (g_source_info.source == SOURCE_AV_MODULE)
-#if HDZGOGGLE
-            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-#elif HDZBOXPRO
-            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-#endif
-        else
+        } else if (g_source_info.source == SOURCE_AV_MODULE) {
+            if (TARGET_GOGGLE == getTargetType()) {
+                sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+            } else if (TARGET_BOXPRO == getTargetType()) {
+                sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+            }
+        } else {
             sprintf(buf, " ");
+        }
 
         lv_label_set_text(label[STS_SOURCE], buf);
     }

@@ -58,21 +58,22 @@ void self_test() {
     LOGI("%sIT66021(L, HDMI_RX) Vender ID = 0x%x ", msg[i == 0x54], i);
     DM5680_ResetHDMI_RX(0);
 
-#if HDZGOGGLE
-    // 5. AL FPGA
-    i = I2C_Read(ADDR_AL, 0xFF);
-    LOGI("%sAL ver = 0x%x ", msg[1], i);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        // 5. AL FPGA
+        i = I2C_Read(ADDR_AL, 0xFF);
+        LOGI("%sAL ver = 0x%x ", msg[1], i);
+    }
 
     // 6. TP2825
     TP2825_open();
-#if HDZGOGGLE
-    i = I2C_Read(ADDR_TP2825, 0x00);
-    LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
-#elif HDZBOXPRO
-    i = I2C_Read(ADDR_TP2825, 0x0B);
-    LOGI("%sTP2825 ver = 0x%x ", msg[i == 0xD0], i);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        i = I2C_Read(ADDR_TP2825, 0x00);
+        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        i = I2C_Read(ADDR_TP2825, 0x0B);
+        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0xD0], i);
+    }
+
     TP2825_close();
 
     // 7. DM6302s

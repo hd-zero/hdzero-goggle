@@ -41,11 +41,11 @@ void app_switch_to_menu() {
     // Stop recording if switching to menu mode from video mode regardless
     dvr_cmd(DVR_STOP);
 
-#if HDZGOGGLE
-    dvr_update_vi_conf(VR_1080P30);
-#elif HDZBOXPRO
-    dvr_update_vi_conf(VR_720P60);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        dvr_update_vi_conf(VR_1080P30);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        dvr_update_vi_conf(VR_720P60);
+    }
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -169,40 +169,40 @@ void app_switch_to_hdzero(bool is_default) {
     DM5680_req_vldflg();
     progress_bar.start = 0;
 
-#if HDZGOGGLE
-    switch (CAM_MODE) {
-    case VR_720P50:
-    case VR_720P60:
-    case VR_960x720P60:
-    case VR_540P60:
-        Display_720P60_50(CAM_MODE, cam_4_3);
-        break;
+    if (TARGET_GOGGLE == getTargetType()) {
+        switch (CAM_MODE) {
+        case VR_720P50:
+        case VR_720P60:
+        case VR_960x720P60:
+        case VR_540P60:
+            Display_720P60_50(CAM_MODE, cam_4_3);
+            break;
 
-    case VR_540P90:
-    case VR_540P90_CROP:
-        Display_720P90(CAM_MODE);
-        break;
+        case VR_540P90:
+        case VR_540P90_CROP:
+            Display_720P90(CAM_MODE);
+            break;
 
-    case VR_1080P30:
-        Display_1080P30(CAM_MODE);
-        break;
+        case VR_1080P30:
+            Display_1080P30(CAM_MODE);
+            break;
 
-    default:
-        perror("switch_to_video CaM_MODE error");
-    }
+        default:
+            perror("switch_to_video CaM_MODE error");
+        }
 
-    channel_osd_mode = CHANNEL_SHOWTIME;
+        channel_osd_mode = CHANNEL_SHOWTIME;
 
-    if (CAM_MODE == VR_1080P30)
-        lvgl_switch_to_1080p();
-    else
+        if (CAM_MODE == VR_1080P30)
+            lvgl_switch_to_1080p();
+        else
+            lvgl_switch_to_720p();
+        osd_fhd(CAM_MODE == VR_1080P30);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        Display_HDZ(CAM_MODE, cam_4_3);
+        channel_osd_mode = CHANNEL_SHOWTIME;
         lvgl_switch_to_720p();
-    osd_fhd(CAM_MODE == VR_1080P30);
-#elif HDZBOXPRO
-    Display_HDZ(CAM_MODE, cam_4_3);
-    channel_osd_mode = CHANNEL_SHOWTIME;
-    lvgl_switch_to_720p();
-#endif
+    }
 
     osd_clear();
     osd_show(true);

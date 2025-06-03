@@ -28,11 +28,11 @@ void go_sleep() {
     // Stop DVR
     dvr_cmd(DVR_STOP);
 
-#if HDZGOGGLE
-    dvr_update_vi_conf(VR_1080P30);
-#elif HDZBOXPRO
-    dvr_update_vi_conf(VR_720P60);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        dvr_update_vi_conf(VR_1080P30);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        dvr_update_vi_conf(VR_720P60);
+    }
 
     Screen_ON(0);
 
@@ -63,10 +63,10 @@ void go_sleep() {
     g_setting.fans.auto_mode = 0;
     fans_top_setspeed(MIN_FAN_TOP);
 
-#if HDZGOGGLE
-    fans_left_setspeed(MIN_FAN_SIDE);
-    fans_right_setspeed(MIN_FAN_SIDE);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        fans_left_setspeed(MIN_FAN_SIDE);
+        fans_right_setspeed(MIN_FAN_SIDE);
+    }
 
     isSleeping = true;
     beepCnt = 0;
@@ -77,13 +77,13 @@ void wake_up() {
     isSleeping = false;
     Screen_ON(1); // Turn on display
 
-#if HDZGOGGLE
-    Analog_Module_Power(1);
-    g_setting.fans.right_speed = fan_speed_save.right;
-    g_setting.fans.left_speed = fan_speed_save.left;
-    fans_right_setspeed(fan_speed_save.right);
-    fans_left_setspeed(fan_speed_save.left);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        Analog_Module_Power(1);
+        g_setting.fans.right_speed = fan_speed_save.right;
+        g_setting.fans.left_speed = fan_speed_save.left;
+        fans_right_setspeed(fan_speed_save.right);
+        fans_left_setspeed(fan_speed_save.left);
+    }
 
     g_setting.fans.top_speed = fan_speed_save.top;
     g_setting.fans.auto_mode = fans_auto_mode_save;

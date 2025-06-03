@@ -179,11 +179,11 @@ void source_status_timer() {
     }
     lv_label_set_text(label[0], buf);
 
-#if HDZGOGGLE
-    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), state2string(g_source_info.av_bay_status));
-#elif HDZBOXPRO
-    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), state2string(g_source_info.av_bay_status));
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+    }
     lv_label_set_text(label[1], buf);
 
     snprintf(buf, sizeof(buf), "HDMI %s: %s", _lang("In"), state2string(g_source_info.hdmi_in_status));

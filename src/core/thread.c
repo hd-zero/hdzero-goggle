@@ -202,10 +202,11 @@ static void *thread_peripheral(void *ptr) {
             if (k++ == 4) {
                 k = 0;
                 battery_update();
-#if HDZGOGGLE
-                g_temperature.top = nct_read_temperature(NCT_TOP);
-                g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
-#endif
+
+                if (TARGET_GOGGLE == getTargetType()) {
+                    g_temperature.top = nct_read_temperature(NCT_TOP);
+                    g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+                }
                 g_temperature.right = nct_read_temperature(NCT_RIGHT);
                 dvr_update_status();
             }

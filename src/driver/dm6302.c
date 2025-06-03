@@ -1674,11 +1674,11 @@ int DM6302_init(uint8_t freq, uint8_t bw) {
     int to_cnt = 0;
     uint32_t r0 = 1, r1 = 1;
 
-#if HDZGOGGLE
-    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
-#elif HDZBOXPRO
-    system_exec("aww 0x05002814 0x00000018"); // set i2c speed to 500KHz
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        system_exec("aww 0x05002814 0x00000018"); // set i2c speed to 500KHz
+    }
 
     while (r0) {
         DM5680_ResetRF(0);

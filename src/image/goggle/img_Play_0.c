@@ -1,5 +1,3 @@
-#if HDZGOGGLE
-
 #if defined(LV_LVGL_H_INCLUDE_SIMPLE)
 #include "lvgl.h"
 #else
@@ -20774,5 +20772,3 @@ const lv_img_dsc_t img_Play_0 = {
     .data_size = 2304 * LV_COLOR_SIZE / 8,
     .data = img_Play_0_map,
 };
-
-#endif
