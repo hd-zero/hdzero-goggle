@@ -11,8 +11,6 @@ if(NOT EMULATOR_BUILD)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -mfpu=neon -mfloat-abi=hard")
 endif()
 
-file(COPY ${PROJECT_SOURCE_DIR}/mkapp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
-
 option(HDZ_GOGGLE "Target Goggles" OFF)
 if (HDZ_GOGGLE)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZGOGGLE=1")
@@ -130,6 +128,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	esp-loader
 	softwinner
 )
+
 if(EMULATOR_BUILD)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 endif()
@@ -187,6 +186,9 @@ if(NOT EMULATOR_BUILD)
 	)
 
 	# image build
+	add_custom_target(MKAPP ALL
+		COMMAND rsync -r ${PROJECT_SOURCE_DIR}/mkapp ${CMAKE_CURRENT_BINARY_DIR}/
+	)
 	add_custom_command(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/out/${PROJECT_NAME}
 		COMMAND size -A ${PROJECT_NAME}
@@ -198,7 +200,7 @@ if(NOT EMULATOR_BUILD)
 		COMMAND cp record ${RECORD_APP_PATH}
 		COMMAND cp rtspLive ${RECORD_APP_PATH}
 		COMMAND cd ${CMAKE_CURRENT_BINARY_DIR} && ./mkapp/mkapp_ota.sh
-		DEPENDS ${PROJECT_NAME} record rtspLive
+		DEPENDS MKAPP ${PROJECT_NAME} record rtspLive
 	)
 	add_custom_target(${PROJECT_NAME}-OTA ALL
 		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/out/${PROJECT_NAME}
