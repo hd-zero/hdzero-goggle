@@ -6,7 +6,7 @@ function make_img_md5() {
 }
 
 function get_app_version() {
-	local base_version=$(cat "$ROOT_DIR/VERSION")
+	local base_version=$(cat "$ROOT_DIR/../VERSION")
 
     # check if we are on a tag
     git describe --exact-match --tags HEAD > /dev/null 2>&1
