@@ -1,4 +1,4 @@
-name: Build Google Firmware
+name: Build BoxPro Firmware
 
 on: [push, pull_request]
 
@@ -14,7 +14,7 @@ jobs:
       - name: Build Firmware
         run: |
           bash setup.sh
-          make -C build
+          make -C build_boxpro
 
       - name: Get Firmware Name
         id: vars

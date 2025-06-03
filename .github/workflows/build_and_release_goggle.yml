@@ -14,7 +14,7 @@ jobs:
       - name: Build Firmware
         run: |
           bash setup.sh
-          make -C build
+          make -C build_goggle
 
       - name: Get Firmware Name
         id: vars
