@@ -295,7 +295,7 @@ typedef struct {
     ease_use_t ease;
     setting_storage_t storage;
     language_t language;
-    bool is_pro;
+    bool has_all_features;
 } setting_t;
 
 extern setting_t g_setting;

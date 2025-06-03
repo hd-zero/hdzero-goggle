@@ -231,9 +231,7 @@ const setting_t g_setting_defaults = {
     .language = {
         .lang = LANG_ENGLISH_DEFAULT,
     },
-#if HDZBOXPRO
-    .is_pro = false,
-#endif
+    .has_all_features = true,
 };
 
 int settings_put_osd_element_shown(bool show, char *config_name) {
@@ -334,6 +332,9 @@ void settings_init(void) {
 }
 
 void settings_load(void) {
+    // Start with a fully configured structure then update!
+    memcpy(&g_setting, &g_setting_defaults, sizeof(g_setting));
+
     // scan
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
@@ -491,10 +492,7 @@ void settings_load(void) {
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
 
-#ifdef HDZBOXPRO
-#ifdef EMULATOR_BUILD
-    g_setting.is_pro = true;
-#else
+#if HDZBOXPRO
     char buf[64];
     char value_str[2] = {0};
     fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
@@ -514,10 +512,9 @@ void settings_load(void) {
     fclose(fp);
     if (atoi(value_str)) {
         LOGI("IS NOT PRO");
+        g_setting.has_all_features = false;
     } else {
-        g_setting.is_pro = true;
         LOGI("IS PRO");
     }
-#endif
 #endif
 }

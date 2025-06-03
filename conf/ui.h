@@ -209,7 +209,7 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t pro[] = {176, 42, 178, 42, 178, 42, 178, 42, 178, 42, 178, LV_GRID_TEMPLATE_LAST};
     static lv_coord_t lite[] = {176, 42, 392, 42, 392, 42, 392, LV_GRID_TEMPLATE_LAST};
-    return g_setting.is_pro ? pro : lite;
+    return g_setting.has_all_features ? pro : lite;
 }
 
 static inline lv_coord_t *UI_STATUS_BAR_ROWS() {
@@ -218,7 +218,7 @@ static inline lv_coord_t *UI_STATUS_BAR_ROWS() {
 }
 
 static inline int UI_STATUS_BAR_LABEL_WIDTH() {
-    return g_setting.is_pro ? 178 : 392;
+    return g_setting.has_all_features ? 178 : 392;
 }
 
 #else

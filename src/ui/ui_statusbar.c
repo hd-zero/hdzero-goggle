@@ -19,17 +19,30 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // local
-enum STATUS {
-    STS_SDCARD,
-    STS_SOURCE,
-    STS_ELRS,
-    STS_WIFI,
-    STS_BATT,
-
-    STS_TOTAL
+enum STATUS_GOGGLE {
+    STS_GOGGLE_SDCARD,
+    STS_GOGGLE_SOURCE,
+    STS_GOGGLE_ELRS,
+    STS_GOGGLE_WIFI,
+    STS_GOGGLE_BATT,
+    STS_GOGGLE_TOTAL
 };
 
-static lv_obj_t *label[STS_TOTAL];
+enum STATUS_BOXLITE {
+    STS_BOXLITE_SDCARD,
+    STS_BOXLITE_SOURCE,
+    STS_BOXLITE_BATT,
+    STS_BOXLITE_TOTAL
+};
+
+#define STS_SDCARD (g_setting.has_all_features ? STS_GOGGLE_SDCARD : STS_BOXLITE_SDCARD)
+#define STS_SOURCE (g_setting.has_all_features ? STS_GOGGLE_SOURCE : STS_BOXLITE_SOURCE)
+#define STS_ELRS   (STS_GOGGLE_ELRS)
+#define STS_WIFI   (STS_GOGGLE_WIFI)
+#define STS_BATT   (g_setting.has_all_features ? STS_GOGGLE_BATT : STS_BOXLITE_BATT)
+#define STS_TOTAL  (g_setting.has_all_features ? STS_GOGGLE_TOTAL : STS_BOXLITE_TOTAL)
+
+static lv_obj_t *label[STS_GOGGLE_TOTAL];
 static lv_obj_t *img_sdc;
 static lv_obj_t *img_battery;
 
@@ -82,23 +95,24 @@ int statusbar_init(void) {
     lv_obj_set_grid_cell(img2, LV_GRID_ALIGN_CENTER, 3, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    lv_obj_t *img3 = lv_img_create(cont);
-    lv_img_set_src(img3, &img_esp);
-    lv_obj_set_size(img3, img_esp.header.w, img_esp.header.h);
-    lv_obj_set_grid_cell(img3, LV_GRID_ALIGN_CENTER, 5, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    if (g_setting.has_all_features) {
+        lv_obj_t *img3 = lv_img_create(cont);
+        lv_img_set_src(img3, &img_esp);
+        lv_obj_set_size(img3, img_esp.header.w, img_esp.header.h);
+        lv_obj_set_grid_cell(img3, LV_GRID_ALIGN_CENTER, 5, 1,
+                             LV_GRID_ALIGN_CENTER, 0, 1);
 
-    lv_obj_t *img4 = lv_img_create(cont);
-    lv_img_set_src(img4, &img_wifi);
-    lv_obj_set_size(img4, img_wifi.header.w, img_wifi.header.h);
-    lv_obj_set_grid_cell(img4, LV_GRID_ALIGN_CENTER, 7, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+        lv_obj_t *img4 = lv_img_create(cont);
+        lv_img_set_src(img4, &img_wifi);
+        lv_obj_set_size(img4, img_wifi.header.w, img_wifi.header.h);
+        lv_obj_set_grid_cell(img4, LV_GRID_ALIGN_CENTER, 7, 1,
+                             LV_GRID_ALIGN_CENTER, 0, 1);
+    }
 
     img_battery = lv_img_create(cont);
     lv_img_set_src(img_battery, &img_bat);
     lv_obj_set_size(img_battery, img_bat.header.w, img_bat.header.h);
-    lv_obj_set_grid_cell(img_battery, LV_GRID_ALIGN_CENTER, 9, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(img_battery, LV_GRID_ALIGN_CENTER, (g_setting.has_all_features ? 9 : 5), 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
     for (int i = 0; i < STS_TOTAL; ++i) {
         label[i] = lv_label_create(cont);
@@ -135,13 +149,16 @@ int statusbar_init(void) {
 #endif
     else
         sprintf(buf, " ");
+
     lv_label_set_text(label[STS_SOURCE], buf);
 
-    snprintf(buf, sizeof(buf), "ELRS: %s", _lang("Off"));
-    lv_label_set_text(label[STS_ELRS], buf);
+    if (g_setting.has_all_features) {
+        snprintf(buf, sizeof(buf), "ELRS: %s", _lang("Off"));
+        lv_label_set_text(label[STS_ELRS], buf);
 
-    snprintf(buf, sizeof(buf), "WiFi: %s", _lang("Off"));
-    lv_label_set_text(label[STS_WIFI], buf);
+        snprintf(buf, sizeof(buf), "WiFi: %s", _lang("Off"));
+        lv_label_set_text(label[STS_WIFI], buf);
+    }
 
     lv_label_set_text(label[STS_BATT], "       ");
     return 0;
@@ -198,10 +215,12 @@ void statubar_update(void) {
         }
     }
 
-    static int channel_last = 0;
+    static int hdzero_channel_last = 0;
+    static int analog_channel_last = 0;
     static source_t source_last = SOURCE_HDZERO;
     static setting_sources_hdzero_band_t hdzero_band_last = SETTING_SOURCES_HDZERO_BAND_RACEBAND;
-    if ((channel_last != g_setting.scan.channel) || (source_last != g_source_info.source) || (hdzero_band_last != g_setting.source.hdzero_band)) {
+    uint8_t channel_changed = (hdzero_channel_last != g_setting.scan.channel) || (analog_channel_last != g_setting.source.analog_channel);
+    if (channel_changed || (source_last != g_source_info.source) || (hdzero_band_last != g_setting.source.hdzero_band)) {
         memset(buf, 0, sizeof(buf));
         if (g_source_info.source == SOURCE_HDZERO)
             snprintf(buf, sizeof(buf), "%s: HDZero %s", _lang("RF"), channel2str(1, g_setting.source.hdzero_band, g_setting.scan.channel & 0x7F));
@@ -220,7 +239,9 @@ void statubar_update(void) {
 
         lv_label_set_text(label[STS_SOURCE], buf);
     }
-    channel_last = g_setting.scan.channel;
+
+    hdzero_channel_last = g_setting.scan.channel;
+    analog_channel_last = g_setting.source.analog_channel;
     source_last = g_source_info.source;
     hdzero_band_last = g_setting.source.hdzero_band;
 
@@ -256,14 +277,16 @@ void statubar_update(void) {
         lv_label_set_text(label[STS_SDCARD], buf);
     }
 
-    if (g_setting.elrs.enable) {
-        snprintf(buf, sizeof(buf), "ELRS: %s ", _lang("On"));
-        lv_label_set_text(label[STS_ELRS], buf);
-    } else {
-        snprintf(buf, sizeof(buf), "ELRS: %s ", _lang("Off"));
-        lv_label_set_text(label[STS_ELRS], buf);
-    }
+    if (g_setting.has_all_features) {
+        if (g_setting.elrs.enable) {
+            snprintf(buf, sizeof(buf), "ELRS: %s ", _lang("On"));
+            lv_label_set_text(label[STS_ELRS], buf);
+        } else {
+            snprintf(buf, sizeof(buf), "ELRS: %s ", _lang("Off"));
+            lv_label_set_text(label[STS_ELRS], buf);
+        }
 
-    page_wifi_get_statusbar_text(buf, sizeof(buf));
-    lv_label_set_text(label[STS_WIFI], buf);
+        page_wifi_get_statusbar_text(buf, sizeof(buf));
+        lv_label_set_text(label[STS_WIFI], buf);
+    }
 }

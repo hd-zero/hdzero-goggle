@@ -45,37 +45,16 @@ static lv_obj_t *menu;
 static lv_obj_t *root_page;
 
 /**
- * Page order is enforced by definition.
+ * To contain all menu pages.
  */
-static page_pack_t *page_packs[] = {
-    &pp_scannow,
-    &pp_source,
-    &pp_imagesettings,
-    &pp_osd,
-    &pp_power,
-    &pp_fans,
-    &pp_record,
-    &pp_autoscan,
-    &pp_elrs,
-    &pp_wifi,
-    &pp_headtracker,
-    &pp_playback,
-    &pp_storage,
-    &pp_version,
-    &pp_focus_chart,
-    &pp_clock,
-    &pp_input,
-    &pp_sleep,
-};
-
-#define PAGE_COUNT (ARRAY_SIZE(page_packs))
-
-static page_pack_t *post_bootup_actions[PAGE_COUNT];
+static page_pack_t *page_packs[18];
+static size_t page_packs_count = 0;
+static page_pack_t *post_bootup_actions[18];
 static size_t post_bootup_actions_count = 0;
 static bool bootup_actions_fired = false;
 
 static page_pack_t *find_pp(lv_obj_t *page) {
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0; i < page_packs_count; i++) {
         if (page_packs[i]->page == page) {
             return page_packs[i];
         }
@@ -225,11 +204,11 @@ void menu_nav(uint8_t key) {
     if (key == DIAL_KEY_DOWN) {
         selected--;
         if (selected < 0)
-            selected += PAGE_COUNT;
+            selected += page_packs_count;
     } else if (key == DIAL_KEY_UP) {
         selected++;
-        if (selected >= PAGE_COUNT)
-            selected -= PAGE_COUNT;
+        if (selected >= page_packs_count)
+            selected -= page_packs_count;
     }
     lv_event_send(lv_obj_get_child(lv_obj_get_child(lv_menu_get_cur_sidebar_page(menu), 0), selected), LV_EVENT_CLICKED, NULL);
 }
@@ -308,8 +287,29 @@ static int post_bootup_actions_cmp(const void *lhs, const void *rhs) {
 }
 
 void main_menu_init(void) {
+    // Initialize All Pages
+    page_packs[page_packs_count++] = &pp_scannow;
+    page_packs[page_packs_count++] = &pp_source;
+    page_packs[page_packs_count++] = &pp_imagesettings;
+    page_packs[page_packs_count++] = &pp_osd;
+    page_packs[page_packs_count++] = &pp_power;
+    page_packs[page_packs_count++] = &pp_fans;
+    page_packs[page_packs_count++] = &pp_record;
+    page_packs[page_packs_count++] = &pp_autoscan;
+    if (g_setting.has_all_features) {
+        page_packs[page_packs_count++] = &pp_elrs;
+        page_packs[page_packs_count++] = &pp_wifi;
+    }
+    page_packs[page_packs_count++] = &pp_headtracker;
+    page_packs[page_packs_count++] = &pp_playback;
+    page_packs[page_packs_count++] = &pp_storage;
+    page_packs[page_packs_count++] = &pp_version;
+    page_packs[page_packs_count++] = &pp_focus_chart;
+    page_packs[page_packs_count++] = &pp_clock;
+    page_packs[page_packs_count++] = &pp_input;
+    page_packs[page_packs_count++] = &pp_sleep;
+
     menu = lv_menu_create(lv_scr_act());
-    // lv_obj_add_flag(menu, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(menu, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_set_style_bg_color(menu, lv_color_make(32, 32, 32), 0);
@@ -324,7 +324,7 @@ void main_menu_init(void) {
     lv_obj_t *section = lv_menu_section_create(root_page);
     lv_obj_clear_flag(section, LV_OBJ_FLAG_SCROLLABLE);
 
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0; i < page_packs_count; i++) {
         main_menu_create_entry(menu, section, page_packs[i]);
         if (page_packs[i]->post_bootup_run_priority > 0 && page_packs[i]->post_bootup_run_function != NULL) {
             post_bootup_actions[post_bootup_actions_count++] = page_packs[i];
@@ -377,7 +377,7 @@ void main_menu_update() {
     uint32_t now_ms = time_ms();
     delta_ms = now_ms - delta_ms;
 
-    for (uint32_t i = 0; i < PAGE_COUNT; i++) {
+    for (uint32_t i = 0; i < page_packs_count; i++) {
         if (page_packs[i]->on_update) {
             page_packs[i]->on_update(delta_ms);
         }
