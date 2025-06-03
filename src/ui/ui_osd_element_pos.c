@@ -111,9 +111,9 @@ static osd_element_t osd_element_list[OSD_GOGGLE_NUM] = {
     {"Antenna 2", "ant1"},
     {"Antenna 3", "ant2"},
     {"Antenna 4", "ant3"},
-    {"Goggle Temp Top", "goggle_temp_top"},
-    {"Goggle Temp Left", "goggle_temp_left"},
-    {"Goggle Temp Right", "goggle_temp_right"},
+    {"Temperature Top", "goggle_temp_top"},
+    {"Temperature Left", "goggle_temp_left"},
+    {"Temperature Right", "goggle_temp_right"},
 };
 
 // string used for the dropdown menu

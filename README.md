@@ -1,4 +1,4 @@
-# HDZero Goggle Firmware
+# HDZero Goggle/BoxPro Firmware
 
 ## Environment Setup
 
@@ -21,17 +21,27 @@ A bash script is supplied to take care of the bootstrap process:
 ~/hdzero-goggle$ ./setup.sh
 ```
 
-## Building the Firmware
+## Building Firmware
 
 In either of the above scenarios the firmware can be built via make.
 An appropiate vscode build task ships with this repository as well.
 
+Compiling HDZero Goggles:
 ```
-~/hdzero-goggle$ cd build
-~/hdzero-goggle/build$ make clean all -j $(nproc)
+~/hdzero-goggle$ cd build_goggle
+~/hdzero-goggle/build_goggle$ make clean all -j $(nproc)
 ```
 
-The firmware is generated as hdzero-goggle/out/HDZERO_GOGGLE-x.x.x.bin
+The firmware is generated as hdzero-goggle/build_goggle/out/HDZERO_GOGGLE-x.x.x.bin
+Where x.x.x is the OTA_VER.RX_VER.VA_VER
+
+Compiling HDZero BoxPro:
+```
+~/hdzero-goggle$ cd build_boxpro
+~/hdzero-goggle/build_boxpro$ make clean all -j $(nproc)
+```
+
+The firmware is generated as hdzero-goggle/build_boxpro/out/HDZERO_BOXPRO-x.x.x.bin
 Where x.x.x is the OTA_VER.RX_VER.VA_VER
 
 ### Building the firmware using nix
@@ -91,10 +101,12 @@ sudo apt-get install build-essential libsdl2-dev
 
 ### Build and Run
 
+Emulator support for both Goggle and BoxPro is supported by setting the appropriate compilation switches.
+
 ```
 ~/hdzero-goggle$ mkdir build_emu
 ~/hdzero-goggle$ cd build_emu
-~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
+~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug -DHDZ_GOGGLE=ON -DHDZ_BOXPRO=OFF
 ~/hdzero-goggle/build_emu$ make -j $(nproc)
 ~/hdzero-goggle/build_emu$ ./HDZGOGGLE
 ```

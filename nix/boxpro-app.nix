@@ -33,9 +33,9 @@ stdenv.mkDerivation {
     mtdutils
   ];
   buildPhase = ''
-    mkdir build_goggle
-    cmake . -DHDZ_GOGGLE=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${toolchain}/share/buildroot/toolchainfile.cmake -Bbuild_goggle
-    cd build_goggle
+    mkdir build_boxpro
+    cmake . -DHDZ_BOXPRO=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${toolchain}/share/buildroot/toolchainfile.cmake -Bbuild_boxpro
+    cd build_boxpro
     make all -j$NIX_BUILD_CORES
     mv out $out
   '';
