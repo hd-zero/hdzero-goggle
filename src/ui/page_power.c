@@ -124,7 +124,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, _lang("Display Mode"), _lang("Total"), _lang("Cell Avg."), "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, _lang("Warning Type"), _lang("Beep"), _lang("Visual"), _lang("Both"), "", ROW_WARN_TYPE);
 
-    switch (getTarget()) {
+    switch (getTargetType()) {
     case TARGET_GOGGLE:
         if (getHwRevision() >= HW_REV_2) {
             create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
@@ -340,7 +340,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (TARGET_GOGGLE == getTarget() && getHwRevision() >= HW_REV_2) {
+        if (TARGET_GOGGLE == getTargetType() && getHwRevision() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);

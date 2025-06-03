@@ -31,17 +31,17 @@ void fans_top_setspeed(uint8_t speed) {
 }
 
 void fans_left_setspeed(uint8_t speed) {
-#if HDZGOGGLE
-    fan_speed.left = speed;
-    DM5680_SetFanSpeed(1, speed);
-    LOGI("fans_left_setspeed: %d", speed);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        fan_speed.left = speed;
+        DM5680_SetFanSpeed(1, speed);
+        LOGI("fans_left_setspeed: %d", speed);
+    }
 }
 
 void fans_right_setspeed(uint8_t speed) {
-#if HDZGOGGLE
-    fan_speed.right = speed;
-    DM5680_SetFanSpeed(0, speed);
-    LOGI("fans_right_setspeed: %d", speed);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        fan_speed.right = speed;
+        DM5680_SetFanSpeed(0, speed);
+        LOGI("fans_right_setspeed: %d", speed);
+    }
 }

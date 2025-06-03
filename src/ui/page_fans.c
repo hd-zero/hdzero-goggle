@@ -18,6 +18,13 @@
 #include "ui/ui_style.h"
 
 typedef enum {
+    FAN_TOP = 0,
+    FAN_LEFT,
+    FAN_RIGHT,
+    FAN_COUNT
+} fans_t;
+
+typedef enum {
     FANS_MODE_NO_FAN = 0,
     FANS_MODE_TOP,
     FANS_MODE_SIDE,
@@ -40,14 +47,14 @@ static void update_visibility() {
         lv_obj_add_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
     }
 
-#if HDZGOGGLE
-    slider_enable(&slider_group[1], btn_group_fans.current != 0);
-    if (btn_group_fans.current == 0) {
-        lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
-    } else {
-        lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+    if (TARGET_GOGGLE == getTargetType()) {
+        slider_enable(&slider_group[1], btn_group_fans.current != 0);
+        if (btn_group_fans.current == 0) {
+            lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        } else {
+            lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        }
     }
-#endif
 }
 
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
@@ -86,13 +93,13 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     snprintf(buf, sizeof(buf), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
 
-#if HDZGOGGLE
-    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
-    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
-    lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
-    snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
-    lv_label_set_text(slider_group[1].label, buf);
-#endif
+    if (TARGET_GOGGLE == getTargetType()) {
+        create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
+        lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
+        lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
+        snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
+        lv_label_set_text(slider_group[1].label, buf);
+    }
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, rows++, 1);
@@ -234,14 +241,10 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
     } else if (sel == 1) {
         slider = slider_group[0].slider;
         fans_mode = FANS_MODE_TOP;
-    }
-#if HDZGOGGLE
-    else if (sel == 2) {
+    } else if (TARGET_GOGGLE == getTargetType() && sel == 2) {
         slider = slider_group[1].slider;
         fans_mode = FANS_MODE_SIDE;
-    }
-#endif
-    else {
+    } else {
         return;
     }
 
@@ -271,62 +274,94 @@ void step_topfan() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Auto control side fans
-static uint16_t respeed_cnt[2] = {0, 0}; //[0]=right,[1]=left
-static bool respeeding[2] = {false, false};
+static uint16_t respeed_cnt[FAN_COUNT] = {0, 0, 0}; //[0]=top,[1]=right,[2]=left
+static uint8_t respeeding[FAN_COUNT] = {0, 0, 0};
 
-uint8_t adj_speed(uint8_t cur_speed, int tempe, uint8_t is_left) {
+uint8_t adj_speed(int which, uint8_t cur_speed, int tempe) {
     uint8_t new_speed = cur_speed;
 
-    if (tempe > FAN_TEMPERATURE_THR_H) {
-        if (new_speed != MAX_FAN_SIDE) {
-            new_speed++;
-            respeeding[is_left] = true;
-            respeed_cnt[is_left] = 0;
+    switch (which) {
+    case FAN_TOP:
+        if (tempe > FAN_TEMPERATURE_THR_H) {
+            if (new_speed != MAX_FAN_TOP) {
+                new_speed++;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        } else if (tempe < FAN_TEMPERATURE_THR_L) {
+            if (new_speed != MIN_FAN_TOP) {
+                new_speed--;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
         }
-    } else if (tempe < FAN_TEMPERATURE_THR_L) {
-        if (new_speed != MIN_FAN_SIDE) {
-            new_speed--;
-            respeeding[is_left] = true;
-            respeed_cnt[is_left] = 0;
+        if (cur_speed != new_speed) {
+            LOGI("Top Fan speed: %d (T=%d)", new_speed, tempe);
         }
+        break;
+    default:
+        if (tempe > FAN_TEMPERATURE_THR_H) {
+            if (new_speed != MAX_FAN_SIDE) {
+                new_speed++;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        } else if (tempe < FAN_TEMPERATURE_THR_L) {
+            if (new_speed != MIN_FAN_SIDE) {
+                new_speed--;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        }
+        if (cur_speed != new_speed) {
+            LOGI("%s Fan speed: %d (T=%d)", which == FAN_LEFT ? "Left" : "Right", new_speed, tempe);
+        }
+        break;
     }
-
-    if (cur_speed != new_speed)
-        LOGI("%s Fan speed: %d (T=%d)", is_left ? "Left" : "Right", new_speed, tempe);
 
     return new_speed;
 }
 
-void fans_auto_ctrl_core(bool is_left, int tempe, bool binit) {
-    static uint8_t speed[2] = {2, 2};
+void fans_auto_ctrl_core(int which, int tempe, bool binit) {
+    static uint8_t speed[FAN_COUNT] = {2, 2, 2};
     uint8_t new_spd;
 
     //////////////////////////////////////////////////////////////////////////////////
     // reinit auto speed
     if (binit) {
-        speed[0] = speed[1] = 2; // Initial fan speed for auto mode
-        respeed_cnt[0] = respeed_cnt[1] = 0;
-        respeeding[0] = respeeding[1] = false;
-        fans_right_setspeed(speed[0]);
-        fans_left_setspeed(speed[1]);
+        memset(speed, 2, sizeof(speed)); // Initial fan speed for auto mode
+        memset(respeed_cnt, 0, sizeof(respeed_cnt));
+        memset(respeeding, 0, sizeof(respeeding));
+        fans_top_setspeed(speed[0]);
+        fans_right_setspeed(speed[1]);
+        fans_left_setspeed(speed[2]);
     }
 
-    if (respeeding[is_left]) {
-        respeed_cnt[is_left]++;
-        if (respeed_cnt[is_left] == RESPEED_WAIT_TIME) {
-            respeeding[is_left] = false;
-            respeed_cnt[is_left] = 0;
+    for (int i = 0; i < FAN_COUNT; ++i) {
+        if (respeeding[i]) {
+            respeed_cnt[i]++;
+            if (respeed_cnt[i] == RESPEED_WAIT_TIME) {
+                respeeding[i] = false;
+                respeed_cnt[i] = 0;
+            }
+            continue;
         }
-        return;
-    }
 
-    new_spd = adj_speed(speed[is_left], tempe, is_left);
-    if (new_spd != speed[is_left]) {
-        speed[is_left] = new_spd;
-        if (is_left)
-            fans_left_setspeed(speed[1]);
-        else
-            fans_right_setspeed(speed[0]);
+        new_spd = adj_speed(i, speed[i], tempe);
+        if (new_spd != speed[i]) {
+            speed[i] = new_spd;
+            switch (i) {
+            case FAN_TOP:
+                fans_top_setspeed(speed[i]);
+                break;
+            case FAN_LEFT:
+                fans_left_setspeed(speed[i]);
+                break;
+            case FAN_RIGHT:
+                fans_left_setspeed(speed[i]);
+                break;
+            }
+        }
     }
 }
 
@@ -397,8 +432,9 @@ void fans_auto_ctrl() {
     auto_mode_d = g_setting.fans.auto_mode;
 
     if (g_setting.fans.auto_mode) {
-        fans_auto_ctrl_core(false, g_temperature.right, binit_r);
-        fans_auto_ctrl_core(true, g_temperature.left, binit_r);
+        fans_auto_ctrl_core(FAN_TOP, g_temperature.top, binit_r);
+        fans_auto_ctrl_core(FAN_RIGHT, g_temperature.right, binit_r);
+        fans_auto_ctrl_core(FAN_LEFT, g_temperature.left, binit_r);
     } else {
         if (binit_f)
             speed.top = speed.left = speed.right = 0xFF;

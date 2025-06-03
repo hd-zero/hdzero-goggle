@@ -39,7 +39,7 @@ void go_sleep() {
     // Turn off HDZero Receiver
     HDZero_Close();
 
-    switch (getTarget()) {
+    switch (getTargetType()) {
     case TARGET_GOGGLE:
         // Turn off Analog Receiver  -- Batch 2 goggles only
         if (getHwRevision() == HW_REV_2) {
