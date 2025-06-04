@@ -51,3 +51,12 @@ media_t *media_instantiate(char *filename, notify_cb_t notify) {
 
 void media_exit(media_t *media) {
 }
+
+void Display_HDZ(int mode, int is_43) {
+}
+
+void RTC6715_Open(int on) {
+}
+
+void RTC6715_SetCH(int ch) {
+}
