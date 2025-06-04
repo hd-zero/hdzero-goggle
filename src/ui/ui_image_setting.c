@@ -35,7 +35,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[0].x = x;
     ims_page.items[0].y = y;
     ims_page.items[0].type = 1;
-    snprintf(buf, sizeof(buf), "%s:", _lang("OLED"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Panel"));
     strcpy(ims_page.items[0].title, buf);
     ims_page.items[0].range[0] = 0;
     ims_page.items[0].range[1] = 12;
@@ -76,7 +76,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[4].x = x;
     ims_page.items[4].y = y + 100;
     ims_page.items[4].type = 1;
-    snprintf(buf, sizeof(buf), "OLED %s:", _lang("Auto Off"));
+    snprintf(buf, sizeof(buf), "Panel %s:", _lang("Auto Off"));
     strcpy(ims_page.items[4].title, buf);
     ims_page.items[4].range[0] = 0;
     ims_page.items[4].range[1] = 4;

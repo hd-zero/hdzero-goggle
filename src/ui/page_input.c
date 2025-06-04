@@ -70,7 +70,7 @@ static const action_t rollerActions[] = {
     {.id = 3, .name = "None", .functionPtr = &rollerNop},
     {.id = 0, .name = "Switch channel", .functionPtr = &tune_channel},
     {.id = 1, .name = "Change fan speed", .functionPtr = &change_topfan},
-    {.id = 2, .name = "OLED Brightness", .functionPtr = &change_oled_brightness}};
+    {.id = 2, .name = "Panel Brightness", .functionPtr = &change_oled_brightness}};
 
 static rowType_t selectedRow = ROW_COUNT;
 static lv_obj_t *pageItems[ROW_COUNT];

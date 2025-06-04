@@ -41,7 +41,11 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_size(focus_chart_img, DRAW_HOR_RES_FHD, DRAW_VER_RES_FHD);
 
     char filename[128];
-    osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
+    if (TARGET_GOGGLE == getTargetType()) {
+        osd_resource_path(filename, "%s", OSD_RESOURCE_1080, FOCUS_CHART_IMG);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
+    }
     lv_img_set_src(focus_chart_img, filename);
 
     return page;
