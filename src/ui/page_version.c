@@ -1130,9 +1130,10 @@ void page_version_on_right_button(bool is_short) {
 
 void process_bar_update(const int value0,
                         const int value1) {
-    if (bar_vtx && bar_goggle) {
-        // LOGI("v0=%d, v1=%d\n", value0, value1);
+    if (bar_vtx) {
         lv_bar_set_value(bar_vtx, value0, LV_ANIM_OFF);
+    }
+    if (bar_goggle) {
         lv_bar_set_value(bar_goggle, value1, LV_ANIM_OFF);
     }
 }

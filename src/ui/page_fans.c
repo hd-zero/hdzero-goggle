@@ -329,38 +329,36 @@ void fans_auto_ctrl_core(int which, int tempe, bool binit) {
     //////////////////////////////////////////////////////////////////////////////////
     // reinit auto speed
     if (binit) {
-        memset(speed, 2, sizeof(speed)); // Initial fan speed for auto mode
-        memset(respeed_cnt, 0, sizeof(respeed_cnt));
-        memset(respeeding, 0, sizeof(respeeding));
+        memset(&speed, 2, sizeof(speed)); // Initial fan speed for auto mode
+        memset(&respeed_cnt, 0, sizeof(respeed_cnt));
+        memset(&respeeding, 0, sizeof(respeeding));
         fans_top_setspeed(speed[0]);
-        fans_right_setspeed(speed[1]);
-        fans_left_setspeed(speed[2]);
+        fans_left_setspeed(speed[1]);
+        fans_right_setspeed(speed[2]);
     }
 
-    for (int i = 0; i < FAN_COUNT; ++i) {
-        if (respeeding[i]) {
-            respeed_cnt[i]++;
-            if (respeed_cnt[i] == RESPEED_WAIT_TIME) {
-                respeeding[i] = false;
-                respeed_cnt[i] = 0;
-            }
-            continue;
+    if (respeeding[which]) {
+        respeed_cnt[which]++;
+        if (respeed_cnt[which] == RESPEED_WAIT_TIME) {
+            respeeding[which] = false;
+            respeed_cnt[which] = 0;
         }
+        return;
+    }
 
-        new_spd = adj_speed(i, speed[i], tempe);
-        if (new_spd != speed[i]) {
-            speed[i] = new_spd;
-            switch (i) {
-            case FAN_TOP:
-                fans_top_setspeed(speed[i]);
-                break;
-            case FAN_LEFT:
-                fans_left_setspeed(speed[i]);
-                break;
-            case FAN_RIGHT:
-                fans_left_setspeed(speed[i]);
-                break;
-            }
+    new_spd = adj_speed(which, speed[which], tempe);
+    if (new_spd != speed[which]) {
+        speed[which] = new_spd;
+        switch (which) {
+        case FAN_TOP:
+            fans_top_setspeed(speed[which]);
+            break;
+        case FAN_LEFT:
+            fans_left_setspeed(speed[which]);
+            break;
+        case FAN_RIGHT:
+            fans_left_setspeed(speed[which]);
+            break;
         }
     }
 }
