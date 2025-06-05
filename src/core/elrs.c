@@ -268,9 +268,7 @@ void msp_process_packet() {
                     app_state_push(APP_STATE_VIDEO);
                     pthread_mutex_unlock(&lvgl_mutex);
                 }
-            }
-#if HDZBOXPRO
-            else if (g_source_info.source == SOURCE_AV_MODULE) {
+            } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
                 ch = g_setting.source.analog_channel - 1;
                 if (chan != ch || g_app_state != APP_STATE_VIDEO) {
                     g_setting.source.analog_channel = chan + 1;
@@ -282,7 +280,6 @@ void msp_process_packet() {
                     pthread_mutex_unlock(&lvgl_mutex);
                 }
             }
-#endif
         } break;
         case MSP_GET_FREQ: {
             uint8_t ch;

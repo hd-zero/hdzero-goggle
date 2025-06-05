@@ -18,8 +18,9 @@ uint8_t get_topfan_value(uint8_t level) {
 #elif HDZBOXPRO
     uint8_t topfan_tbl[6] = {0, 24, 33, 41, 62, 100};
 #endif
-    if (level > 5)
+    if (level > 5) {
         level = 5;
+    }
     fan_speed.top = level;
     return topfan_tbl[level];
 }

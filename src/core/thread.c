@@ -114,12 +114,9 @@ static void check_source_signal(int vtmg_change) {
         DM5680_req_rssi();
         DM5680_req_vldflg();
         tune_channel_timer();
-    }
-#if HDZBOXPRO
-    else if (g_source_info.source == SOURCE_AV_MODULE) {
+    } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
         tune_channel_timer();
     }
-#endif
 
     if (g_source_info.source == SOURCE_HDMI_IN)
         is_valid = g_source_info.hdmi_in_status;

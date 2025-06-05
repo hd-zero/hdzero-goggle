@@ -168,9 +168,9 @@ int main(int argc, char *argv[]) {
     gpio_init();
     uart_init();
 
-#if HDZBOXPRO
-    gpadc_init();
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        gpadc_init();
+    }
 
     // 3. Initialize core devices.
     mcp3021_init();

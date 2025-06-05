@@ -8,6 +8,8 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/targets.h"
+
 #include "core/msp_displayport.h"
 #include "core/settings.h"
 #include "driver/hardware.h"

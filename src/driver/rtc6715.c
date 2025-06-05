@@ -98,7 +98,7 @@ int RTC6715_GetRssi() {
         return rssi_adc;
 
     rssi_adc = 3300 * value / 4096;
-    // LOGI("rssi voltage: %02f", (float)rssi_adc / 1000);
+    LOGI("rssi voltage: %02f", (float)rssi_adc / 1000);
     return rssi_adc;
 }
 

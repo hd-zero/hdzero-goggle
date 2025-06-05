@@ -101,10 +101,7 @@ void load_fc_osd_font(uint8_t);
 void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 void osd_toggle();
-
-#if HDZBOXPRO
 void osd_analog_rssi_update_location();
-#endif
 
 #ifdef __cplusplus
 }

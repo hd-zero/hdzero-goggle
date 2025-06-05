@@ -91,11 +91,11 @@ void self_test() {
     i = Get_HAN_status() & 1;
     LOGI("%sHAN Status. ", msg[i]);
 
-#if HDZBOXPRO
-    // 9. DDR calib_done
-    i = I2C_Read(ADDR_FPGA, 0x1B);
-    LOGI("%sDDR calib_done = %d ", msg[i == 1], i);
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        // 9. DDR calib_done
+        i = I2C_Read(ADDR_FPGA, 0x1B);
+        LOGI("%sDDR calib_done = %d ", msg[i == 1], i);
+    }
 
     LOGI("==== Log  ======================\n");
 }

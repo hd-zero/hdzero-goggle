@@ -60,11 +60,11 @@ void app_switch_to_menu() {
 
     system_script(REC_STOP_LIVE);
 
-#if HDZBOXPRO
-    // Restore image settings from av module
-    Screen_Brightness(g_setting.image.oled);
-    Set_Contrast(g_setting.image.contrast);
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
+    }
 }
 
 void app_exit_menu() {
@@ -81,13 +81,13 @@ void app_exit_menu() {
 void app_switch_to_analog(source_t source) {
     Source_AV(source);
 
-#if HDZBOXPRO
-    // Solve LCD residual image
-    if (SOURCE_AV_MODULE == source) {
-        Screen_Brightness(7);
-        Set_Contrast(14);
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Solve LCD residual image
+        if (SOURCE_AV_MODULE == source) {
+            Screen_Brightness(7);
+            Set_Contrast(14);
+        }
     }
-#endif
 
     dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
@@ -106,11 +106,11 @@ void app_switch_to_analog(source_t source) {
 }
 
 void app_switch_to_hdmi_in() {
-#if HDZBOXPRO
-    // Restore image settings from av module
-    Screen_Brightness(g_setting.image.oled);
-    Set_Contrast(g_setting.image.contrast);
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
+    }
 
     Source_HDMI_in();
     IT66121_close();
@@ -146,11 +146,11 @@ void app_switch_to_hdmi_in() {
 void app_switch_to_hdzero(bool is_default) {
     int ch;
 
-#ifdef HDZBOXPRO
-    // Restore image settings from av module
-    Screen_Brightness(g_setting.image.oled);
-    Set_Contrast(g_setting.image.contrast);
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
+    }
 
     if (is_default) {
         ch = g_setting.scan.channel - 1;

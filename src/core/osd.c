@@ -114,10 +114,7 @@ static uint32_t osdFont_hd[OSD_VNUM][OSD_HNUM][OSD_HEIGHT_HD][OSD_WIDTH_HD];    
 static uint32_t osdFont_fhd[OSD_VNUM][OSD_HNUM][OSD_HEIGHT_FHD][OSD_WIDTH_FHD]; // 0x00bbggrr
 static osd_font_t osd_font_hd;
 static osd_font_t osd_font_fhd;
-
-#if HDZBOXPRO
 static lv_obj_t *analog_rssi_bar;
-#endif
 
 void osd_llock_show(bool bShow) {
     char buf[128];
@@ -269,7 +266,13 @@ void osd_vlq_show(bool bShow) {
     lv_obj_clear_flag(g_osd_hdzero.vlq[is_fhd], LV_OBJ_FLAG_HIDDEN);
 }
 
-#if HDZBOXPRO
+void osd_analog_rssi_update_location() {
+    if (g_setting.osd.embedded_mode == EMBEDDED_4x3)
+        lv_obj_set_pos(analog_rssi_bar, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_4_3.x, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_4_3.y + 14);
+    else
+        lv_obj_set_pos(analog_rssi_bar, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_16_9.x, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_16_9.y + 14);
+}
+
 void osd_analog_rssi_create() {
 
     pthread_mutex_lock(&lvgl_mutex);
@@ -291,13 +294,6 @@ void osd_analog_rssi_create() {
     lv_obj_add_flag(analog_rssi_bar, LV_OBJ_FLAG_HIDDEN);
 
     pthread_mutex_unlock(&lvgl_mutex);
-}
-
-void osd_analog_rssi_update_location() {
-    if (g_setting.osd.embedded_mode == EMBEDDED_4x3)
-        lv_obj_set_pos(analog_rssi_bar, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_4_3.x, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_4_3.y + 14);
-    else
-        lv_obj_set_pos(analog_rssi_bar, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_16_9.x, g_setting.osd.element[OSD_GOGGLE_ANT0].position.mode_16_9.y + 14);
 }
 
 void osd_analog_rssi_show(bool bShow) {
@@ -330,7 +326,6 @@ void osd_analog_rssi_show(bool bShow) {
     // }
     lv_bar_set_value(analog_rssi_bar, rssi_volt_mv, LV_ANIM_OFF);
 }
-#endif
 
 ///////////////////////////////////:////////////////////////////////////////////
 // OSD channel
@@ -666,7 +661,12 @@ void osd_hdzero_update(void) {
 
     bool source_is_hdzero = (g_source_info.source == SOURCE_HDZERO);
     bool source_is_analog = (g_source_info.source == SOURCE_AV_MODULE);
-    bool showRXOSD = g_setting.osd.is_visible && source_is_hdzero;
+    bool showRXOSD = false;
+
+    if ((TARGET_GOGGLE == getTargetType() && source_is_hdzero) ||
+        (TARGET_BOXPRO == getTargetType() && (source_is_hdzero || source_is_analog))) {
+        showRXOSD = g_setting.osd.is_visible;
+    }
 
     osd_rec_show(g_setting.osd.is_visible);
     osd_llock_show(g_setting.osd.is_visible);
@@ -702,9 +702,9 @@ void osd_hdzero_update(void) {
     osd_channel_show(showRXOSD);
     osd_vlq_show(showRXOSD && source_is_hdzero);
 
-#if HDZBOXPRO
-    osd_analog_rssi_show(showRXOSD && source_is_analog);
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        osd_analog_rssi_show(showRXOSD && source_is_analog);
+    }
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
@@ -863,9 +863,9 @@ void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant2[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT2].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant3[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT3].position);
 
-#if HDZBOXPRO
-    osd_analog_rssi_update_location();
-#endif
+    if (TARGET_BOXPRO == getTargetType()) {
+        osd_analog_rssi_update_location();
+    }
 
     if (g_setting.storage.selftest) {
         osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][0], &g_setting.osd.element[OSD_GOGGLE_TEMP_TOP].position);
@@ -892,11 +892,9 @@ static void fc_osd_init(uint8_t fhd, uint16_t OFFSET_X, uint16_t OFFSET_Y) {
         }
     }
 
-#if HDZBOXPRO
-    if (!fhd) {
+    if (TARGET_BOXPRO == getTargetType() && !fhd) {
         osd_analog_rssi_create();
     }
-#endif
 }
 
 static void create_osd_scr(void) {

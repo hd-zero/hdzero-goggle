@@ -13,6 +13,7 @@
         "page_imagesettings.h": "c",
         "page_record.h": "c",
         "typeindex": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "targets.h": "c"
     }
 }

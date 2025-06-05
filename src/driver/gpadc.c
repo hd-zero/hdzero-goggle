@@ -39,7 +39,7 @@ void gpadc_on(uint8_t is_on) {
 int gpdac0_get() {
     char buf[128];
 
-#ifndef EMULATOR_BUILD
+#ifdef EMULATOR_BUILD
     return -1;
 #endif
 

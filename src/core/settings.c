@@ -7,6 +7,8 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/targets.h"
+
 #include "core/self_test.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
@@ -492,29 +494,29 @@ void settings_load(void) {
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
 
-#if HDZBOXPRO
-    char buf[64];
-    char value_str[2] = {0};
-    fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
-    sprintf(buf, "/sys/class/gpio/gpio%d/direction", GPIO_IS_PRO);
-    fs_printf(buf, "in");
-    usleep(1000 * 100);
-    sprintf(buf, "/sys/class/gpio/gpio%d/value", GPIO_IS_PRO);
-    FILE *fp = fopen(buf, "r");
-    if (!fp) {
-        return;
-    }
-    if (fgets(value_str, sizeof(value_str), fp) == NULL) {
-        LOGE("Failed to read GPIO_IS_PRO");
+    if (TARGET_BOXPRO == getTargetType()) {
+        char buf[64];
+        char value_str[2] = {0};
+        fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
+        sprintf(buf, "/sys/class/gpio/gpio%d/direction", GPIO_IS_PRO);
+        fs_printf(buf, "in");
+        usleep(1000 * 100);
+        sprintf(buf, "/sys/class/gpio/gpio%d/value", GPIO_IS_PRO);
+        FILE *fp = fopen(buf, "r");
+        if (!fp) {
+            return;
+        }
+        if (fgets(value_str, sizeof(value_str), fp) == NULL) {
+            LOGE("Failed to read GPIO_IS_PRO");
+            fclose(fp);
+            return;
+        }
         fclose(fp);
-        return;
+        if (atoi(value_str)) {
+            LOGI("IS NOT PRO");
+            g_setting.has_all_features = false;
+        } else {
+            LOGI("IS PRO");
+        }
     }
-    fclose(fp);
-    if (atoi(value_str)) {
-        LOGI("IS NOT PRO");
-        g_setting.has_all_features = false;
-    } else {
-        LOGI("IS PRO");
-    }
-#endif
 }
