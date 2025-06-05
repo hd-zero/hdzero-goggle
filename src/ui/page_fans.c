@@ -329,9 +329,9 @@ void fans_auto_ctrl_core(int which, int tempe, bool binit) {
     //////////////////////////////////////////////////////////////////////////////////
     // reinit auto speed
     if (binit) {
-        memset(&speed, 2, sizeof(speed)); // Initial fan speed for auto mode
-        memset(&respeed_cnt, 0, sizeof(respeed_cnt));
-        memset(&respeeding, 0, sizeof(respeeding));
+        speed[0] = speed[1] = speed[2] = 2; // Initial fan speed for auto mode
+        respeed_cnt[0] = respeed_cnt[1] = respeed_cnt[2] = 0;
+        respeeding[0] = respeeding[1] = respeeding[2] = 0;
         fans_top_setspeed(speed[0]);
         fans_left_setspeed(speed[1]);
         fans_right_setspeed(speed[2]);
@@ -431,8 +431,8 @@ void fans_auto_ctrl() {
 
     if (g_setting.fans.auto_mode) {
         fans_auto_ctrl_core(FAN_TOP, g_temperature.top, binit_r);
-        fans_auto_ctrl_core(FAN_RIGHT, g_temperature.right, binit_r);
-        fans_auto_ctrl_core(FAN_LEFT, g_temperature.left, binit_r);
+        fans_auto_ctrl_core(FAN_RIGHT, g_temperature.right, false);
+        fans_auto_ctrl_core(FAN_LEFT, g_temperature.left, false);
     } else {
         if (binit_f)
             speed.top = speed.left = speed.right = 0xFF;
