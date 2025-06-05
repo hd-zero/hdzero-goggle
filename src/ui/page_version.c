@@ -865,7 +865,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
         btn_vtx = create_label_item(cont, buf, 1, ROW_UPDATE_VTX, 2);
 
         bar_vtx = lv_bar_create(cont);
-        lv_obj_set_size(bar_vtx, 320, 20);
+        lv_obj_set_size(bar_vtx, UI_VERSION_PROGRESS_BAR_SIZE);
         lv_obj_set_grid_cell(bar_vtx, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_VTX, 1);
         lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
     }
@@ -873,7 +873,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     snprintf(buf, sizeof(buf), "%s %s", _lang("Update"), _lang("Goggle"));
     btn_goggle = create_label_item(cont, buf, 1, ROW_UPDATE_GOGGLE, 2);
     bar_goggle = lv_bar_create(cont);
-    lv_obj_set_size(bar_goggle, 320, 20);
+    lv_obj_set_size(bar_goggle, UI_VERSION_PROGRESS_BAR_SIZE);
     lv_obj_set_grid_cell(bar_goggle, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_GOGGLE, 1);
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 
@@ -882,7 +882,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
         btn_esp = create_label_item(cont, buf, 1, ROW_UPDATE_ESP32, 2);
         label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
         bar_esp = lv_bar_create(cont);
-        lv_obj_set_size(bar_esp, 320, 20);
+        lv_obj_set_size(bar_esp, UI_VERSION_PROGRESS_BAR_SIZE);
         lv_obj_set_grid_cell(bar_esp, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
         lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
     }
