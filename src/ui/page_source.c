@@ -81,7 +81,7 @@ enum {
 static lv_coord_t col_dsc[] = {UI_SOURCE_COLS};
 static lv_coord_t row_dsc[] = {UI_SOURCE_ROWS};
 
-static lv_obj_t *label[5] = {NULL};
+static lv_obj_t *label[6] = {NULL};
 static uint8_t oled_tst_mode = 0; // 0=Normal, 1=CB, 2=Grid, 3=All Black, 4=All White, 5=Boot logo
 static bool in_sourcepage = false;
 static btn_group_t btn_group0, btn_group1, btn_group2, btn_group3;
@@ -147,6 +147,12 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, ROW_BACK, 3);
     pp_source.p_arr.max = ROW_COUNT;
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        label[5] = create_label_item(cont, _lang("Analog input requires Expansion Module"), 1, ROW_COUNT, 3);
+        lv_obj_set_style_text_font(label[5], UI_PAGE_LABEL_FONT, 0);
+        lv_obj_set_style_pad_top(label[5], UI_PAGE_TEXT_PAD, 0);
+    }
 
     return page;
 }

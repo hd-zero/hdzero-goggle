@@ -81,7 +81,7 @@ extern "C" {
 #define UI_RECORD_COLS                    160, 200, 200, 160, 120, 120, LV_GRID_TEMPLATE_LAST
 #define UI_RECORD_ROWS                    60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
 #define UI_SOURCE_COLS                    160, 160, 200, 160, 160, 160, LV_GRID_TEMPLATE_LAST
-#define UI_SOURCE_ROWS                    60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_SOURCE_ROWS                    60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
 #define UI_STORAGE_COLS                   160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_STORAGE_ROWS                   60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_COLS                   160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
