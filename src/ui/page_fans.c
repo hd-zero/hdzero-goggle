@@ -5,9 +5,10 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
-#include "core/settings.h"
 #include "driver/fans.h"
 #include "driver/nct75.h"
 #include "lang/language.h"
@@ -17,13 +18,20 @@
 #include "ui/ui_style.h"
 
 typedef enum {
+    FAN_TOP = 0,
+    FAN_LEFT,
+    FAN_RIGHT,
+    FAN_COUNT
+} fans_t;
+
+typedef enum {
     FANS_MODE_NO_FAN = 0,
     FANS_MODE_TOP,
     FANS_MODE_SIDE,
 } fans_mode_t;
 
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 140, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_FANS_COLS};
+static lv_coord_t row_dsc[] = {UI_FANS_ROWS};
 
 static fans_mode_t fans_mode = FANS_MODE_NO_FAN;
 
@@ -32,32 +40,40 @@ static btn_group_t btn_group_fans;
 static slider_group_t slider_group[2];
 
 static void update_visibility() {
-    slider_enable(&slider_group[1], btn_group_fans.current != 0);
-
+    slider_enable(&slider_group[0], btn_group_fans.current != 0);
     if (btn_group_fans.current == 0) {
-        lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
     } else {
-        lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
+    }
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        slider_enable(&slider_group[1], btn_group_fans.current != 0);
+        if (btn_group_fans.current == 0) {
+            lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        } else {
+            lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+        }
     }
 }
 
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
+    int rows = 0;
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
-    snprintf(buf, sizeof(buf), "%s:", _lang("Fans"));
+    snprintf(buf, sizeof(buf), "%s:", _lang(pp_fans.name));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -68,24 +84,26 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     create_select_item(arr, cont);
 
-    create_btn_group_item(&btn_group_fans, cont, 2, _lang("Auto Control"), _lang("On"), _lang("Off"), "", "", 0);
-    create_slider_item(&slider_group[0], cont, _lang("Top Fan"), MAX_FAN_TOP, 2, 1);
-    lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
-    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, 2);
-    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
-
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, 3, 1);
-
+    create_btn_group_item(&btn_group_fans, cont, 2, _lang("Auto Control"), _lang("On"), _lang("Off"), "", "", rows++);
     btn_group_set_sel(&btn_group_fans, !g_setting.fans.auto_mode);
 
+    create_slider_item(&slider_group[0], cont, _lang("Top Fan"), MAX_FAN_TOP, 2, rows++);
+    lv_slider_set_range(slider_group[0].slider, MIN_FAN_TOP, MAX_FAN_TOP);
     lv_slider_set_value(slider_group[0].slider, g_setting.fans.top_speed, LV_ANIM_OFF);
-    lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
-
     snprintf(buf, sizeof(buf), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
-    snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
-    lv_label_set_text(slider_group[1].label, buf);
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
+        lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
+        lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
+        snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
+        lv_label_set_text(slider_group[1].label, buf);
+    }
+
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, rows++, 1);
+    pp_fans.p_arr.max = rows;
 
     update_visibility();
 
@@ -223,7 +241,7 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
     } else if (sel == 1) {
         slider = slider_group[0].slider;
         fans_mode = FANS_MODE_TOP;
-    } else if (sel == 2) {
+    } else if (TARGET_GOGGLE == getTargetType() && sel == 2) {
         slider = slider_group[1].slider;
         fans_mode = FANS_MODE_SIDE;
     } else {
@@ -256,62 +274,92 @@ void step_topfan() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Auto control side fans
-static uint16_t respeed_cnt[2] = {0, 0}; //[0]=right,[1]=left
-static bool respeeding[2] = {false, false};
+static uint16_t respeed_cnt[FAN_COUNT] = {0, 0, 0}; //[0]=top,[1]=right,[2]=left
+static uint8_t respeeding[FAN_COUNT] = {0, 0, 0};
 
-uint8_t adj_speed(uint8_t cur_speed, int tempe, uint8_t is_left) {
+uint8_t adj_speed(int which, uint8_t cur_speed, int tempe) {
     uint8_t new_speed = cur_speed;
 
-    if (tempe > FAN_TEMPERATURE_THR_H) {
-        if (new_speed != MAX_FAN_SIDE) {
-            new_speed++;
-            respeeding[is_left] = true;
-            respeed_cnt[is_left] = 0;
+    switch (which) {
+    case FAN_TOP:
+        if (tempe > FAN_TEMPERATURE_THR_H) {
+            if (new_speed != MAX_FAN_TOP) {
+                new_speed++;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        } else if (tempe < FAN_TEMPERATURE_THR_L) {
+            if (new_speed != MIN_FAN_TOP) {
+                new_speed--;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
         }
-    } else if (tempe < FAN_TEMPERATURE_THR_L) {
-        if (new_speed != MIN_FAN_SIDE) {
-            new_speed--;
-            respeeding[is_left] = true;
-            respeed_cnt[is_left] = 0;
+        if (cur_speed != new_speed) {
+            LOGI("Top Fan speed: %d (T=%d)", new_speed, tempe);
         }
+        break;
+    default:
+        if (tempe > FAN_TEMPERATURE_THR_H) {
+            if (new_speed != MAX_FAN_SIDE) {
+                new_speed++;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        } else if (tempe < FAN_TEMPERATURE_THR_L) {
+            if (new_speed != MIN_FAN_SIDE) {
+                new_speed--;
+                respeeding[which] = 1;
+                respeed_cnt[which] = 0;
+            }
+        }
+        if (cur_speed != new_speed) {
+            LOGI("%s Fan speed: %d (T=%d)", which == FAN_LEFT ? "Left" : "Right", new_speed, tempe);
+        }
+        break;
     }
-
-    if (cur_speed != new_speed)
-        LOGI("%s Fan speed: %d (T=%d)", is_left ? "Left" : "Right", new_speed, tempe);
 
     return new_speed;
 }
 
-void fans_auto_ctrl_core(bool is_left, int tempe, bool binit) {
-    static uint8_t speed[2] = {2, 2};
+void fans_auto_ctrl_core(int which, int tempe, bool binit) {
+    static uint8_t speed[FAN_COUNT] = {2, 2, 2};
     uint8_t new_spd;
 
     //////////////////////////////////////////////////////////////////////////////////
     // reinit auto speed
     if (binit) {
-        speed[0] = speed[1] = 2; // Initial fan speed for auto mode
-        respeed_cnt[0] = respeed_cnt[1] = 0;
-        respeeding[0] = respeeding[1] = false;
-        fans_right_setspeed(speed[0]);
+        speed[0] = speed[1] = speed[2] = 2; // Initial fan speed for auto mode
+        respeed_cnt[0] = respeed_cnt[1] = respeed_cnt[2] = 0;
+        respeeding[0] = respeeding[1] = respeeding[2] = 0;
+        fans_top_setspeed(speed[0]);
         fans_left_setspeed(speed[1]);
+        fans_right_setspeed(speed[2]);
     }
 
-    if (respeeding[is_left]) {
-        respeed_cnt[is_left]++;
-        if (respeed_cnt[is_left] == RESPEED_WAIT_TIME) {
-            respeeding[is_left] = false;
-            respeed_cnt[is_left] = 0;
+    if (respeeding[which]) {
+        respeed_cnt[which]++;
+        if (respeed_cnt[which] == RESPEED_WAIT_TIME) {
+            respeeding[which] = false;
+            respeed_cnt[which] = 0;
         }
         return;
     }
 
-    new_spd = adj_speed(speed[is_left], tempe, is_left);
-    if (new_spd != speed[is_left]) {
-        speed[is_left] = new_spd;
-        if (is_left)
-            fans_left_setspeed(speed[1]);
-        else
-            fans_right_setspeed(speed[0]);
+    new_spd = adj_speed(which, speed[which], tempe);
+    if (new_spd != speed[which]) {
+        speed[which] = new_spd;
+        switch (which) {
+        case FAN_TOP:
+            fans_top_setspeed(speed[which]);
+            break;
+        case FAN_LEFT:
+            fans_left_setspeed(speed[which]);
+            break;
+        case FAN_RIGHT:
+            fans_left_setspeed(speed[which]);
+            break;
+        }
     }
 }
 
@@ -382,8 +430,9 @@ void fans_auto_ctrl() {
     auto_mode_d = g_setting.fans.auto_mode;
 
     if (g_setting.fans.auto_mode) {
-        fans_auto_ctrl_core(false, g_temperature.right, binit_r);
-        fans_auto_ctrl_core(true, g_temperature.left, binit_r);
+        fans_auto_ctrl_core(FAN_TOP, g_temperature.top, binit_r);
+        fans_auto_ctrl_core(FAN_RIGHT, g_temperature.right, false);
+        fans_auto_ctrl_core(FAN_LEFT, g_temperature.left, false);
     } else {
         if (binit_f)
             speed.top = speed.left = speed.right = 0xFF;
@@ -418,7 +467,7 @@ page_pack_t pp_fans = {
         .cur = 0,
         .max = 4,
     },
-    .name = "Fans",
+    .name = "Fan Control",
     .create = page_fans_create,
     .enter = NULL,
     .exit = page_fans_mode_exit,

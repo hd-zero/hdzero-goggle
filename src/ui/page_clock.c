@@ -7,8 +7,9 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/common.hh"
-#include "core/settings.h"
 #include "driver/rtc.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
@@ -65,8 +66,8 @@ typedef struct {
  *  Globals
  */
 static const int MAX_YEARS_DROPDOWN = 300; // 2023 + 300 == 2323
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 15, 10, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_CLOCK_COLS};
+static lv_coord_t row_dsc[] = {UI_CLOCK_ROWS};
 static item_t page_clock_items[ITEM_LIST_TOTAL] = {0};
 static int page_clock_item_selected = ITEM_YEAR;
 static int page_clock_item_focused = 0;
@@ -148,7 +149,7 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
     char text[512];
     snprintf(text, sizeof(text), "%d", option);
 
-    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, 160, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, UI_PAGE_DROPDOWN_SIZE, 1, 4, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     page_clock_items[item].type = ITEM_TYPE_OBJ;
 
     int index = page_clock_get_dropdown_index(item, text);
@@ -163,10 +164,10 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
 static lv_obj_t *page_clock_create_datetime_item_attr(lv_obj_t *parent, int row) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, "");
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label, 8, 0);
+    lv_obj_set_style_pad_top(label, UI_CLOCK_DATE_PAD, 0);
     lv_obj_set_style_pad_left(label, 0, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, row, 2);
@@ -348,19 +349,18 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Clock"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 1280, 800);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -400,10 +400,10 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_t *note = lv_label_create(cont);
         snprintf(buf, sizeof(buf), "*%s.", _lang("Battery not installed or clock not configured"));
         lv_label_set_text(note, buf);
-        lv_obj_set_style_text_font(note, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(note, UI_PAGE_LABEL_FONT, 0);
         lv_obj_set_style_text_align(note, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
-        lv_obj_set_style_pad_top(note, 12, 0);
+        lv_obj_set_style_pad_top(note, UI_PAGE_TEXT_PAD, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
         lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
     }

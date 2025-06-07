@@ -7,6 +7,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "ui/page_common.h"
+
 typedef enum {
     SOURCE_MODE_UI = 0,
     SOURCE_MODE_HDZERO = 1,
@@ -79,18 +81,20 @@ extern int fhd_req;
 
 void hw_stat_init();
 
-void OLED_ON(int bON);
+void Screen_ON(int bON);
 void HDZero_open(int bw);
 void HDZero_Close();
 
 void Source_HDMI_in();
-void Source_AV(uint8_t sel); // 0=AV in, 1=AV module
+void Source_AV(source_t mode);
 void Display_UI_init();
 void Display_UI();
+
 void Display_720P90(int mode);
 void Display_720P60_50(int mode, uint8_t is_43);
 void Display_1080P30(int mode);
 
+void Display_HDZ(int mode, int is_43);
 void Display_Osd(bool enable);
 
 void Set_Brightness(uint8_t bri);
@@ -109,7 +113,6 @@ int HDMI_in_detect();
 int Get_VideoLatancy_status(); // ret: 0=unlocked, 1=locked
 int Get_HAN_status();          // ret: 0=error; 1=ok
 
-void vclk_phase_init();
 void pclk_phase_init();
 
 extern uint32_t vclk_phase[VIDEO_SOURCE_NUM];

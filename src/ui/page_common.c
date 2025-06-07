@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../conf/ui.h"
+
 #include "lang/language.h"
 #include "ui/ui_attribute.h"
 
@@ -29,7 +31,7 @@ int create_text(struct menu_obj_s *s, lv_obj_t *parent, bool is_icon, const char
     if (txt) {
         label = lv_label_create(obj);
         lv_label_set_text(label, _lang(txt));
-        lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(label, UI_PAGE_TEXT_FONT, 0);
         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         //    lv_obj_set_flex_grow(label, 1);
     }
@@ -75,7 +77,7 @@ void set_select_item(const panel_arr_t *arr, int row) {
 
 lv_obj_t *create_msgbox_item(const char *title, const char *message) {
     lv_obj_t *msgbox = lv_msgbox_create(lv_scr_act(), title, message, NULL, false);
-    lv_obj_set_width(msgbox, 600);
+    lv_obj_set_width(msgbox, UI_PAGE_MSG_BOX_SIZE);
     lv_obj_center(msgbox);
 
     lv_obj_set_style_bg_color(msgbox, lv_color_make(19, 19, 19), 0);
@@ -96,7 +98,7 @@ lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col,
     lv_obj_set_style_text_align(label, text_align, 0);
     lv_obj_set_style_pad_top(label, (height - lv_font_get_line_height(font)) >> 1, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 120 * cols, height);
+    lv_obj_set_size(label, UI_PAGE_LABEL_COMPACT_SIZE(cols), height);
 
     lv_label_set_recolor(label, true);
     lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);
@@ -109,11 +111,11 @@ lv_obj_t *create_label_item_compact(lv_obj_t *parent, const char *name, int col,
 lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row, int cols) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 320 * cols, 60);
+    lv_obj_set_size(label, UI_PAGE_LABEL_SIZE(cols));
 
     lv_label_set_recolor(label, true);
     lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);
@@ -126,11 +128,11 @@ lv_obj_t *create_label_item(lv_obj_t *parent, const char *name, int col, int row
 lv_obj_t *create_info_item(lv_obj_t *parent, const char *name, int col, int row, int cols) {
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
+    lv_obj_set_style_text_font(label, UI_PAGE_INFO_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 320 * cols, 40);
+    lv_obj_set_size(label, UI_PAGE_INFO_SIZE(cols));
 
     lv_label_set_recolor(label, true);
 
@@ -146,7 +148,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(slider_group->name, lv_font_get_line_height(font) >> 1, 0);
     lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(slider_group->name, 200, 40);
+    lv_obj_set_size(slider_group->name, UI_PAGE_SLIDER_COMPACT_SIZE);
     lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(slider_group->name, COLOR_DISABLED, STATE_DISABLED);
@@ -182,7 +184,7 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(slider_group->label, lv_font_get_line_height(font) >> 1, 0);
     lv_label_set_long_mode(slider_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(slider_group->label, 160, 40);
+    lv_obj_set_size(slider_group->label, UI_PAGE_SLIDER_COMPACT_GROUP_SIZE);
     lv_obj_set_grid_cell(slider_group->label, LV_GRID_ALIGN_START, 4, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(slider_group->label, COLOR_DISABLED, STATE_DISABLED);
@@ -191,11 +193,11 @@ void create_slider_item_compact(slider_group_t *slider_group, lv_obj_t *parent, 
 void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const char *name, int range, int default_value, int row) {
     slider_group->name = lv_label_create(parent);
     lv_label_set_text(slider_group->name, name);
-    lv_obj_set_style_text_font(slider_group->name, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(slider_group->name, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(slider_group->name, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(slider_group->name, 12, 0);
+    lv_obj_set_style_pad_top(slider_group->name, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(slider_group->name, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(slider_group->name, 320, 60);
+    lv_obj_set_size(slider_group->name, UI_PAGE_SLIDER_SIZE);
     lv_obj_set_grid_cell(slider_group->name, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(slider_group->name, COLOR_DISABLED, STATE_DISABLED);
@@ -214,7 +216,7 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     lv_obj_set_style_bg_color(slider_group->slider, COLOR_DISABLED, LV_PART_KNOB | STATE_DISABLED);
     lv_obj_add_style(slider_group->slider, &style_silder_pressed_color, LV_PART_KNOB | LV_STATE_PRESSED);
 
-    lv_obj_set_size(slider_group->slider, 320, 3);
+    lv_obj_set_size(slider_group->slider, UI_PAGE_SLIDER_RANGE_SIZE);
     lv_slider_set_range(slider_group->slider, 0, range);
     lv_slider_set_value(slider_group->slider, default_value, LV_ANIM_OFF);
     lv_obj_set_grid_cell(slider_group->slider, LV_GRID_ALIGN_STRETCH, 3, 2,
@@ -225,11 +227,11 @@ void create_slider_item(slider_group_t *slider_group, lv_obj_t *parent, const ch
     memset(buf, 0, sizeof(buf));
     snprintf(buf, sizeof(buf), "%d", default_value);
     lv_label_set_text(slider_group->label, buf);
-    lv_obj_set_style_text_font(slider_group->label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(slider_group->label, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(slider_group->label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_pad_top(slider_group->label, 12, 0);
+    lv_obj_set_style_pad_top(slider_group->label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(slider_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(slider_group->label, 160, 60);
+    lv_obj_set_size(slider_group->label, UI_PAGE_SLIDER_GROUP_SIZE);
     lv_obj_set_grid_cell(slider_group->label, LV_GRID_ALIGN_START, 5, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(slider_group->label, COLOR_DISABLED, STATE_DISABLED);
@@ -250,14 +252,14 @@ void create_btn_item(lv_obj_t *parent, const char *name, int col, int row) {
     lv_label_set_text(label, name);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
 
-    lv_obj_set_style_text_font(btn, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(btn, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(btn, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_bg_color(btn, lv_color_make(19, 19, 19), 0);
     lv_obj_set_style_bg_color(btn, COLOR_DISABLED, STATE_DISABLED);
     lv_obj_set_style_bg_opa(btn, 0x0, 0);
     lv_obj_set_style_shadow_width(btn, 0, 0);
     lv_obj_set_style_pad_top(btn, 0, 0);
-    lv_obj_set_size(btn, 160, 60);
+    lv_obj_set_size(btn, UI_PAGE_BUTTON_SIZE);
     lv_obj_set_grid_cell(btn, LV_GRID_ALIGN_START, col, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 }
@@ -282,7 +284,7 @@ static lv_coord_t row_dsc[] = {60, LV_GRID_TEMPLATE_LAST};
 
 static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const char *name, int row, int col) {
     btn_a->container = lv_obj_create(parent);
-    lv_obj_set_size(btn_a->container, 200, 60);
+    lv_obj_set_size(btn_a->container, UI_PAGE_ARROW_SIZE);
     lv_obj_set_pos(btn_a->container, 0, 0);
     lv_obj_set_layout(btn_a->container, LV_LAYOUT_GRID);
     lv_obj_clear_flag(btn_a->container, LV_OBJ_FLAG_SCROLLABLE);
@@ -303,18 +305,23 @@ static void create_btn_with_arrow(lv_obj_t *parent, btn_with_arr_t *btn_a, const
     btn_a->label = lv_label_create(btn_a->btn);
     lv_label_set_text(btn_a->label, name);
     lv_obj_set_style_text_align(btn_a->label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_font(btn_a->btn, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(btn_a->btn, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(btn_a->btn, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_bg_color(btn_a->btn, lv_color_make(19, 19, 19), 0);
     lv_obj_set_style_bg_opa(btn_a->btn, 0x0, 0);
     lv_obj_set_style_shadow_width(btn_a->btn, 0, 0);
-    lv_obj_set_style_pad_top(btn_a->btn, 12, 0);
-    lv_obj_set_size(btn_a->btn, 160, 60);
+    lv_obj_set_style_pad_top(btn_a->btn, UI_PAGE_TEXT_PAD, 0);
+    lv_obj_set_size(btn_a->btn, UI_PAGE_ARROW_GROUP_SIZE);
     lv_obj_set_grid_cell(btn_a->btn, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
 
+    lv_obj_set_style_text_color(btn_a->label, COLOR_DISABLED, STATE_DISABLED);
     lv_obj_set_style_pad_column(btn_a->container, 0, 0);
+
+    if (TARGET_BOXPRO == getTargetType()) {
+        lv_obj_set_style_translate_y(btn_a->arrow, -10, LV_PART_MAIN);
+        lv_obj_set_style_translate_y(btn_a->btn, -10, LV_PART_MAIN);
+    }
 }
 
 void btn_group_set_sel(btn_group_t *btn_group, int sel) {
@@ -349,7 +356,7 @@ static void create_btn_with_arrow_compact(lv_obj_t *parent, btn_with_arr_t *btn_
     uint16_t zoom_factor = (arrow_scale_percent * 256) / 100;
 
     btn_a->container = lv_obj_create(parent);
-    lv_obj_set_size(btn_a->container, 200, height);
+    lv_obj_set_size(btn_a->container, UI_PAGE_ARROW_COMPACT_SIZE, height);
     lv_obj_set_pos(btn_a->container, 0, 0);
     lv_obj_set_layout(btn_a->container, LV_LAYOUT_GRID);
     lv_obj_clear_flag(btn_a->container, LV_OBJ_FLAG_SCROLLABLE);
@@ -385,7 +392,7 @@ static void create_btn_with_arrow_compact(lv_obj_t *parent, btn_with_arr_t *btn_
     lv_obj_set_style_pad_top(btn_a->btn, 0, 0);
     lv_obj_set_style_pad_bottom(btn_a->btn, 0, 0);
 
-    lv_obj_set_size(btn_a->btn, 160, height);
+    lv_obj_set_size(btn_a->btn, UI_PAGE_ARROW_COMPACT_GROUP_SIZE, height);
     lv_obj_set_grid_cell(btn_a->btn, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -404,7 +411,7 @@ void create_btn_group_item_compact(btn_group_t *btn_group, lv_obj_t *parent, int
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_pad_top(label, 10, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 120, height);
+    lv_obj_set_size(label, UI_PAGE_BUTTON_COMPACT_SIZE, height);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
@@ -428,11 +435,11 @@ void create_btn_group_item(btn_group_t *btn_group, lv_obj_t *parent, int count, 
 
     btn_group->label = lv_label_create(parent);
     lv_label_set_text(btn_group->label, name);
-    lv_obj_set_style_text_font(btn_group->label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(btn_group->label, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(btn_group->label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(btn_group->label, 12, 0);
+    lv_obj_set_style_pad_top(btn_group->label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(btn_group->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(btn_group->label, 320, 60);
+    lv_obj_set_size(btn_group->label, UI_PAGE_TEXT_SIZE);
     lv_obj_set_grid_cell(btn_group->label, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(btn_group->label, COLOR_DISABLED, STATE_DISABLED);
@@ -458,11 +465,11 @@ void create_btn_group_item2(btn_group_t *btn_group, lv_obj_t *parent, int count,
 
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_text(label, name);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_size(label, 320, 60);
+    lv_obj_set_size(label, UI_PAGE_TEXT_SIZE);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2,
                          LV_GRID_ALIGN_CENTER, row, 1);
     lv_obj_set_style_text_color(label, COLOR_DISABLED, STATE_DISABLED);

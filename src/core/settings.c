@@ -7,6 +7,8 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/targets.h"
+
 #include "core/self_test.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
@@ -52,10 +54,16 @@ const setting_t g_setting_defaults = {
         .naming = SETTING_NAMING_CONTIGUOUS,
     },
     .image = {
+#if HDZGOGGLE
         .oled = 8,
-        .brightness = 39,
         .saturation = 28,
         .contrast = 25,
+#elif HDZBOXPRO
+        .oled = 12,
+        .saturation = 47,
+        .contrast = 30,
+#endif
+        .brightness = 39,
         .auto_off = 1,
     },
     .ht = {
@@ -216,6 +224,7 @@ const setting_t g_setting_defaults = {
         .selftest = false,
     },
     .source = {
+        .analog_channel = 33, // R1
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
         .analog_ratio = SETTING_SOURCES_ANALOG_RATIO_4_3,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
@@ -224,6 +233,7 @@ const setting_t g_setting_defaults = {
     .language = {
         .lang = LANG_ENGLISH_DEFAULT,
     },
+    .has_all_features = true,
 };
 
 int settings_put_osd_element_shown(bool show, char *config_name) {
@@ -324,6 +334,9 @@ void settings_init(void) {
 }
 
 void settings_load(void) {
+    // Start with a fully configured structure then update!
+    memcpy(&g_setting, &g_setting_defaults, sizeof(g_setting));
+
     // scan
     g_setting.scan.channel = ini_getl("scan", "channel", g_setting_defaults.scan.channel, SETTING_INI);
 
@@ -338,6 +351,7 @@ void settings_load(void) {
     g_setting.source.analog_ratio = ini_getl("source", "analog_ratio", g_setting_defaults.source.analog_ratio, SETTING_INI);
     g_setting.source.hdzero_band = ini_getl("source", "hdzero_band", g_setting_defaults.source.hdzero_band, SETTING_INI);
     g_setting.source.hdzero_bw = ini_getl("source", "hdzero_bw", g_setting_defaults.source.hdzero_bw, SETTING_INI);
+    g_setting.source.analog_channel = ini_getl("source", "analog_channel", g_setting_defaults.source.analog_channel, SETTING_INI);
 
     // autoscan
     g_setting.autoscan.status = ini_getl("autoscan", "status", g_setting_defaults.autoscan.status, SETTING_INI);
@@ -478,5 +492,31 @@ void settings_load(void) {
     } else if (g_setting.storage.logging) {
         unlink(APP_LOG_FILE);
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
+    }
+
+    if (TARGET_BOXPRO == getTargetType()) {
+        char buf[64];
+        char value_str[2] = {0};
+        fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
+        sprintf(buf, "/sys/class/gpio/gpio%d/direction", GPIO_IS_PRO);
+        fs_printf(buf, "in");
+        usleep(1000 * 100);
+        sprintf(buf, "/sys/class/gpio/gpio%d/value", GPIO_IS_PRO);
+        FILE *fp = fopen(buf, "r");
+        if (!fp) {
+            return;
+        }
+        if (fgets(value_str, sizeof(value_str), fp) == NULL) {
+            LOGE("Failed to read GPIO_IS_PRO");
+            fclose(fp);
+            return;
+        }
+        fclose(fp);
+        if (atoi(value_str)) {
+            LOGI("IS NOT PRO");
+            g_setting.has_all_features = false;
+        } else {
+            LOGI("IS PRO");
+        }
     }
 }

@@ -16,7 +16,7 @@ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`-=[]\;',./~!@#$%^
 
 Simply click convert then add the newly downloaded source file to the font directory and regenerate cmake via setup.sh
 
-In order to include the font in the HDZero Goggle Source code, you must forward declare the font source.
+In order to include the font in the HDZero Goggle/BoxPRO Source code, you must forward declare the font source.
 ```
 extern const lv_font_t conthrax_26;
 extern const lv_font_t robotomono_26;

@@ -14,9 +14,10 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/common.hh"
 #include "core/elrs.h"
-#include "core/settings.h"
 #include "driver/esp32.h"
 #include "lang/language.h"
 #include "page_version.h"
@@ -31,8 +32,8 @@ enum {
     POS_MAX
 };
 
-static lv_coord_t col_dsc[] = {160, 220, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 40, 40, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_ELRS_COLS};
+static lv_coord_t row_dsc[] = {UI_ELRS_ROWS};
 static lv_obj_t *btn_wifi;
 static lv_obj_t *label_wifi_status;
 static lv_obj_t *btn_bind;
@@ -74,18 +75,17 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     create_text(NULL, section, false, "ELRS:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -113,7 +113,7 @@ static lv_obj_t *page_elrs_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_text_font(cancel_label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_align(cancel_label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(cancel_label, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(cancel_label, 12, 0);
+    lv_obj_set_style_pad_top(cancel_label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(cancel_label, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(cancel_label, LV_GRID_ALIGN_START, 1, 3, LV_GRID_ALIGN_START, POS_MAX, 2);
 

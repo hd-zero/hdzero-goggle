@@ -10,6 +10,8 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/defines.h"
@@ -21,12 +23,11 @@
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "driver/uart.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 #include "ui/ui_main_menu.h"
-#include "ui/ui_porting.h"
 #include "ui/ui_style.h"
 
 LV_IMG_DECLARE(img_signal_status);
@@ -71,11 +72,10 @@ int user_select_index = 0;
 static int auto_scaned_cnt = 0;
 static lv_obj_t *progressbar;
 static lv_obj_t *label;
-static lv_coord_t col_dsc1[] = {500, 20, 1164 - 520, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc1[] = {60, 60, 80, LV_GRID_TEMPLATE_LAST};
-
-static lv_coord_t col_dsc2[] = {120, 80, 80, 180, 100, 80, 80, 180, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc2[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc1[] = {UI_SCANNOW_SCANNER_COLS};
+static lv_coord_t row_dsc1[] = {UI_SCANNOW_SCANNER_ROWS};
+static lv_coord_t col_dsc2[] = {UI_SCANNOW_SIGNAL_COLS};
+static lv_coord_t row_dsc2[] = {UI_SCANNOW_SIGNAL_ROWS};
 
 static void select_signal(channel_t *channel) {
     for (int i = 0; i < BASE_CH_NUM; i++) {
@@ -136,22 +136,22 @@ static void create_channel_switch(lv_obj_t *parent, int col, int row, channel_t 
 
     channel->img0 = lv_img_create(parent);
     lv_img_set_src(channel->img0, &img_signal_status);
-    lv_obj_set_size(channel->img0, 77, 77);
+    lv_obj_set_size(channel->img0, img_signal_status.header.w, img_signal_status.header.h);
     lv_obj_set_grid_cell(channel->img0, LV_GRID_ALIGN_START, col, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     channel->label = lv_label_create(parent);
-    lv_obj_set_style_text_font(channel->label, &lv_font_montserrat_40, 0);
+    lv_obj_set_style_text_font(channel->label, UI_SCANNOW_CHAN_FONT, 0);
     lv_obj_set_style_text_align(channel->label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(channel->label, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(channel->label, 12, 0);
+    lv_obj_set_style_pad_top(channel->label, UI_SCANNOW_CHAN_PAD, 0);
     lv_label_set_long_mode(channel->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_grid_cell(channel->label, LV_GRID_ALIGN_START, col + 1, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 
     channel->img1 = lv_img_create(parent);
     lv_img_set_src(channel->img1, &img_ant1);
-    lv_obj_set_size(channel->img1, 164, 78);
+    lv_obj_set_size(channel->img1, img_ant1.header.w, img_ant1.header.h);
     lv_obj_set_grid_cell(channel->img1, LV_GRID_ALIGN_START, col + 2, 1,
                          LV_GRID_ALIGN_CENTER, row, 1);
 }
@@ -197,12 +197,12 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1158, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_scan, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 60, 0);
+    lv_obj_set_style_pad_top(page, UI_SCANNOW_PAGE_PAD, 0);
 
     lv_obj_t *cont1 = lv_obj_create(page);
-    lv_obj_set_size(cont1, 1158, 250);
+    lv_obj_set_size(cont1, UI_SCANNOW_SCANNER_SIZE);
     lv_obj_set_layout(cont1, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont1, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont1, &style_scan, LV_PART_MAIN);
@@ -211,7 +211,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont1, row_dsc1, 0);
 
     progressbar = lv_bar_create(cont1);
-    lv_obj_set_size(progressbar, 500, 50);
+    lv_obj_set_size(progressbar, UI_SCANNOW_PROG_BAR_SIZE);
     lv_obj_center(progressbar);
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     lv_obj_set_style_bg_color(progressbar, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
@@ -226,10 +226,10 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label = lv_label_create(cont1);
     lv_label_set_text(label, _lang("Scan Ready"));
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label, UI_SCANNOW_READY_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label, 12, 0);
+    lv_obj_set_style_pad_top(label, UI_SCANNOW_READY_PAD, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
@@ -240,16 +240,16 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("dial to select a channel and press"),
              _lang("the Enter button to choose"));
     lv_label_set_text(label2, buf);
-    lv_obj_set_style_text_font(label2, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label2, UI_SCANNOW_NOTE_FONT, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label2, 12, 0);
+    lv_obj_set_style_pad_top(label2, UI_SCANNOW_NOTE_PAD, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_START, 0, 3);
 
     lv_obj_t *cont2 = lv_obj_create(page);
-    lv_obj_set_size(cont2, 1164, 500);
+    lv_obj_set_size(cont2, UI_SCANNOW_FREQ_SIZE);
     lv_obj_set_layout(cont2, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont2, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_style(cont2, &style_scan, LV_PART_MAIN);
@@ -339,7 +339,7 @@ int8_t scan_now(void) {
     lv_bar_set_value(progressbar, 4, LV_ANIM_OFF);
     lv_timer_handler();
 
-    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+    for (ch = 0; ch < HDZERO_CHANNEL_NUM; ch++) {
         scan_channel(g_setting.source.hdzero_band, ch, &gain, &valid);
         if (valid) {
             channel_status_tb[ch].is_valid = 1;
@@ -352,7 +352,7 @@ int8_t scan_now(void) {
     lv_bar_set_value(progressbar, 14, LV_ANIM_OFF);
 
     valid_index = 0;
-    for (ch = 0; ch < CHANNEL_NUM; ch++) {
+    for (ch = 0; ch < HDZERO_CHANNEL_NUM; ch++) {
         if (channel_status_tb[ch].is_valid) {
             valid_channel_tb[valid_index++] = ch;
         }

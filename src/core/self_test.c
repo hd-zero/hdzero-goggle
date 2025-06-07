@@ -9,13 +9,13 @@
 
 #include "core/common.hh"
 #include "core/settings.h"
-#include "driver/TP2825.h"
 #include "driver/dm5680.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
 #include "driver/it66021.h"
 #include "driver/it66121.h"
+#include "driver/tp2825.h"
 #include "ui/page_common.h"
 
 #define UART_WAIT (100 * 1000)
@@ -28,6 +28,7 @@ void self_test() {
     if (!g_setting.storage.selftest)
         return;
 
+    LOGI(" ");
     LOGI("==== Self Test ======================");
     // 1. Read FPGA
     i = I2C_Read(ADDR_FPGA, 0xFF);
@@ -57,18 +58,27 @@ void self_test() {
     LOGI("%sIT66021(L, HDMI_RX) Vender ID = 0x%x ", msg[i == 0x54], i);
     DM5680_ResetHDMI_RX(0);
 
-    // 5. AL FPGA
-    i = I2C_Read(ADDR_AL, 0xFF);
-    LOGI("%sAL ver = 0x%x ", msg[1], i);
+    if (TARGET_GOGGLE == getTargetType()) {
+        // 5. AL FPGA
+        i = I2C_Read(ADDR_AL, 0xFF);
+        LOGI("%sAL ver = 0x%x ", msg[1], i);
+    }
 
     // 6. TP2825
     TP2825_open();
-    i = I2C_Read(ADDR_TP2825, 0x00);
-    LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
+    if (TARGET_GOGGLE == getTargetType()) {
+        i = I2C_Read(ADDR_TP2825, 0x00);
+        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        i = I2C_Read(ADDR_TP2825, 0x0B);
+        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0xD0], i);
+    }
+
     TP2825_close();
 
     // 7. DM6302s
     DM5680_ResetRF(0);
+    usleep(1000);
     DM5680_ResetRF(1);
     usleep(UART_WAIT);
     DM6302_Init0(0);
@@ -81,5 +91,11 @@ void self_test() {
     i = Get_HAN_status() & 1;
     LOGI("%sHAN Status. ", msg[i]);
 
-    LOGI("==== Log  ======================");
+    if (TARGET_BOXPRO == getTargetType()) {
+        // 9. DDR calib_done
+        i = I2C_Read(ADDR_FPGA, 0x1B);
+        LOGI("%sDDR calib_done = %d ", msg[i == 1], i);
+    }
+
+    LOGI("==== Log  ======================\n");
 }

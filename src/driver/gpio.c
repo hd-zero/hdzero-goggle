@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "../conf/targets.h"
+
 #include "core/defines.h"
 #include "util/filesystem.h"
 
@@ -22,6 +24,14 @@ void gpio_init() {
 
     gpio_open(GPIO_TP2825_RSTB);
     gpio_set(GPIO_TP2825_RSTB, 0);
+
+    if (TARGET_BOXPRO == getTargetType()) {
+        gpio_open(GPIO_TP2825_PDN);
+        gpio_set(GPIO_TP2825_PDN, 0);
+
+        gpio_open(GPIO_RTC6715_ON);
+        gpio_set(GPIO_RTC6715_ON, 0);
+    }
 
     gpio_open(GPIO_ESP32_EN);
     gpio_set(GPIO_ESP32_EN, 0);

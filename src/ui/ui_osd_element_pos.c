@@ -6,10 +6,11 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
 #include "core/common.hh"
 #include "core/osd.h"
 #include "driver/hardware.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "log/log.h"
 #include "ui/page_common.h"
@@ -110,9 +111,9 @@ static osd_element_t osd_element_list[OSD_GOGGLE_NUM] = {
     {"Antenna 2", "ant1"},
     {"Antenna 3", "ant2"},
     {"Antenna 4", "ant3"},
-    {"Goggle Temp Top", "goggle_temp_top"},
-    {"Goggle Temp Left", "goggle_temp_left"},
-    {"Goggle Temp Right", "goggle_temp_right"},
+    {"Temperature Top", "goggle_temp_top"},
+    {"Temperature Left", "goggle_temp_left"},
+    {"Temperature Right", "goggle_temp_right"},
 };
 
 // string used for the dropdown menu
@@ -208,13 +209,13 @@ static void reset_all_osd_elements_reset_label_text() {
 
 static void save_osd_elements_reset_label_text() {
     lv_label_set_text(label_save_osd_elements, _lang("Save changes"));
-    lv_obj_set_style_text_font(label_save_osd_elements, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(label_save_osd_elements, UI_PAGE_TEXT_FONT, 0);
     save_changes_confirm = CONFIRMATION_UNCONFIRMED;
 }
 
 static void cancel_osd_elements_reset_label_text() {
     lv_label_set_text(label_cancel_osd_elements, _lang("Cancel"));
-    lv_obj_set_style_text_font(label_cancel_osd_elements, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(label_cancel_osd_elements, UI_PAGE_TEXT_FONT, 0);
     cancel_changes_confirm = CONFIRMATION_UNCONFIRMED;
 }
 
@@ -441,7 +442,7 @@ static int ui_handle_click() {
             return 1;
         }
 
-        lv_obj_set_style_text_font(label_cancel_osd_elements, &lv_font_montserrat_18, 0);
+        lv_obj_set_style_text_font(label_cancel_osd_elements, UI_PAGE_LABEL_FONT, 0);
         snprintf(buf, sizeof(buf), "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
         lv_label_set_text(label_cancel_osd_elements, buf);
         cancel_changes_confirm = CONFIRMATION_CONFIRMED;
@@ -459,7 +460,7 @@ static int ui_handle_click() {
             return 1;
         }
 
-        lv_obj_set_style_text_font(label_save_osd_elements, &lv_font_montserrat_18, 0);
+        lv_obj_set_style_text_font(label_save_osd_elements, UI_PAGE_LABEL_FONT, 0);
         snprintf(buf, sizeof(buf), "#FFFF00 %s/%s#", _lang("click to confirm"), _lang("scroll to cancel"));
         lv_label_set_text(label_save_osd_elements, buf);
         save_changes_confirm = CONFIRMATION_CONFIRMED;
@@ -540,19 +541,19 @@ void ui_osd_element_pos_init(void) {
     create_select_item(&ui_selection_panel, ui_root_container);
 
     // create all elements
-    create_btn_group_item_compact(&btn_group_osd_mode, ui_root_container, 2, _lang("Mode"), "4x3", "16x9", "", "", ROW_OSD_MODE, 40, 80, &lv_font_montserrat_20);
+    create_btn_group_item_compact(&btn_group_osd_mode, ui_root_container, 2, _lang("Mode"), "4x3", "16x9", "", "", ROW_OSD_MODE, 40, 80, UI_OSD_TEXT_FONT);
 
     snprintf(buf, sizeof(buf), "%s: ", _lang("Element"));
-    create_label_item_compact(ui_root_container, buf, 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, &lv_font_montserrat_20);
+    create_label_item_compact(ui_root_container, buf, 1, ROW_OSD_ELEMENT, 1, 40, LV_TEXT_ALIGN_LEFT, LV_GRID_ALIGN_START, UI_OSD_TEXT_FONT);
     fill_osd_elements_str();
-    dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, &lv_font_montserrat_20);
+    dropdown_osd_element = create_dropdown_item(ui_root_container, osd_elements_str, 2, ROW_OSD_ELEMENT, 160, 30, 2, 2, LV_GRID_ALIGN_STRETCH, UI_OSD_TEXT_FONT);
 
-    create_btn_group_item_compact(&btn_group_osd_show_element, ui_root_container, 2, _lang("Show"), _lang("Yes"), _lang("No"), "", "", ROW_OSD_SHOW_ELEMENT, 40, 80, &lv_font_montserrat_20);
-    create_slider_item_compact(&slider_group_osd_element_pos_x, ui_root_container, _lang("Pos-X"), OSD_ELEMENT_MAX_X_POS, 0, ROW_OSD_ELEMENT_POS_X, &lv_font_montserrat_20);
-    create_slider_item_compact(&slider_group_osd_element_pos_y, ui_root_container, _lang("Pos-Y"), OSD_ELEMENT_MAX_Y_POS, 0, ROW_OSD_ELEMENT_POS_Y, &lv_font_montserrat_20);
-    label_save_osd_elements = create_label_item_compact(ui_root_container, _lang("Save changes"), 0, ROW_SAVE, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_20);
-    label_cancel_osd_elements = create_label_item_compact(ui_root_container, _lang("Cancel"), 0, ROW_CANCEL, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_20);
-    label_reset_all_osd_elements = create_label_item_compact(ui_root_container, _lang("Reset all elements (both modes)"), 0, ROW_RESET_ELEMENTS, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, &lv_font_montserrat_18);
+    create_btn_group_item_compact(&btn_group_osd_show_element, ui_root_container, 2, _lang("Show"), _lang("Yes"), _lang("No"), "", "", ROW_OSD_SHOW_ELEMENT, 40, 80, UI_OSD_TEXT_FONT);
+    create_slider_item_compact(&slider_group_osd_element_pos_x, ui_root_container, _lang("Pos-X"), OSD_ELEMENT_MAX_X_POS, 0, ROW_OSD_ELEMENT_POS_X, UI_OSD_TEXT_FONT);
+    create_slider_item_compact(&slider_group_osd_element_pos_y, ui_root_container, _lang("Pos-Y"), OSD_ELEMENT_MAX_Y_POS, 0, ROW_OSD_ELEMENT_POS_Y, UI_OSD_TEXT_FONT);
+    label_save_osd_elements = create_label_item_compact(ui_root_container, _lang("Save changes"), 0, ROW_SAVE, 5, 40, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, UI_OSD_TEXT_FONT);
+    label_cancel_osd_elements = create_label_item_compact(ui_root_container, _lang("Cancel"), 0, ROW_CANCEL, 5, 40, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, UI_OSD_TEXT_FONT);
+    label_reset_all_osd_elements = create_label_item_compact(ui_root_container, _lang("Reset all elements (both modes)"), 0, ROW_RESET_ELEMENTS, 5, 30, LV_TEXT_ALIGN_CENTER, LV_GRID_ALIGN_CENTER, UI_PAGE_LABEL_FONT);
 
     // make the menu semi-transparent
     lv_obj_set_style_bg_opa(ui_root_container, LV_OPA_70, 0);

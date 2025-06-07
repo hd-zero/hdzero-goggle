@@ -8,12 +8,13 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "common.hh"
 #include "core/app_state.h"
 #include "core/elrs.h"
 #include "core/esp32_flash.h"
 #include "core/osd.h"
-#include "core/settings.h"
 #include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
@@ -29,15 +30,52 @@
 #include "util/system.h"
 
 enum {
-    ROW_CUR_VERSION = 0,
-    ROW_RESET_ALL_SETTINGS,
-    ROW_UPDATE_VTX,
-    ROW_UPDATE_GOGGLE,
-    ROW_UPDATE_ESP32,
-    ROW_BACK,
-
-    ROW_COUNT
+    ROW_GOGGLE_CUR_VERSION = 0,
+    ROW_GOGGLE_RESET_ALL_SETTINGS,
+    ROW_GOGGLE_UPDATE_VTX,
+    ROW_GOGGLE_UPDATE_GOGGLE,
+    ROW_GOGGLE_UPDATE_ESP32,
+    ROW_GOGGLE_BACK,
+    ROW_GOGGLE_COUNT
 };
+
+enum {
+    ROW_BOXPRO_UPDATE_VTX = -1,
+    ROW_BOXPRO_CUR_VERSION = 0,
+    ROW_BOXPRO_RESET_ALL_SETTINGS,
+    ROW_BOXPRO_UPDATE_GOGGLE,
+    ROW_BOXPRO_UPDATE_ESP32,
+    ROW_BOXPRO_BACK,
+    ROW_BOXPRO_COUNT
+};
+
+enum {
+    ROW_BOXLITE_UPDATE_ESP32 = -2,
+    ROW_BOXLITE_UPDATE_VTX = -1,
+    ROW_BOXLITE_CUR_VERSION = 0,
+    ROW_BOXLITE_RESET_ALL_SETTINGS,
+    ROW_BOXLITE_UPDATE_GOGGLE,
+    ROW_BOXLITE_BACK,
+    ROW_BOXLITE_COUNT
+};
+
+#if HDZGOGGLE
+#define ROW_CUR_VERSION        ROW_GOGGLE_CUR_VERSION
+#define ROW_RESET_ALL_SETTINGS ROW_GOGGLE_RESET_ALL_SETTINGS
+#define ROW_UPDATE_VTX         ROW_GOGGLE_UPDATE_VTX
+#define ROW_UPDATE_GOGGLE      ROW_GOGGLE_UPDATE_GOGGLE
+#define ROW_UPDATE_ESP32       ROW_GOGGLE_UPDATE_ESP32
+#define ROW_BACK               ROW_GOGGLE_BACK
+#define ROW_COUNT              ROW_GOGGLE_COUNT
+#elif HDZBOXPRO
+#define ROW_CUR_VERSION        (g_setting.has_all_features ? ROW_BOXPRO_CUR_VERSION : ROW_BOXLITE_CUR_VERSION)
+#define ROW_RESET_ALL_SETTINGS (g_setting.has_all_features ? ROW_BOXPRO_RESET_ALL_SETTINGS : ROW_BOXLITE_RESET_ALL_SETTINGS)
+#define ROW_UPDATE_VTX         (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_VTX : ROW_BOXLITE_UPDATE_VTX)
+#define ROW_UPDATE_GOGGLE      (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_GOGGLE : ROW_BOXLITE_UPDATE_GOGGLE)
+#define ROW_UPDATE_ESP32       (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_ESP32 : ROW_BOXLITE_UPDATE_ESP32)
+#define ROW_BACK               (g_setting.has_all_features ? ROW_BOXPRO_BACK : ROW_BOXLITE_BACK)
+#define ROW_COUNT              (g_setting.has_all_features ? ROW_BOXPRO_COUNT : ROW_BOXLITE_COUNT)
+#endif
 
 typedef enum {
     CONFIRMATION_UNCONFIRMED = 0,
@@ -65,8 +103,8 @@ typedef struct {
     bool ready;
 } fw_select_t;
 
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_VERSION_COLS};
+static lv_coord_t row_dsc[] = {UI_VERSION_ROWS};
 
 static lv_obj_t *btn_reset_all_settings = NULL;
 static lv_obj_t *bar_vtx = NULL;
@@ -475,45 +513,56 @@ static void page_version_fw_scan_for_updates() {
     bool has_online_vtx_update = false;
     char buf[1024];
 
+#if HDZGOGGLE
+    const char *local_filename = "HDZERO_GOGGLE";
+    const char *remote_filename = "GOGGLE";
+#elif HDZBOXPRO
+    const char *local_filename = "HDZERO_BOXPRO";
+    const char *remote_filename = "BoxPro";
+#endif
+
     page_version_fw_select_reset(&fw_select_goggle);
     snprintf(fw_select_goggle.path, sizeof(fw_select_goggle.path), "/mnt/extsd");
-    page_version_get_latest_fw_files(&fw_select_goggle, "HDZERO_GOGGLE", false);
+    page_version_get_latest_fw_files(&fw_select_goggle, local_filename, false);
 
     if (fw_select_goggle.ready) {
         fw_select_goggle.alt_title = _lang("SD Card");
     }
 
-    page_version_fw_select_reset(&fw_select_vtx);
-    snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
-    page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
+    if (TARGET_GOGGLE == getTargetType()) {
+        page_version_fw_select_reset(&fw_select_vtx);
+        snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
+        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
 
-    if (fw_select_vtx.ready) {
-        fw_select_vtx.alt_title = _lang("SD Card");
+        if (fw_select_vtx.ready) {
+            fw_select_vtx.alt_title = _lang("SD Card");
+        }
     }
 
     if (g_setting.wifi.enable) {
         if (!fw_select_goggle.ready) {
             has_online_goggle_update =
-                0 < page_version_get_latest_fw_path("GOGGLE", fw_select_goggle.path, sizeof(fw_select_goggle.path)) &&
+                0 < page_version_get_latest_fw_path(remote_filename, fw_select_goggle.path, sizeof(fw_select_goggle.path)) &&
                 0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
         }
 
-        if (!fw_select_vtx.ready) {
-            has_online_vtx_update =
-                0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
-                0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
+        if (TARGET_GOGGLE == getTargetType()) {
+            if (!fw_select_vtx.ready) {
+                has_online_vtx_update =
+                    0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
+                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
+            }
         }
 
         if (has_online_goggle_update || has_online_vtx_update) {
-            snprintf(buf, sizeof(buf), "%s, %s\n%s.",
-                     _lang("To view release notes"),
-                     _lang("select either Update VTX or Update Goggle"),
+            snprintf(buf, sizeof(buf), "%s\n%s.",
+                     _lang("To view release notes select any of the Update buttons"),
                      _lang("then press the Func button to display or hide the release notes"));
             lv_label_set_text(label_note, buf);
         } else if (fw_select_goggle.alt_title || fw_select_vtx.alt_title) {
             snprintf(buf, sizeof(buf), "%s\n%s.",
-                     _lang("Remove HDZERO_TX or HDZERO_GOGGLE binary files from the root of"),
-                     _lang("SD Card in order to install the latest online downloaded firmware files"));
+                     _lang("Remove any update binary files from the root of SD Card in"),
+                     _lang("order to install the latest online downloaded firmware files"));
             lv_label_set_text(label_note, buf);
         }
     } else {
@@ -534,7 +583,7 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
     FILE *notes = fopen(buff, "r");
 
     if (notes) {
-        int max_msg_box_width = 1280;
+        int max_msg_box_width = UI_VERSION_RELEASE_NOTES_MAX_SIZE;
         int max_line_length = 1;
         size_t written = 0;
         size_t nbytes = 0;
@@ -559,16 +608,16 @@ static void page_version_release_notes_show(fw_select_t *fw_select) {
         lv_obj_t *title = lv_msgbox_get_title(msgbox_release_notes);
         lv_obj_t *message = lv_msgbox_get_text(msgbox_release_notes);
         int msg_box_width = ((max_line_length / 10)) * 100;
-        if (msg_box_width > 1280) {
-            msg_box_width = 1280;
-        } else if (msg_box_width < 600) {
-            msg_box_width = 600;
+        if (msg_box_width > UI_VERSION_RELEASE_NOTES_MAX_SIZE) {
+            msg_box_width = UI_VERSION_RELEASE_NOTES_MAX_SIZE;
+        } else if (msg_box_width < UI_VERSION_RELEASE_NOTES_MIN_SIZE) {
+            msg_box_width = UI_VERSION_RELEASE_NOTES_MIN_SIZE;
         }
 
         snprintf(tbuff, sizeof(tbuff), "%s: %s", _lang("Release Notes"), fs_basename(fw_select->path));
         lv_label_set_text_static(title, tbuff);
         lv_label_set_text_static(message, mbuff);
-        lv_obj_set_style_text_font(message, &lv_font_montserrat_16, 0);
+        lv_obj_set_style_text_font(message, UI_PAGE_LABEL_FONT, 0);
         lv_obj_set_width(msgbox_release_notes, msg_box_width);
         lv_obj_clear_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
 
@@ -637,15 +686,15 @@ static void page_version_fw_select_populate(fw_select_t *fw_select) {
 
     int text_width = ((max_line_length / 10)) * 175;
     int msg_box_width = text_width + 200;
-    if (msg_box_width > 825) {
-        msg_box_width = 825;
-    } else if (msg_box_width < 600) {
-        msg_box_width = 600;
+    if (msg_box_width > UI_VERSION_FIRMWARE_MAX_SIZE) {
+        msg_box_width = UI_VERSION_FIRMWARE_MAX_SIZE;
+    } else if (msg_box_width < UI_VERSION_FIRMWARE_MIN_SIZE) {
+        msg_box_width = UI_VERSION_FIRMWARE_MIN_SIZE;
     }
 
-    lv_obj_set_size(fw_select->container, msg_box_width - 50, 200);
+    lv_obj_set_size(fw_select->container, msg_box_width - 50, UI_VERSION_FIRMWARE_HEIGHT);
     lv_obj_set_width(fw_select->msgbox, msg_box_width);
-    lv_obj_set_width(fw_select->dropdown, msg_box_width - 150);
+    lv_obj_set_width(fw_select->dropdown, msg_box_width - UI_VERSION_FIRMWARE_WIDTH_OFFSET);
 }
 
 static void page_version_fw_select_show(const char *title, fw_select_t *fw_select) {
@@ -735,8 +784,8 @@ static void page_version_on_click_fw_select(uint8_t key, int sel) {
 }
 
 static void page_version_fw_select_create(const char *device, fw_select_t *fw_select, void (*flash)()) {
-    static lv_coord_t msgbox_col_dsc[] = {40, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-    static lv_coord_t mbsbox_row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t msgbox_col_dsc[] = {UI_VERSION_FIRMWARE_MSGBOX_COLS};
+    static lv_coord_t mbsbox_row_dsc[] = {UI_VERSION_FIRMWARE_MSGBOX_ROWS};
 
     char text[256];
     char buf[128];
@@ -761,7 +810,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
         lv_obj_set_style_bg_color(fw_select->this.panel[i], lv_color_make(0x44, 0x44, 0x44), 0);
     }
     fw_select->page = pp_version.p_arr;
-    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, 600, 40, 1, 4, LV_GRID_ALIGN_START, &lv_font_montserrat_26);
+    fw_select->dropdown = create_dropdown_item(fw_select->container, "", 1, 0, UI_VERSION_FIRMWARE_MSGBOX_SIZE, 1, 4, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     fw_select->update = create_label_item(fw_select->container, text, 1, 1, 4);
     snprintf(text, sizeof(text), "< %s", _lang("Back"));
     fw_select->back = create_label_item(fw_select->container, text, 1, 2, 4);
@@ -786,19 +835,18 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Firmware"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -811,33 +859,36 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     cur_ver_label = create_label_item(cont, _lang("Current Version"), 1, ROW_CUR_VERSION, 2);
 
     btn_reset_all_settings = create_label_item(cont, _lang("Reset all settings"), 1, ROW_RESET_ALL_SETTINGS, 2);
-    snprintf(buf, sizeof(buf), "%s VTX", _lang("Update"));
-    btn_vtx = create_label_item(cont, buf, 1, ROW_UPDATE_VTX, 2);
+
+    if (ROW_UPDATE_VTX > 0) {
+        snprintf(buf, sizeof(buf), "%s VTX", _lang("Update"));
+        btn_vtx = create_label_item(cont, buf, 1, ROW_UPDATE_VTX, 2);
+
+        bar_vtx = lv_bar_create(cont);
+        lv_obj_set_size(bar_vtx, UI_VERSION_PROGRESS_BAR_SIZE);
+        lv_obj_set_grid_cell(bar_vtx, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_VTX, 1);
+        lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
+    }
+
     snprintf(buf, sizeof(buf), "%s %s", _lang("Update"), _lang("Goggle"));
     btn_goggle = create_label_item(cont, buf, 1, ROW_UPDATE_GOGGLE, 2);
-    snprintf(buf, sizeof(buf), "%s ESP32", _lang("Update"));
-    btn_esp = create_label_item(cont, buf, 1, ROW_UPDATE_ESP32, 2);
-    label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
-    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, ROW_BACK, 1);
-
-    bar_vtx = lv_bar_create(cont);
-    lv_obj_set_size(bar_vtx, 320, 20);
-    lv_obj_set_grid_cell(bar_vtx, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_VTX, 1);
-    lv_obj_add_flag(bar_vtx, LV_OBJ_FLAG_HIDDEN);
-
     bar_goggle = lv_bar_create(cont);
-    lv_obj_set_size(bar_goggle, 320, 20);
-    lv_obj_set_grid_cell(bar_goggle, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_GOGGLE, 1);
+    lv_obj_set_size(bar_goggle, UI_VERSION_PROGRESS_BAR_SIZE);
+    lv_obj_set_grid_cell(bar_goggle, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_GOGGLE, 1);
     lv_obj_add_flag(bar_goggle, LV_OBJ_FLAG_HIDDEN);
 
-    bar_esp = lv_bar_create(cont);
-    lv_obj_set_size(bar_esp, 320, 20);
-    lv_obj_set_grid_cell(bar_esp, LV_GRID_ALIGN_CENTER, 3, 3,
-                         LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
-    lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+    if (ROW_UPDATE_ESP32 > 0) {
+        snprintf(buf, sizeof(buf), "%s ESP32", _lang("Update"));
+        btn_esp = create_label_item(cont, buf, 1, ROW_UPDATE_ESP32, 2);
+        label_esp = create_label_item(cont, "", 3, ROW_UPDATE_ESP32, 2);
+        bar_esp = lv_bar_create(cont);
+        lv_obj_set_size(bar_esp, UI_VERSION_PROGRESS_BAR_SIZE);
+        lv_obj_set_grid_cell(bar_esp, LV_GRID_ALIGN_CENTER, 3, 3, LV_GRID_ALIGN_CENTER, ROW_UPDATE_ESP32, 1);
+        lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
+    create_label_item(cont, buf, 1, ROW_BACK, 1);
 
     snprintf(buf, sizeof(buf), "%s.\n%s.",
              _lang("Goggle update completed successfully"),
@@ -856,10 +907,10 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     label_note = lv_label_create(cont);
     lv_label_set_text(label_note, "");
-    lv_obj_set_style_text_font(label_note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label_note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label_note, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label_note, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label_note, 12, 0);
+    lv_obj_set_style_pad_top(label_note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label_note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label_note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
 
@@ -869,6 +920,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     snprintf(page_name, sizeof(page_name), "%s   ", _lang("Firmware"));
     pp_version.name = page_name;
+    pp_version.p_arr.max = ROW_COUNT;
 
     return page;
 }
@@ -882,7 +934,7 @@ static void page_version_on_created() {
     lv_obj_add_flag(alert_img, LV_OBJ_FLAG_FLOATING);
     lv_obj_clear_flag(alert_img, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_flag(alert_img, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_pos(alert_img, 125, 0);
+    lv_obj_set_pos(alert_img, UI_VERSION_FIRMWARE_ALERT_SIZE, 0);
 
     /**
      * If user reads release notes, then we can remove the alert.
@@ -964,10 +1016,12 @@ static void page_version_enter() {
     autoscan_filesystem = false;
     version_update_title();
 
-    lv_label_set_text(label_esp, "");
-    msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
-    lv_timer_t *timer = lv_timer_create(elrs_version_timer, 250, NULL);
-    lv_timer_set_repeat_count(timer, 20);
+    if (ROW_UPDATE_ESP32 > 0) {
+        lv_label_set_text(label_esp, "");
+        msp_send_packet(MSP_GET_BP_VERSION, MSP_PACKET_COMMAND, 0, NULL);
+        lv_timer_t *timer = lv_timer_create(elrs_version_timer, 250, NULL);
+        lv_timer_set_repeat_count(timer, 20);
+    }
 }
 
 static void page_version_exit() {
@@ -994,8 +1048,7 @@ static void page_version_on_click(uint8_t key, int sel) {
 
     if (!page_version_release_notes_active()) {
         version_update_title();
-        switch (sel) {
-        case ROW_CUR_VERSION:
+        if (sel == ROW_CUR_VERSION) {
             fp = fopen("/tmp/wr_reg", "r");
             if (fp) {
                 while (fgets(buf, 80, fp)) {
@@ -1019,10 +1072,7 @@ static void page_version_on_click(uint8_t key, int sel) {
                 LOGI("DM5680_1 REG[%02x,%02x]-> %02x", dat[0], dat[1], rx_status[1].rx_regval);
             }
             fclose(fp);
-            // system_exec("rm /tmp/rd_reg");
-            break;
-
-        case ROW_RESET_ALL_SETTINGS:
+        } else if (sel == ROW_RESET_ALL_SETTINGS) {
             if (reset_all_settings_confirm) {
                 settings_reset();
                 reset_all_settings_reset_label_text();
@@ -1033,23 +1083,17 @@ static void page_version_on_click(uint8_t key, int sel) {
                 lv_label_set_text(btn_reset_all_settings, buf);
                 reset_all_settings_confirm = CONFIRMATION_CONFIRMED;
             }
-            break;
-
-        case ROW_UPDATE_VTX:
+        } else if (sel == ROW_UPDATE_VTX) {
             page_version_fw_scan_for_updates();
             snprintf(buf, sizeof(buf), "VTX %s", _lang("Firmware"));
             page_version_fw_select_show(buf, &fw_select_vtx);
-            break;
-
-        case ROW_UPDATE_GOGGLE:
+        } else if (sel == ROW_UPDATE_GOGGLE) {
             if (!reboot_flag) {
                 page_version_fw_scan_for_updates();
                 snprintf(buf, sizeof(buf), "%s %s", _lang("Goggle"), _lang("Firmware"));
                 page_version_fw_select_show(buf, &fw_select_goggle);
             }
-            break;
-
-        case ROW_UPDATE_ESP32: // flash ESP via SD
+        } else if (sel == ROW_UPDATE_ESP32) {
             lv_obj_clear_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(label_esp, LV_OBJ_FLAG_HIDDEN);
             snprintf(buf, sizeof(buf), "%s...", _lang("Flashing"));
@@ -1066,9 +1110,6 @@ static void page_version_on_click(uint8_t key, int sel) {
                 lv_label_set_text(btn_esp, buf);
             }
             page_version_enter();
-            break;
-        default:
-            break;
         }
     }
 }
@@ -1076,15 +1117,10 @@ static void page_version_on_click(uint8_t key, int sel) {
 void page_version_on_right_button(bool is_short) {
     if (is_short) {
         if (!page_version_release_notes_active()) {
-            switch (pp_version.p_arr.cur) {
-            case ROW_UPDATE_VTX:
+            if (pp_version.p_arr.cur == ROW_UPDATE_VTX) {
                 page_version_release_notes_show(&fw_select_vtx);
-                break;
-            case ROW_UPDATE_GOGGLE:
+            } else if (pp_version.p_arr.cur == ROW_UPDATE_GOGGLE) {
                 page_version_release_notes_show(&fw_select_goggle);
-                break;
-            default:
-                break;
             }
         } else {
             page_version_release_notes_hide();
@@ -1094,9 +1130,10 @@ void page_version_on_right_button(bool is_short) {
 
 void process_bar_update(const int value0,
                         const int value1) {
-    if (bar_vtx && bar_goggle) {
-        // LOGI("v0=%d, v1=%d\n", value0, value1);
+    if (bar_vtx) {
         lv_bar_set_value(bar_vtx, value0, LV_ANIM_OFF);
+    }
+    if (bar_goggle) {
         lv_bar_set_value(bar_goggle, value1, LV_ANIM_OFF);
     }
 }
@@ -1124,14 +1161,21 @@ void update_current_version() {
 void version_update_title() {
     char buf[128];
     update_current_version();
-    snprintf(buf, sizeof(buf), "%s VTX", _lang("Update"));
-    lv_label_set_text(btn_vtx, buf);
+
+    if (ROW_UPDATE_VTX > 0) {
+        snprintf(buf, sizeof(buf), "%s VTX", _lang("Update"));
+        lv_label_set_text(btn_vtx, buf);
+    }
+
     if (!reboot_flag) {
         snprintf(buf, sizeof(buf), "%s %s", _lang("Update"), _lang("Goggle"));
         lv_label_set_text(btn_goggle, buf);
     }
-    snprintf(buf, sizeof(buf), "%s ESP32", _lang("Update"));
-    lv_label_set_text(btn_esp, buf);
+
+    if (ROW_UPDATE_ESP32 > 0) {
+        snprintf(buf, sizeof(buf), "%s ESP32", _lang("Update"));
+        lv_label_set_text(btn_esp, buf);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1222,7 +1266,6 @@ void *thread_version(void *ptr) {
 page_pack_t pp_version = {
     .p_arr = {
         .cur = 0,
-        .max = ROW_COUNT,
     },
     .name = "Firmware   ", // Spaces are necessary to include alert icon. Note name will be overwritten when page_version_create() is called
     .create = page_version_create,

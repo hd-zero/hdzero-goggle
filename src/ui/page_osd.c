@@ -5,10 +5,11 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/common.hh"
 #include "core/osd.h"
-#include "core/settings.h"
 #include "driver/hardware.h"
 #include "lang/language.h"
 #include "page_common.h"
@@ -28,8 +29,8 @@ enum {
     ROW_USER_HINT = ROW_COUNT
 };
 
-static lv_coord_t col_dsc[] = {160, 180, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_OSD_COLS};
+static lv_coord_t row_dsc[] = {UI_OSD_ROWS};
 
 static btn_group_t btn_group_osd_orbit;
 static btn_group_t btn_group_osd_mode;
@@ -39,18 +40,17 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[640];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     create_text(NULL, section, false, "OSD:", LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -79,10 +79,10 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("Positions can be set for 4x3 and 16x9 modes separately"),
              _lang("the Show Element toggle is shared between both modes"));
     lv_label_set_text(label_user_hint, buf);
-    lv_obj_set_style_text_font(label_user_hint, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(label_user_hint, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label_user_hint, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_color(label_user_hint, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(label_user_hint, 12, 0);
+    lv_obj_set_style_pad_top(label_user_hint, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label_user_hint, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label_user_hint, LV_GRID_ALIGN_START, 1, 4,
                          LV_GRID_ALIGN_START, ROW_USER_HINT, 2);
@@ -106,24 +106,14 @@ void page_osd_update_ui_elements() {
 }
 
 static void open_element_pos_preview() {
-    switch (g_source_info.source) {
-    case SOURCE_HDZERO:
+    if (SOURCE_HDZERO == g_source_info.source) {
         progress_bar.start = 1;
         HDZero_open(g_setting.source.hdzero_bw);
         app_switch_to_hdzero(true);
-        break;
-
-    case SOURCE_HDMI_IN:
+    } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_switch_to_hdmi_in();
-        break;
-
-    case SOURCE_AV_IN:
-        app_switch_to_analog(0);
-        break;
-
-    case SOURCE_EXPANSION:
-        app_switch_to_analog(1);
-        break;
+    } else {
+        app_switch_to_analog(g_source_info.source);
     }
 
     ui_osd_element_pos_on_enter();

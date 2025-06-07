@@ -180,7 +180,7 @@ void recive_one_frame(uint8_t *uart_buf, uint8_t uart_buf_len) {
             break;
 
         } // switch(rx_state)
-    }     // while(RS_ready1())
+    } // while(RS_ready1())
 }
 
 void parser_rx(uint8_t function, uint8_t index, uint8_t *rx_buf) {
@@ -236,11 +236,15 @@ void camTypeDetect(uint8_t rData) {
         cur_cam = VR_1080P30;
         break;
     }
-    if (cur_cam == last_cam)
+    if (cur_cam == last_cam) {
         CAM_MODE = cur_cam;
-    else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
+    } else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
         // LOGI("Cam_mode changed:%d", cur_cam);
-        load_fc_osd_font(cur_cam == VR_1080P30);
+        if (TARGET_GOGGLE == getTargetType()) {
+            load_fc_osd_font(cur_cam == VR_1080P30);
+        } else if (TARGET_BOXPRO == getTargetType()) {
+            load_fc_osd_font(0);
+        }
     }
 }
 
@@ -256,7 +260,11 @@ void fcTypeDetect(uint8_t *rData) {
             fc_variant[i] = fc_variant_rcv[i];
 
         // LOGI("fc_variant changed:%s", fc_variant_rcv);
-        load_fc_osd_font(cur_cam == VR_1080P30);
+        if (TARGET_GOGGLE == getTargetType()) {
+            load_fc_osd_font(cur_cam == VR_1080P30);
+        } else if (TARGET_BOXPRO == getTargetType()) {
+            load_fc_osd_font(0);
+        }
     }
 }
 

@@ -1,4 +1,6 @@
-#include "oled.h"
+#include "screen.h"
+
+#if HDZGOGGLE
 
 #include <stdint.h>
 #include <stdio.h>
@@ -79,7 +81,7 @@ uint16_t OLED_read(uint16_t addr, uint8_t sel) {
 }
 
 // OLED power on
-void OLED_power_up() {
+void Screen_PowerUp() {
     I2C_Write(ADDR_AL, 0x12, 0x01); // VDDI en
     usleep(1000);
     I2C_Write(ADDR_AL, 0x12, 0x03); // AVDD en
@@ -94,7 +96,7 @@ void OLED_power_up() {
 }
 
 // OLED init
-void OLED_init() {
+void Screen_Init() {
     uint16_t l0, l1, l2, l3, l4;
     uint16_t r0, r1, r2, r3, r4;
 
@@ -238,7 +240,7 @@ void OLED_init() {
     I2C_Write(ADDR_AL, 0x13, 0x03); // mipi HS mode enable
 }
 
-void OLED_Startup() {
+void Screen_Startup() {
     uint16_t l0, l1, l2, l3, l4;
     uint16_t r0, r1, r2, r3, r4;
 
@@ -306,12 +308,12 @@ void OLED_Startup() {
 // enable: 0=disable; 1=enable
 // mode: 0=color bar; 1=grid; 2=all black; 3=all white; 4=boot screen
 // speed: color bar move speed (0~15)
-void OLED_Pattern(uint8_t enable, uint8_t mode, uint8_t speed) {
+void Screen_Pattern(uint8_t enable, uint8_t mode, uint8_t speed) {
     mode = (enable & 0x01) | ((mode & 0x07) << 1) | ((speed & 0x0F) << 4);
 
-    OLED_display(0);
+    Screen_Display(0);
     I2C_Write(ADDR_AL, 0x15, mode);
-    OLED_display(1);
+    Screen_Display(1);
 }
 
 void OLED_SetTMG(int mode) // mode: 0=1080P; 1=720P
@@ -488,7 +490,7 @@ void MFPGA_SetRatio(int ratio) {
 }
 
 // OLED display on/off
-void OLED_display(int on) {
+void Screen_Display(int on) {
     if (on) {
         I2C_Write(ADDR_AL, 0x13, 0x83);
         usleep(1000);
@@ -514,7 +516,7 @@ void OLED_display(int on) {
 }
 
 // OLED power off
-void OLED_power_down() {
+void Screen_PowerDown() {
     I2C_Write(ADDR_AL, 0x13, 0x01);
     usleep(1000);
     OLED_write(0x2800, 0x0000, 2); // display off
@@ -533,7 +535,7 @@ void OLED_power_down() {
 }
 
 // OLED brightness setting
-void OLED_Brightness(uint8_t level) {
+void Screen_Brightness(uint8_t level) {
     uint16_t dh = 0, dl = 0;
 
     switch (level) {
@@ -603,3 +605,5 @@ void OLED_Brightness(uint8_t level) {
     OLED_write(0xC206, dh, 2);
     OLED_write(0xC207, dl, 2);
 }
+
+#endif

@@ -13,6 +13,7 @@
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
+#include "driver/screen.h"
 #include "ui/page_common.h"
 #include "ui/page_imagesettings.h"
 #include "ui/ui_image_setting.h"
@@ -39,7 +40,12 @@ void app_switch_to_menu() {
 
     // Stop recording if switching to menu mode from video mode regardless
     dvr_cmd(DVR_STOP);
-    dvr_update_vi_conf(VR_1080P30);
+
+    if (TARGET_GOGGLE == getTargetType()) {
+        dvr_update_vi_conf(VR_1080P30);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        dvr_update_vi_conf(VR_720P60);
+    }
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -53,28 +59,35 @@ void app_switch_to_menu() {
         IT66121_init();
 
     system_script(REC_STOP_LIVE);
-}
 
-void app_exit_menu() {
-    switch (g_source_info.source) {
-    case SOURCE_HDZERO:
-        progress_bar.start = 1;
-        app_switch_to_hdzero(true);
-        break;
-    case SOURCE_HDMI_IN:
-        app_switch_to_hdmi_in();
-        break;
-    case SOURCE_AV_IN:
-        app_switch_to_analog(0);
-        break;
-    case SOURCE_EXPANSION:
-        app_switch_to_analog(1);
-        break;
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
     }
 }
 
-void app_switch_to_analog(bool is_bay) {
-    Source_AV(is_bay);
+void app_exit_menu() {
+    if (SOURCE_HDZERO == g_source_info.source) {
+        progress_bar.start = 1;
+        app_switch_to_hdzero(true);
+    } else if (SOURCE_HDMI_IN == g_source_info.source) {
+        app_switch_to_hdmi_in();
+    } else {
+        app_switch_to_analog(g_source_info.source);
+    }
+}
+
+void app_switch_to_analog(source_t source) {
+    Source_AV(source);
+
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Solve LCD residual image
+        if (SOURCE_AV_MODULE == source) {
+            Screen_Brightness(7);
+            Set_Contrast(14);
+        }
+    }
 
     dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
@@ -84,7 +97,7 @@ void app_switch_to_analog(bool is_bay) {
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
 
-    g_setting.autoscan.last_source = is_bay ? SETTING_AUTOSCAN_SOURCE_EXPANSION : SETTING_AUTOSCAN_SOURCE_AV_IN;
+    g_setting.autoscan.last_source = SOURCE_AV_IN == source ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     // usleep(300*1000);
@@ -93,6 +106,12 @@ void app_switch_to_analog(bool is_bay) {
 }
 
 void app_switch_to_hdmi_in() {
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
+    }
+
     Source_HDMI_in();
     IT66121_close();
     sleep(2);
@@ -127,6 +146,12 @@ void app_switch_to_hdmi_in() {
 void app_switch_to_hdzero(bool is_default) {
     int ch;
 
+    if (TARGET_BOXPRO == getTargetType()) {
+        // Restore image settings from av module
+        Screen_Brightness(g_setting.image.oled);
+        Set_Contrast(g_setting.image.contrast);
+    }
+
     if (is_default) {
         ch = g_setting.scan.channel - 1;
     } else {
@@ -144,34 +169,41 @@ void app_switch_to_hdzero(bool is_default) {
     DM5680_req_vldflg();
     progress_bar.start = 0;
 
-    switch (CAM_MODE) {
-    case VR_720P50:
-    case VR_720P60:
-    case VR_960x720P60:
-    case VR_540P60:
-        Display_720P60_50(CAM_MODE, cam_4_3);
-        break;
+    if (TARGET_GOGGLE == getTargetType()) {
+        switch (CAM_MODE) {
+        case VR_720P50:
+        case VR_720P60:
+        case VR_960x720P60:
+        case VR_540P60:
+            Display_720P60_50(CAM_MODE, cam_4_3);
+            break;
 
-    case VR_540P90:
-    case VR_540P90_CROP:
-        Display_720P90(CAM_MODE);
-        break;
+        case VR_540P90:
+        case VR_540P90_CROP:
+            Display_720P90(CAM_MODE);
+            break;
 
-    case VR_1080P30:
-        Display_1080P30(CAM_MODE);
-        break;
+        case VR_1080P30:
+            Display_1080P30(CAM_MODE);
+            break;
 
-    default:
-        perror("switch_to_video CaM_MODE error");
+        default:
+            perror("switch_to_video CaM_MODE error");
+        }
+
+        channel_osd_mode = CHANNEL_SHOWTIME;
+
+        if (CAM_MODE == VR_1080P30)
+            lvgl_switch_to_1080p();
+        else
+            lvgl_switch_to_720p();
+        osd_fhd(CAM_MODE == VR_1080P30);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        Display_HDZ(CAM_MODE, cam_4_3);
+        channel_osd_mode = CHANNEL_SHOWTIME;
+        lvgl_switch_to_720p();
     }
 
-    channel_osd_mode = CHANNEL_SHOWTIME;
-
-    if (CAM_MODE == VR_1080P30)
-        lvgl_switch_to_1080p();
-    else
-        lvgl_switch_to_720p();
-    osd_fhd(CAM_MODE == VR_1080P30);
     osd_clear();
     osd_show(true);
     lv_timer_handler();

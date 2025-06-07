@@ -18,6 +18,7 @@
 #define LV_CONF_H
 
 #include <stdint.h>
+#include "../../conf/targets.h"
 
 /*====================
    COLOR SETTINGS
@@ -99,7 +100,7 @@
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
-#define LV_DPI_DEF 130     /*[px/inch]*/
+#define LV_DPI_DEF TARGET_DPI_DEFAULT     /*[px/inch]*/
 
 /*=======================
  * FEATURE CONFIGURATION
@@ -394,7 +395,7 @@
 #define LV_FONT_CUSTOM_DECLARE
 
 /*Always set a default font*/
-#define LV_FONT_DEFAULT &lv_font_montserrat_26
+#define LV_FONT_DEFAULT TARGET_FONT_DEFAULT
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
