@@ -370,27 +370,28 @@ void osd_channel_show(bool bShow) {
         snprintf(buf, sizeof(buf), "  To %s?  ", channel2str(g_source_info.source == SOURCE_HDZERO, g_setting.source.hdzero_band, ch));
         lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], LV_OPA_100, 0);
     } else {
-        if (g_source_info.source == SOURCE_HDZERO)
+        if (g_source_info.source == SOURCE_HDZERO) {
             ch = g_setting.scan.channel & 0x7F;
-        else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE)
+        } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
             ch = g_setting.source.analog_channel & 0x7F;
-        else
-            return;
+        } else {
+            bShow = false;
+        }
 
-        color = lv_color_make(0xFF, 0xFF, 0xFF);
-        snprintf(buf, sizeof(buf), "CH:%s", channel2str(g_source_info.source == SOURCE_HDZERO, g_setting.source.hdzero_band, ch));
-        lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], 0, 0);
+        if (bShow) {
+            color = lv_color_make(0xFF, 0xFF, 0xFF);
+            snprintf(buf, sizeof(buf), "CH:%s", channel2str(g_source_info.source == SOURCE_HDZERO, g_setting.source.hdzero_band, ch));
+            lv_obj_set_style_bg_opa(g_osd_hdzero.channel[is_fhd], 0, 0);
+        }
     }
 
-    lv_label_set_text(g_osd_hdzero.channel[is_fhd], buf);
-    lv_obj_set_style_text_color(g_osd_hdzero.channel[is_fhd], color, 0);
-
-    if (channel_osd_mode & 0x80)
+    if (channel_osd_mode & 0x80 || (bShow && channel_osd_mode && g_setting.osd.element[OSD_GOGGLE_CHANNEL].show)) {
+        lv_label_set_text(g_osd_hdzero.channel[is_fhd], buf);
+        lv_obj_set_style_text_color(g_osd_hdzero.channel[is_fhd], color, 0);
         lv_obj_clear_flag(g_osd_hdzero.channel[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    else if (bShow && channel_osd_mode && g_setting.osd.element[OSD_GOGGLE_CHANNEL].show)
-        lv_obj_clear_flag(g_osd_hdzero.channel[is_fhd], LV_OBJ_FLAG_HIDDEN);
-    else
+    } else {
         lv_obj_add_flag(g_osd_hdzero.channel[is_fhd], LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 static void osd_object_set_pos(uint8_t fhd, lv_obj_t *obj, setting_osd_goggle_element_positions_t *pos) {
