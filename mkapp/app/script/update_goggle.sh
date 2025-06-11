@@ -1,7 +1,19 @@
 #!/bin/sh
 
-GOGGLE_BIN="$1"
+PLATFORM="$(cat /mnt/app/platform)"
 TMP_DIR=/tmp/goggle_update
+HDZ_BIN="$1"
+
+TMP_RX_BIN="${TMP_DIR}/${PLATFORM}_RX.bin"
+TMP_VA_BIN="${TMP_DIR}/${PLATFORM}_VA.bin"
+WILDCARD_RX_BIN="${TMP_DIR}/${PLATFORM}_RX*.bin"
+WILDCARD_VA_BIN="${TMP_DIR}/${PLATFORM}_VA*.bin"
+
+if [ $PLATFORM == "HDZGOGGLE"]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
+elif [ $PLATFORM == "HDZBOXPRO"]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"
+fi
 
 VAbin=${TMP_DIR}/HDZGOGGLE_VA.bin
 VAcount=1
@@ -12,26 +24,14 @@ RXwrites=0
 
 function gpio_export()
 {
-	if [ ! -f /sys/class/gpio/gpio224/direction ]
-	then
-	      echo "224">/sys/class/gpio/export
-	fi
+	echo "224">/sys/class/gpio/export
+	echo "228">/sys/class/gpio/export
+	echo "258">/sys/class/gpio/export
+	echo "131">/sys/class/gpio/export
 	echo "out">/sys/class/gpio/gpio224/direction
-	if [ ! -f /sys/class/gpio/gpio228/direction ]
-	then
-		echo "228">/sys/class/gpio/export
-	fi
-        echo "out">/sys/class/gpio/gpio228/direction
-	if [ ! -f /sys/class/gpio/gpio258/direction ]
-	then
-		echo "258">/sys/class/gpio/export
-	fi
+	echo "out">/sys/class/gpio/gpio228/direction
 	echo "out">/sys/class/gpio/gpio258/direction
-	if [ ! -f /sys/class/gpio/gpio131/direction ] 
-        then                                                          
-                echo "131">/sys/class/gpio/export
-        fi
-        echo "out">/sys/class/gpio/gpio131/direction
+	echo "out">/sys/class/gpio/gpio131/direction
 }
 
 function beep()
@@ -68,36 +68,24 @@ function beep_failure()
 
 function gpio_set_reset()
 {
-        echo "0">/sys/class/gpio/gpio224/value
-        echo "1">/sys/class/gpio/gpio228/value
+	echo "0">/sys/class/gpio/gpio224/value
+	echo "1">/sys/class/gpio/gpio228/value
 }
 
 function gpio_clear_reset()
 {
-        echo "1">/sys/class/gpio/gpio224/value
-        echo "0">/sys/class/gpio/gpio228/value
+	echo "1">/sys/class/gpio/gpio224/value
+	echo "0">/sys/class/gpio/gpio228/value
 }
 
 function disconnect_fpga_flash()
 {
-        echo "1">/sys/class/gpio/gpio258/value
+	echo "1">/sys/class/gpio/gpio258/value
 }
 
 function connect_fpga_flash()
 {
-        echo "0">/sys/class/gpio/gpio258/value
-}
-
-function gpio_set_reset()
-{
-        echo "0">/sys/class/gpio/gpio224/value
-        echo "1">/sys/class/gpio/gpio228/value
-}
-
-function gpio_clear_reset()
-{
-        echo "1">/sys/class/gpio/gpio224/value
-        echo "0">/sys/class/gpio/gpio228/value
+	echo "0">/sys/class/gpio/gpio258/value
 }
 
 # eg: check_mtd_write /dev/mtdX required-size bin-file
@@ -141,8 +129,8 @@ function untar_file()
 	fi
 
 	tar xf ${FILE_TARGET} -C ${TMP_DIR} 2>&1 > /dev/null
-	mv ${TMP_DIR}/HDZGOGGLE_RX*.bin $RXbin
-	mv ${TMP_DIR}/HDZGOGGLE_VA*.bin $VAbin
+	mv ${WILDCARD_RX_BIN} ${TMP_RX_BIN}
+	mv ${WILDCARD_VA_BIN} ${TMP_VA_BIN}
 }
  
 
@@ -152,9 +140,9 @@ function update_rx()
 	gpio_export
 	gpio_set_reset
 	insmod /mnt/app/ko/w25q128.ko
-	check_mtd_write /dev/mtd8 1M $RXbin
+	check_mtd_write /dev/mtd8 1M ${TMP_RX_BIN}
 	sleep 1
-	check_mtd_write /dev/mtd9 1M $RXbin
+	check_mtd_write /dev/mtd9 1M ${TMP_RX_BIN}
 	echo "update finish RX, running"
 	gpio_clear_reset
 	sleep 1
@@ -168,7 +156,7 @@ function update_fpga()
 	gpio_set_reset
 	disconnect_fpga_flash
 	insmod /mnt/app/ko/w25q128.ko
-	check_mtd_write /dev/mtd10 16M $VAbin
+	check_mtd_write /dev/mtd10 16M ${TMP_VA_BIN}
 	echo "update finish VA, running"
 	gpio_clear_reset
 	sleep 1
@@ -176,19 +164,18 @@ function update_fpga()
 }
 
 # If firmware file was NOT supplied then default to primary location for emergency restore
-if [ -z "$GOGGLE_BIN" ]; then
-    if [ `ls /mnt/extsd/HDZERO_GOGGLE*.bin | grep bin | wc -l` -eq 1 ]
-    then
-        GOGGLE_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
-    fi
+if [ -z "$HDZ_BIN" ]; then
+	if [ `ls ${WILDCARD_HDZ_BIN} | grep bin | wc -l` -eq 1 ]
+	then
+		HDZ_BIN="${WILDCARD_HDZ_BIN}"
+	fi
 fi
 
-if [ ! -z "$GOGGLE_BIN" ]
-then
-	echo "Flashing $GOGGLE_BIN"
+if [ ! -z "$HDZ_BIN" ]; then
+	echo "Flashing $HDZ_BIN"
 	echo "0" > /tmp/progress_goggle
 	echo "0"
-	untar_file "$GOGGLE_BIN"
+	untar_file "$HDZ_BIN"
 	mv ${TMP_DIR}/hdzgoggle_app_ota*.tar ${TMP_DIR}/hdzgoggle_app_ota.tar
 	cp -f /mnt/app/setting.ini /mnt/UDISK/
 	#disable it66021

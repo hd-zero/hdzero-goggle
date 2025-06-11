@@ -3,9 +3,10 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "common.hh"
 #include "core/app_state.h"
-#include "core/settings.h"
 #include "ht.h"
 #include "lang/language.h"
 #include "page_common.h"
@@ -21,8 +22,8 @@ static page_t curr_page = 0;
 
 static btn_group_t btn_group;
 
-static lv_coord_t col_dsc[] = {160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {55, 55, 55, 55, 55, 55, 60, 30, 40, 40, 40, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_HT_COLS};
+static lv_coord_t row_dsc[] = {UI_HT_ROWS};
 
 static lv_obj_t *label_cali;
 static lv_obj_t *label_center;
@@ -135,19 +136,18 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Head Tracker"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 960, 600);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -190,7 +190,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, _lang("Pan"), 1, 7, 1);
     pan = lv_bar_create(cont);
     lv_bar_set_range(pan, 1000, 2000);
-    lv_obj_set_size(pan, 500, 25);
+    lv_obj_set_size(pan, UI_HT_CALIBRATION_SIZE);
     lv_obj_center(pan);
     lv_bar_set_value(pan, 0, LV_ANIM_OFF);
     lv_obj_set_style_bg_color(pan, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
@@ -203,7 +203,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, _lang("Tilt"), 1, 8, 1);
     tilt = lv_bar_create(cont);
     lv_bar_set_range(tilt, 1000, 2000);
-    lv_obj_set_size(tilt, 500, 25);
+    lv_obj_set_size(tilt, UI_HT_CALIBRATION_SIZE);
     lv_obj_center(tilt);
     lv_bar_set_value(tilt, 0, LV_ANIM_OFF);
     lv_obj_set_style_bg_color(tilt, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
@@ -216,7 +216,7 @@ static lv_obj_t *page_headtracker_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(cont, _lang("Roll"), 1, 9, 1);
     roll = lv_bar_create(cont);
     lv_bar_set_range(roll, 1000, 2000);
-    lv_obj_set_size(roll, 500, 25);
+    lv_obj_set_size(roll, UI_HT_CALIBRATION_SIZE);
     lv_obj_center(roll);
     lv_bar_set_value(roll, 0, LV_ANIM_OFF);
     lv_obj_set_style_bg_color(roll, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);

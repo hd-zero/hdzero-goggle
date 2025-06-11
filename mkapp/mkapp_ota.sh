@@ -6,7 +6,7 @@ function make_img_md5() {
 }
 
 function get_app_version() {
-	local base_version=$(cat "$ROOT_DIR/VERSION")
+	local base_version=$(cat "$ROOT_DIR/../VERSION")
 
     # check if we are on a tag
     git describe --exact-match --tags HEAD > /dev/null 2>&1
@@ -21,9 +21,12 @@ function get_app_version() {
 ROOT_DIR=$PWD
 
 MKAPP_DIR=$ROOT_DIR/mkapp
+PLATFORM="$(cat ${MKAPP_DIR}/app/platform)"
+
 BIN_DIR=$MKAPP_DIR/bin
 IMG_DIR=$MKAPP_DIR/ota_app
 APP_DIR=$MKAPP_DIR/app
+KO_DIR=$APP_DIR/ko
 
 APP_SIZE=8388608
 APP_IMAGE=${IMG_DIR}/app.fex
@@ -31,6 +34,14 @@ APP_VERSION=$(get_app_version)
 
 # append BIN_DIR to PATH, preferring tooling which is already in PATH
 export PATH="${PATH:+$PATH:}${BIN_DIR}"
+
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+	PLATFORM_APP="HDZERO_GOGGLE"
+    cp -a $KO_DIR/vdpo-goggle.ko $KO_DIR/vdpo.ko
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+    PLATFORM_APP="HDZERO_BOXPRO"
+    cp -a $KO_DIR/vdpo-boxpro.ko $KO_DIR/vdpo.ko
+fi
 
 echo "${APP_VERSION}" > ${APP_DIR}/version
 
@@ -54,20 +65,20 @@ echo -e "\npacking app:"
 cd $IMG_DIR
 tar cvf $IMG_DIR/hdzgoggle_app_ota-${APP_VERSION}.tar *
 
-HAL_VERSION="$(cat "$MKAPP_DIR/hal/ver.txt")"
+HAL_VERSION="$(cat "$MKAPP_DIR/hal/$PLATFORM.version")"
 HAL_RX_VER=${HAL_VERSION%-*}
 HAL_VA_VER=${HAL_VERSION#*-}
 
 OTA_VERSION="${HAL_VERSION}-${APP_VERSION}"
 
-cp $MKAPP_DIR/hal/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin
-cp $MKAPP_DIR/hal/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin
+cp $MKAPP_DIR/hal/${PLATFORM}_RX.bin ${PLATFORM}_RX-${HAL_RX_VER}.bin
+cp $MKAPP_DIR/hal/${PLATFORM}_VA.bin ${PLATFORM}_VA-${HAL_VA_VER}.bin
 
 echo -e "\npacking ota:"
-rm $ROOT_DIR/out/HDZERO_GOGGLE-* || true
-tar cvf $ROOT_DIR/out/HDZERO_GOGGLE-${OTA_VERSION}.bin \
+rm $ROOT_DIR/out/${PLATFORM_APP}-* || true
+tar cvf $ROOT_DIR/out/${PLATFORM_APP}-${OTA_VERSION}.bin \
     hdzgoggle_app_ota-${APP_VERSION}.tar \
-    HDZGOGGLE_RX-${HAL_RX_VER}.bin \
-    HDZGOGGLE_VA-${HAL_VA_VER}.bin
+    ${PLATFORM}_RX-${HAL_RX_VER}.bin \
+    ${PLATFORM}_VA-${HAL_VA_VER}.bin
 
-echo -e "\ngenerated out/HDZERO_GOGGLE-${OTA_VERSION}.bin"
+echo -e "\ngenerated out/${PLATFORM_APP}-${OTA_VERSION}.bin"

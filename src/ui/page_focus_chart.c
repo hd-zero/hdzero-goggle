@@ -2,8 +2,9 @@
 
 #include <stdio.h>
 
+#include "../conf/ui.h"
+
 #include "core/osd.h"
-#include "core/settings.h"
 #include "lang/language.h"
 #include "ui/ui_porting.h"
 
@@ -13,13 +14,12 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1053, 900);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1053, 894);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Focus Chart"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
@@ -28,9 +28,9 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *desc_label = lv_label_create(cont);
     snprintf(buf, sizeof(buf), "%s.\n%s.", _lang("Click the Enter Button to display the Back Focusing Chart"), _lang("Click the Enter Button again to exit"));
     lv_label_set_text(desc_label, buf);
-    lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(desc_label, UI_PAGE_TEXT_FONT, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(desc_label, 12, 0);
+    lv_obj_set_style_pad_top(desc_label, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(desc_label, LV_LABEL_LONG_WRAP);
 
     focus_chart_img = lv_img_create(lv_scr_act());
@@ -41,7 +41,11 @@ lv_obj_t *page_focus_chart_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_size(focus_chart_img, DRAW_HOR_RES_FHD, DRAW_VER_RES_FHD);
 
     char filename[128];
-    osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
+    if (TARGET_GOGGLE == getTargetType()) {
+        osd_resource_path(filename, "%s", OSD_RESOURCE_1080, FOCUS_CHART_IMG);
+    } else if (TARGET_BOXPRO == getTargetType()) {
+        osd_resource_path(filename, "%s", OSD_RESOURCE_720, FOCUS_CHART_IMG);
+    }
     lv_img_set_src(focus_chart_img, filename);
 
     return page;

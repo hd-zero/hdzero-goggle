@@ -88,7 +88,7 @@ typedef enum {
     SOURCE_HDZERO = 0,
     SOURCE_HDMI_IN = 1,
     SOURCE_AV_IN = 2,
-    SOURCE_EXPANSION = 3
+    SOURCE_AV_MODULE = 3
 } source_t;
 
 typedef struct _source_info {

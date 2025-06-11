@@ -23,7 +23,8 @@
 #include "driver/hardware.h"
 #include "driver/it66021.h"
 #include "driver/nct75.h"
-#include "driver/oled.h"
+#include "driver/rtc6715.h"
+#include "driver/screen.h"
 #include "ui/page_fans.h"
 #include "ui/page_storage.h"
 #include "ui/page_version.h"
@@ -113,13 +114,15 @@ static void check_source_signal(int vtmg_change) {
         DM5680_req_rssi();
         DM5680_req_vldflg();
         tune_channel_timer();
+    } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
+        tune_channel_timer();
     }
 
     if (g_source_info.source == SOURCE_HDMI_IN)
         is_valid = g_source_info.hdmi_in_status;
     else if (g_source_info.source == SOURCE_AV_IN)
         is_valid = g_source_info.av_in_status;
-    else if (g_source_info.source == SOURCE_EXPANSION)
+    else if (g_source_info.source == SOURCE_AV_MODULE)
         is_valid = g_source_info.av_bay_status;
     else
         is_valid = (rx_status[0].rx_valid || rx_status[1].rx_valid);
@@ -196,8 +199,11 @@ static void *thread_peripheral(void *ptr) {
             if (k++ == 4) {
                 k = 0;
                 battery_update();
-                g_temperature.top = nct_read_temperature(NCT_TOP);
-                g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+
+                if (TARGET_GOGGLE == getTargetType()) {
+                    g_temperature.top = nct_read_temperature(NCT_TOP);
+                    g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+                }
                 g_temperature.right = nct_read_temperature(NCT_RIGHT);
                 dvr_update_status();
             }

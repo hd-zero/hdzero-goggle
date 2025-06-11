@@ -1,4 +1,7 @@
-#include "TP2825.h"
+#include "tp2825.h"
+
+#if HDZGOGGLE
+
 #include "core/common.hh"
 #include "driver/gpio.h"
 #include "hardware.h"
@@ -29,16 +32,14 @@ void TP2825_VER() {
     }
 }
 
-void TP2825_Config(int ch_sel, int is_pal) // ch_sel: 0=AV in; 1=Module bay
-{
+void TP2825_init(source_t mode, int is_pal) {
     TP2825_close();
     usleep(1000);
     TP2825_open();
     usleep(1000);
 
     TP2825_VER();
-
-    I2C_Write(ADDR_TP2825, 0x41, ch_sel);
+    I2C_Write(ADDR_TP2825, 0x41, SOURCE_AV_IN == mode ? 0 : 1);
 
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
@@ -247,9 +248,8 @@ void TP2825_Switch_Mode(int is_pal) {
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 
-void TP2825_Switch_CH(uint8_t sel) // 0 = AV in; 1 = Module bay
-{
-    I2C_Write(ADDR_TP2825, 0x41, sel);
+void TP2825_Switch_CH(source_t mode) {
+    I2C_Write(ADDR_TP2825, 0x41, SOURCE_AV_IN == mode ? 0 : 1);
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 
@@ -272,3 +272,5 @@ void TP2825_Set_Pclk(uint8_t inv) {
         I2C_Write(ADDR_TP2825, 0x4E, 0x77);
     }
 }
+
+#endif

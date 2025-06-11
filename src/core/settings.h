@@ -16,6 +16,7 @@ typedef struct {
 
 typedef struct {
     int channel;
+    int analog_channel;
 } setting_scan_t;
 
 typedef enum {
@@ -27,7 +28,7 @@ typedef enum {
 typedef enum {
     SETTING_AUTOSCAN_SOURCE_LAST = 0,
     SETTING_AUTOSCAN_SOURCE_HDZERO = 1,
-    SETTING_AUTOSCAN_SOURCE_EXPANSION = 2,
+    SETTING_AUTOSCAN_SOURCE_AV_MODULE = 2,
     SETTING_AUTOSCAN_SOURCE_AV_IN = 3,
     SETTING_AUTOSCAN_SOURCE_HDMI_IN = 4
 } setting_autoscan_source_t;
@@ -256,6 +257,7 @@ typedef struct {
     setting_sources_analog_ratio_t analog_ratio;   // 0=4:3, 1=16:9
     setting_sources_hdzero_band_t hdzero_band;
     setting_sources_hdzero_bw_t hdzero_bw;
+    uint8_t analog_channel;
 } setting_sources_t;
 
 typedef struct {
@@ -293,6 +295,7 @@ typedef struct {
     ease_use_t ease;
     setting_storage_t storage;
     language_t language;
+    bool has_all_features;
 } setting_t;
 
 extern setting_t g_setting;

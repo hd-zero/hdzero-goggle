@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "../conf/ui.h"
 #include "core/common.hh"
 #include "core/osd.h"
 #include "lang/language.h"
@@ -124,7 +125,7 @@ void keyboard_init() {
         g_keyboard.dial_scroll_text = lv_label_create(lv_scr_act());
         lv_obj_add_style(g_keyboard.dial_scroll_text, &style_rootmenu, LV_PART_MAIN);
         lv_label_set_text(g_keyboard.dial_scroll_text, _lang("Highlight Key"));
-        lv_obj_set_style_text_font(g_keyboard.dial_scroll_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(g_keyboard.dial_scroll_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_scroll_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.dial_scroll_text, 620, 130);
 
@@ -139,7 +140,7 @@ void keyboard_init() {
         g_keyboard.dial_click_text = lv_label_create(lv_scr_act());
         lv_obj_add_style(g_keyboard.dial_click_text, &style_rootmenu, LV_PART_MAIN);
         lv_label_set_text(g_keyboard.dial_click_text, _lang("Select Key"));
-        lv_obj_set_style_text_font(g_keyboard.dial_click_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(g_keyboard.dial_click_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_click_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.dial_click_text, 1020, 130);
         lv_label_set_recolor(g_keyboard.dial_click_text, true);
@@ -156,7 +157,7 @@ void keyboard_init() {
         lv_obj_add_style(g_keyboard.right_button_text, &style_rootmenu, LV_PART_MAIN);
         snprintf(buf, sizeof(buf), "%s: %s\n%s: %s", _lang("Click"), _lang("Close Keyboard"), _lang("Hold"), _lang("Erase Text"));
         lv_label_set_text(g_keyboard.right_button_text, buf);
-        lv_obj_set_style_text_font(g_keyboard.right_button_text, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(g_keyboard.right_button_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.right_button_text, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_pos(g_keyboard.right_button_text, 1360, 116);
         lv_label_set_recolor(g_keyboard.right_button_text, true);

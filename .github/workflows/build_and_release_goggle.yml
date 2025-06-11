@@ -1,0 +1,40 @@
+name: Build Google Firmware
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build Firmware
+        run: |
+          bash setup.sh
+          make -C build_goggle
+
+      - name: Get Firmware Name
+        id: vars
+        run: echo "firmware_name=$(basename build_goggle/out/*bin)" >> $GITHUB_ENV
+
+      - name: Upload Firmware Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.firmware_name }}
+          path: build_goggle/out/${{ env.firmware_name }}
+
+      - name: Upload Firmware Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: HDZGOGGLE
+          path: build_goggle/out/HDZGOGGLE
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v0.1.15
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: build_goggle/out/${{ env.firmware_name }}
+          draft: true

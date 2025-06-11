@@ -6,10 +6,11 @@
 #include <lvgl/lvgl.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
 #include "core/common.hh"
 #include "core/osd.h"
 #include "driver/hardware.h"
-#include "driver/oled.h"
+#include "driver/screen.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
 
@@ -34,7 +35,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[0].x = x;
     ims_page.items[0].y = y;
     ims_page.items[0].type = 1;
-    snprintf(buf, sizeof(buf), "%s:", _lang("OLED"));
+    snprintf(buf, sizeof(buf), "%s:", _lang("Panel"));
     strcpy(ims_page.items[0].title, buf);
     ims_page.items[0].range[0] = 0;
     ims_page.items[0].range[1] = 12;
@@ -75,7 +76,7 @@ static void ims_page_init(uint8_t *val) {
     ims_page.items[4].x = x;
     ims_page.items[4].y = y + 100;
     ims_page.items[4].type = 1;
-    snprintf(buf, sizeof(buf), "OLED %s:", _lang("Auto Off"));
+    snprintf(buf, sizeof(buf), "Panel %s:", _lang("Auto Off"));
     strcpy(ims_page.items[4].title, buf);
     ims_page.items[4].range[0] = 0;
     ims_page.items[4].range[1] = 4;
@@ -181,11 +182,11 @@ void ims_init(void) {
     lv_obj_add_flag(canvas_ims, LV_OBJ_FLAG_HIDDEN);
     lv_draw_line_dsc_init(&line_dsc);
     lv_draw_label_dsc_init(&label_dsc);
-    label_dsc.font = &lv_font_montserrat_16; // LV_FONT_DEFAULT;
+    label_dsc.font = UI_MENU_LABEL_FONT;
     ims_page_init(defs);
     g_bShowIMS = false;
 
-    OLED_Brightness(defs[0]);
+    Screen_Brightness(defs[0]);
     Set_Brightness(defs[1]);
     Set_Saturation(defs[2]);
     Set_Contrast(defs[3]);
@@ -194,7 +195,7 @@ void ims_init(void) {
 void ims_save() {
     g_setting.image.oled = ims_page.items[0].value;
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    OLED_Brightness(g_setting.image.oled);
+    Screen_Brightness(g_setting.image.oled);
 
     g_setting.image.brightness = ims_page.items[1].value;
     ini_putl("image", "brightness", g_setting.image.brightness, SETTING_INI);
@@ -216,13 +217,13 @@ void ims_save() {
 
 void change_oled_brightness(uint8_t key) {
     if (key == DIAL_KEY_UP) {
-        if (g_setting.image.oled != MAX_OLED_BRIGHTNESS) {
+        if (g_setting.image.oled != MAX_SCREEN_BRIGHTNESS) {
             g_setting.image.oled += 1;
         } else {
             return;
         }
     } else if (key == DIAL_KEY_DOWN) {
-        if (g_setting.image.oled != MIN_OLED_BRIGHTNESS) {
+        if (g_setting.image.oled != MIN_SCREEN_BRIGHTNESS) {
             g_setting.image.oled -= 1;
         } else {
             return;
@@ -230,7 +231,7 @@ void change_oled_brightness(uint8_t key) {
     }
 
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    OLED_Brightness(g_setting.image.oled);
+    Screen_Brightness(g_setting.image.oled);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +329,7 @@ uint8_t ims_key(uint8_t key) {
 
         switch (ims_page.selection) {
         case 0:
-            OLED_Brightness(value);
+            Screen_Brightness(value);
             break;
 
         case 1:

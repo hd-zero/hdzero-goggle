@@ -29,19 +29,20 @@ SDL_mutex *global_sdl_mutex;
 #include "core/settings.h"
 #include "core/sleep_mode.h"
 #include "core/thread.h"
-#include "driver/TP2825.h"
 #include "driver/beep.h"
 #include "driver/dm5680.h"
 #include "driver/esp32.h"
 #include "driver/fans.h"
+#include "driver/gpadc.h"
 #include "driver/gpio.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
 #include "driver/it66021.h"
 #include "driver/it66121.h"
 #include "driver/mcp3021.h"
-#include "driver/oled.h"
 #include "driver/rtc.h"
+#include "driver/screen.h"
+#include "driver/tp2825.h"
 #include "ui/page_power.h"
 #include "ui/page_scannow.h"
 #include "ui/page_source.h"
@@ -99,13 +100,13 @@ void start_running(void) {
         }
     } else {
         app_state_push(APP_STATE_VIDEO);
-        if (source == SETTING_AUTOSCAN_SOURCE_EXPANSION) { // module Bay
+        if (source == SETTING_AUTOSCAN_SOURCE_AV_MODULE) { // AV Module
             g_hw_stat.av_pal[1] = g_setting.source.analog_format;
-            app_switch_to_analog(1);
-            g_source_info.source = SOURCE_EXPANSION;
+            app_switch_to_analog(SOURCE_AV_MODULE);
+            g_source_info.source = SOURCE_AV_MODULE;
         } else if (source == SETTING_AUTOSCAN_SOURCE_AV_IN) { // AV in
             g_hw_stat.av_pal[0] = g_setting.source.analog_format;
-            app_switch_to_analog(0);
+            app_switch_to_analog(SOURCE_AV_IN);
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
             sleep(2);
@@ -129,7 +130,7 @@ static void device_init(void) {
     enable_bmi270();
     IT66021_init();
     IT66121_init();
-    TP2825_Config(0, 0);
+    TP2825_init(SOURCE_AV_IN, g_setting.source.analog_format);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
 }
@@ -159,7 +160,6 @@ int main(int argc, char *argv[]) {
     settings_init();
     settings_load();
     language_init();
-    vclk_phase_init();
     pclk_phase_init();
 
     // 2. Initialize communications.
@@ -167,6 +167,10 @@ int main(int argc, char *argv[]) {
     iic_init();
     gpio_init();
     uart_init();
+
+    if (TARGET_BOXPRO == getTargetType()) {
+        gpadc_init();
+    }
 
     // 3. Initialize core devices.
     mcp3021_init();
@@ -185,9 +189,9 @@ int main(int argc, char *argv[]) {
     lv_timer_handler();
 
     // 5. Prepare Display
-    OLED_Startup();
+    Screen_Startup();
     Display_UI_init();
-    OLED_Pattern(0, 0, 0);
+    Screen_Pattern(0, 0, 0);
     osd_init();
     ims_init();
     ui_osd_element_pos_init();
@@ -208,7 +212,9 @@ int main(int argc, char *argv[]) {
     gif_cnt = 0;
 
     // 8.1 set initial analog module power state
-    Analog_Module_Power(0);
+    if (TARGET_GOGGLE == getTargetType()) {
+        Analog_Module_Power(0);
+    }
 
     // Head alarm
     head_alarm_init();

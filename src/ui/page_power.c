@@ -5,10 +5,11 @@
 #include <log/log.h>
 #include <minIni.h>
 
+#include "../conf/ui.h"
+
 #include "core/app_state.h"
 #include "core/battery.h"
 #include "core/common.hh"
-#include "core/settings.h"
 #include "driver/dm5680.h"
 #include "driver/hardware.h"
 #include "driver/mcp3021.h"
@@ -45,8 +46,8 @@ static btn_group_t btn_group_power_ana;
 
 static slider_group_t *selected_slider_group = NULL;
 
-static lv_coord_t col_dsc[] = {160, 200, 160, 160, 120, 160, LV_GRID_TEMPLATE_LAST};
-static lv_coord_t row_dsc[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST};
+static lv_coord_t col_dsc[] = {UI_POWER_COLS};
+static lv_coord_t row_dsc[] = {UI_POWER_ROWS};
 lv_obj_t *label_cell_count;
 
 static void page_power_update_cell_count() {
@@ -87,24 +88,21 @@ static void page_power_update_calibration_offset() {
 
 static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
-    // Update number of rows based on Batch 2 vs Batch 1 options
-    pp_power.p_arr.max = getHwRevision() >= HW_REV_2 ? ROW_COUNT : ROW_COUNT - 1;
 
     lv_obj_t *page = lv_menu_page_create(parent, NULL);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(page, 1063, 980);
+    lv_obj_set_size(page, UI_PAGE_VIEW_SIZE);
     lv_obj_add_style(page, &style_subpage, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(page, 94, 0);
 
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
-    lv_obj_set_size(section, 1063, 984);
+    lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
 
     snprintf(buf, sizeof(buf), "%s:", _lang("Power"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
     lv_obj_t *cont = lv_obj_create(section);
-    lv_obj_set_size(cont, 970, 680);
+    lv_obj_set_size(cont, UI_PAGE_VIEW_SIZE);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_layout(cont, LV_LAYOUT_GRID);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -126,9 +124,18 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, _lang("Display Mode"), _lang("Total"), _lang("Cell Avg."), "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, _lang("Warning Type"), _lang("Beep"), _lang("Visual"), _lang("Both"), "", ROW_WARN_TYPE);
 
-    // Batch 2 goggles only
-    if (getHwRevision() >= HW_REV_2) {
-        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+    switch (getTargetType()) {
+    case TARGET_GOGGLE:
+        if (getHwRevision() >= HW_REV_2) {
+            create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+            pp_power.p_arr.max = ROW_COUNT;
+        } else {
+            pp_power.p_arr.max = ROW_COUNT - 1;
+        }
+        break;
+    case TARGET_BOXPRO:
+        pp_power.p_arr.max = ROW_COUNT - 1;
+        break;
     }
 
     // Back entry
@@ -333,7 +340,7 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (getHwRevision() >= HW_REV_2) {
+        if (TARGET_GOGGLE == getTargetType() && getHwRevision() >= HW_REV_2) {
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
