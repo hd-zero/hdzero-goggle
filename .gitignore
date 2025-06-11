@@ -1,5 +1,7 @@
 /build
 /build_emu
+build_goggle
+build_boxpro
 linux-4.9
 /media
 toolchain
