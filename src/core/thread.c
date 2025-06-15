@@ -132,7 +132,7 @@ static void check_source_signal(int vtmg_change) {
     }
 
     // exit if no SD card or not in video mode
-    if ((g_setting.record.mode_manual && (g_source_info.source != SOURCE_HDMI_IN)) || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
+    if (g_setting.record.mode_manual || (!g_sdcard_enable) || (g_app_state != APP_STATE_VIDEO))
         return;
 
     // Analog VTMG change -> Restart recording

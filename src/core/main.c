@@ -227,6 +227,7 @@ int main(int argc, char *argv[]) {
         sleep_reminder();
         statubar_update();
         osd_hdzero_update();
+        osd_hdmi_in_dvr_update();
         ims_update();
         ui_osd_element_pos_update();
         ht_detect_motion();

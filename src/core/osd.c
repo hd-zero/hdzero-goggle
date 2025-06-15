@@ -27,6 +27,7 @@
 #include "driver/fans.h"
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
+#include "driver/i2c.h"
 #include "driver/nct75.h"
 #include "driver/rtc.h"
 #include "driver/rtc6715.h"
@@ -757,6 +758,42 @@ void osd_hdzero_update(void) {
             lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][2], buf);
         }
     }
+}
+#if HDZGOGGLE
+void osd_show_hdmi_in_dvr(uint8_t is_show) {
+    uint8_t reg;
+
+    reg = I2C_Read(0x64, 0x8d);
+    if (dvr_is_recording)
+        reg |= 0x01;
+    else
+        reg &= 0xfe;
+    I2C_Write(ADDR_FPGA, 0x8d, reg);
+}
+#else
+void osd_show_hdmi_in_dvr(uint8_t is_show) {
+    // TODO
+}
+#endif
+
+void osd_hdmi_in_dvr_update() {
+    uint8_t reg;
+    static uint8_t last_dvr_is_recording = 0;
+
+    if (g_source_info.source != SOURCE_HDMI_IN) {
+        if (last_dvr_is_recording != 0) {
+            osd_show_hdmi_in_dvr(0);
+            last_dvr_is_recording = 0;
+        }
+        return;
+    }
+
+    if (last_dvr_is_recording == dvr_is_recording)
+        return;
+
+    osd_show_hdmi_in_dvr(dvr_is_recording);
+
+    last_dvr_is_recording = dvr_is_recording;
 }
 
 int osd_clear(void) {
