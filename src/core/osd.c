@@ -106,6 +106,18 @@ void osd_toggle() {
 }
 
 #if HDZGOGGLE
+
+void osd_show_hdmi_in_dvr(uint8_t is_show) {
+    uint8_t reg;
+
+    reg = I2C_Read(0x64, 0x8d);
+    if (dvr_is_recording)
+        reg |= 0x01;
+    else
+        reg &= 0xfe;
+    I2C_Write(ADDR_FPGA, 0x8d, reg);
+}
+
 void osd_hdmi_in_dvr_update() {
     uint8_t reg;
     static uint8_t last_dvr_is_recording = 0;
@@ -783,22 +795,6 @@ void osd_hdzero_update(void) {
         }
     }
 }
-#if HDZGOGGLE
-void osd_show_hdmi_in_dvr(uint8_t is_show) {
-    uint8_t reg;
-
-    reg = I2C_Read(0x64, 0x8d);
-    if (dvr_is_recording)
-        reg |= 0x01;
-    else
-        reg &= 0xfe;
-    I2C_Write(ADDR_FPGA, 0x8d, reg);
-}
-#else
-void osd_show_hdmi_in_dvr(uint8_t is_show) {
-    // TODO
-}
-#endif
 
 int osd_clear(void) {
     clear_screen();
