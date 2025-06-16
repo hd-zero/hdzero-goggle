@@ -1,19 +1,6 @@
 {
     "editor.formatOnSave": true,
     "files.associations": {
-        "self_test.h": "c",
-        "hardware.h": "c",
-        "rtc6715.h": "c",
-        "random": "cpp",
-        "common.hh": "c",
-        "ui_statusbar.h": "c",
-        "page_common.h": "c",
-        "settings.h": "c",
-        "page_headtracker.h": "c",
-        "page_imagesettings.h": "c",
-        "page_record.h": "c",
-        "typeindex": "c",
-        "typeinfo": "c",
-        "targets.h": "c"
-    }
+        "ui_style.h": "c"
+    },
 }

@@ -66,7 +66,7 @@ static void update_time_label(bool mediaOK) {
                 int star_percent = duration ? (stars_timestamps_s[i] * 1000 * 100 / duration) : 0;
 
                 lv_obj_set_pos(controller._stars[i],
-                               MPLAYER_BTN_GAP + MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP + MPLAYER_SLD_WIDTH * star_percent / 100 - (img_star.header.w / 2), 20);
+                               UI_MPLAYER_BTN_GAP + UI_MPLAYER_BTN_WIDTH + UI_MPLAYER_BTN_GAP + UI_MPLAYER_SLD_WIDTH * star_percent / 100 - (img_star.header.w / 2), 20);
             }
             if (duration) {
                 stars_positioned_on_timeline = true;
@@ -91,7 +91,7 @@ static void update_mplayer() {
 
 static void mplayer_create_btn(lv_obj_t *parent, int16_t x, int16_t y) {
     controller._btn = lv_img_create(parent);
-    lv_obj_set_size(controller._btn, MPLAYER_BTN_WIDTH, MPLAYER_BTN_HEIGHT);
+    lv_obj_set_size(controller._btn, UI_MPLAYER_BTN_WIDTH, UI_MPLAYER_BTN_HEIGHT);
     lv_obj_set_pos(controller._btn, x, y);
 }
 
@@ -106,7 +106,7 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     lv_obj_add_style(controller._slider, &style_silder_pressed_color, LV_PART_KNOB | LV_STATE_PRESSED);
 
     lv_obj_set_pos(controller._slider, x, y + 20);
-    lv_obj_set_size(controller._slider, MPLAYER_SLD_WIDTH, MPLAYER_SLD_HEIGHT);
+    lv_obj_set_size(controller._slider, UI_MPLAYER_SLD_WIDTH, UI_MPLAYER_SLD_HEIGHT);
     lv_slider_set_range(controller._slider, 0, 100); // in percentage
     lv_slider_set_value(controller._slider, 0, LV_ANIM_OFF);
 
@@ -118,8 +118,8 @@ static void mplayer_create_slider(lv_obj_t *parent, int16_t x, int16_t y) {
     lv_obj_set_style_pad_top(controller._label, 12, 0);
     lv_label_set_long_mode(controller._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_style_text_color(controller._label, lv_color_hex(0xC0C0C0), 0);
-    lv_obj_set_pos(controller._label, x + MPLAYER_SLD_WIDTH + MPLAYER_BTN_GAP, y);
-    lv_obj_set_size(controller._label, 160, MPLAYER_BTN_HEIGHT);
+    lv_obj_set_pos(controller._label, x + UI_MPLAYER_SLD_WIDTH + UI_MPLAYER_BTN_GAP, y);
+    lv_obj_set_size(controller._label, 160, UI_MPLAYER_BTN_HEIGHT);
 
     for (size_t i = 0; i < stars_count; i++) {
         controller._stars[i] = lv_img_create(parent);
@@ -133,22 +133,22 @@ static void init_mplayer() {
     // Background
     controller.bg = lv_obj_create(lv_scr_act());
     lv_obj_clear_flag(controller.bg, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(controller.bg, MPLAYER_SCR_WIDTH, MPLAYER_SCR_HEIGHT);
+    lv_obj_set_size(controller.bg, UI_MPLAYER_SCR_WIDTH, UI_MPLAYER_SCR_HEIGHT);
     lv_obj_set_pos(controller.bg, 0, 0);
 
     // Controller
     controller.bar = lv_obj_create(lv_scr_act());
     lv_obj_clear_flag(controller.bar, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(controller.bar, MPLAYER_CB_WIDTH, MPLAYER_CB_HEIGHT);
-    lv_obj_set_pos(controller.bar, (MPLAYER_SCR_WIDTH - MPLAYER_CB_WIDTH) >> 1, MPLAYER_SCR_HEIGHT - 160);
+    lv_obj_set_size(controller.bar, UI_MPLAYER_CB_WIDTH, UI_MPLAYER_CB_HEIGHT);
+    lv_obj_set_pos(controller.bar, (UI_MPLAYER_SCR_WIDTH - UI_MPLAYER_CB_WIDTH) >> 1, UI_MPLAYER_SCR_HEIGHT - 160);
 
     // Buttons
-    x = MPLAYER_BTN_GAP;
+    x = UI_MPLAYER_BTN_GAP;
     y = 0;
     mplayer_create_btn(controller.bar, x, y);
 
     // Slider
-    x += (MPLAYER_BTN_WIDTH + MPLAYER_BTN_GAP);
+    x += (UI_MPLAYER_BTN_WIDTH + UI_MPLAYER_BTN_GAP);
     mplayer_create_slider(controller.bar, x, y);
     mplayer_set_time(1000 * 60, 1000 * 240);
 

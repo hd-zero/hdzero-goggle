@@ -72,7 +72,9 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *section = lv_menu_section_create(page);
     lv_obj_add_style(section, &style_submenu, LV_PART_MAIN);
     lv_obj_set_size(section, UI_PAGE_VIEW_SIZE);
-
+#if HDZBOXPRO
+    lv_obj_set_style_pad_top(section, 68, 0);
+#endif
     snprintf(buf, sizeof(buf), "%s:", _lang("Playback"));
     create_text(NULL, section, false, buf, LV_MENU_ITEM_BUILDER_VARIANT_2);
 
@@ -83,7 +85,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     for (uint32_t pos = 0; pos < ITEMS_LAYOUT_CNT; pos++) {
         pb_ui[pos]._img = lv_img_create(cont);
-        lv_obj_set_size(pb_ui[pos]._img, ITEM_PREVIEW_W, ITEM_PREVIEW_H);
+        lv_obj_set_size(pb_ui[pos]._img, UI_PAGE_PLAYBACK_ITEM_PREVIEW_W, UI_PAGE_PLAYBACK_ITEM_PREVIEW_H);
         lv_obj_add_flag(pb_ui[pos]._img, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_style(pb_ui[pos]._img, &style_pb_dark, LV_PART_MAIN);
 
@@ -96,7 +98,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_add_flag(pb_ui[pos]._star, LV_OBJ_FLAG_HIDDEN);
 
         pb_ui[pos]._label = lv_label_create(cont);
-        lv_obj_set_style_text_font(pb_ui[pos]._label, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_font(pb_ui[pos]._label, UI_PAGE_TEXT_FONT, 0);
         lv_label_set_long_mode(pb_ui[pos]._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         lv_obj_set_style_text_align(pb_ui[pos]._label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_add_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
@@ -104,19 +106,19 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
         pb_ui[pos].x = pos % ITEMS_LAYOUT_COLS;
         pb_ui[pos].y = (uint32_t)((double)(pos) / (double)(ITEMS_LAYOUT_COLS));
 
-        pb_ui[pos].x = PB_X_START + pb_ui[pos].x * (ITEM_PREVIEW_W + ITEM_GAP_W);
-        pb_ui[pos].y = PB_Y_START + pb_ui[pos].y * (ITEM_PREVIEW_H + ITEM_GAP_H);
+        pb_ui[pos].x = PB_X_START + pb_ui[pos].x * (UI_PAGE_PLAYBACK_ITEM_PREVIEW_W + ITEM_GAP_W);
+        pb_ui[pos].y = PB_Y_START + pb_ui[pos].y * (UI_PAGE_PLAYBACK_ITEM_PREVIEW_H + ITEM_GAP_H);
         pb_ui[pos].state = ITEM_STATE_INVISIBLE;
 
         lv_obj_set_pos(pb_ui[pos]._img, pb_ui[pos].x + (ITEM_GAP_W >> 1), pb_ui[pos].y);
 
-        lv_obj_set_pos(pb_ui[pos]._arrow, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) - 10,
-                       pb_ui[pos].y + ITEM_PREVIEW_H + 10);
+        lv_obj_set_pos(pb_ui[pos]._arrow, pb_ui[pos].x + (UI_PAGE_PLAYBACK_ITEM_PREVIEW_W >> 2) - 10,
+                       pb_ui[pos].y + UI_PAGE_PLAYBACK_ITEM_PREVIEW_H + 10);
 
         lv_obj_set_pos(pb_ui[pos]._star, pb_ui[pos].x + 5, pb_ui[pos].y);
 
-        lv_obj_set_pos(pb_ui[pos]._label, pb_ui[pos].x + (ITEM_PREVIEW_W >> 2) + ITEM_GAP_W,
-                       pb_ui[pos].y + ITEM_PREVIEW_H + 10);
+        lv_obj_set_pos(pb_ui[pos]._label, pb_ui[pos].x + (UI_PAGE_PLAYBACK_ITEM_PREVIEW_W >> 2) + ITEM_GAP_W,
+                       pb_ui[pos].y + UI_PAGE_PLAYBACK_ITEM_PREVIEW_H + 10);
     }
 
     lv_obj_t *label = lv_label_create(cont);
@@ -145,8 +147,8 @@ static void show_pb_item(uint8_t pos, char *label, bool star) {
     lv_label_set_text(pb_ui[pos]._label, label);
     lv_obj_clear_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
 
-    const lv_coord_t labelPosX = pb_ui[pos].x + (ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &lv_font_montserrat_26, 0, 0)) / 2;
-    const lv_coord_t labelPosY = pb_ui[pos].y + ITEM_PREVIEW_H + 10;
+    const lv_coord_t labelPosX = pb_ui[pos].x + (UI_PAGE_PLAYBACK_ITEM_PREVIEW_W - lv_txt_get_width(label, strlen(label) - 2, &lv_font_montserrat_26, 0, 0)) / 2;
+    const lv_coord_t labelPosY = pb_ui[pos].y + UI_PAGE_PLAYBACK_ITEM_PREVIEW_H + 10;
     lv_obj_set_pos(pb_ui[pos]._label, labelPosX, labelPosY);
     lv_obj_set_pos(pb_ui[pos]._arrow, labelPosX - lv_obj_get_width(pb_ui[pos]._arrow) - 5, labelPosY);
 

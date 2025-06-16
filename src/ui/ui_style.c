@@ -1,4 +1,5 @@
 #include "ui/ui_style.h"
+#include "../conf/ui.h"
 
 const lv_style_prop_t props[] = {LV_STYLE_BG_COLOR, 0};
 lv_style_transition_dsc_t transition_dsc;
@@ -39,9 +40,9 @@ int style_init(void) {
     lv_style_set_bg_color(&style_submenu, lv_color_make(32, 32, 32));
     lv_style_set_border_width(&style_submenu, 0);
     lv_style_set_text_color(&style_submenu, lv_color_make(0xff, 0xff, 0xff));
-    lv_style_set_pad_top(&style_submenu, 96);
+    lv_style_set_pad_top(&style_submenu, UI_STYLE_SUBMENU_PAD_TOP);
     lv_style_set_pad_bottom(&style_submenu, 0);
-    lv_style_set_pad_left(&style_submenu, 48);
+    lv_style_set_pad_left(&style_submenu, UI_STYLE_SUBMENU_PAD_LEFT);
     lv_style_set_pad_right(&style_submenu, 0);
     lv_style_set_radius(&style_submenu, 0);
     lv_style_set_align(&style_submenu, LV_ALIGN_TOP_LEFT);

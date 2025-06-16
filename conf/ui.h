@@ -38,6 +38,17 @@ extern "C" {
 #define UI_PAGE_ARROW_COMPACT_SIZE        200
 #define UI_PAGE_ARROW_COMPACT_GROUP_SIZE  160
 #define UI_PAGE_DROPDOWN_SIZE             160, 40
+#define UI_PAGE_PLAYBACK_ITEM_PREVIEW_W   320
+#define UI_PAGE_PLAYBACK_ITEM_PREVIEW_H   180
+#define UI_MPLAYER_SCR_WIDTH              1920
+#define UI_MPLAYER_SCR_HEIGHT             1080
+#define UI_MPLAYER_CB_WIDTH               700
+#define UI_MPLAYER_CB_HEIGHT              84
+#define UI_MPLAYER_BTN_WIDTH              48
+#define UI_MPLAYER_BTN_HEIGHT             48
+#define UI_MPLAYER_BTN_GAP                16
+#define UI_MPLAYER_SLD_WIDTH              400
+#define UI_MPLAYER_SLD_HEIGHT             3
 #define UI_PLAYER_TEXT_FONT               &lv_font_montserrat_26
 #define UI_AUTOSCAN_COLS                  160, 150, 180, 220, 180, 160, LV_GRID_TEMPLATE_LAST
 #define UI_AUTOSCAN_ROWS                  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
@@ -99,6 +110,8 @@ extern "C" {
 #define UI_VERSION_PROGRESS_BAR_SIZE      320, 20
 #define UI_WIFI_COLS                      160, 160, 160, 180, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_WIFI_ROWS                      60, 60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST
+#define UI_STYLE_SUBMENU_PAD_TOP          96
+#define UI_STYLE_SUBMENU_PAD_LEFT         48
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t c[] = {264, 64, 267, 64, 267, 64, 267, 64, 267, 64, 267, LV_GRID_TEMPLATE_LAST};
@@ -144,6 +157,17 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_PAGE_ARROW_COMPACT_SIZE        160
 #define UI_PAGE_ARROW_COMPACT_GROUP_SIZE  106
 #define UI_PAGE_DROPDOWN_SIZE             106, 26
+#define UI_PAGE_PLAYBACK_ITEM_PREVIEW_W   200
+#define UI_PAGE_PLAYBACK_ITEM_PREVIEW_H   120
+#define UI_MPLAYER_SCR_WIDTH              1280
+#define UI_MPLAYER_SCR_HEIGHT             720
+#define UI_MPLAYER_CB_WIDTH               460
+#define UI_MPLAYER_CB_HEIGHT              56
+#define UI_MPLAYER_BTN_WIDTH              32
+#define UI_MPLAYER_BTN_HEIGHT             32
+#define UI_MPLAYER_BTN_GAP                4
+#define UI_MPLAYER_SLD_WIDTH              260
+#define UI_MPLAYER_SLD_HEIGHT             2
 #define UI_PLAYER_TEXT_FONT               &lv_font_montserrat_14
 #define UI_AUTOSCAN_COLS                  106, 100, 120, 146, 120, 106, LV_GRID_TEMPLATE_LAST
 #define UI_AUTOSCAN_ROWS                  40, 40, 40, 40, 40, 40, 40, 40, 40, 40, LV_GRID_TEMPLATE_LAST
@@ -205,6 +229,8 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_VERSION_PROGRESS_BAR_SIZE      210, 12
 #define UI_WIFI_COLS                      106, 106, 106, 120, 106, 106, LV_GRID_TEMPLATE_LAST
 #define UI_WIFI_ROWS                      40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
+#define UI_STYLE_SUBMENU_PAD_TOP          110
+#define UI_STYLE_SUBMENU_PAD_LEFT         32
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t pro[] = {176, 42, 178, 42, 178, 42, 178, 42, 178, 42, 178, LV_GRID_TEMPLATE_LAST};
