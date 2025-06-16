@@ -102,7 +102,6 @@ void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 void osd_toggle();
 void osd_analog_rssi_update_location();
-void osd_hdmi_in_dvr_update();
 #ifdef __cplusplus
 }
 #endif
