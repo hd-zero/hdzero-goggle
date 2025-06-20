@@ -11,18 +11,11 @@ extern "C" {
 
 #include "player/media.h"
 
-#define MPLAYER_SCR_WIDTH  1920
-#define MPLAYER_SCR_HEIGHT 1080
-#define MPLAYER_CB_WIDTH   700
-#define MPLAYER_CB_HEIGHT  84
-#define MPLAYER_BTN_WIDTH  48
-#define MPLAYER_BTN_HEIGHT 48
-#define MPLAYER_BTN_GAP    16
-#define MPLAYER_SLD_WIDTH  400
-#define MPLAYER_SLD_HEIGHT 3
 #define LV_COLOR_MAKE_32(a, r, g, b) \
     _LV_COLOR_MAKE_TYPE_HELPER {     \
-        { b, g, r, a }               \
+        {                            \
+            b, g, r, a               \
+        }                            \
     }
 
 #define MAX_STARS 10

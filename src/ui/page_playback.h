@@ -12,12 +12,10 @@ extern "C" {
 #define ITEMS_LAYOUT_COLS 3
 #define ITEMS_LAYOUT_CNT  (ITEMS_LAYOUT_ROWS * ITEMS_LAYOUT_COLS)
 
-#define ITEM_PREVIEW_W 320
-#define ITEM_PREVIEW_H 180
-#define ITEM_GAP_W     30
-#define ITEM_GAP_H     50
-#define PB_X_START     0
-#define PB_Y_START     0
+#define ITEM_GAP_W 30
+#define ITEM_GAP_H 50
+#define PB_X_START 0
+#define PB_Y_START 0
 
 #define ITEM_STATE_INVISIBLE 0
 #define ITEM_STATE_HIGHLIGHT 1
