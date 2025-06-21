@@ -27,6 +27,7 @@
 #include "driver/fans.h"
 #include "driver/fbtools.h"
 #include "driver/hardware.h"
+#include "driver/i2c.h"
 #include "driver/nct75.h"
 #include "driver/rtc.h"
 #include "driver/rtc6715.h"
@@ -104,6 +105,39 @@ void osd_toggle() {
     settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
 }
 
+#if HDZGOGGLE
+
+void osd_show_hdmi_in_dvr(uint8_t is_show) {
+    uint8_t reg;
+
+    reg = I2C_Read(0x64, 0x8d);
+    if (dvr_is_recording)
+        reg |= 0x01;
+    else
+        reg &= 0xfe;
+    I2C_Write(ADDR_FPGA, 0x8d, reg);
+}
+
+void osd_hdmi_in_dvr_update() {
+    uint8_t reg;
+    static uint8_t last_dvr_is_recording = 0;
+
+    if (g_source_info.source != SOURCE_HDMI_IN) {
+        if (last_dvr_is_recording != 0) {
+            osd_show_hdmi_in_dvr(0);
+            last_dvr_is_recording = 0;
+        }
+        return;
+    }
+
+    if (last_dvr_is_recording == dvr_is_recording)
+        return;
+
+    osd_show_hdmi_in_dvr(dvr_is_recording);
+
+    last_dvr_is_recording = dvr_is_recording;
+}
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 // these are local for OSD controlling
 static osd_hdzero_t g_osd_hdzero;
@@ -152,6 +186,9 @@ void osd_rec_show(bool bShow) {
         } else
             lv_obj_add_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
     }
+#if HDZGOGGLE
+    osd_hdmi_in_dvr_update();
+#endif
 }
 
 void osd_battery_low_show() {

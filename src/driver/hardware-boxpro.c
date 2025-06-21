@@ -838,7 +838,7 @@ void Source_HDMI_in() {
     HDZero_Close();
 
     // I2C_Write(ADDR_FPGA, 0x8C, 0x04);
-    I2C_Write(ADDR_FPGA, 0x84, 0x00);
+    Display_Osd(g_setting.record.osd);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDMIIN;
     Display_VO_SWITCH(1);

@@ -196,7 +196,7 @@ static void dvr_update_record_conf() {
         bitrate_scale = 1;
         break;
     }
-    if (g_setting.record.format_ts || (g_source_info.source == SOURCE_HDMI_IN))
+    if (g_setting.record.format_ts)
         ini_puts("record", "type", "ts", REC_CONF);
     else
         ini_puts("record", "type", "mp4", REC_CONF);
