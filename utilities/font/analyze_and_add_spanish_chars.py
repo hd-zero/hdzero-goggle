@@ -140,7 +140,7 @@ def main():
         print(f"Creado directorio de salida: {output_dir}")
     
     # Encontrar todos los archivos lv_font_montserrat_*.c
-    font_files = glob.glob("lv_font_montserrat_*.c")
+    font_files = glob.glob("out/lv_font_montserrat_*.c")
     
     if not font_files:
         print("No se encontraron archivos lv_font_montserrat_*.c en el directorio actual")
