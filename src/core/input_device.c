@@ -355,18 +355,17 @@ void rbtn_click(right_button_t click_type) {
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
 
+    pthread_mutex_lock(&lvgl_mutex);
+
     switch (g_app_state) {
     case APP_STATE_SUBMENU:
     case APP_STATE_WIFI:
-        pthread_mutex_lock(&lvgl_mutex);
         if (click_type == RIGHT_CLICK)
             submenu_right_button(true);
         else if (click_type == RIGHT_LONG_PRESS)
             submenu_right_button(false);
-        pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_VIDEO:
-        pthread_mutex_lock(&lvgl_mutex);
         if (click_type == RIGHT_CLICK) {
             (*rbtn_click_callback)();
         } else if (click_type == RIGHT_LONG_PRESS) {
@@ -374,12 +373,13 @@ void rbtn_click(right_button_t click_type) {
         } else if (click_type == RIGHT_DOUBLE_CLICK) {
             (*rbtn_double_click_callback)();
         }
-        pthread_mutex_unlock(&lvgl_mutex);
         break;
     case APP_STATE_SLEEP:
         wake_up();
         break;
     }
+
+    pthread_mutex_unlock(&lvgl_mutex);
 }
 
 static void roller_up(void) {
