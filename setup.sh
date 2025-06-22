@@ -1,12 +1,21 @@
 #!/bin/bash
 echo "Working directory: `pwd`"
 
-if [ ! -z "$1" ]; then
+if [ ! -z "$1" ] || [ "$1" != "automated_build" ]; then
 cp $1 .
 fi
 
 TOOLCHAIN_FILE="armv7-eabihf--musl--stable-2018.02-2.tar.bz2"
 TOOLCHAIN_URL="https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/$TOOLCHAIN_FILE"
+
+if [ "$1" == "automated_build" ]; then
+  if [ ! -d toolchain ]; then
+    echo "Extracting toolchain..."
+    mkdir toolchain
+    wget -qO- "$TOOLCHAIN_URL" | tar xj --strip-components=1 -C toolchain
+  fi
+fi
+
 
 if [ ! -f "$TOOLCHAIN_FILE" ]; then
   echo "$TOOLCHAIN_FILE not found."
