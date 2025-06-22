@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Working directory: `pwd`"
 
-if [ ! -z "$1" ] || [ "$1" != "automated_build" ]; then
+if [ ! -z "$1" ] && [ "$1" != "automated_build" ]; then
 cp $1 .
 fi
 
