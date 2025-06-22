@@ -1,23 +1,20 @@
 #!/bin/bash
-echo "Working directory: `pwd`"
-
-if [ ! -z "$1" ] && [ "$1" != "automated_build" ]; then
-cp $1 .
-fi
-
 TOOLCHAIN_FILE="armv7-eabihf--musl--stable-2018.02-2.tar.bz2"
 TOOLCHAIN_URL="https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/$TOOLCHAIN_FILE"
 
-if [ "$1" == "automated_build" ]; then
-  if [ ! -d toolchain ]; then
+if [ ! -d toolchain ]; then
+  if [ "$1" == "automated_build" ]; then
     echo "Extracting toolchain..."
     mkdir toolchain
     wget -qO- "$TOOLCHAIN_URL" | tar xj --strip-components=1 -C toolchain
   fi
+
+if [ ! -z "$1" ] && [ "$1" != "automated_build" ]; then
+echo "Working directory: `pwd`"
+cp $1 .
 fi
 
-
-if [ ! -f "$TOOLCHAIN_FILE" ]; then
+if [ ! -f "$TOOLCHAIN_FILE" ] && [ "$1" != "automated_build" ]; then
   echo "$TOOLCHAIN_FILE not found."
   while true; do
     read -p "download $TOOLCHAIN_URL? (y/n): " yn
@@ -28,12 +25,13 @@ if [ ! -f "$TOOLCHAIN_FILE" ]; then
       esac
   done
 fi
-if [ -f "$TOOLCHAIN_FILE" ]; then  
-  echo "Using toolchain `pwd`/$TOOLCHAIN_FILE"
-  if [ ! -d toolchain ]; then
-	echo "Extracting toolchain..."
-	mkdir toolchain
-	tar -xvjf $TOOLCHAIN_FILE --strip-components=1 -C toolchain
+  if [ -f "$TOOLCHAIN_FILE" ]; then  
+    echo "Using toolchain `pwd`/$TOOLCHAIN_FILE"
+    if [ ! -d toolchain ]; then
+      echo "Extracting toolchain..."
+      mkdir toolchain
+      tar -xvjf $TOOLCHAIN_FILE --strip-components=1 -C toolchain
+    fi
   fi
 fi
 
