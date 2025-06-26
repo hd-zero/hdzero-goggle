@@ -13,7 +13,7 @@ jobs:
 
       - name: Build Firmware
         run: |
-          bash setup.sh
+          bash setup.sh automated_build
           make -C build_boxpro
 
       - name: Get Firmware Name
