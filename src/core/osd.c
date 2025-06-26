@@ -309,16 +309,19 @@ void osd_analog_rssi_show(bool bShow) {
 
     int rssi_volt_mv = RTC6715_GetRssi();
     /*
-    1600 -> 0%
-    2200 -> 100%
+    824 -> 0%
+    1600 -> 100%
     */
 
     // if (cnt == 19)
     //     LOGI(" rssi rssi_volt_mv:%d", rssi_volt_mv);
 
-    rssi_volt_mv -= 1600;
-    rssi_volt_mv = (rssi_volt_mv < 0) ? 0 : rssi_volt_mv;
-    rssi_volt_mv /= 6;
+    rssi_volt_mv = (rssi_volt_mv - 824) * 100 / 776;
+    if (rssi_volt_mv < 0)
+        rssi_volt_mv = 0;
+    if (rssi_volt_mv > 100)
+        rssi_volt_mv = 100;
+
     // cnt++;
     // if (cnt == 20) {
     //     cnt = 0;
