@@ -216,7 +216,7 @@ const setting_t g_setting_defaults = {
         .netmask = "255.255.255.0",
         .gateway = "192.168.2.1",
         .dns = "192.168.2.1",
-        .rf_channel = 6,
+        .rf_channel = 11,
         .root_pw = "divimath",
         .ssh = false,
     },
