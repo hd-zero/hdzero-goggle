@@ -174,8 +174,11 @@ void source_status_timer() {
     if (g_setting.source.hdzero_band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
         if (ch <= 8) {
             snprintf(buf, sizeof(buf), "HDZero: R%d", ch);
-        } else {
+        } else if (ch <= 12) {
             snprintf(buf, sizeof(buf), "HDZero: F%d", (ch - 8) * 2);
+        } else {
+            g_setting.scan.channel = 1;
+            snprintf(buf, sizeof(buf), "HDZero: R1");
         }
     } else {
         if (ch > 8) {

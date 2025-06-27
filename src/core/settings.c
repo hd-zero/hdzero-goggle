@@ -12,6 +12,7 @@
 #include "core/self_test.h"
 #include "lang/language.h"
 #include "ui/page_common.h"
+#include "ui/page_scannow.h"
 #include "util/filesystem.h"
 #include "util/system.h"
 
@@ -352,6 +353,12 @@ void settings_load(void) {
     g_setting.source.hdzero_band = ini_getl("source", "hdzero_band", g_setting_defaults.source.hdzero_band, SETTING_INI);
     g_setting.source.hdzero_bw = ini_getl("source", "hdzero_bw", g_setting_defaults.source.hdzero_bw, SETTING_INI);
     g_setting.source.analog_channel = ini_getl("source", "analog_channel", g_setting_defaults.source.analog_channel, SETTING_INI);
+    if (g_setting.scan.channel > HDZERO_CHANNEL_NUM) {
+        g_setting.scan.channel = 1;
+    }
+    if (g_setting.source.analog_channel > ANALOG_CHANNEL_NUM) {
+        g_setting.scan.channel = 33;
+    }
 
     // autoscan
     g_setting.autoscan.status = ini_getl("autoscan", "status", g_setting_defaults.autoscan.status, SETTING_INI);
