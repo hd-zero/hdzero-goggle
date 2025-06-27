@@ -116,14 +116,14 @@ void tune_channel(uint8_t action) {
     if (TARGET_GOGGLE == getTargetType()) {
         switch (action) {
         case DIAL_KEY_UP: // Tune up
-            if (channel == HDZERO_CHANNEL_NUM)
+            if (channel >= HDZERO_CHANNEL_NUM)
                 channel = 1;
             else
                 channel++;
             break;
 
         case DIAL_KEY_DOWN: // Tune down
-            if (channel == 1)
+            if (channel <= 1)
                 channel = HDZERO_CHANNEL_NUM;
             else
                 channel--;
