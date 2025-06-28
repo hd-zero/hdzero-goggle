@@ -344,23 +344,20 @@ void osd_analog_rssi_show(bool bShow) {
 
     lv_obj_clear_flag(analog_rssi_bar, LV_OBJ_FLAG_HIDDEN);
 
-    int rssi_volt_mv = RTC6715_GetRssi();
-    /*
-    1600 -> 0%
-    2200 -> 100%
-    */
+    int rssi_volt_mv;
 
-    // if (cnt == 19)
-    //     LOGI(" rssi rssi_volt_mv:%d", rssi_volt_mv);
+    if (g_setting.analog_rssi.calib_min == g_setting.analog_rssi.calib_max)
+        rssi_volt_mv = 0;
+    else {
+        rssi_volt_mv = RTC6715_GetRssi();
+        if (rssi_volt_mv <= g_setting.analog_rssi.calib_min)
+            rssi_volt_mv = 0;
+        else if (rssi_volt_mv >= g_setting.analog_rssi.calib_max)
+            rssi_volt_mv = 100;
+        else
+            rssi_volt_mv = (rssi_volt_mv - g_setting.analog_rssi.calib_min) * 100 / (g_setting.analog_rssi.calib_max - g_setting.analog_rssi.calib_min);
+    }
 
-    rssi_volt_mv -= 1600;
-    rssi_volt_mv = (rssi_volt_mv < 0) ? 0 : rssi_volt_mv;
-    rssi_volt_mv /= 6;
-    // cnt++;
-    // if (cnt == 20) {
-    //     cnt = 0;
-    //     LOGI(" rssi pct:%d", rssi_volt_mv);
-    // }
     lv_bar_set_value(analog_rssi_bar, rssi_volt_mv, LV_ANIM_OFF);
 }
 

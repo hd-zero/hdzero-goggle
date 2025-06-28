@@ -1,6 +1,3 @@
 {
     "editor.formatOnSave": true,
-    "files.associations": {
-        "ui_style.h": "c"
-    },
 }

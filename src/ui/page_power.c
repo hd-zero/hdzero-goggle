@@ -48,7 +48,7 @@ static slider_group_t *selected_slider_group = NULL;
 
 static lv_coord_t col_dsc[] = {UI_POWER_COLS};
 static lv_coord_t row_dsc[] = {UI_POWER_ROWS};
-lv_obj_t *label_cell_count;
+static lv_obj_t *label_cell_count;
 
 static void page_power_update_cell_count() {
     char str[10];

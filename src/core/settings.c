@@ -234,6 +234,10 @@ const setting_t g_setting_defaults = {
     .language = {
         .lang = LANG_ENGLISH_DEFAULT,
     },
+    .analog_rssi = {
+        .calib_min = 1600,
+        .calib_max = 2100,
+    },
     .has_all_features = true,
 };
 
@@ -483,6 +487,10 @@ void settings_load(void) {
 
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
+
+    // analog rssi
+    g_setting.analog_rssi.calib_min = ini_getl("analog_rssi", "calib_min", g_setting_defaults.analog_rssi.calib_min, SETTING_INI);
+    g_setting.analog_rssi.calib_max = ini_getl("analog_rssi", "calib_max", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
 
     // language
     if (!language_config()) {
