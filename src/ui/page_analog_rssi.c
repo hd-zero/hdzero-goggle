@@ -93,7 +93,7 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
 static void on_enter() {
     RTC6715_Open(1);
     usleep(100 * 1000);
-    RTC6715_SetCH(33);
+    RTC6715_SetCH(32); // R1
 }
 
 static void on_exit() {
@@ -127,7 +127,7 @@ static void on_click(uint8_t key, int sel) {
         ini_putl("analog_rssi", "calib_min", (uint16_t)volt_mv, SETTING_INI);
         g_setting.analog_rssi.calib_min = ini_getl("analog_rssi", "calib_min", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
 
-        snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Calibrate RSSI Min"), _lang("Complited"));
+        snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Calibrate RSSI Min"), _lang("Complete"));
         lv_label_set_text(calibrate_rssi_min_obj, buf);
 
         LOGI("result: calib_min=%dmv", g_setting.analog_rssi.calib_min);
@@ -144,7 +144,7 @@ static void on_click(uint8_t key, int sel) {
         ini_putl("analog_rssi", "calib_max", (uint16_t)volt_mv, SETTING_INI);
         g_setting.analog_rssi.calib_max = ini_getl("analog_rssi", "calib_max", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
 
-        snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Calibrate RSSI Max"), _lang("Complited"));
+        snprintf(buf, sizeof(buf), "%s #FFFF00 %s#", _lang("Calibrate RSSI Max"), _lang("Complete"));
         lv_label_set_text(calibrate_rssi_max_obj, buf);
 
         LOGI("result: calib_max=%dmv", g_setting.analog_rssi.calib_max);
