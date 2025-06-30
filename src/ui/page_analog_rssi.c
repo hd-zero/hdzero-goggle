@@ -124,7 +124,6 @@ static void on_click(uint8_t key, int sel) {
         }
 
         volt_mv = volt_mv >> 3;
-        volt_mv += 300; // ??? Need to solve
         ini_putl("analog_rssi", "calib_min", (uint16_t)volt_mv, SETTING_INI);
         g_setting.analog_rssi.calib_min = ini_getl("analog_rssi", "calib_min", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
 
@@ -142,7 +141,6 @@ static void on_click(uint8_t key, int sel) {
         }
 
         volt_mv = volt_mv >> 3;
-        volt_mv += 300; // ??? Need to solve
         ini_putl("analog_rssi", "calib_max", (uint16_t)volt_mv, SETTING_INI);
         g_setting.analog_rssi.calib_max = ini_getl("analog_rssi", "calib_max", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
 

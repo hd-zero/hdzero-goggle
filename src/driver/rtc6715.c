@@ -69,6 +69,7 @@ void MM_Write(uint8_t addr, uint32_t dat) {
 void RTC6715_Open(int on) {
     gpio_set(GPIO_RTC6715_ON, on);
     gpadc_on(on);
+    I2C_Write(ADDR_FPGA, 0x8C, (on << 1));
     LOGI("RTC6715_Open:%d", on);
 }
 

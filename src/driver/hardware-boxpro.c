@@ -685,7 +685,7 @@ void Source_AV(source_t mode) // 0=rtc6715; 1=AV_in
 {
     pthread_mutex_lock(&hardware_mutex);
     Screen_Display(0);
-    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
+    // I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     g_hw_stat.av_chid = SOURCE_AV_MODULE == mode ? 0 : 1;
 
@@ -712,7 +712,7 @@ void Source_AV(source_t mode) // 0=rtc6715; 1=AV_in
     else
         I2C_Write(ADDR_FPGA, 0x8f, 0x00); // bit[7]: 0=15:9, 1=original
 
-    I2C_Write(ADDR_FPGA, 0x8c, 0x02);
+    // I2C_Write(ADDR_FPGA, 0x8c, 0x02);
 
     g_hw_stat.source_mode = SOURCE_MODE_AV;
     Display_VO_SWITCH(1);
