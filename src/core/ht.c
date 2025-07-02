@@ -227,7 +227,7 @@ void ht_init() {
 
     if (TARGET_GOGGLE == getTargetType()) {
         ht_data.tiltInverse = 1;
-    } else if (TARGET_GOGGLE == getTargetType()) {
+    } else if (TARGET_BOXPRO == getTargetType()) {
         ht_data.tiltInverse = -1;
     }
 
