@@ -17,6 +17,7 @@ media.tar.gz
 /.vscode/settings.json
 .DS_Store
 utilities/font/out
+*.bz2
 
 # nix related
 result
