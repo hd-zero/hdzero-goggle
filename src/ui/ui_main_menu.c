@@ -13,6 +13,7 @@
 #include "driver/mcp3021.h"
 #include "driver/screen.h"
 #include "lang/language.h"
+#include "ui/page_analog_rssi.h"
 #include "ui/page_autoscan.h"
 #include "ui/page_clock.h"
 #include "ui/page_common.h"
@@ -47,7 +48,10 @@ static lv_obj_t *root_page;
 /**
  * To contain all menu pages.
  */
-static page_pack_t *page_packs[18];
+
+#define PAGE_PACK_MAX_NUM 19
+
+static page_pack_t *page_packs[PAGE_PACK_MAX_NUM];
 static size_t page_packs_count = 0;
 static page_pack_t *post_bootup_actions[18];
 static size_t post_bootup_actions_count = 0;
@@ -130,6 +134,7 @@ void submenu_roller(uint8_t key) {
                     pp->p_arr.cur = pp->p_arr.max - 1;
             } while (!lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE));
         }
+        LOGI("submenu_roller %d", pp->p_arr.cur);
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
@@ -269,6 +274,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     if (pp->on_created) {
         pp->on_created();
     }
+    LOGD("Done");
 }
 
 static int post_bootup_actions_cmp(const void *lhs, const void *rhs) {
@@ -307,6 +313,9 @@ void main_menu_init(void) {
     page_packs[page_packs_count++] = &pp_focus_chart;
     page_packs[page_packs_count++] = &pp_clock;
     page_packs[page_packs_count++] = &pp_input;
+#ifdef HDZBOXPRO
+    page_packs[page_packs_count++] = &pp_analog_rssi;
+#endif
     page_packs[page_packs_count++] = &pp_sleep;
 
     menu = lv_menu_create(lv_scr_act());

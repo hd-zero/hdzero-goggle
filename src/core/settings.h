@@ -279,6 +279,11 @@ typedef struct {
 } language_t;
 
 typedef struct {
+    uint16_t calib_min;
+    uint16_t calib_max;
+} setting_analog_rssi_t;
+
+typedef struct {
     setting_scan_t scan;
     setting_fan_t fans;
     setting_autoscan_t autoscan;
@@ -295,6 +300,7 @@ typedef struct {
     ease_use_t ease;
     setting_storage_t storage;
     language_t language;
+    setting_analog_rssi_t analog_rssi;
     bool has_all_features;
 } setting_t;
 

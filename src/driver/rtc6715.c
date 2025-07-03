@@ -69,6 +69,7 @@ void MM_Write(uint8_t addr, uint32_t dat) {
 void RTC6715_Open(int on) {
     gpio_set(GPIO_RTC6715_ON, on);
     gpadc_on(on);
+    I2C_Write(ADDR_FPGA, 0x8C, (on << 1));
     LOGI("RTC6715_Open:%d", on);
 }
 
@@ -98,7 +99,7 @@ int RTC6715_GetRssi() {
         return rssi_adc;
 
     rssi_adc = 3300 * value / 4096;
-    LOGI("rssi voltage: %02f", (float)rssi_adc / 1000);
+    // LOGI("rssi voltage: %02f", (float)rssi_adc / 1000);
     return rssi_adc;
 }
 
