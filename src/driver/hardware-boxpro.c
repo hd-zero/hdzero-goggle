@@ -681,13 +681,13 @@ void AV_Mode_Switch(int is_pal) {
     }
 }
 
-void Source_AV(source_t mode) // 0=rtc6715; 1=AV_in
+void Source_AV(source_t mode)
 {
     pthread_mutex_lock(&hardware_mutex);
     Screen_Display(0);
     // I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    g_hw_stat.av_chid = SOURCE_AV_MODULE == mode ? 0 : 1;
+    g_hw_stat.av_chid = SOURCE_AV_MODULE == mode ? 1 : 0;
 
     if (SOURCE_AV_MODULE == mode) {
         RTC6715_Open(1);
@@ -696,7 +696,7 @@ void Source_AV(source_t mode) // 0=rtc6715; 1=AV_in
     }
 
     TP2825_Switch_Mode(g_setting.source.analog_format);
-    TP2825_Switch_CH(g_hw_stat.av_chid ? SOURCE_AV_IN : SOURCE_AV_MODULE);
+    TP2825_Switch_CH(g_hw_stat.av_chid ? SOURCE_AV_MODULE : SOURCE_AV_IN);
 
     AV_Mode_Switch_fpga(g_setting.source.analog_format);
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
@@ -734,19 +734,22 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
     pthread_mutex_lock(&hardware_mutex);
 
     if (g_hw_stat.source_mode == SOURCE_MODE_UI) { // detect in UI mode
-        if (g_hw_stat.av_chid == 0) {
-            g_hw_stat.av_chid = 1; // 1=AV_in
+        if (g_hw_stat.av_chid == 1) {
+            g_hw_stat.av_chid = 0; // 0=AV_in
+            det_last = -1;
+            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
             TP2825_Switch_CH(g_hw_stat.av_chid ? SOURCE_AV_IN : SOURCE_AV_MODULE);
         }
 
         rdat = I2C_Read(ADDR_TP2825, 0x01);
+        rdat &= 0xc9;
 
-        det = (rdat & 0x80) ? 0 : 1;
+        det = ((rdat == 0x48) || (rdat == 0x49));
+
         if (det_last != det) {
             det_last = det;
         } else {
             g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
-            g_hw_stat.av_pal[g_hw_stat.av_chid] = (rdat & 0x01) ? 0 : 1;
         }
 
         det_cnt = 0;
