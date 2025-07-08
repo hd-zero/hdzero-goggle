@@ -28,17 +28,17 @@ static void update_visibility() {
     btn_group_enable(&btn_group_audio_source, btn_group_record_audio.current == 0);
 
     if (btn_group_record_audio.current == 0) {
-        lv_obj_add_flag(pp_record.p_arr.panel[4], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
     } else {
-        lv_obj_clear_flag(pp_record.p_arr.panel[4], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
     }
 
     btn_group_enable(&btn_group_file_naming, rtc_has_battery() == 0);
 
     if (rtc_has_battery() == 0) {
-        lv_obj_add_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_record.p_arr.panel[6], FLAG_SELECTABLE);
     } else {
-        lv_obj_clear_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_record.p_arr.panel[6], FLAG_SELECTABLE);
     }
 }
 
