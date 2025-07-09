@@ -275,7 +275,7 @@ void msp_process_packet() {
                     beep();
                     pthread_mutex_lock(&lvgl_mutex);
                     dvr_cmd(DVR_STOP);
-                    app_switch_to_analog(0);
+                    app_switch_to_analog(SOURCE_AV_MODULE);
                     app_state_push(APP_STATE_VIDEO);
                     pthread_mutex_unlock(&lvgl_mutex);
                 }
@@ -323,7 +323,7 @@ void msp_process_packet() {
                         g_setting.scan.channel = chan;
                         beep();
                         pthread_mutex_lock(&lvgl_mutex);
-                        app_switch_to_analog(0);
+                        app_switch_to_analog(SOURCE_AV_MODULE);
                         app_state_push(APP_STATE_VIDEO);
                         pthread_mutex_unlock(&lvgl_mutex);
                         break;
