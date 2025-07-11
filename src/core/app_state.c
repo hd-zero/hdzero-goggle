@@ -13,6 +13,7 @@
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
+#include "driver/rtc6715.h"
 #include "driver/screen.h"
 #include "ui/page_common.h"
 #include "ui/page_imagesettings.h"
@@ -46,6 +47,8 @@ void app_switch_to_menu() {
     } else if (TARGET_BOXPRO == getTargetType()) {
         dvr_update_vi_conf(VR_720P60);
     }
+
+    RTC6715_Open(0, 0);
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -82,10 +85,14 @@ void app_switch_to_analog(source_t source) {
     Source_AV(source);
 
     if (TARGET_BOXPRO == getTargetType()) {
-        // Solve LCD residual image
         if (SOURCE_AV_MODULE == source) {
+            // Solve LCD residual image
             Screen_Brightness(7);
             Set_Contrast(14);
+
+            // turn on RTC6715
+            RTC6715_Open(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
+            RTC6715_SetCH(g_setting.source.analog_channel - 1);
         }
     }
 
@@ -100,6 +107,10 @@ void app_switch_to_analog(source_t source) {
     g_setting.autoscan.last_source = SOURCE_AV_IN == source ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
+    // audio in&out
+    dvr_select_audio_source(g_setting.record.audio_source);
+    dvr_enable_line_out(true);
+
     // usleep(300*1000);
     sleep(1);
     system_script(REC_STOP_LIVE);
@@ -110,6 +121,9 @@ void app_switch_to_hdmi_in() {
         // Restore image settings from av module
         Screen_Brightness(g_setting.image.oled);
         Set_Contrast(g_setting.image.contrast);
+
+        // turn off RTC6715
+        RTC6715_Open(0, 0);
     }
 
     Source_HDMI_in();
@@ -150,6 +164,9 @@ void app_switch_to_hdzero(bool is_default) {
         // Restore image settings from av module
         Screen_Brightness(g_setting.image.oled);
         Set_Contrast(g_setting.image.contrast);
+
+        // turn off RTC6715
+        RTC6715_Open(0, 0);
     }
 
     if (is_default) {

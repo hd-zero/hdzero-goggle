@@ -66,11 +66,21 @@ void MM_Write(uint8_t addr, uint32_t dat) {
 #endif
 }
 
-void RTC6715_Open(int on) {
-    gpio_set(GPIO_RTC6715_ON, on);
-    gpadc_on(on);
-    I2C_Write(ADDR_FPGA, 0x8C, (on << 1));
-    LOGI("RTC6715_Open:%d", on);
+void RTC6715_SetAudio(int is_on) {
+    uint32_t audio_val[2] = {0x10df3, 0x10c13};
+    MM_Write(0x0a, audio_val[is_on]);
+}
+
+void RTC6715_Open(int power_on, int audio_on) {
+    gpio_set(GPIO_RTC6715_ON, power_on);
+    gpadc_on(power_on);
+    I2C_Write(ADDR_FPGA, 0x8C, (power_on << 1));
+
+    if (power_on) {
+        usleep(200 * 1000);
+        RTC6715_SetAudio(audio_on);
+    }
+    LOGI("RTC6715_Open:%d, audio:%d", power_on, audio_on);
 }
 
 void RTC6715_SetCH(int ch) {
@@ -102,5 +112,8 @@ int RTC6715_GetRssi() {
     // LOGI("rssi voltage: %02f", (float)rssi_adc / 1000);
     return rssi_adc;
 }
-
+#else
+void RTC6715_Open(int power_on, int audio_on) {}
+void RTC6715_SetCH(int ch) {}
+int RTC6715_GetRssi() {}
 #endif

@@ -801,13 +801,13 @@ void Source_AV(source_t mode) // 0=AV in, 1=AV module
     Screen_Display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    g_hw_stat.av_chid = SOURCE_AV_MODULE == mode ? 1 : 0;
+    g_hw_stat.av_chid = (SOURCE_AV_MODULE == mode);
 
     TP2825_init(mode, g_setting.source.analog_format);
 
     // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
     TP2825_Switch_Mode(g_setting.source.analog_format);
-    TP2825_Switch_CH(mode);
+    TP2825_Switch_CH(g_hw_stat.av_chid);
 
     // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
     // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
@@ -861,7 +861,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             g_hw_stat.av_pal[g_hw_stat.av_chid] = ((rdat & 0xAC) == 0x2c) ? 1 : 0;
 
             g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
-            TP2825_Switch_CH(g_hw_stat.av_chid ? SOURCE_AV_MODULE : SOURCE_AV_IN);
+            TP2825_Switch_CH(g_hw_stat.av_chid);
             det_last = -1;
         }
 

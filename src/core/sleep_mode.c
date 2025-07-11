@@ -48,7 +48,7 @@ void go_sleep() {
         break;
     case TARGET_BOXPRO:
         // Turn off Analog Receiver
-        RTC6715_Open(0);
+        RTC6715_Open(0, 0);
         break;
     }
 

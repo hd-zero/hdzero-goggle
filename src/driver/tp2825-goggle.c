@@ -248,8 +248,8 @@ void TP2825_Switch_Mode(int is_pal) {
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 
-void TP2825_Switch_CH(source_t mode) {
-    I2C_Write(ADDR_TP2825, 0x41, SOURCE_AV_IN == mode ? 0 : 1);
+void TP2825_Switch_CH(uint8_t is_av_module) {
+    I2C_Write(ADDR_TP2825, 0x41, is_av_module);
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 

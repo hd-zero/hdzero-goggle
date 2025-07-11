@@ -13,10 +13,12 @@
 
 void TP2825_close() {
     gpio_set(GPIO_TP2825_RSTB, 0);
+    LOGI("TP2825 close");
 }
 
 void TP2825_open() {
     gpio_set(GPIO_TP2825_RSTB, 1);
+    LOGI("TP2825 open");
 }
 
 void TP2825_init(source_t mode, int is_pal) {
@@ -73,8 +75,8 @@ void TP2825_Switch_Mode(int is_pal) {
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
 }
 
-void TP2825_Switch_CH(source_t mode) {
-    I2C_Write(ADDR_TP2825, 0x02, SOURCE_AV_IN == mode ? 0x44 : 0x40);
+void TP2825_Switch_CH(uint8_t is_av_module) {
+    I2C_Write(ADDR_TP2825, 0x02, is_av_module ? 0x40 : 0x44);
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
 }
 
