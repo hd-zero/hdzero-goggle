@@ -12,7 +12,7 @@ void TP2825_close();
 void TP2825_open();
 
 void TP2825_init(bool is_av_in, bool is_pal);
-void TP2825_Switch_Mode(int is_pal);
+void TP2825_Switch_Mode(bool is_pal);
 void TP2825_Switch_CH(bool is_av_in);
 void TP2825_Set_Clamp(int idx);
 

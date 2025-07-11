@@ -59,7 +59,7 @@ void TP2825_init(bool is_av_in, bool is_pal) {
     LOGI("TP2825 init: is_av_in=%d, is_pal=%d", is_av_in, is_pal);
 }
 
-void TP2825_Switch_Mode(int is_pal) {
+void TP2825_Switch_Mode(bool is_pal) {
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x07, 0x12);
         I2C_Write(ADDR_TP2825, 0x08, 0x18);
