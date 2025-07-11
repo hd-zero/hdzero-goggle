@@ -91,13 +91,13 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 static void on_enter() {
-    RTC6715_Open(1);
+    RTC6715_Open(1, 0);
     usleep(100 * 1000);
     RTC6715_SetCH(32); // R1
 }
 
 static void on_exit() {
-    RTC6715_Open(0);
+    RTC6715_Open(0, 0);
 }
 
 static void on_created() {

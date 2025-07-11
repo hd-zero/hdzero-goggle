@@ -124,7 +124,7 @@ static void detect_motion(bool is_moving) {
                 if (g_hw_stat.source_mode == SOURCE_MODE_HDZERO) {
                     HDZero_Close(); // Turn off RF
                 } else if (g_hw_stat.source_mode == SOURCE_MODE_AV) {
-                    RTC6715_Open(0);
+                    RTC6715_Open(0, 0);
                 }
             }
 
@@ -151,7 +151,7 @@ static void detect_motion(bool is_moving) {
                 HDZero_open(g_setting.source.hdzero_bw);
                 DM6302_SetChannel(g_setting.source.hdzero_band, ch & 0x7F);
             } else if (TARGET_BOXPRO == getTargetType() && g_hw_stat.source_mode == SOURCE_MODE_AV) {
-                RTC6715_Open(1);
+                RTC6715_Open(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
             }
 
             LOGI("OLED ON from protection.");

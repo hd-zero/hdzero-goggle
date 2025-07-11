@@ -215,7 +215,7 @@ static void page_source_select_hdzero() {
     app_switch_to_hdzero(true);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDZERO;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
@@ -228,7 +228,7 @@ static void page_source_select_av_in() {
     app_switch_to_analog(SOURCE_AV_IN);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_IN;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
@@ -236,7 +236,7 @@ static void page_source_select_analog() {
     app_switch_to_analog(SOURCE_AV_MODULE);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_MODULE;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
