@@ -272,7 +272,7 @@ void hw_stat_init() {
     g_hw_stat.hdzero_open = 0;
     g_hw_stat.m0_open = 0;
 
-    g_hw_stat.av_chid = 0;
+    g_hw_stat.is_av_in = 1;
     g_hw_stat.av_pal[0] = g_hw_stat.av_pal[1] = g_hw_stat.av_pal_w = 0;
     g_hw_stat.av_valid[0] = g_hw_stat.av_valid[1] = 0;
 
@@ -680,15 +680,14 @@ void AV_Mode_Switch(int is_pal) {
     }
 }
 
-void Source_AV(source_t mode) {
+void Source_AV(bool is_av_in) {
     pthread_mutex_lock(&hardware_mutex);
     Screen_Display(0);
-    // I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    g_hw_stat.av_chid = (SOURCE_AV_MODULE == mode);
+    g_hw_stat.is_av_in = is_av_in;
 
     TP2825_Switch_Mode(g_setting.source.analog_format);
-    TP2825_Switch_CH(g_hw_stat.av_chid);
+    TP2825_Switch_CH(is_av_in);
 
     AV_Mode_Switch_fpga(g_setting.source.analog_format);
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
@@ -697,14 +696,13 @@ void Source_AV(source_t mode) {
 
     HDZero_Close();
 
-    I2C_Write(ADDR_FPGA, 0x8d, 0x1C);
+    I2C_Write(ADDR_FPGA, 0x8C, 0x02);
+    I2C_Write(ADDR_FPGA, 0x8D, 0x1C);
 
     if (g_setting.source.analog_ratio == SETTING_SOURCES_ANALOG_RATIO_4_3)
-        I2C_Write(ADDR_FPGA, 0x8f, 0x80); // bit[7]: 0=15:9, 1=original
+        I2C_Write(ADDR_FPGA, 0x8F, 0x80); // bit[7]: 0=15:9, 1=original
     else
-        I2C_Write(ADDR_FPGA, 0x8f, 0x00); // bit[7]: 0=15:9, 1=original
-
-    // I2C_Write(ADDR_FPGA, 0x8c, 0x02);
+        I2C_Write(ADDR_FPGA, 0x8F, 0x00); // bit[7]: 0=15:9, 1=original
 
     g_hw_stat.source_mode = SOURCE_MODE_AV;
     Display_VO_SWITCH(1);
@@ -726,11 +724,11 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
     pthread_mutex_lock(&hardware_mutex);
 
     if (g_hw_stat.source_mode == SOURCE_MODE_UI) { // detect in UI mode
-        if (g_hw_stat.av_chid == 1) {
-            g_hw_stat.av_chid = 0; // 0=AV_in
+        if (g_hw_stat.is_av_in == 0) {
+            g_hw_stat.is_av_in = 1;
             det_last = -1;
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
-            TP2825_Switch_CH(g_hw_stat.av_chid);
+            g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
+            TP2825_Switch_CH(g_hw_stat.is_av_in);
         }
 
         rdat = I2C_Read(ADDR_TP2825, 0x01);
@@ -741,7 +739,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
         if (det_last != det) {
             det_last = det;
         } else {
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
+            g_hw_stat.av_valid[g_hw_stat.is_av_in] = det;
         }
 
         det_cnt = 0;
@@ -759,7 +757,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
         if (det && det_cnt == AV_DET_SWITCH_CNT) {
             g_hw_stat.av_pal_w = g_hw_stat.av_pal_w ? 0 : 1;
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+            g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
 
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
             AV_Mode_Switch(g_hw_stat.av_pal_w);
@@ -782,22 +780,22 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             h_lock = ((rdat & 0x60) == 0x60);
             vh_lock = ((rdat & 0x68) == 0x68);
 
-            switch (g_hw_stat.av_valid[g_hw_stat.av_chid]) {
+            switch (g_hw_stat.av_valid[g_hw_stat.is_av_in]) {
             case 0: // video loss
                 if (h_lock || vh_lock) {
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 1;
                 }
                 break;
 
             case 1: // search
                 if (vloss) {
                     det2_cnt = 0;
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
                 } else if (vh_lock) {
                     det2_cnt++;
                     if (det2_cnt >= AV_DET_LOCK_CNT) {
                         det2_cnt = 0;
-                        g_hw_stat.av_valid[g_hw_stat.av_chid] = 2;
+                        g_hw_stat.av_valid[g_hw_stat.is_av_in] = 2;
                         // ret = 1;
                     }
                 } else
@@ -807,12 +805,12 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             case 2: // locked
                 if (vloss) {
                     det2_cnt = 0;
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
                 } else if (vh_lock == 0) {
                     det2_cnt++;
                     if (det2_cnt >= AV_DET_DROP_CNT) {
                         det2_cnt = 0;
-                        g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
+                        g_hw_stat.av_valid[g_hw_stat.is_av_in] = 1;
                     }
                 } else
                     det2_cnt = 0;

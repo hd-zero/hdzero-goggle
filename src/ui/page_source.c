@@ -225,7 +225,7 @@ static void page_source_select_hdmi() {
 }
 
 static void page_source_select_av_in() {
-    app_switch_to_analog(SOURCE_AV_IN);
+    app_switch_to_analog(1);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_IN;
     dvr_select_audio_source(g_setting.record.audio_source);
@@ -233,7 +233,7 @@ static void page_source_select_av_in() {
 }
 
 static void page_source_select_analog() {
-    app_switch_to_analog(SOURCE_AV_MODULE);
+    app_switch_to_analog(0);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_MODULE;
     dvr_select_audio_source(g_setting.record.audio_source);

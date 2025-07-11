@@ -11,10 +11,10 @@ extern "C" {
 void TP2825_close();
 void TP2825_open();
 
-void TP2825_init(source_t mode, int is_pal);
+void TP2825_init(bool is_av_in, bool is_pal);
 void TP2825_Switch_Mode(int is_pal);
-void TP2825_Switch_CH(uint8_t is_av_module);
-void TP2825_Set_Clamp(int);
+void TP2825_Switch_CH(bool is_av_in);
+void TP2825_Set_Clamp(int idx);
 
 void TP2825_Set_Pclk(uint8_t inv);
 

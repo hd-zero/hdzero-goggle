@@ -63,10 +63,10 @@ typedef struct {
     int m0_open;
 
     // av in
-    int av_chid; // 0=AV in; 1=Module bay
+    int is_av_in;
     int av_pal[2];
     int av_pal_w;
-    int av_valid[2]; // 0=invalid; 1=AV in; 2=Module bay
+    int av_valid[2]; // 0=AV in; 1=RF Analog
 
     // hdmi in
     int hdmiin_valid;
@@ -86,7 +86,7 @@ void HDZero_open(int bw);
 void HDZero_Close();
 
 void Source_HDMI_in();
-void Source_AV(source_t mode);
+void Source_AV(bool is_av_in);
 void Display_UI_init();
 void Display_UI();
 

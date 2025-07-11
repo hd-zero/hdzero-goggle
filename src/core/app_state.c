@@ -77,15 +77,25 @@ void app_exit_menu() {
     } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_switch_to_hdmi_in();
     } else {
-        app_switch_to_analog(g_source_info.source);
+        app_switch_to_analog(g_source_info.source == SOURCE_AV_IN);
     }
 }
 
-void app_switch_to_analog(source_t source) {
-    Source_AV(source);
+void app_switch_to_analog(bool is_av_in) {
+    dvr_update_vi_conf(VR_720P50);
+    osd_fhd(0);
+    osd_show(true);
+    lvgl_switch_to_720p();
+    osd_clear();
+    lv_timer_handler();
+    Display_Osd(g_setting.record.osd);
+
+    Source_AV(is_av_in);
 
     if (TARGET_BOXPRO == getTargetType()) {
-        if (SOURCE_AV_MODULE == source) {
+        if (is_av_in) {
+            RTC6715_Open(0, 0);
+        } else {
             // Solve LCD residual image
             Screen_Brightness(7);
             Set_Contrast(14);
@@ -96,22 +106,13 @@ void app_switch_to_analog(source_t source) {
         }
     }
 
-    dvr_update_vi_conf(VR_720P50);
-    osd_fhd(0);
-    osd_show(true);
-    lvgl_switch_to_720p();
-    osd_clear();
-    lv_timer_handler();
-    Display_Osd(g_setting.record.osd);
-
-    g_setting.autoscan.last_source = SOURCE_AV_IN == source ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
+    g_setting.autoscan.last_source = is_av_in ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     // audio in&out
     dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 
-    // usleep(300*1000);
     sleep(1);
     system_script(REC_STOP_LIVE);
 }

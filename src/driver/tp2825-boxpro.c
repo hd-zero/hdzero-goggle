@@ -21,13 +21,13 @@ void TP2825_open() {
     LOGI("TP2825 open");
 }
 
-void TP2825_init(source_t mode, int is_pal) {
+void TP2825_init(bool is_av_in, bool is_pal) {
     TP2825_close();
     usleep(1000);
     TP2825_open();
     usleep(1000);
 
-    I2C_Write(ADDR_TP2825, 0x02, SOURCE_AV_IN == mode ? 0x44 : 0x40);
+    I2C_Write(ADDR_TP2825, 0x02, is_av_in ? 0x44 : 0x40);
     I2C_Write(ADDR_TP2825, 0x03, 0x25);
     I2C_Write(ADDR_TP2825, 0x05, 0x77);
 
@@ -55,6 +55,8 @@ void TP2825_init(source_t mode, int is_pal) {
     I2C_Write(ADDR_TP2825, 0x25, 0x28);
 
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
+
+    LOGI("TP2825 init: is_av_in=%d, is_pal=%d", is_av_in, is_pal);
 }
 
 void TP2825_Switch_Mode(int is_pal) {
@@ -75,9 +77,11 @@ void TP2825_Switch_Mode(int is_pal) {
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
 }
 
-void TP2825_Switch_CH(uint8_t is_av_module) {
-    I2C_Write(ADDR_TP2825, 0x02, is_av_module ? 0x40 : 0x44);
+void TP2825_Switch_CH(bool is_av_in) {
+    I2C_Write(ADDR_TP2825, 0x02, is_av_in ? 0x44 : 0x40);
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
+
+    LOGI("TP2825 switch channel: %d", is_av_in);
 }
 
 #endif

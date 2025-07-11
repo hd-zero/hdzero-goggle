@@ -65,12 +65,12 @@ static const uint16_t freq_table[ANALOG_CHANNEL_NUM] = {
 
 // Note: F8 and R7 are both same frequency (5880 MHz), so they are both mapped to 7.
 static const uint8_t hdzero_channel_map[ANALOG_CHANNEL_NUM] = {
-     0,  0, 0,  0, 0, 0, 0, 0,    // A
-     0,  0, 0,  0, 0, 0, 0, 0,    // B
-     9,  0, 0,  0, 0, 0, 0, 0,    // E
-    10, 11, 0, 12, 0, 0, 0, 7,    // F
-     1,  2, 3,  4, 5, 6, 7, 8,    // R
-     0,  0, 0,  0, 0, 0, 0, 0,    // L
+    0, 0, 0, 0, 0, 0, 0, 0,    // A
+    0, 0, 0, 0, 0, 0, 0, 0,    // B
+    9, 0, 0, 0, 0, 0, 0, 0,    // E
+    10, 11, 0, 12, 0, 0, 0, 7, // F
+    1, 2, 3, 4, 5, 6, 7, 8,    // R
+    0, 0, 0, 0, 0, 0, 0, 0,    // L
 };
 
 static int get_freq_index(uint16_t const freq) {
@@ -139,7 +139,7 @@ static void change_channel_analog(uint8_t const channel) {
         beep();
         pthread_mutex_lock(&lvgl_mutex);
         dvr_cmd(DVR_STOP);
-        app_switch_to_analog(SOURCE_AV_MODULE);
+        app_switch_to_analog(0);
         app_state_push(APP_STATE_VIDEO);
         pthread_mutex_unlock(&lvgl_mutex);
     }

@@ -212,8 +212,8 @@ static void *thread_peripheral(void *ptr) {
 
             // detect AV_in/Moudle_bay
             record_vtmg_change |= AV_in_detect();
-            g_source_info.av_in_status = g_hw_stat.av_valid[0];
-            g_source_info.av_bay_status = g_hw_stat.av_valid[1];
+            g_source_info.av_in_status = g_hw_stat.av_valid[1];
+            g_source_info.av_bay_status = g_hw_stat.av_valid[0];
 
             // detect HDMI in
             record_vtmg_change |= HDMI_in_detect();

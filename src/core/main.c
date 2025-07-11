@@ -102,11 +102,11 @@ void start_running(void) {
         app_state_push(APP_STATE_VIDEO);
         if (source == SETTING_AUTOSCAN_SOURCE_AV_MODULE) { // AV Module
             g_hw_stat.av_pal[1] = g_setting.source.analog_format;
-            app_switch_to_analog(SOURCE_AV_MODULE);
+            app_switch_to_analog(0);
             g_source_info.source = SOURCE_AV_MODULE;
         } else if (source == SETTING_AUTOSCAN_SOURCE_AV_IN) { // AV in
             g_hw_stat.av_pal[0] = g_setting.source.analog_format;
-            app_switch_to_analog(SOURCE_AV_IN);
+            app_switch_to_analog(1);
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
             sleep(2);
@@ -130,7 +130,7 @@ static void device_init(void) {
     enable_bmi270();
     IT66021_init();
     IT66121_init();
-    TP2825_init(SOURCE_AV_IN, g_setting.source.analog_format);
+    TP2825_init(1, g_setting.source.analog_format);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
 }

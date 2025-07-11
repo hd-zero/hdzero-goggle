@@ -230,7 +230,7 @@ static void dvr_update_record_conf() {
 
         ini_putl("venc", "kbps", 24000 / bitrate_scale, REC_CONF);
         ini_putl("venc", "h265", 1, REC_CONF);
-        if (g_hw_stat.av_pal[g_hw_stat.av_chid])
+        if (g_hw_stat.av_pal[g_hw_stat.is_av_in])
             ini_putl("venc", "fps", 50, REC_CONF);
         else
             ini_putl("venc", "fps", 60, REC_CONF);

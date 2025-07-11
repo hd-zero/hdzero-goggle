@@ -74,7 +74,6 @@ void RTC6715_SetAudio(int is_on) {
 void RTC6715_Open(int power_on, int audio_on) {
     gpio_set(GPIO_RTC6715_ON, power_on);
     gpadc_on(power_on);
-    I2C_Write(ADDR_FPGA, 0x8C, (power_on << 1));
 
     if (power_on) {
         usleep(200 * 1000);
