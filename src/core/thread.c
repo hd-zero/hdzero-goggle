@@ -200,11 +200,14 @@ static void *thread_peripheral(void *ptr) {
                 k = 0;
                 battery_update();
 
-                if (TARGET_GOGGLE == getTargetType()) {
+                if (TARGET_BOXPRO == getTargetType()) {
+                    // note boxpro have only one nct75
+                    g_temperature.top = nct_read_temperature(NCT_RIGHT);
+                } else {
                     g_temperature.top = nct_read_temperature(NCT_TOP);
                     g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+                    g_temperature.right = nct_read_temperature(NCT_RIGHT);
                 }
-                g_temperature.right = nct_read_temperature(NCT_RIGHT);
                 dvr_update_status();
             }
             // detect HDZERO
