@@ -121,7 +121,7 @@ static void page_imagesettings_enter() {
         app_state_push(APP_STATE_SUBMENU);
         g_bShowIMS = false;
     } else {
-        app_switch_to_analog(g_source_info.source);
+        app_switch_to_analog(g_source_info.source == SOURCE_AV_IN);
         g_bShowIMS = true;
     }
 }

@@ -113,7 +113,7 @@ static void open_element_pos_preview() {
     } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_switch_to_hdmi_in();
     } else {
-        app_switch_to_analog(g_source_info.source);
+        app_switch_to_analog(g_source_info.source == SOURCE_AV_IN);
     }
 
     ui_osd_element_pos_on_enter();
