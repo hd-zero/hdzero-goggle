@@ -257,7 +257,7 @@ void TP2825_Switch_Mode(bool is_pal) {
 void TP2825_Switch_CH(bool is_av_in) {
     I2C_Write(ADDR_TP2825, 0x41, 1 - is_av_in);
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
-    LOGI("TP2825 switch channel: %d", is_av_in);
+    // LOGI("TP2825 switch channel: %d", is_av_in);
 }
 
 void TP2825_Set_Clamp(int idx) {

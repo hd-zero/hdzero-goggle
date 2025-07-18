@@ -182,7 +182,7 @@ void app_switch_to_hdzero(bool is_default) {
     DM5680_req_vldflg();
     progress_bar.start = 0;
 
-#if defined(HDGOGGLE) || defined(HDZGOGGLE2)
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
     switch (CAM_MODE) {
     case VR_720P50:
     case VR_720P60:
@@ -206,15 +206,19 @@ void app_switch_to_hdzero(bool is_default) {
 
     channel_osd_mode = CHANNEL_SHOWTIME;
 
-    if (CAM_MODE == VR_1080P30)
+    if (CAM_MODE == VR_1080P30) {
         lvgl_switch_to_1080p();
-    else
+        LOGI("lvgl_switch_to_1080p");
+    } else {
         lvgl_switch_to_720p();
+        LOGI("lvgl_switch_to_720p");
+    }
     osd_fhd(CAM_MODE == VR_1080P30);
 #elif defined HDZBOXPRO
     Display_HDZ(CAM_MODE, cam_4_3);
     channel_osd_mode = CHANNEL_SHOWTIME;
     lvgl_switch_to_720p();
+    LOGI("lvgl_switch_to_720p");
 #endif
 
     osd_clear();
@@ -238,7 +242,7 @@ void hdzero_switch_channel(int channel) {
     Set_Contrast(g_setting.image.contrast);
 #endif
 
-    LOGI("switch to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, g_setting.scan.channel, CAM_MODE, cam_4_3);
+    LOGI("hdzero_switch_channel to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, channel, CAM_MODE, cam_4_3);
     DM6302_SetChannel(g_setting.source.hdzero_band, channel);
     DM5680_clear_vldflg();
     DM5680_req_vldflg();
