@@ -1,6 +1,6 @@
 #include "gpadc.h"
 
-#if HDZBOXPRO
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
 
 #include <stdint.h>
 #include <stdio.h>

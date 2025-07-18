@@ -23,6 +23,12 @@ if (HDZ_BOXPRO)
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/platform "HDZBOXPRO")
 endif()
 
+option(HDZ_GOGGLE "Target Goggles2" OFF)
+if (HDZ_GOGGLE2)
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZGOGGLE2=1")
+	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/platform "HDZGOGGLE2")
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS}")
 
@@ -87,6 +93,8 @@ if(HDZ_GOGGLE)
 	file(GLOB SRC_FILES_IMAGE  "src/image/goggle/*.c" "src/image/goggle/*.h")
 elseif(HDZ_BOXPRO)
 	file(GLOB SRC_FILES_IMAGE  "src/image/boxpro/*.c" "src/image/boxpro/*.h")
+elseif(HDZ_GOGGLE2)
+	file(GLOB SRC_FILES_IMAGE  "src/image/goggle2/*.c" "src/image/goggle2/*.h")
 endif()
 
 set(SRC_FILES

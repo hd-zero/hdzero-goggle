@@ -31,7 +31,11 @@ void TP2825_VER() {
         LOGI("TP2825L detected");
     }
 }
-
+/*
+is_av_in:
+        0: AV line in
+        1: External Analog Module
+*/
 void TP2825_init(bool is_av_in, bool is_pal) {
     TP2825_close();
     usleep(1000);

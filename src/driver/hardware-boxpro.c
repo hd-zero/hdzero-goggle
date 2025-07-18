@@ -19,6 +19,7 @@
 #include "defines.h"
 #include "dm5680.h"
 #include "dm6302.h"
+#include "driver/screen.h"
 #include "dvr.h"
 #include "hardware.h"
 #include "i2c.h"
@@ -26,7 +27,6 @@
 #include "it66121.h"
 #include "minIni.h"
 #include "msp_displayport.h"
-#include "rtc6715.h"
 #include "screen.h"
 #include "tp2825.h"
 #include "uart.h"
@@ -294,9 +294,9 @@ void Display_VO_SWITCH(uint8_t sel) // 0 = UI;  1 = HDZERO or AV_in or HDMI_in
     I2C_Write(ADDR_FPGA, 0x06, 0x0F);
 }
 
-void Screen_ON(int bON) {
+void hw_screen_on(int bON) {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(bON);
+    screen.display(bON);
     pthread_mutex_unlock(&hardware_mutex);
 }
 
@@ -475,7 +475,7 @@ void MFPGA_HDZ_VTMG(int mode, int is_43) {
 }
 
 void Display_HDZ_t(int mode, int is_43) {
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
     I2C_Write(ADDR_FPGA, 0x8d, 0x15);
 
@@ -529,7 +529,7 @@ void Display_HDZ_t(int mode, int is_43) {
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
@@ -561,19 +561,19 @@ void Display_Pattern(int enable, uint8_t mode, uint8_t speed) {
     }
 
     if (tmg_ch)
-        Screen_Display(0);
+        screen.display(0);
 
     MFPGA_Pattern(enable, mode, speed);
 
     if (tmg_ch)
-        Screen_Display(1);
+        screen.display(1);
 
     pthread_mutex_unlock(&hardware_mutex);
 }
 
 void Display_UI_init() {
     g_hw_stat.source_mode = SOURCE_MODE_UI;
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     MFPGA_Pattern(0, 0, 0);
@@ -589,7 +589,7 @@ void Display_UI_init() {
 
     pclk_phase_set(VIDEO_SOURCE_MENU_UI);
 
-    Screen_Display(1);
+    screen.display(1);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
@@ -609,8 +609,8 @@ void HDZero_open(int bw) {
         DM6302_init(0, g_hw_stat.hdz_bw);
         DM5680_SetBB(1);
         g_hw_stat.hdzero_open = 1;
+        LOGI("HDZero: open");
     }
-    LOGI("HDZero: open");
 }
 
 void HDZero_Close() {
@@ -674,15 +674,15 @@ void AV_Mode_Switch_fpga(int is_pal) {
 
 void AV_Mode_Switch(int is_pal) {
     if (g_hw_stat.vdpo_tmg != (is_pal ? VDPO_TMG_720P50 : VDPO_TMG_720P60)) {
-        Screen_Display(0);
+        screen.display(0);
         AV_Mode_Switch_fpga(is_pal);
-        Screen_Display(1);
+        screen.display(1);
     }
 }
 
 void Source_AV(bool is_av_in) {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(0);
+    screen.display(0);
 
     g_hw_stat.is_av_in = is_av_in;
 
@@ -706,7 +706,7 @@ void Source_AV(bool is_av_in) {
 
     g_hw_stat.source_mode = SOURCE_MODE_AV;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
 
     pthread_mutex_unlock(&hardware_mutex);
 }
@@ -825,7 +825,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
 void Source_HDMI_in() {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     HDZero_Close();
@@ -835,7 +835,6 @@ void Source_HDMI_in() {
 
     g_hw_stat.source_mode = SOURCE_MODE_HDMIIN;
     Display_VO_SWITCH(1);
-    // Screen_Display(1);
 
     pthread_mutex_unlock(&hardware_mutex);
 }
@@ -862,7 +861,7 @@ int HDMI_in_detect() {
                     ret = 1;
                     LOGI("IT66021: VTMG change: %d", vtmg);
 
-                    Screen_Display(0);
+                    screen.display(0);
                     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
                     switch (vtmg) {
@@ -878,7 +877,6 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P60;
                         break;
 
@@ -891,8 +889,6 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P50);
-
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
                         break;
 
@@ -905,8 +901,6 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x80, 0x40);
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080Pother;
                         break;
 
@@ -920,7 +914,6 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x80, 0x60);
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P50;
                         break;
 
@@ -933,7 +926,6 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P60;
                         break;
 
@@ -946,9 +938,12 @@ int HDMI_in_detect() {
                         I2C_Write(ADDR_FPGA, 0x80, 0xA0);
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P100;
                         break;
+                    }
+
+                    if (vtmg != HDMIIN_VTMG_UNKNOW) {
+                        screen.display(1);
                     }
                 }
 
@@ -1011,25 +1006,6 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
 }
 
 void Analog_Module_Power(bool ForceSet) {
-    // Batch 2 goggles only
-    if (getHwRevision() >= HW_REV_2) {
-        static bool Analog_Module_Power_State = 0;
-        static bool Analog_Module_Power_State_Last = 0;
-        if (g_setting.power.power_ana == 0) {
-            Analog_Module_Power_State = 0;
-        } else {
-            if (g_source_info.source != SOURCE_AV_MODULE) {
-                Analog_Module_Power_State = 1;
-            } else {
-                Analog_Module_Power_State = 0;
-            }
-        }
-        if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
-            beep();
-            Analog_Module_Power_State_Last = Analog_Module_Power_State;
-            DM5680_Power_AnalogModule(Analog_Module_Power_State);
-        }
-    }
 }
 
 int Get_VideoLatancy_status() // ret: 0=unlocked, 1=locked

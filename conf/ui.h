@@ -8,17 +8,18 @@
 extern "C" {
 #endif
 
-#if HDZGOGGLE
-
-#define UI_MENU_ENTRY_FONT                &lv_font_montserrat_26
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+#define DISP_HOR_RES_FHD                  1920
+#define DISP_VER_RES_FHD                  1080
+#define UI_MENU_ENTRY_FONT                &lv_font_montserrat_24
 #define UI_MENU_LABEL_FONT                &lv_font_montserrat_16
 #define UI_MENU_SIZE                      lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96
 #define UI_MENU_POSITION                  250, 96
 #define UI_MENU_ROOT_SIZE                 250, 975
 #define UI_MENU_PROG_BAR_SIZE             320, 20
-#define UI_PAGE_VIEW_SIZE                 1200, 900
+#define UI_PAGE_VIEW_SIZE                 1053, 900
 #define UI_PAGE_TEXT_SIZE                 320, 60
-#define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_26
+#define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_24
 #define UI_PAGE_TEXT_PAD                  12
 #define UI_PAGE_LABEL_FONT                &lv_font_montserrat_16
 #define UI_PAGE_LABEL_SIZE(cols)          320 * cols, 60
@@ -63,7 +64,7 @@ extern "C" {
 #define UI_SCANNOW_CHAN_FONT              &lv_font_montserrat_40
 #define UI_SCANNOW_CHAN_PAD               12
 #define UI_SCANNOW_PAGE_PAD               60
-#define UI_SCANNOW_SCANNER_SIZE           1158, 250
+#define UI_SCANNOW_SCANNER_SIZE           1053, 250
 #define UI_SCANNOW_PROG_BAR_SIZE          500, 50
 #define UI_SCANNOW_FREQ_SIZE              1164, 500
 #define UI_CLOCK_COLS                     160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
@@ -129,8 +130,9 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
     return 267;
 }
 
-#elif HDZBOXPRO
-
+#elif defined HDZBOXPRO
+#define DISP_HOR_RES_FHD                  1280
+#define DISP_VER_RES_FHD                  720
 #define UI_MENU_ENTRY_FONT                &lv_font_montserrat_18
 #define UI_MENU_LABEL_FONT                &lv_font_montserrat_14
 #define UI_MENU_SIZE                      lv_disp_get_hor_res(NULL) - 300, lv_disp_get_ver_res(NULL) - 48

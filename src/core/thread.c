@@ -23,7 +23,6 @@
 #include "driver/hardware.h"
 #include "driver/it66021.h"
 #include "driver/nct75.h"
-#include "driver/rtc6715.h"
 #include "driver/screen.h"
 #include "ui/page_fans.h"
 #include "ui/page_storage.h"
@@ -114,8 +113,10 @@ static void check_source_signal(int vtmg_change) {
         DM5680_req_rssi();
         DM5680_req_vldflg();
         tune_channel_timer();
-    } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
+    } else if (g_source_info.source == SOURCE_AV_MODULE) {
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
         tune_channel_timer();
+#endif
     }
 
     if (g_source_info.source == SOURCE_HDMI_IN)
@@ -200,14 +201,14 @@ static void *thread_peripheral(void *ptr) {
                 k = 0;
                 battery_update();
 
-                if (TARGET_BOXPRO == getTargetType()) {
-                    // note boxpro have only one nct75
-                    g_temperature.top = nct_read_temperature(NCT_RIGHT);
-                } else {
-                    g_temperature.top = nct_read_temperature(NCT_TOP);
-                    g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
-                    g_temperature.right = nct_read_temperature(NCT_RIGHT);
-                }
+#if defined(HDZBOXPRO)
+                // note boxpro have only one nct75
+                g_temperature.top = nct_read_temperature(NCT_RIGHT);
+#elif defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+                g_temperature.top = nct_read_temperature(NCT_TOP);
+                g_temperature.left = nct_read_temperature(NCT_LEFT) + 100;
+                g_temperature.right = nct_read_temperature(NCT_RIGHT);
+#endif
                 dvr_update_status();
             }
             // detect HDZERO

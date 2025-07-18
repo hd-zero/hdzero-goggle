@@ -300,8 +300,12 @@ void msp_process_packet() {
             uint8_t const chan = packet.payload[0];
             if (g_source_info.source == SOURCE_HDZERO) {
                 channel_channel_hdzero(hdz_index2ch(chan));
-            } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
-                change_channel_analog(chan + 1);
+            } else {
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+                if (g_source_info.source == SOURCE_AV_MODULE) {
+                    change_channel_analog(chan + 1);
+                }
+#endif
             }
         } break;
         case MSP_GET_FREQ: {
