@@ -1,6 +1,3 @@
 {
-    "editor.formatOnSave": true,
-    "files.associations": {
-        "targets.h": "c"
-    },
+    "editor.formatOnSave": true
 }
