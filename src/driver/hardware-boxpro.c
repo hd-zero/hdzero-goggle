@@ -446,6 +446,7 @@ void MFPGA_HDZ_VTMG(int mode, int is_43) {
         I2C_Write(ADDR_FPGA, 0x66, 0x00);
         break;
     case VR_1080P30:
+    case VR_1080P24:
         I2C_Write(ADDR_FPGA, 0x40, 0x00);
         I2C_Write(ADDR_FPGA, 0x41, 0x45);
         I2C_Write(ADDR_FPGA, 0x42, 0x38);
@@ -517,6 +518,7 @@ void Display_HDZ_t(int mode, int is_43) {
         pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90);
         break;
     case VR_1080P30:
+    case VR_1080P24:
         system_exec("dispw -s vdpo 720p60");
         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
         I2C_Write(ADDR_FPGA, 0x80, 0x04);

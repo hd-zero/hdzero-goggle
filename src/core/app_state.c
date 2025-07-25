@@ -202,6 +202,7 @@ void app_switch_to_hdzero(bool is_default) {
             break;
 
         case VR_1080P30:
+        case VR_1080P24:
             Display_1080P30(CAM_MODE);
             break;
 
@@ -211,11 +212,11 @@ void app_switch_to_hdzero(bool is_default) {
 
         channel_osd_mode = CHANNEL_SHOWTIME;
 
-        if (CAM_MODE == VR_1080P30)
+        if (CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24)
             lvgl_switch_to_1080p();
         else
             lvgl_switch_to_720p();
-        osd_fhd(CAM_MODE == VR_1080P30);
+        osd_fhd(CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24);
     } else if (TARGET_BOXPRO == getTargetType()) {
         Display_HDZ(CAM_MODE, cam_4_3);
         channel_osd_mode = CHANNEL_SHOWTIME;
