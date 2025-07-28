@@ -1,8 +1,13 @@
 #!/bin/sh
 
 PLATFORM="$(cat /mnt/app/platform)"
-VAbin=/mnt/extsd/${PLATFORM}_VA.bin
-RXbin=/mnt/extsd/${PLATFORM}_RX.bin
+PLATFORMfile=$PLATFORM
+if [ "$PLATFORM" == "HDZGOGGLE2" ];then
+  # work around goggle2 firmware file names matching goggle v1 firmware file names
+  PLATFORMfile=HDZGOGGLE
+fi
+VAbin=/mnt/extsd/${PLATFORMfile}_VA.bin
+RXbin=/mnt/extsd/${PLATFORMfile}_RX.bin
 VAcount=1
 VAwrites=0
 RXcount=2
@@ -85,6 +90,11 @@ function check_mtd_write()
 		mtd_debug erase $1 0 $mtdsizeB
 		echo mtd_debug write $1 0 $filesize $3
 		mtd_debug write $1 0 $filesize $3
+		if [ "$PLATFORM" == "HDZGOGGLE2" ] && [ "$3" == "$VAbin" ] ;then
+		  # write secondary VA firmware for goggle 2
+		  echo mtd_debug write $1 8388608 $filesize $3		  
+		  mtd_debug write $1 8388608 $filesize $3
+		fi		
 		if [ $? == 0 ]; then
 			beep_success
 			if [ "$3" == "$VAbin" ]; then
