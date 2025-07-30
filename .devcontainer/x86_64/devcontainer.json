@@ -1,5 +1,5 @@
 {
-    "name": "arm-linux-musleabihf",
+    "name": "HDZero for x86_64",
     "build": {
         "dockerfile": "Dockerfile"
     },

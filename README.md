@@ -41,6 +41,12 @@ Compiling HDZero BoxPro:
 ~/hdzero-goggle/build_boxpro$ make clean all -j $(nproc)
 ```
 
+Compiling HDZero Emulator:
+```
+~/hdzero-goggle$ cd build_emu
+~/hdzero-goggle/build_emu$ make clean all -j $(nproc)
+```
+
 The firmware is generated as hdzero-goggle/build_boxpro/out/HDZERO_BOXPRO-x.x.x.bin
 Where x.x.x is the OTA_VER.RX_VER.VA_VER
 
@@ -87,35 +93,68 @@ else
 fi
 ```
 
-## Building the Emulator
+## Building and Running the Emulator
 
-Goggle source code can be built natively on the host machine and used for debugging.
+The goggle's UI can be built and run as an emulator on a host machine for easier development and debugging.
 
-### Library required
+### Prerequisites
 
-Requires build-essential tools and SDL2 development libraries (libsdl2-dev for debian) to be already installed.
+-   **On Linux:** You need the essential build tools and SDL2 development libraries.
+    ```shell
+    sudo apt-get install build-essential libsdl2-dev
+    ```
+-   **On macOS (ARM):** The emulator runs inside the devcontainer. You need to prepare your Mac to display the UI from the container by installing and configuring **XQuartz**.
 
-```
-sudo apt-get install build-essential libsdl2-dev
-```
+### Step 1: Prepare Your Mac for UI Forwarding
 
-### Build and Run
+This setup is done **once** on your Mac to allow UI from the devcontainer to appear on your desktop.
 
-Emulator support for both Goggle and BoxPro is supported by setting the appropriate compilation switches.
+1.  **Install XQuartz:**
+    ```shell
+    brew install --cask xquartz
+    ```
 
-```
-~/hdzero-goggle$ mkdir build_emu
-~/hdzero-goggle$ cd build_emu
-~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug -DHDZ_GOGGLE=ON -DHDZ_BOXPRO=OFF
-~/hdzero-goggle/build_emu$ make -j $(nproc)
-~/hdzero-goggle/build_emu$ ./HDZGOGGLE
-```
+2.  **Configure XQuartz:** Open XQuartz. In the top menu bar, go to `XQuartz` -> `Settings...` -> `Security` and ensure **"Allow connections from network clients"** is checked. Restart `XQuartz`
+
+3.  **Apply settings from the terminal:**
+    ```shell
+    defaults write org.xquartz.X11 nolisten_tcp 0
+    defaults write org.xquartz.X11 enable_iglx -bool YES
+    ```
+
+4.  **Reboot your Mac.**
+
+### Step 2: Build the Emulator
+
+The build process is the same for all platforms, but on macOS it should be done inside the devcontainer
+
+1.  **For macOS users:** Open the project in the devcontainer. When prompted, choose the **"HDZero for ARM64"** configuration.
+
+2.  **Compile the emulator:**
+    ```shell
+	cd build_emu
+    make -j
+    ```
+
+### Step 3: Run the Emulator
+
+1.  **On macOS:**
+    *   Make sure the **XQuartz** application is running (Ensure your system keyboard layout is set to **English** to avoid known bug, when **XQuartz** uses __only__ locale that was selected before the start)
+    *   In a **Mac terminal** (not the devcontainer one), run `xhost +` to temporarily allow all connections. This is needed for the container to connect.
+
+2.  **Inside the devcontainer or your terminal**, run the compiled application:
+    ```shell
+    ./HDZGOGGLE
+    ```
 
 ### Emulator Keys
 
 `a` = right button press
+
 `w` = wheel up
+
 `s` = wheel down
+
 `d` = wheel center press
 Use `F11` to toggle full screen where applicable.
 

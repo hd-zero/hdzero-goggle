@@ -1,0 +1,25 @@
+{
+    "name": "HDZero for ARM64",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    "containerEnv": {
+        "DISPLAY": "host.docker.internal:0"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools"
+            ]
+        }
+    },
+    "postCreateCommand": "bash .devcontainer/arm64/setup.sh",
+    "remoteUser": "vscode"
+}

@@ -25,7 +25,21 @@ PLATFORM="$(cat ${MKAPP_DIR}/app/platform)"
 
 BIN_DIR=$MKAPP_DIR/bin
 IMG_DIR=$MKAPP_DIR/ota_app
-APP_DIR=$MKAPP_DIR/app
+
+# Workaround for the macOS permissions issue in the Docker developer container
+if [ "$DEVCONTAINER_ARM" = "1" ]; then
+    STAGING_DIR="/tmp/hdz_app_staging"
+    rm -rf ${STAGING_DIR}
+    mkdir -p ${STAGING_DIR}
+
+    echo "Staging app directory to ${STAGING_DIR} to fix macOS permissions issue"
+    tar -c -C "$(pwd)/../mkapp" app | tar -x -C ${STAGING_DIR}
+
+    APP_DIR=${STAGING_DIR}/app
+else
+    APP_DIR=$MKAPP_DIR/app
+fi
+
 KO_DIR=$APP_DIR/ko
 
 APP_SIZE=8388608

@@ -29,8 +29,22 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-set(CMAKE_C_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
+if(DEVCONTAINER_ARM)
+    message(STATUS "Using system cross-compiler")
+
+    set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
+    set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++")
+
+    set(CMAKE_C_FLAGS_RELEASE "-Werror -Wno-error=unused-result -Wno-error=format-truncation -Wno-error=stringop-overflow -O3 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Werror -Wno-error=unused-result -Wno-error=format-truncation -Wno-error=stringop-overflow -O3 -DNDEBUG")
+
+else()
+    message(STATUS "Using provided toolchain file.")
+    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/toolchain/share/buildroot/toolchainfile.cmake)
+
+    set(CMAKE_C_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O3 -DNDEBUG")
+endif()
 
 set(OS_APP_PATH ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/app)
 set(RECORD_APP_PATH ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/app/record)
@@ -189,6 +203,22 @@ if(NOT EMULATOR_BUILD)
 	add_custom_target(MKAPP ALL
 		COMMAND rsync -r ${PROJECT_SOURCE_DIR}/mkapp ${CMAKE_CURRENT_BINARY_DIR}/
 	)
+
+if(DEVCONTAINER_ARM)
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/out/${PROJECT_NAME}
+		COMMAND size -A ${PROJECT_NAME}
+		COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/out/
+		COMMAND cp ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR}/out/
+		COMMAND cp record ${CMAKE_CURRENT_BINARY_DIR}/out/
+		COMMAND cp rtspLive ${CMAKE_CURRENT_BINARY_DIR}/out/
+		COMMAND cp ${PROJECT_NAME} ${OS_APP_PATH}
+		COMMAND cp record ${RECORD_APP_PATH}
+		COMMAND cp rtspLive ${RECORD_APP_PATH}
+		COMMAND ${CMAKE_COMMAND} -E env DEVCONTAINER_ARM=1 ${CMAKE_CURRENT_BINARY_DIR}/mkapp/mkapp_ota.sh
+		DEPENDS MKAPP ${PROJECT_NAME} record rtspLive
+	)
+else()
 	add_custom_command(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/out/${PROJECT_NAME}
 		COMMAND size -A ${PROJECT_NAME}
@@ -202,6 +232,7 @@ if(NOT EMULATOR_BUILD)
 		COMMAND cd ${CMAKE_CURRENT_BINARY_DIR} && ./mkapp/mkapp_ota.sh
 		DEPENDS MKAPP ${PROJECT_NAME} record rtspLive
 	)
+endif()
 	add_custom_target(${PROJECT_NAME}-OTA ALL
 		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/out/${PROJECT_NAME}
 	)
