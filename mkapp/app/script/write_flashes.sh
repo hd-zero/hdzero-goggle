@@ -1,6 +1,9 @@
 #!/bin/sh
 
 PLATFORM="$(cat /mnt/app/platform)"
+#PLATFORM=HDZGOGGLE
+#PLATFORM=HDZGOGGLE2
+#PLATFORM=HDZBOXPRO
 PLATFORMfile=$PLATFORM
 if [ "$PLATFORM" == "HDZGOGGLE2" ];then
   # work around goggle2 firmware file names matching goggle v1 firmware file names
@@ -15,10 +18,18 @@ RXwrites=0
 
 function gpio_export()
 {
-	echo "224">/sys/class/gpio/export
-	echo "228">/sys/class/gpio/export
-	echo "258">/sys/class/gpio/export
-	echo "131">/sys/class/gpio/export
+       if [ ! -f /sys/class/gpio/gpio224/direction ];  then 
+	  echo "224">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio228/direction ];  then 
+	  echo "228">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio258/direction ];  then 
+	  echo "258">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio131/direction ];  then 
+	  echo "131">/sys/class/gpio/export
+	fi
 	echo "out">/sys/class/gpio/gpio224/direction
 	echo "out">/sys/class/gpio/gpio228/direction
 	echo "out">/sys/class/gpio/gpio258/direction
