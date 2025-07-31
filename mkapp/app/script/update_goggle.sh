@@ -1,6 +1,10 @@
 #!/bin/sh
+echo "#######################################"
 
 PLATFORM="$(cat /mnt/app/platform)"
+#PLATFORM=HDZGOGGLE
+#PLATFORM=HDZGOGGLE2
+#PLATFORM=HDZBOXPRO
 PLATFORMfile=$PLATFORM
 if [ "$PLATFORM" == "HDZGOGGLE2" ];then
   # work around goggle2 firmware file names matching goggle v1 firmware file names
@@ -14,11 +18,11 @@ TMP_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA.bin"
 WILDCARD_RX_BIN="${TMP_DIR}/${PLATFORMfile}_RX*.bin"
 WILDCARD_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA*.bin"
 
-if [ $PLATFORM == "HDZGOGGLE"]; then
+if [ $PLATFORM == "HDZGOGGLE" ]; then
 	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE-*.bin"
-elif [ $PLATFORM == "HDZGOGGLE2"]; then
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
 	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE2-*.bin"
-elif [ $PLATFORM == "HDZBOXPRO"]; then
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
 	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"	
 fi
 
@@ -28,11 +32,19 @@ RXcount=2
 RXwrites=0
 
 function gpio_export()
-{
-	echo "224">/sys/class/gpio/export
-	echo "228">/sys/class/gpio/export
-	echo "258">/sys/class/gpio/export
-	echo "131">/sys/class/gpio/export
+{                                                                      
+        if [ ! -f /sys/class/gpio/gpio224/direction ];  then 
+	  echo "224">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio228/direction ];  then 
+	  echo "228">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio258/direction ];  then 
+	  echo "258">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio131/direction ];  then 
+	  echo "131">/sys/class/gpio/export
+	fi
 	echo "out">/sys/class/gpio/gpio224/direction
 	echo "out">/sys/class/gpio/gpio228/direction
 	echo "out">/sys/class/gpio/gpio258/direction
@@ -140,7 +152,7 @@ function untar_file()
 
 	tar xf ${FILE_TARGET} -C ${TMP_DIR} 2>&1 > /dev/null
 	mv ${WILDCARD_RX_BIN} ${TMP_RX_BIN}
-	mv ${WILDCARD_VA_BIN} ${MP_VA_BIN}
+	mv ${WILDCARD_VA_BIN} ${TMP_VA_BIN}
 }
  
 
@@ -155,7 +167,7 @@ function update_rx()
 	check_mtd_write /dev/mtd9 1M ${TMP_RX_BIN}
 	echo "update finish RX, running"
 	gpio_clear_reset
-	sleep 1T
+	sleep 1
 	rmmod /mnt/app/ko/w25q128.ko
 }
 
