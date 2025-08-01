@@ -518,10 +518,15 @@ void Display_HDZ_t(int mode, int is_43) {
         pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90);
         break;
     case VR_1080P30:
-    case VR_1080P24:
         system_exec("dispw -s vdpo 720p60");
         g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
         I2C_Write(ADDR_FPGA, 0x80, 0x04);
+        pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P60_50);
+        break;
+    case VR_1080P24:
+        system_exec("dispw -s vdpo 720p50");
+        g_hw_stat.vdpo_tmg = VDPO_TMG_720P60;
+        I2C_Write(ADDR_FPGA, 0x80, 0x84);
         pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P60_50);
         break;
     }

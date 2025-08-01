@@ -93,6 +93,7 @@ void Display_UI();
 void Display_720P90(int mode);
 void Display_720P60_50(int mode, uint8_t is_43);
 void Display_1080P30(int mode);
+void Display_1080P24(int mode);
 
 void Display_HDZ(int mode, int is_43);
 void Display_Osd(bool enable);

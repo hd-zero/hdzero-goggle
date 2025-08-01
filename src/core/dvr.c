@@ -114,10 +114,14 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
         break;
 #if HDZGOGGLE
     case VR_1080P30:
-    case VR_1080P24:
         ini_putl("vi", "width", 1920, REC_CONF);
         ini_putl("vi", "height", 1080, REC_CONF);
         ini_putl("vi", "fps", 30, REC_CONF);
+        break;
+    case VR_1080P24:
+        ini_putl("vi", "width", 1920, REC_CONF);
+        ini_putl("vi", "height", 1080, REC_CONF);
+        ini_putl("vi", "fps", 50, REC_CONF);
         break;
     case VR_1080P50:
         ini_putl("vi", "width", 1920, REC_CONF);
@@ -131,10 +135,14 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
         break;
 #elif HDZBOXPRO
     case VR_1080P30:
-    case VR_1080P24:
         ini_putl("vi", "width", 1280, REC_CONF);
         ini_putl("vi", "height", 720, REC_CONF);
         ini_putl("vi", "fps", 60, REC_CONF);
+        break;
+    case VR_1080P24:
+        ini_putl("vi", "width", 1280, REC_CONF);
+        ini_putl("vi", "height", 720, REC_CONF);
+        ini_putl("vi", "fps", 50, REC_CONF);
         break;
     case VR_1080P50:
         ini_putl("vi", "width", 1280, REC_CONF);
@@ -213,8 +221,12 @@ static void dvr_update_record_conf() {
             ini_putl("venc", "height", 720, REC_CONF);
         }
 
-        if (CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24) { // 1080p30
+        if (CAM_MODE == VR_1080P30) { // 1080p30
             ini_putl("venc", "fps", 60, REC_CONF);
+            ini_putl("venc", "kbps", 34000 / bitrate_scale, REC_CONF);
+            ini_putl("venc", "h265", 0, REC_CONF);
+        } else if (CAM_MODE == VR_1080P24) { // 1080p24
+            ini_putl("venc", "fps", 50, REC_CONF);
             ini_putl("venc", "kbps", 34000 / bitrate_scale, REC_CONF);
             ini_putl("venc", "h265", 0, REC_CONF);
         } else if (CAM_MODE == VR_540P90 || CAM_MODE == VR_540P90_CROP) { // 90fps

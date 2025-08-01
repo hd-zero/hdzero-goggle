@@ -202,8 +202,10 @@ void app_switch_to_hdzero(bool is_default) {
             break;
 
         case VR_1080P30:
-        case VR_1080P24:
             Display_1080P30(CAM_MODE);
+            break;
+        case VR_1080P24:
+            Display_1080P24(CAM_MODE);
             break;
 
         default:
