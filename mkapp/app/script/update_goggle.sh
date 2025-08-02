@@ -1,33 +1,50 @@
 #!/bin/sh
+echo "#######################################"
 
 PLATFORM="$(cat /mnt/app/platform)"
+#PLATFORM=HDZGOGGLE
+#PLATFORM=HDZGOGGLE2
+#PLATFORM=HDZBOXPRO
+PLATFORMfile=$PLATFORM
+if [ "$PLATFORM" == "HDZGOGGLE2" ];then
+  # work around goggle2 firmware file names matching goggle v1 firmware file names
+  PLATFORMfile=HDZGOGGLE
+fi
 TMP_DIR=/tmp/goggle_update
 HDZ_BIN="$1"
 
-TMP_RX_BIN="${TMP_DIR}/${PLATFORM}_RX.bin"
-TMP_VA_BIN="${TMP_DIR}/${PLATFORM}_VA.bin"
-WILDCARD_RX_BIN="${TMP_DIR}/${PLATFORM}_RX*.bin"
-WILDCARD_VA_BIN="${TMP_DIR}/${PLATFORM}_VA*.bin"
+TMP_RX_BIN="${TMP_DIR}/${PLATFORMfile}_RX.bin"
+TMP_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA.bin"
+WILDCARD_RX_BIN="${TMP_DIR}/${PLATFORMfile}_RX*.bin"
+WILDCARD_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA*.bin"
 
-if [ $PLATFORM == "HDZGOGGLE"]; then
-	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE*.bin"
-elif [ $PLATFORM == "HDZBOXPRO"]; then
-	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE-*.bin"
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE2-*.bin"
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"	
 fi
 
-VAbin=${TMP_DIR}/HDZGOGGLE_VA.bin
 VAcount=1
 VAwrites=0
-RXbin=${TMP_DIR}/HDZGOGGLE_RX.bin
 RXcount=2
 RXwrites=0
 
 function gpio_export()
-{
-	echo "224">/sys/class/gpio/export
-	echo "228">/sys/class/gpio/export
-	echo "258">/sys/class/gpio/export
-	echo "131">/sys/class/gpio/export
+{                                                                      
+        if [ ! -f /sys/class/gpio/gpio224/direction ];  then 
+	  echo "224">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio228/direction ];  then 
+	  echo "228">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio258/direction ];  then 
+	  echo "258">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio131/direction ];  then 
+	  echo "131">/sys/class/gpio/export
+	fi
 	echo "out">/sys/class/gpio/gpio224/direction
 	echo "out">/sys/class/gpio/gpio228/direction
 	echo "out">/sys/class/gpio/gpio258/direction
@@ -102,12 +119,17 @@ function check_mtd_write()
 		mtd_debug erase $1 0 $mtdsizeB
 		echo mtd_debug write $1 0 $filesize $3
 		mtd_debug write $1 0 $filesize $3
+		if [ "$PLATFORM" == "HDZGOGGLE2" ] && [ "$3" == "$TMP_VA_BIN" ] ;then
+		  # write secondary VA firmware for goggle 2
+		  echo mtd_debug write $1 8388608 $filesize $3		  
+		  mtd_debug write $1 8388608 $filesize $3
+		fi		
 		if [ $? == 0 ]; then
 #			beep_success
-			if [ "$3" == "$VAbin" ]; then
+			if [ "$3" == "$TMP_VA_BIN" ]; then
 				VAwrites=$((VAwrites + 1))
 			fi
-			if [ "$3" == "$RXbin" ]; then
+			if [ "$3" == "$TMP_RX_BIN" ]; then
 				RXwrites=$((RXwrites + 1))
 			fi
 		fi 

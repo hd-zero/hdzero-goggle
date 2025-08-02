@@ -1,8 +1,16 @@
 #!/bin/sh
 
 PLATFORM="$(cat /mnt/app/platform)"
-VAbin=/mnt/extsd/${PLATFORM}_VA.bin
-RXbin=/mnt/extsd/${PLATFORM}_RX.bin
+#PLATFORM=HDZGOGGLE
+#PLATFORM=HDZGOGGLE2
+#PLATFORM=HDZBOXPRO
+PLATFORMfile=$PLATFORM
+if [ "$PLATFORM" == "HDZGOGGLE2" ];then
+  # work around goggle2 firmware file names matching goggle v1 firmware file names
+  PLATFORMfile=HDZGOGGLE
+fi
+VAbin=/mnt/extsd/${PLATFORMfile}_VA.bin
+RXbin=/mnt/extsd/${PLATFORMfile}_RX.bin
 VAcount=1
 VAwrites=0
 RXcount=2
@@ -10,10 +18,18 @@ RXwrites=0
 
 function gpio_export()
 {
-	echo "224">/sys/class/gpio/export
-	echo "228">/sys/class/gpio/export
-	echo "258">/sys/class/gpio/export
-	echo "131">/sys/class/gpio/export
+       if [ ! -f /sys/class/gpio/gpio224/direction ];  then 
+	  echo "224">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio228/direction ];  then 
+	  echo "228">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio258/direction ];  then 
+	  echo "258">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio131/direction ];  then 
+	  echo "131">/sys/class/gpio/export
+	fi
 	echo "out">/sys/class/gpio/gpio224/direction
 	echo "out">/sys/class/gpio/gpio228/direction
 	echo "out">/sys/class/gpio/gpio258/direction
@@ -85,6 +101,11 @@ function check_mtd_write()
 		mtd_debug erase $1 0 $mtdsizeB
 		echo mtd_debug write $1 0 $filesize $3
 		mtd_debug write $1 0 $filesize $3
+		if [ "$PLATFORM" == "HDZGOGGLE2" ] && [ "$3" == "$VAbin" ] ;then
+		  # write secondary VA firmware for goggle 2
+		  echo mtd_debug write $1 8388608 $filesize $3		  
+		  mtd_debug write $1 8388608 $filesize $3
+		fi		
 		if [ $? == 0 ]; then
 			beep_success
 			if [ "$3" == "$VAbin" ]; then
