@@ -40,7 +40,8 @@ void DM5680_SetFPS(uint8_t fps);
 void DM5680_SetBB(uint8_t on);
 void DM5680_ResetHDMI_RX(uint8_t on);
 void DM5680_ResetHDMI_TX(uint8_t on);
-void DM5680_Power_AnalogModule(uint8_t on);
+void DM5680_ExternalAnalog_Power(uint8_t on);
+void DM5680_InternalAnalog_Power(uint8_t on);
 void DM5680_ResetRF(uint8_t on);
 void DM5680_SetBR(uint8_t on);
 

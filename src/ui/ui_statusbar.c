@@ -142,11 +142,11 @@ int statusbar_init(void) {
     } else if (g_source_info.source == SOURCE_AV_IN) {
         snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
     } else if (g_source_info.source == SOURCE_AV_MODULE) {
-        if (TARGET_GOGGLE == getTargetType()) {
-            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-        } else if (TARGET_BOXPRO == getTargetType()) {
-            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-        }
+#if defined(HDZGOGGLE)
+        sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+        sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
     } else {
         sprintf(buf, " ");
     }
@@ -230,11 +230,11 @@ void statubar_update(void) {
         } else if (g_source_info.source == SOURCE_AV_IN) {
             snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
         } else if (g_source_info.source == SOURCE_AV_MODULE) {
-            if (TARGET_GOGGLE == getTargetType()) {
-                sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-            } else if (TARGET_BOXPRO == getTargetType()) {
-                sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-            }
+#if defined(HDZGOGGLE)
+            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
         } else {
             sprintf(buf, " ");
         }

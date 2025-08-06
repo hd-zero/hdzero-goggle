@@ -58,21 +58,22 @@ void self_test() {
     LOGI("%sIT66021(L, HDMI_RX) Vender ID = 0x%x ", msg[i == 0x54], i);
     DM5680_ResetHDMI_RX(0);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        // 5. AL FPGA
-        i = I2C_Read(ADDR_AL, 0xFF);
-        LOGI("%sAL ver = 0x%x ", msg[1], i);
-    }
+#if defined(HDZGOGGLE)
+    // 5. AL FPGA
+    i = I2C_Read(ADDR_AL, 0xFF);
+    LOGI("%sAL ver = 0x%x ", msg[1], i);
+
+#endif
 
     // 6. TP2825
     TP2825_open();
-    if (TARGET_GOGGLE == getTargetType()) {
-        i = I2C_Read(ADDR_TP2825, 0x00);
-        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        i = I2C_Read(ADDR_TP2825, 0x0B);
-        LOGI("%sTP2825 ver = 0x%x ", msg[i == 0xD0], i);
-    }
+#ifdef HDZGOGGLE
+    i = I2C_Read(ADDR_TP2825, 0x00);
+    LOGI("%sTP2825 ver = 0x%x ", msg[i == 0x11], i);
+#elif defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+    i = I2C_Read(ADDR_TP2825, 0x0B);
+    LOGI("%sTP2825 ver = 0x%x ", msg[i == 0xD0], i);
+#endif
 
     TP2825_close();
 
@@ -91,11 +92,10 @@ void self_test() {
     i = Get_HAN_status() & 1;
     LOGI("%sHAN Status. ", msg[i]);
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        // 9. DDR calib_done
-        i = I2C_Read(ADDR_FPGA, 0x1B);
-        LOGI("%sDDR calib_done = %d ", msg[i == 1], i);
-    }
-
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    // 9. DDR calib_done
+    i = I2C_Read(ADDR_FPGA, 0x1B);
+    LOGI("%sDDR calib_done = %d ", msg[i == 1], i);
+#endif
     LOGI("==== Log  ======================\n");
 }

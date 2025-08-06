@@ -168,9 +168,9 @@ int main(int argc, char *argv[]) {
     gpio_init();
     uart_init();
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        gpadc_init();
-    }
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+    gpadc_init();
+#endif
 
     // 3. Initialize core devices.
     mcp3021_init();
@@ -189,9 +189,9 @@ int main(int argc, char *argv[]) {
     lv_timer_handler();
 
     // 5. Prepare Display
-    Screen_Startup();
+    screen.start_up();
     Display_UI_init();
-    Screen_Pattern(0, 0, 0);
+    screen.pattern(0, 0, 0);
     osd_init();
     ims_init();
     ui_osd_element_pos_init();
@@ -212,9 +212,9 @@ int main(int argc, char *argv[]) {
     gif_cnt = 0;
 
     // 8.1 set initial analog module power state
-    if (TARGET_GOGGLE == getTargetType()) {
-        Analog_Module_Power(0);
-    }
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+    Analog_Module_Power(0);
+#endif
 
     // Head alarm
     head_alarm_init();

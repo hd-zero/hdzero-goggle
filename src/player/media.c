@@ -31,12 +31,15 @@
 #define VO_intfTYPE VO_INTF_BT1120
 #define VO_intfSYNC VO_OUTPUT_NTSC
 #define VO_uiCHN    2
-#if HDZGOGGLE
+#if defined HDZGOGGLE
 #define VO_WIDTH  1920
 #define VO_HEIGHT 1080
-#elif HDZBOXPRO
+#elif defined HDZBOXPRO
 #define VO_WIDTH  1280
 #define VO_HEIGHT 720
+#elif defined HDZGOGGLE2
+#define VO_WIDTH  1920
+#define VO_HEIGHT 1080
 #endif
 #else
 #define VO_intfTYPE VO_INTF_LCD

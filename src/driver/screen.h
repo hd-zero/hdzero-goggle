@@ -5,26 +5,30 @@ extern "C" {
 #endif
 
 #include "defines.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 #define MIN_SCREEN_BRIGHTNESS 0
 #define MAX_SCREEN_BRIGHTNESS 12
 
-void Screen_PowerUp();
-void Screen_Init();
-void Screen_Startup();
+typedef struct {
+    void (*set720p90)(uint8_t mode);
+    void (*set720p60)(uint8_t mode, bool is_43);
+    void (*set540p60)(void);
+    void (*set1080p30)(void);
+    void (*set_ratio)(bool is_43);
+} mfpga_t;
 
-void Screen_Display(int on);
-void Screen_Pattern(uint8_t enable, uint8_t mode, uint8_t speed);
-void Screen_Brightness(uint8_t level);
+typedef struct {
+    void (*start_up)(void);
+    void (*display)(bool on);
+    void (*brightness)(uint8_t level);
+    void (*pattern)(bool enable, uint8_t mode, uint8_t speed);
+    void (*vtmg)(int mode);
+    mfpga_t mfpga;
+} screen_t;
 
-void OLED_SetTMG(int mode); // mode: 0=1080P; 1=720P
-
-void MFPGA_Set720P90(uint8_t mode);
-void MFPGA_Set720P60(uint8_t mode, uint8_t is_43);
-void MFPGA_Set540P60();
-void MFPGA_Set1080P30();
-void MFPGA_SetRatio(int ratio);
+extern screen_t screen;
 
 #ifdef __cplusplus
 }

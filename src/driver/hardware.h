@@ -81,7 +81,7 @@ extern int fhd_req;
 
 void hw_stat_init();
 
-void Screen_ON(int bON);
+void hw_screen_on(int bON);
 void HDZero_open(int bw);
 void HDZero_Close();
 

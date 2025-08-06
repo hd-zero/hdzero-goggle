@@ -41,6 +41,9 @@ if [ $PLATFORM == "HDZGOGGLE" ]; then
 elif [ $PLATFORM == "HDZBOXPRO" ]; then
     PLATFORM_APP="HDZERO_BOXPRO"
     cp -a $KO_DIR/vdpo-boxpro.ko $KO_DIR/vdpo.ko
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+	PLATFORM_APP="HDZERO_GOGGLE2"
+    cp -a $KO_DIR/vdpo-goggle2.ko $KO_DIR/vdpo.ko
 fi
 
 echo "${APP_VERSION}" > ${APP_DIR}/version
@@ -65,20 +68,49 @@ echo -e "\npacking app:"
 cd $IMG_DIR
 tar cvf $IMG_DIR/hdzgoggle_app_ota-${APP_VERSION}.tar *
 
-HAL_VERSION="$(cat "$MKAPP_DIR/hal/$PLATFORM.version")"
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+    HAL_VERSION="$(cat "$MKAPP_DIR/hal/goggle/version")"
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+    HAL_VERSION="$(cat "$MKAPP_DIR/hal/boxpro/version")"
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+    HAL_VERSION="$(cat "$MKAPP_DIR/hal/goggle2/version")"
+else
+    echo "Unknown platform: $PLATFORM"
+    exit 1
+fi
 HAL_RX_VER=${HAL_VERSION%-*}
 HAL_VA_VER=${HAL_VERSION#*-}
-
 OTA_VERSION="${HAL_VERSION}-${APP_VERSION}"
 
-cp $MKAPP_DIR/hal/${PLATFORM}_RX.bin ${PLATFORM}_RX-${HAL_RX_VER}.bin
-cp $MKAPP_DIR/hal/${PLATFORM}_VA.bin ${PLATFORM}_VA-${HAL_VA_VER}.bin
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+    cp $MKAPP_DIR/hal/goggle/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin
+    cp $MKAPP_DIR/hal/goggle/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+    cp $MKAPP_DIR/hal/boxpro/HDZBOXPRO_RX.bin HDZBOXPRO_RX-${HAL_RX_VER}.bin
+    cp $MKAPP_DIR/hal/boxpro/HDZBOXPRO_VA.bin HDZBOXPRO_VA-${HAL_VA_VER}.bin
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+    cp $MKAPP_DIR/hal/goggle2/HDZGOGGLE_RX.bin HDZGOGGLE_RX-${HAL_RX_VER}.bin
+    cp $MKAPP_DIR/hal/goggle2/HDZGOGGLE_VA.bin HDZGOGGLE_VA-${HAL_VA_VER}.bin
+fi
 
 echo -e "\npacking ota:"
 rm $ROOT_DIR/out/${PLATFORM_APP}-* || true
-tar cvf $ROOT_DIR/out/${PLATFORM_APP}-${OTA_VERSION}.bin \
-    hdzgoggle_app_ota-${APP_VERSION}.tar \
-    ${PLATFORM}_RX-${HAL_RX_VER}.bin \
-    ${PLATFORM}_VA-${HAL_VA_VER}.bin
+
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+    tar cvf $ROOT_DIR/out/${PLATFORM_APP}-${OTA_VERSION}.bin \
+        hdzgoggle_app_ota-${APP_VERSION}.tar \
+        HDZGOGGLE_RX-${HAL_RX_VER}.bin \
+        HDZGOGGLE_VA-${HAL_VA_VER}.bin
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+    tar cvf $ROOT_DIR/out/${PLATFORM_APP}-${OTA_VERSION}.bin \
+        hdzgoggle_app_ota-${APP_VERSION}.tar \
+        HDZBOXPRO_RX-${HAL_RX_VER}.bin \
+        HDZBOXPRO_VA-${HAL_VA_VER}.bin
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+    tar cvf $ROOT_DIR/out/${PLATFORM_APP}-${OTA_VERSION}.bin \
+        hdzgoggle_app_ota-${APP_VERSION}.tar \
+        HDZGOGGLE_RX-${HAL_RX_VER}.bin \
+        HDZGOGGLE_VA-${HAL_VA_VER}.bin
+fi
 
 echo -e "\ngenerated out/${PLATFORM_APP}-${OTA_VERSION}.bin"

@@ -84,4 +84,7 @@ void TP2825_Switch_CH(bool is_av_in) {
     LOGI("TP2825 switch channel: %d", is_av_in);
 }
 
+void TP2825_Set_Clamp(int idx) {}
+void TP2825_Set_Pclk(uint8_t inv) {}
+
 #endif
