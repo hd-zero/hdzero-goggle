@@ -72,12 +72,12 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *note = lv_label_create(cont);
     snprintf(buf, sizeof(buf), "%s:\n    -%s\n    -%s\n%s:\n    -%s\n    -%s\n    -%s",
              _lang("Before calibrating RSSI min"),
-             _lang("Remove the BoxPro antenna"),
+             _lang("Remove the Goggle antenna"),
              _lang("Turn off all VTX"),
              _lang("Before calibrating RSSI max"),
-             _lang("Remove the BoxPro antenna"),
+             _lang("Remove the Goggle antenna"),
              _lang("Turn on the analog VTX to R1 25mw"),
-             _lang("Place the VTX 2 meters away from the BoxPro"));
+             _lang("Place the VTX 2 meters away from the Goggle"));
     lv_label_set_text(note, buf);
 
     lv_obj_set_style_text_font(note, UI_PAGE_LABEL_FONT, 0);
