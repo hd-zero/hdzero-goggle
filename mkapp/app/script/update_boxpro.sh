@@ -1,58 +1,144 @@
 #!/bin/sh
+echo "#######################################"
 
-GOGGLE_BIN="$1"
+PLATFORM="$(cat /mnt/app/platform)"
+#PLATFORM=HDZGOGGLE
+#PLATFORM=HDZGOGGLE2
+#PLATFORM=HDZBOXPRO
+PLATFORMfile=$PLATFORM
+if [ "$PLATFORM" == "HDZGOGGLE2" ];then
+  # work around goggle2 firmware file names matching goggle v1 firmware file names
+  PLATFORMfile=HDZGOGGLE
+fi
 TMP_DIR=/tmp/goggle_update
+HDZ_BIN="$1"
 
-gpio_export()
-{
-	if [ ! -f /sys/class/gpio/gpio224/direction ]
-	then
-	      echo "224">/sys/class/gpio/export
-	      echo "out">/sys/class/gpio/gpio224/direction
+TMP_RX_BIN="${TMP_DIR}/${PLATFORMfile}_RX.bin"
+TMP_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA.bin"
+WILDCARD_RX_BIN="${TMP_DIR}/${PLATFORMfile}_RX*.bin"
+WILDCARD_VA_BIN="${TMP_DIR}/${PLATFORMfile}_VA*.bin"
+
+if [ $PLATFORM == "HDZGOGGLE" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE-*.bin"
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_GOGGLE2-*.bin"
+elif [ $PLATFORM == "HDZBOXPRO" ]; then
+	WILDCARD_HDZ_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"	
+fi
+
+VAcount=1
+VAwrites=0
+RXcount=2
+RXwrites=0
+
+function gpio_export()
+{                                                                      
+        if [ ! -f /sys/class/gpio/gpio224/direction ];  then 
+	  echo "224">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio228/direction ];  then 
+	  echo "228">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio258/direction ];  then 
+	  echo "258">/sys/class/gpio/export
+        fi                                                                      
+        if [ ! -f /sys/class/gpio/gpio131/direction ];  then 
+	  echo "131">/sys/class/gpio/export
 	fi
+	echo "out">/sys/class/gpio/gpio224/direction
+	echo "out">/sys/class/gpio/gpio228/direction
+	echo "out">/sys/class/gpio/gpio258/direction
+	echo "out">/sys/class/gpio/gpio131/direction
+}
 
-	if [ ! -f /sys/class/gpio/gpio228/direction ]
-	then
-		echo "228">/sys/class/gpio/export
-        	echo "out">/sys/class/gpio/gpio228/direction
+function beep()
+{
+	if [ ! -z "$1" ];then
+	delay=$1
+	else
+	delay=1
 	fi
+	echo "1">/sys/class/gpio/gpio131/value
+	sleep $delay
+        echo "0">/sys/class/gpio/gpio131/value
+}
 
-	if [ ! -f /sys/class/gpio/gpio258/direction ]
-	then
-		echo "258">/sys/class/gpio/export
-	        echo "out">/sys/class/gpio/gpio258/direction
+function beep_success()
+{
+	beep 0.1
+	sleep 0.5
+	beep 0.05
+	sleep 1
+}
+
+
+function beep_failure()
+{
+	beep 1
+	sleep 0.5
+	beep 1
+	sleep 0.5
+	beep 0.05
+	sleep 1
+}
+
+
+function gpio_set_reset()
+{
+	echo "0">/sys/class/gpio/gpio224/value
+	echo "1">/sys/class/gpio/gpio228/value
+}
+
+function gpio_clear_reset()
+{
+	echo "1">/sys/class/gpio/gpio224/value
+	echo "0">/sys/class/gpio/gpio228/value
+}
+
+function disconnect_fpga_flash()
+{
+	echo "1">/sys/class/gpio/gpio258/value
+}
+
+function connect_fpga_flash()
+{
+	echo "0">/sys/class/gpio/gpio258/value
+}
+
+# eg: check_mtd_write /dev/mtdX required-size bin-file
+function check_mtd_write()
+{
+	filesize=`ls -l $3 | awk '{print $5}'`
+	mtd_info=`mtd_debug info $1`
+	echo "$mtd_info"
+	mtdsize=`echo "$mtd_info" | grep mtd.size | grep "($2)"`                
+	if [ ! -z "$mtdsize" ];then
+	        echo "$1 size is ($2)" 
+		mtdsizeB=`echo "$mtdsize" |cut -d " " -f 3`
+		echo mtd_debug erase $1 0 $mtdsizeB
+		mtd_debug erase $1 0 $mtdsizeB
+		echo mtd_debug write $1 0 $filesize $3
+		mtd_debug write $1 0 $filesize $3
+		if [ "$PLATFORM" == "HDZGOGGLE2" ] && [ "$3" == "$TMP_VA_BIN" ] ;then
+		  # write secondary VA firmware for goggle 2
+		  echo mtd_debug write $1 8388608 $filesize $3		  
+		  mtd_debug write $1 8388608 $filesize $3
+		fi		
+		if [ $? == 0 ]; then
+#			beep_success
+			if [ "$3" == "$TMP_VA_BIN" ]; then
+				VAwrites=$((VAwrites + 1))
+			fi
+			if [ "$3" == "$TMP_RX_BIN" ]; then
+				RXwrites=$((RXwrites + 1))
+			fi
+		fi 
+	else
+	        echo "$1 size is NOT ($2) !" 
+		beep_failure
 	fi
 }
-
-gpio_set_reset()
-{
-        echo "0">/sys/class/gpio/gpio224/value
-        echo "1">/sys/class/gpio/gpio228/value
-}
-
-gpio_clear_reset()
-{
-        echo "1">/sys/class/gpio/gpio224/value
-        echo "0">/sys/class/gpio/gpio228/value
-}
-
-gpio_set_send()
-{
-        echo "1">/sys/class/gpio/gpio224/value
-        echo "0">/sys/class/gpio/gpio228/value
-}
-
-disconnect_fpga_flash()
-{
-        echo "1">/sys/class/gpio/gpio258/value
-}
-
-connect_fpga_flash()
-{
-        echo "0">/sys/class/gpio/gpio258/value
-}
-
-untar_file()
+function untar_file()
 {
 	FILE_TARGET="$1"
 
@@ -65,40 +151,34 @@ untar_file()
 	fi
 
 	tar xf ${FILE_TARGET} -C ${TMP_DIR} 2>&1 > /dev/null
-	mv ${TMP_DIR}/HDZBOXPRO_RX*.bin ${TMP_DIR}/HDZBOXPRO_RX.bin
-	mv ${TMP_DIR}/HDZBOXPRO_VA*.bin ${TMP_DIR}/HDZBOXPRO_VA.bin
+	mv ${WILDCARD_RX_BIN} ${TMP_RX_BIN}
+	mv ${WILDCARD_VA_BIN} ${TMP_VA_BIN}
 }
+ 
 
-update_rx()
+function update_rx()
 {
 	echo "find RX update file, start update"
-	filesize=`ls -l ${TMP_DIR}/HDZBOXPRO_RX*.bin| awk '{print $5}'`
 	gpio_export
 	gpio_set_reset
 	insmod /mnt/app/ko/w25q128.ko
-
-	mtd_debug erase /dev/mtd8 0 65536
-	mtd_debug write /dev/mtd8 0 $filesize ${TMP_DIR}/HDZBOXPRO_RX.bin
-	mtd_debug erase /dev/mtd9 0 65536
-	mtd_debug write /dev/mtd9 0 $filesize ${TMP_DIR}/HDZBOXPRO_RX.bin
-
+	check_mtd_write /dev/mtd8 1M ${TMP_RX_BIN}
+	sleep 1
+	check_mtd_write /dev/mtd9 1M ${TMP_RX_BIN}
 	echo "update finish RX, running"
 	gpio_clear_reset
 	sleep 1
 	rmmod /mnt/app/ko/w25q128.ko
 }
 
-update_fpga()
+function update_fpga()
 {
 	echo "find VA update file, start update"
-	filesize2=`ls -l ${TMP_DIR}/HDZBOXPRO_VA*.bin| awk '{print $5}'`
 	gpio_export
 	gpio_set_reset
 	disconnect_fpga_flash
 	insmod /mnt/app/ko/w25q128.ko
-
-	mtd_debug erase /dev/mtd10 0 16777216
-	mtd_debug write /dev/mtd10 0 $filesize2 ${TMP_DIR}/HDZBOXPRO_VA.bin
+	check_mtd_write /dev/mtd10 16M ${TMP_VA_BIN}
 	echo "update finish VA, running"
 	gpio_clear_reset
 	sleep 1
@@ -106,39 +186,34 @@ update_fpga()
 }
 
 # If firmware file was NOT supplied then default to primary location for emergency restore
-if [ -z "$GOGGLE_BIN" ]; then
-    if [ `ls /mnt/extsd/HDZERO_BOXPRO*.bin | grep bin | wc -l` -eq 1 ]
-    then
-        GOGGLE_BIN="/mnt/extsd/HDZERO_BOXPRO*.bin"
-    fi
+if [ -z "$HDZ_BIN" ]; then
+	if [ `ls ${WILDCARD_HDZ_BIN} | grep bin | wc -l` -eq 1 ]
+	then
+		HDZ_BIN="${WILDCARD_HDZ_BIN}"
+	fi
 fi
 
-if [ ! -z "$GOGGLE_BIN" ]
-then
-	echo "Flashing $GOGGLE_BIN"
+if [ ! -z "$HDZ_BIN" ]; then
+	echo "Flashing $HDZ_BIN"
 	echo "0" > /tmp/progress_goggle
 	echo "0"
-	untar_file "$GOGGLE_BIN"
+	untar_file "$HDZ_BIN"
 	mv ${TMP_DIR}/hdzgoggle_app_ota*.tar ${TMP_DIR}/hdzgoggle_app_ota.tar
 	cp -f /mnt/app/setting.ini /mnt/UDISK/
 	#disable it66021
 	i2cset -y 3 0x49 0x10 0xff
-	update_rx
 	echo "1"
 	echo "1" > /tmp/progress_goggle
+	update_rx
+	echo "6"
+	echo "6" > /tmp/progress_goggle
 	update_fpga
-	echo "45"
+ 	echo "45"
 	echo "45" > /tmp/progress_goggle
 	hdz_upgrade_app.sh
 	echo "100"
 	echo "100" > /tmp/progress_goggle
 	echo "all done"
 else
-	if [ `ls /mnt/extsd/HDZERO_BOXPRO*.bin | grep bin | wc -l` -eq 0 ]
-	then
-		echo "skip"
-	else
-		echo "repeat"
-	fi
+	echo "skip"
 fi
-
