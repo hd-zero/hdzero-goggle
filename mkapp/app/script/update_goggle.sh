@@ -1,4 +1,5 @@
 #!/bin/sh
+{
 echo "#######################################"
 
 PLATFORM="$(cat /mnt/app/platform)"
@@ -217,3 +218,5 @@ if [ ! -z "$HDZ_BIN" ]; then
 else
 	echo "skip"
 fi
+exit
+}
