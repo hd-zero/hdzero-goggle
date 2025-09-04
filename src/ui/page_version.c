@@ -343,7 +343,7 @@ static void flash_goggle() {
         reboot_flag = true;
         lv_timer_handler();
     } else if (ret == 2) {
-        snprintf(buf, sizeof(buf), "$FFFF00 %s.#", _lang("No firmware found"));
+        snprintf(buf, sizeof(buf), "#FFFF00 %s.#", _lang("No firmware found"));
         lv_label_set_text(btn_goggle, buf);
     } else if (ret == 3) {
         snprintf(buf, sizeof(buf), "#FFFF00 %s. %s.#", _lang("Multiple versions been found"), _lang("Keep only one"));
