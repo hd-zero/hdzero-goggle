@@ -23,6 +23,7 @@
 #include "driver/hardware.h"
 #include "driver/it66021.h"
 #include "driver/nct75.h"
+#include "driver/rtc6715.h"
 #include "driver/screen.h"
 #include "ui/page_fans.h"
 #include "ui/page_storage.h"
@@ -241,6 +242,7 @@ static void threads_instance(threads_obj_t *obj) {
     obj->instance[0] = thread_peripheral;
     obj->instance[1] = thread_version;
     obj->instance[2] = thread_osd;
+    obj->instance[2] = thread_rtc6715_rssi;
 }
 
 int create_threads() {
