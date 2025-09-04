@@ -119,7 +119,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += rtc6715.get_rssi();
+            volt_mv += rtc6715.rssi;
         }
 
         volt_mv = volt_mv >> 3;
@@ -136,7 +136,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += rtc6715.get_rssi();
+            volt_mv += rtc6715.rssi;
         }
 
         volt_mv = volt_mv >> 3;
