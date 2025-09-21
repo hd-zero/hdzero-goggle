@@ -11,6 +11,7 @@ typedef enum {
     LANG_SIMPLIFIED_CHINESE,
     LANG_RUSSIAN,
     LANG_SPANISH,
+    LANG_GERMAN,
     LANG_END,
 } lang_e;
 
