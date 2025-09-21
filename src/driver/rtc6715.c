@@ -1,7 +1,5 @@
 #include "rtc6715.h"
 
-#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
-
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,6 +12,12 @@
 #include "driver/gpio.h"
 #include "gpadc.h"
 #include "i2c.h"
+
+#include "../core/settings.h"
+#include "app_state.h"
+#include "ui/page_common.h"
+
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
 
 static void MM_Write(uint8_t addr, uint32_t dat) {
     uint8_t val;
@@ -106,13 +110,21 @@ static void rtc6715_init(bool power_on, bool audio_on) {
 }
 static void rtc6715_set_ch(int ch) {
 }
-static int rtc6715_get_rssi() {
-    return 0;
-}
 #endif
+
+void *thread_rtc6715_rssi(void *ptr) {
+    for (;;) {
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+        if (g_app_state == APP_STATE_VIDEO && g_source_info.source == SOURCE_AV_MODULE && g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_INTERNAL) {
+            rtc6715.rssi = rtc6715_get_rssi();
+        }
+#endif
+        usleep(100 * 1000);
+    }
+}
 
 rtc6715_t rtc6715 = {
     .init = rtc6715_init,
     .set_ch = rtc6715_set_ch,
-    .get_rssi = rtc6715_get_rssi,
+    .rssi = 0,
 };

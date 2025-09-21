@@ -349,7 +349,7 @@ void osd_analog_rssi_show(bool bShow) {
     if (g_setting.analog_rssi.calib_min == g_setting.analog_rssi.calib_max)
         rssi_volt_mv = 0;
     else {
-        rssi_volt_mv = rtc6715.get_rssi();
+        rssi_volt_mv = rtc6715.rssi;
         if (rssi_volt_mv <= g_setting.analog_rssi.calib_min)
             rssi_volt_mv = 0;
         else if (rssi_volt_mv >= g_setting.analog_rssi.calib_max)
