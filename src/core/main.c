@@ -212,9 +212,7 @@ int main(int argc, char *argv[]) {
     gif_cnt = 0;
 
     // 8.1 set initial analog module power state
-#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
     Analog_Module_Power(0);
-#endif
 
     // Head alarm
     head_alarm_init();
