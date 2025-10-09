@@ -671,7 +671,7 @@ void Display_1080P30_t(int mode) {
 }
 
 void Display_1080P24_t(int mode) {
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     system_exec("dispw -s vdpo 1080p60");
@@ -683,14 +683,14 @@ void Display_1080P24_t(int mode) {
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
 
     DM5680_SetFPS(mode);
-    MFPGA_Set1080P30();
-    OLED_SetTMG(2);
+    screen.mfpga.set1080p30();
+    screen.vtmg(2);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
