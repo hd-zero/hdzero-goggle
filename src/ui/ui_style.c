@@ -126,11 +126,7 @@ int style_init(void) {
 
     lv_style_reset(&style_select);
     lv_style_init(&style_select);
-#ifdef HDZBOXPRO
-    lv_style_set_bg_color(&style_select, lv_color_hex(0x404040));
-#else
-    lv_style_set_bg_color(&style_select, lv_color_hex(0x646464));
-#endif
+    lv_style_set_bg_color(&style_select, lv_color_hex(UI_STYLE_SELECT_BG_COLOR));
     lv_style_set_bg_opa(&style_select, LV_OPA_COVER);
     lv_style_set_border_width(&style_select, 0);
     lv_style_set_radius(&style_select, 0);
@@ -143,25 +139,15 @@ int style_init(void) {
 
     lv_style_reset(&style_dropdown);
     lv_style_init(&style_dropdown);
-#ifdef HDZBOXPRO
-    lv_style_set_bg_color(&style_dropdown, lv_color_hex(0x606060));
-    lv_style_set_text_color(&style_dropdown, lv_color_hex(0x202020));
-#else
-    lv_style_set_bg_color(&style_dropdown, lv_color_hex(0x646464));
-    lv_style_set_text_color(&style_dropdown, lv_color_make(0xff, 0xff, 0xff));
-#endif
+    lv_style_set_bg_color(&style_dropdown, lv_color_hex(UI_STYLE_DROPDOWN_BG_COLOR));
+    lv_style_set_text_color(&style_dropdown, lv_color_hex(UI_STYLE_DROPDOWN_TEXT_COLOR));
     lv_style_set_border_width(&style_dropdown, 2);
     lv_style_set_border_color(&style_dropdown, lv_palette_main(LV_PALETTE_RED));
 
     lv_style_reset(&style_keyboard[KB_STYLE_MAIN]);
     lv_style_init(&style_keyboard[KB_STYLE_MAIN]);
-#ifdef HDZBOXPRO
-    lv_style_set_bg_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(0x606060));
-    lv_style_set_text_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(0x202020));
-#else
-    lv_style_set_bg_color(&style_keyboard[KB_STYLE_MAIN], lv_color_make(0x64, 0x64, 0x64));
-    lv_style_set_text_color(&style_keyboard[KB_STYLE_MAIN], lv_color_make(0, 0, 0));
-#endif
+    lv_style_set_bg_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(UI_STYLE_KEYBOARD_BG_COLOR));
+    lv_style_set_text_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(UI_STYLE_KEYBOARD_TEXT_COLOR));
     lv_style_set_border_width(&style_keyboard[KB_STYLE_MAIN], 0);
     lv_style_set_border_color(&style_keyboard[KB_STYLE_MAIN], lv_palette_main(LV_PALETTE_RED));
 

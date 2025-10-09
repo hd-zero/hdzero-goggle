@@ -216,7 +216,11 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_bar_set_value(progressbar, 0, LV_ANIM_OFF);
     lv_obj_set_style_bg_color(progressbar, lv_color_make(0xff, 0xff, 0xff), LV_PART_MAIN);
     lv_obj_set_style_radius(progressbar, 0, LV_PART_MAIN);
+#ifdef HDZBOXPRO
+    lv_obj_set_style_bg_color(progressbar, lv_color_make(0, 0x80, 0), LV_PART_INDICATOR);
+#else
     lv_obj_set_style_bg_color(progressbar, lv_color_make(0, 0xff, 0), LV_PART_INDICATOR);
+#endif
     lv_obj_set_style_radius(progressbar, 0, LV_PART_INDICATOR);
 
     lv_obj_set_grid_cell(progressbar, LV_GRID_ALIGN_START, 0, 1,

@@ -277,7 +277,11 @@ lv_obj_t *create_dropdown_item(lv_obj_t *parent, const char *options, int col, i
     lv_obj_set_style_pad_top(obj, pad_top, 0);
     lv_obj_set_size(obj, width, height);
     lv_obj_set_style_text_color(obj, lv_color_hex(TEXT_COLOR_DISABLE), STATE_DISABLED);
-
+#ifdef HDZBOXPRO
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x606060), 0); // bg color
+    // lv_obj_set_style_border_width(obj, 2, 0);
+    lv_obj_set_style_border_color(obj, lv_color_hex(0x606060), 0);
+#endif
     lv_obj_set_grid_cell(obj, column_align, col, col_span, LV_GRID_ALIGN_CENTER, row, 1);
 
     return obj;
