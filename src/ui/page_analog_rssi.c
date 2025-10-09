@@ -19,7 +19,7 @@
 #include "page_common.h"
 #include "ui/ui_style.h"
 
-#ifdef HDZBOXPRO
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
 
 enum {
     ROW_CALIBRATE_RSSI_MIN = 0,
@@ -72,12 +72,12 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_t *note = lv_label_create(cont);
     snprintf(buf, sizeof(buf), "%s:\n    -%s\n    -%s\n%s:\n    -%s\n    -%s\n    -%s",
              _lang("Before calibrating RSSI min"),
-             _lang("Remove the BoxPro antenna"),
+             _lang("Remove the Goggle antenna"),
              _lang("Turn off all VTX"),
              _lang("Before calibrating RSSI max"),
-             _lang("Remove the BoxPro antenna"),
+             _lang("Remove the Goggle antenna"),
              _lang("Turn on the analog VTX to R1 25mw"),
-             _lang("Place the VTX 2 meters away from the BoxPro"));
+             _lang("Place the VTX 2 meters away from the Goggle"));
     lv_label_set_text(note, buf);
 
     lv_obj_set_style_text_font(note, UI_PAGE_LABEL_FONT, 0);
@@ -91,13 +91,12 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
 }
 
 static void on_enter() {
-    RTC6715_Open(1, 0);
-    usleep(100 * 1000);
-    RTC6715_SetCH(32); // R1
+    rtc6715.init(1, 0);
+    rtc6715.set_ch(33); // R1
 }
 
 static void on_exit() {
-    RTC6715_Open(0, 0);
+    rtc6715.init(0, 0);
 }
 
 static void on_created() {
@@ -120,7 +119,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += RTC6715_GetRssi();
+            volt_mv += rtc6715.get_rssi();
         }
 
         volt_mv = volt_mv >> 3;
@@ -137,7 +136,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += RTC6715_GetRssi();
+            volt_mv += rtc6715.get_rssi();
         }
 
         volt_mv = volt_mv >> 3;

@@ -54,10 +54,6 @@ void SPI_Read(uint8_t page, uint16_t addr, uint32_t *dat0, uint32_t *dat1) {
 #endif
 }
 
-// RF_SPIд����
-/* sel: 0=д����DM6302
-        1=д�Ҳ�DM6302
-        2=д���DM6302*/
 void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat) {
     uint8_t val;
     uint32_t r1 = 0, r0 = 0;
@@ -99,7 +95,6 @@ void SPI_Write(uint8_t sel, uint8_t page, uint16_t addr, uint32_t dat) {
 #endif
 }
 
-// ����Ƶ��
 uint32_t tab[3][20] = {
     // 0x120
     {
@@ -1673,12 +1668,13 @@ void DM6302_DCOC(uint8_t SEL6302) {
 int DM6302_init(uint8_t freq, uint8_t bw) {
     int to_cnt = 0;
     uint32_t r0 = 1, r1 = 1;
-
-    if (TARGET_GOGGLE == getTargetType()) {
-        system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        system_exec("aww 0x05002814 0x00000018"); // set i2c speed to 500KHz
-    }
+#if defined HDZGOGGLE
+    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
+#elif defined HDZBOXPRO
+    system_exec("aww 0x05002814 0x00000018"); // set i2c speed to 500KHz
+#elif defined HDZGOGGLE2
+    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
+#endif
 
     while (r0) {
         DM5680_ResetRF(0);

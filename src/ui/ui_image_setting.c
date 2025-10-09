@@ -186,7 +186,7 @@ void ims_init(void) {
     ims_page_init(defs);
     g_bShowIMS = false;
 
-    Screen_Brightness(defs[0]);
+    screen.brightness(defs[0]);
     Set_Brightness(defs[1]);
     Set_Saturation(defs[2]);
     Set_Contrast(defs[3]);
@@ -195,7 +195,7 @@ void ims_init(void) {
 void ims_save() {
     g_setting.image.oled = ims_page.items[0].value;
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    Screen_Brightness(g_setting.image.oled);
+    screen.brightness(g_setting.image.oled);
 
     g_setting.image.brightness = ims_page.items[1].value;
     ini_putl("image", "brightness", g_setting.image.brightness, SETTING_INI);
@@ -231,7 +231,7 @@ void change_oled_brightness(uint8_t key) {
     }
 
     ini_putl("image", "oled", g_setting.image.oled, SETTING_INI);
-    Screen_Brightness(g_setting.image.oled);
+    screen.brightness(g_setting.image.oled);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ uint8_t ims_key(uint8_t key) {
 
         switch (ims_page.selection) {
         case 0:
-            Screen_Brightness(value);
+            screen.brightness(value);
             break;
 
         case 1:

@@ -246,18 +246,11 @@ void camTypeDetect(uint8_t rData) {
         CAM_MODE = cur_cam;
     } else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {
         // LOGI("Cam_mode changed:%d", cur_cam);
-        if (TARGET_GOGGLE == getTargetType()) {
-            load_fc_osd_font(cur_cam == VR_1080P30);
-        } else if (TARGET_BOXPRO == getTargetType()) {
-            load_fc_osd_font(0);
-        }
-    } else if (cur_cam == VR_1080P24 || last_cam == VR_1080P24) {
-        // LOGI("Cam_mode changed:%d", cur_cam);
-        if (TARGET_GOGGLE == getTargetType()) {
-            load_fc_osd_font(cur_cam == VR_1080P24);
-        } else if (TARGET_BOXPRO == getTargetType()) {
-            load_fc_osd_font(0);
-        }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        load_fc_osd_font(cur_cam == VR_1080P30);
+#elif defined(HDZBOXPRO)
+        load_fc_osd_font(0);
+#endif
     }
 }
 
@@ -273,11 +266,11 @@ void fcTypeDetect(uint8_t *rData) {
             fc_variant[i] = fc_variant_rcv[i];
 
         // LOGI("fc_variant changed:%s", fc_variant_rcv);
-        if (TARGET_GOGGLE == getTargetType()) {
-            load_fc_osd_font(cur_cam == VR_1080P30 || cur_cam == VR_1080P24);
-        } else if (TARGET_BOXPRO == getTargetType()) {
-            load_fc_osd_font(0);
-        }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        load_fc_osd_font(cur_cam == VR_1080P30);
+#elif defined(HDZBOXPRo)
+        load_fc_osd_font(0);
+#endif
     }
 }
 

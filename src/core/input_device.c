@@ -74,15 +74,16 @@ void tune_channel(uint8_t action) {
     if (g_setting.ease.no_dial)
         return;
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        if (g_source_info.source != SOURCE_HDZERO) {
-            return;
-        }
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        if (g_source_info.source != SOURCE_HDZERO && g_source_info.source != SOURCE_AV_MODULE) {
-            return;
-        }
+#if defined HDZGOGGLE
+    if (g_source_info.source != SOURCE_HDZERO) {
+        return;
     }
+
+#elif defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    if (g_source_info.source != SOURCE_HDZERO && g_source_info.source != SOURCE_AV_MODULE) {
+        return;
+    }
+#endif
 
     LOGI("tune_channel:%d", action);
 
@@ -96,115 +97,77 @@ void tune_channel(uint8_t action) {
             tune_timer = TUNER_TIMER_LEN;
             tune_state = 2;
 
-            if (TARGET_GOGGLE == getTargetType()) {
+#if defined HDZGOGGLE
+            channel = g_setting.scan.channel;
+#elif defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+            if (g_source_info.source == SOURCE_HDZERO) {
                 channel = g_setting.scan.channel;
-            } else if (TARGET_BOXPRO == getTargetType()) {
-                if (g_source_info.source == SOURCE_HDZERO) {
-                    channel = g_setting.scan.channel;
-                } else if (g_source_info.source == SOURCE_AV_MODULE) {
-                    channel = g_setting.source.analog_channel;
-                } else {
-                    return;
-                }
+            } else if (g_source_info.source == SOURCE_AV_MODULE) {
+                channel = g_setting.source.analog_channel;
+            } else {
+                return;
             }
+#endif
         }
     }
 
     if (tune_state != 2)
         return;
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        switch (action) {
-        case DIAL_KEY_UP: // Tune up
-            if (channel >= HDZERO_CHANNEL_NUM)
-                channel = 1;
-            else
-                channel++;
-            break;
+    uint8_t channel_num;
+    if (g_source_info.source == SOURCE_HDZERO)
+        channel_num = HDZERO_CHANNEL_NUM;
+    else if (g_source_info.source == SOURCE_AV_MODULE)
+        channel_num = ANALOG_CHANNEL_NUM;
+    else
+        return;
 
-        case DIAL_KEY_DOWN: // Tune down
-            if (channel <= 1)
-                channel = HDZERO_CHANNEL_NUM;
-            else
-                channel--;
-            break;
+    switch (action) {
+    case DIAL_KEY_UP: // Tune up
+        if (channel == channel_num)
+            channel = 1;
+        else
+            channel++;
+        break;
 
-        case DIAL_KEY_PRESS: // confirm to tune with VTX freq send
-        case DIAL_KEY_CLICK: // confirm to tune
+    case DIAL_KEY_DOWN: // Tune down
+        if (channel == 1)
+            channel = channel_num;
+        else
+            channel--;
+        break;
+
+    case DIAL_KEY_PRESS: // confirm to tune with VTX freq send
+    case DIAL_KEY_CLICK: // confirm to tune
+        if (g_source_info.source == SOURCE_HDZERO) {
             if (g_setting.scan.channel != channel) {
                 g_setting.scan.channel = channel;
                 ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
                 dvr_cmd(DVR_STOP);
-                app_switch_to_hdzero(true);
+                hdzero_switch_channel(g_setting.scan.channel - 1);
                 if (action == DIAL_KEY_PRESS) {
                     msp_channel_update();
                 }
             }
-            tune_timer = 0;
-            tune_state = 1;
-            channel_osd_mode = CHANNEL_SHOWTIME;
-            return;
-
-        default:
-            perror("TuneChannel: bad command");
-            break;
-        }
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        uint8_t channel_num;
-        if (g_source_info.source == SOURCE_HDZERO)
-            channel_num = HDZERO_CHANNEL_NUM;
-        else if (g_source_info.source == SOURCE_AV_MODULE)
-            channel_num = ANALOG_CHANNEL_NUM;
-        else
-            return;
-
-        switch (action) {
-        case DIAL_KEY_UP: // Tune up
-            if (channel == channel_num)
-                channel = 1;
-            else
-                channel++;
-            break;
-
-        case DIAL_KEY_DOWN: // Tune down
-            if (channel == 1)
-                channel = channel_num;
-            else
-                channel--;
-            break;
-
-        case DIAL_KEY_PRESS: // confirm to tune with VTX freq send
-        case DIAL_KEY_CLICK: // confirm to tune
-            if (g_source_info.source == SOURCE_HDZERO) {
-                if (g_setting.scan.channel != channel) {
-                    g_setting.scan.channel = channel;
-                    ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
-                    dvr_cmd(DVR_STOP);
-                    app_switch_to_hdzero(true);
-                    if (action == DIAL_KEY_PRESS) {
-                        msp_channel_update();
-                    }
-                }
-            } else if (g_source_info.source == SOURCE_AV_MODULE) {
-                if (g_setting.source.analog_channel != channel) {
-                    g_setting.source.analog_channel = channel;
-                    ini_putl("source", "analog_channel", g_setting.source.analog_channel, SETTING_INI);
-                    dvr_cmd(DVR_STOP);
-                    RTC6715_SetCH(g_setting.source.analog_channel - 1);
-                    if (action == DIAL_KEY_PRESS) {
-                        msp_channel_update();
-                    }
+        } else if (g_source_info.source == SOURCE_AV_MODULE) {
+            if (g_setting.source.analog_channel != channel) {
+                g_setting.source.analog_channel = channel;
+                ini_putl("source", "analog_channel", g_setting.source.analog_channel, SETTING_INI);
+                dvr_cmd(DVR_STOP);
+                rtc6715.set_ch(g_setting.source.analog_channel - 1);
+                if (action == DIAL_KEY_PRESS) {
+                    msp_channel_update();
                 }
             }
-            tune_timer = 0;
-            tune_state = 1;
-            channel_osd_mode = CHANNEL_SHOWTIME;
-            return;
-
-        default:
-            perror("TuneChannel: bad command");
-            break;
         }
+        tune_timer = 0;
+        tune_state = 1;
+        channel_osd_mode = CHANNEL_SHOWTIME;
+        return;
+
+    default:
+        perror("TuneChannel: bad command");
+        break;
     }
 
     channel_osd_mode = 0x80 | channel;
@@ -212,13 +175,23 @@ void tune_channel(uint8_t action) {
 }
 
 void tune_channel_confirm() {
-    bool tune =
-        g_source_info.source == SOURCE_HDZERO ||
-        (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE);
-
-    if (tune) {
+#if defined HDZGOGGLE
+    if (g_source_info.source == SOURCE_HDZERO) {
         tune_channel(DIAL_KEY_CLICK);
     }
+#elif defined HDZBOXPRO
+    if (g_source_info.source == SOURCE_HDZERO) {
+        tune_channel(DIAL_KEY_CLICK);
+    } else if (g_source_info.source == SOURCE_AV_MODULE) {
+        tune_channel(DIAL_KEY_CLICK);
+    }
+#elif defined HDZGOGGLE2
+    if (g_source_info.source == SOURCE_HDZERO) {
+        tune_channel(DIAL_KEY_CLICK);
+    } else if (g_source_info.source == SOURCE_AV_MODULE && g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_INTERNAL) {
+        tune_channel(DIAL_KEY_CLICK);
+    }
+#endif
 }
 
 void tune_channel_timer() {
@@ -268,12 +241,33 @@ static void btn_press(void) // long press left key
         app_exit_menu();
         app_state_push(APP_STATE_VIDEO);
     } else if ((g_app_state == APP_STATE_VIDEO) || (g_app_state == APP_STATE_IMS)) { // video -> Main menu
-        bool tune =
-            tune_timer &&
-            ((TARGET_GOGGLE == getTargetType() && g_source_info.source == SOURCE_HDZERO) ||
-             (TARGET_BOXPRO == getTargetType() && (g_source_info.source == SOURCE_HDZERO || g_source_info.source == SOURCE_AV_MODULE)));
-        if (tune) {
-            tune_channel(DIAL_KEY_PRESS);
+        if (tune_timer) {
+#if defined HDZGOGGLE
+            if (g_source_info.source == SOURCE_HDZERO) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else {
+                (*btn_press_callback)();
+            }
+#elif defined HDZBOXPRO
+            if (g_source_info.source == SOURCE_HDZERO) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else if (g_source_info.source == SOURCE_AV_MODULE) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else {
+                (*btn_press_callback)();
+            }
+
+#elif defined HDZGOGGLE2
+            if (g_source_info.source == SOURCE_HDZERO) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else if (g_source_info.source == SOURCE_AV_MODULE) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else if (g_source_info.source == SOURCE_AV_MODULE && g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_INTERNAL) {
+                tune_channel(DIAL_KEY_PRESS);
+            } else {
+                (*btn_press_callback)();
+            }
+#endif
         } else {
             (*btn_press_callback)();
         }

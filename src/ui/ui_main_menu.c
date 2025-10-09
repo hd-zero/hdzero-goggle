@@ -134,7 +134,7 @@ void submenu_roller(uint8_t key) {
                     pp->p_arr.cur = pp->p_arr.max - 1;
             } while (!lv_obj_has_flag(pp->p_arr.panel[pp->p_arr.cur], FLAG_SELECTABLE));
         }
-        LOGI("submenu_roller %d", pp->p_arr.cur);
+        LOGI("submenu_roller %d, %d", pp->p_arr.cur, pp->p_arr.max - 1);
         set_select_item(&pp->p_arr, pp->p_arr.cur);
     }
 
@@ -313,7 +313,7 @@ void main_menu_init(void) {
     page_packs[page_packs_count++] = &pp_focus_chart;
     page_packs[page_packs_count++] = &pp_clock;
     page_packs[page_packs_count++] = &pp_input;
-#ifdef HDZBOXPRO
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
     page_packs[page_packs_count++] = &pp_analog_rssi;
 #endif
     page_packs[page_packs_count++] = &pp_sleep;

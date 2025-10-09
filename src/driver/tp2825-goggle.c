@@ -31,7 +31,11 @@ void TP2825_VER() {
         LOGI("TP2825L detected");
     }
 }
-
+/*
+is_av_in:
+        0: AV line in
+        1: External Analog Module
+*/
 void TP2825_init(bool is_av_in, bool is_pal) {
     TP2825_close();
     usleep(1000);
@@ -253,7 +257,7 @@ void TP2825_Switch_Mode(bool is_pal) {
 void TP2825_Switch_CH(bool is_av_in) {
     I2C_Write(ADDR_TP2825, 0x41, 1 - is_av_in);
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
-    LOGI("TP2825 switch channel: %d", is_av_in);
+    // LOGI("TP2825 switch channel: %d", is_av_in);
 }
 
 void TP2825_Set_Clamp(int idx) {
