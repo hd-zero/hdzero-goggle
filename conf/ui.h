@@ -116,6 +116,10 @@ extern "C" {
 #define UI_STYLE_SUBMENU_PAD_TOP          96
 #define UI_STYLE_SUBMENU_PAD_LEFT         48
 
+// text color
+#define TEXT_COLOR_DEFAULT 0xffffff
+#define TEXT_COLOR_DISABLE 0x808080
+
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t c[] = {264, 64, 267, 64, 267, 64, 267, 64, 267, 64, 267, LV_GRID_TEMPLATE_LAST};
     return c;
@@ -237,6 +241,10 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_WIFI_ROWS                      40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
 #define UI_STYLE_SUBMENU_PAD_TOP          110
 #define UI_STYLE_SUBMENU_PAD_LEFT         32
+
+// text color
+#define TEXT_COLOR_DEFAULT                0x808080
+#define TEXT_COLOR_DISABLE                0x303030
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t pro[] = {176, 42, 178, 42, 178, 42, 178, 42, 178, 42, 178, LV_GRID_TEMPLATE_LAST};

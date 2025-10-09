@@ -268,6 +268,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("'Toggle source' will switch between HDZero and Expansion module"));
     lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
 

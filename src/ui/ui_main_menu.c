@@ -262,6 +262,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     pp->label = lv_label_create(cont);
     lv_label_set_text(pp->label, _lang(pp->name));
     lv_obj_set_style_text_font(pp->label, UI_MENU_ENTRY_FONT, 0);
+    lv_obj_set_style_text_color(pp->label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     pp->icon = lv_img_create(cont);

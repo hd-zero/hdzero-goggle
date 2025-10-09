@@ -143,7 +143,7 @@ static void create_channel_switch(lv_obj_t *parent, int col, int row, channel_t 
     channel->label = lv_label_create(parent);
     lv_obj_set_style_text_font(channel->label, UI_SCANNOW_CHAN_FONT, 0);
     lv_obj_set_style_text_align(channel->label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(channel->label, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(channel->label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(channel->label, UI_SCANNOW_CHAN_PAD, 0);
     lv_label_set_long_mode(channel->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_grid_cell(channel->label, LV_GRID_ALIGN_START, col + 1, 1,
@@ -228,7 +228,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(label, _lang("Scan Ready"));
     lv_obj_set_style_text_font(label, UI_SCANNOW_READY_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label, UI_SCANNOW_READY_PAD, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 0, 1,
@@ -242,7 +242,7 @@ static lv_obj_t *page_scannow_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(label2, buf);
     lv_obj_set_style_text_font(label2, UI_SCANNOW_NOTE_FONT, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label2, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label2, UI_SCANNOW_NOTE_PAD, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 2, 1,

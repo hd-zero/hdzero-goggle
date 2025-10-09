@@ -81,7 +81,7 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(label_user_hint, buf);
     lv_obj_set_style_text_font(label_user_hint, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label_user_hint, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label_user_hint, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label_user_hint, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label_user_hint, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label_user_hint, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label_user_hint, LV_GRID_ALIGN_START, 1, 4,

@@ -26,7 +26,7 @@ int style_init(void) {
     lv_style_reset(&style_rootmenu);
     lv_style_init(&style_rootmenu);
     lv_style_set_bg_color(&style_rootmenu, lv_color_make(19, 19, 19));
-    lv_style_set_text_color(&style_rootmenu, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_text_color(&style_rootmenu, lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_pad_top(&style_rootmenu, 0);
     lv_style_set_pad_bottom(&style_rootmenu, 0);
     lv_style_set_pad_left(&style_rootmenu, 0);
@@ -39,7 +39,7 @@ int style_init(void) {
     lv_style_init(&style_submenu);
     lv_style_set_bg_color(&style_submenu, lv_color_make(32, 32, 32));
     lv_style_set_border_width(&style_submenu, 0);
-    lv_style_set_text_color(&style_submenu, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_text_color(&style_submenu, lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_pad_top(&style_submenu, UI_STYLE_SUBMENU_PAD_TOP);
     lv_style_set_pad_bottom(&style_submenu, 0);
     lv_style_set_pad_left(&style_submenu, UI_STYLE_SUBMENU_PAD_LEFT);
@@ -85,12 +85,12 @@ int style_init(void) {
     lv_style_set_bg_color(&style_statusbar, lv_color_make(19, 19, 19));
     // lv_style_set_border_width(&style_statusbar, 2);
     // lv_style_set_border_color(&style_statusbar, lv_palette_main(LV_PALETTE_RED));
-    // lv_style_set_text_color(&style_statusbar, lv_color_make(0xff, 0xff, 0xff));
+    // lv_style_set_text_color(&style_statusbar, lv_color_hex(TEXT_COLOR_DEFAULT));
 
     lv_style_reset(&style_silder_main);
     lv_style_init(&style_silder_main);
     lv_style_set_bg_opa(&style_silder_main, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_silder_main, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_bg_color(&style_silder_main, lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_radius(&style_silder_main, 0);
 
     lv_style_reset(&style_silder_select);
@@ -102,13 +102,13 @@ int style_init(void) {
     lv_style_reset(&style_silder_indicator);
     lv_style_init(&style_silder_indicator);
     lv_style_set_bg_opa(&style_silder_indicator, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_silder_indicator, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_bg_color(&style_silder_indicator, lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_radius(&style_silder_indicator, 0);
 
     lv_style_reset(&style_silder_knob);
     lv_style_init(&style_silder_knob);
     lv_style_set_bg_opa(&style_silder_knob, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_silder_knob, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_bg_color(&style_silder_knob, lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_radius(&style_silder_knob, 0);
     lv_style_set_pad_top(&style_silder_knob, 20);    /*Makes the knob larger*/
     lv_style_set_pad_bottom(&style_silder_knob, 20); /*Makes the knob larger*/
@@ -126,7 +126,11 @@ int style_init(void) {
 
     lv_style_reset(&style_select);
     lv_style_init(&style_select);
+#ifdef HDZBOXPRO
+    lv_style_set_bg_color(&style_select, lv_color_hex(0x404040));
+#else
     lv_style_set_bg_color(&style_select, lv_color_hex(0x646464));
+#endif
     lv_style_set_bg_opa(&style_select, LV_OPA_COVER);
     lv_style_set_border_width(&style_select, 0);
     lv_style_set_radius(&style_select, 0);
@@ -139,30 +143,40 @@ int style_init(void) {
 
     lv_style_reset(&style_dropdown);
     lv_style_init(&style_dropdown);
+#ifdef HDZBOXPRO
+    lv_style_set_bg_color(&style_dropdown, lv_color_hex(0x606060));
+    lv_style_set_text_color(&style_dropdown, lv_color_hex(0x202020));
+#else
     lv_style_set_bg_color(&style_dropdown, lv_color_hex(0x646464));
     lv_style_set_text_color(&style_dropdown, lv_color_make(0xff, 0xff, 0xff));
+#endif
     lv_style_set_border_width(&style_dropdown, 2);
     lv_style_set_border_color(&style_dropdown, lv_palette_main(LV_PALETTE_RED));
 
     lv_style_reset(&style_keyboard[KB_STYLE_MAIN]);
     lv_style_init(&style_keyboard[KB_STYLE_MAIN]);
+#ifdef HDZBOXPRO
+    lv_style_set_bg_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(0x606060));
+    lv_style_set_text_color(&style_keyboard[KB_STYLE_MAIN], lv_color_hex(0x202020));
+#else
     lv_style_set_bg_color(&style_keyboard[KB_STYLE_MAIN], lv_color_make(0x64, 0x64, 0x64));
     lv_style_set_text_color(&style_keyboard[KB_STYLE_MAIN], lv_color_make(0, 0, 0));
+#endif
     lv_style_set_border_width(&style_keyboard[KB_STYLE_MAIN], 0);
     lv_style_set_border_color(&style_keyboard[KB_STYLE_MAIN], lv_palette_main(LV_PALETTE_RED));
 
     lv_style_reset(&style_keyboard[KB_STYLE_KEY]);
     lv_style_init(&style_keyboard[KB_STYLE_KEY]);
-    lv_style_set_bg_color(&style_keyboard[KB_STYLE_KEY], lv_color_hex(0x444444));
-    lv_style_set_text_color(&style_keyboard[KB_STYLE_KEY], lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_bg_color(&style_keyboard[KB_STYLE_KEY], lv_color_hex(0x404040));
+    lv_style_set_text_color(&style_keyboard[KB_STYLE_KEY], lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_border_width(&style_keyboard[KB_STYLE_KEY], 2);
     lv_style_set_border_color(&style_keyboard[KB_STYLE_KEY], lv_palette_main(LV_PALETTE_RED));
 
     lv_style_reset(&style_keyboard[KB_STYLE_TEXT]);
     lv_style_init(&style_keyboard[KB_STYLE_TEXT]);
-    lv_style_set_bg_color(&style_keyboard[KB_STYLE_TEXT], lv_color_make(0x44, 0x44, 0x44));
+    lv_style_set_bg_color(&style_keyboard[KB_STYLE_TEXT], lv_color_hex(0x404040));
     lv_style_set_text_align(&style_keyboard[KB_STYLE_TEXT], LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_color(&style_keyboard[KB_STYLE_TEXT], lv_color_make(0xFF, 0xFF, 0xFF));
+    lv_style_set_text_color(&style_keyboard[KB_STYLE_TEXT], lv_color_hex(TEXT_COLOR_DEFAULT));
     lv_style_set_border_width(&style_keyboard[KB_STYLE_TEXT], 0);
     lv_style_set_border_color(&style_keyboard[KB_STYLE_TEXT], lv_palette_main(LV_PALETTE_RED));
     lv_style_set_bg_opa(&style_keyboard[KB_STYLE_TEXT], LV_OPA_COVER);
@@ -170,7 +184,7 @@ int style_init(void) {
 
     lv_style_reset(&style_keyboard[KB_STYLE_CURSOR]);
     lv_style_init(&style_keyboard[KB_STYLE_CURSOR]);
-    lv_style_set_border_color(&style_keyboard[KB_STYLE_CURSOR], lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_border_color(&style_keyboard[KB_STYLE_CURSOR], lv_color_hex(TEXT_COLOR_DEFAULT));
 
     return 0;
 }

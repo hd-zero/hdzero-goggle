@@ -675,7 +675,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi.page_1.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_1.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_wifi.page_1.note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(page_wifi.page_1.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_wifi.page_1.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_wifi.page_1.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
@@ -726,7 +726,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     page_wifi.page_3.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_3.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_wifi.page_3.note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(page_wifi.page_3.note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(page_wifi.page_3.note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(page_wifi.page_3.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_wifi.page_3.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_wifi.page_3.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
