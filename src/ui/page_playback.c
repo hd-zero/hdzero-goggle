@@ -99,6 +99,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
 
         pb_ui[pos]._label = lv_label_create(cont);
         lv_obj_set_style_text_font(pb_ui[pos]._label, UI_PAGE_TEXT_FONT, 0);
+        lv_obj_set_style_text_color(pb_ui[pos]._label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
         lv_label_set_long_mode(pb_ui[pos]._label, LV_LABEL_LONG_SCROLL_CIRCULAR);
         lv_obj_set_style_text_align(pb_ui[pos]._label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_add_flag(pb_ui[pos]._label, LV_OBJ_FLAG_HIDDEN);
@@ -126,7 +127,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(label, 10, 700);
     status = create_msgbox_item("Status", "None");

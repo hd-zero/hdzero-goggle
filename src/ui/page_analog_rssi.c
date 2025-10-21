@@ -82,7 +82,7 @@ static lv_obj_t *page_analog_rssi_create(lv_obj_t *parent, panel_arr_t *arr) {
 
     lv_obj_set_style_text_font(note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
@@ -119,7 +119,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += rtc6715.get_rssi();
+            volt_mv += rtc6715.rssi;
         }
 
         volt_mv = volt_mv >> 3;
@@ -136,7 +136,7 @@ static void on_click(uint8_t key, int sel) {
         LOGI("capture rssi voltage");
 
         for (int i = 0; i < 8; i++) {
-            volt_mv += rtc6715.get_rssi();
+            volt_mv += rtc6715.rssi;
         }
 
         volt_mv = volt_mv >> 3;

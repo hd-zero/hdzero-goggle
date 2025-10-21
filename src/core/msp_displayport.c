@@ -235,7 +235,13 @@ void camTypeDetect(uint8_t rData) {
         last_cam = cur_cam;
         cur_cam = VR_1080P30;
         break;
+
+    case 0xBB:
+        last_cam = cur_cam;
+        cur_cam = VR_1080P24;
+        break;
     }
+
     if (cur_cam == last_cam) {
         CAM_MODE = cur_cam;
     } else if (cur_cam == VR_1080P30 || last_cam == VR_1080P30) {

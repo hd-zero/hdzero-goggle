@@ -512,8 +512,11 @@ void csic_pclk_invert_set(uint8_t is_invert) {
 void pclk_phase_set(video_source_t source) {
     LOGI("pclk_phase_set %d", pclk_phase[source]);
     // bit[0] hdmi in
-    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1);
-
+    if (source == VIDEO_SOURCE_HDMI_IN_1080P50 || source == VIDEO_SOURCE_HDMI_IN_1080P60 || source == VIDEO_SOURCE_HDMI_IN_1080POTHER) {
+        IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1, 0);
+    } else {
+        IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1, 0);
+    }
     // bit[1] analog in
     TP2825_Set_Pclk((pclk_phase[source] >> 1) & 1);
 
@@ -672,6 +675,30 @@ void Display_1080P30_t(int mode) {
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
+void Display_1080P24_t(int mode) {
+    screen.display(0);
+    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
+
+    system_exec("dispw -s vdpo 1080p60");
+    g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
+    vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
+    pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30);
+
+    I2C_Write(ADDR_FPGA, 0x80, 0x84);
+    // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
+
+    DM5680_SetFPS(mode);
+    screen.mfpga.set1080p30();
+    screen.vtmg(2);
+
+    I2C_Write(ADDR_FPGA, 0x8C, 0x01);
+
+    g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
+    Display_VO_SWITCH(1);
+    screen.display(1);
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+}
+
 void Display_720P60_50(int mode, uint8_t is_43) {
     pthread_mutex_lock(&hardware_mutex);
     Display_720P60_50_t(mode, is_43);
@@ -681,6 +708,12 @@ void Display_720P60_50(int mode, uint8_t is_43) {
 void Display_720P90(int mode) {
     pthread_mutex_lock(&hardware_mutex);
     Display_720P90_t(mode);
+    pthread_mutex_unlock(&hardware_mutex);
+}
+
+void Display_1080P24(int mode) {
+    pthread_mutex_lock(&hardware_mutex);
+    Display_1080P24_t(mode);
     pthread_mutex_unlock(&hardware_mutex);
 }
 

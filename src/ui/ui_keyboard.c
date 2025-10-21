@@ -98,9 +98,9 @@ void keyboard_init() {
         lv_keyboard_set_textarea(g_keyboard.input, g_keyboard.text);
 
         // Placement
-        lv_obj_align(g_keyboard.text, LV_ALIGN_BOTTOM_MID, 0, -372);
-        lv_obj_set_size(g_keyboard.input, 1416, 374);
-        lv_obj_set_size(g_keyboard.text, 1416, 60);
+        lv_obj_align(g_keyboard.text, LV_ALIGN_BOTTOM_MID, UI_KEYBOARD_TEXT_ALIGN);
+        lv_obj_set_size(g_keyboard.input, UI_KEYBOARD_INPUT_SIZE);
+        lv_obj_set_size(g_keyboard.text, UI_KEYBOARD_TEXT_SIZE);
 
         // Layout
         lv_textarea_set_one_line(g_keyboard.text, true);
@@ -113,12 +113,13 @@ void keyboard_init() {
         lv_obj_add_style(g_keyboard.input, &style_keyboard[KB_STYLE_KEY], LV_PART_ITEMS | LV_STATE_CHECKED);
         lv_obj_add_style(g_keyboard.text, &style_keyboard[KB_STYLE_TEXT], LV_PART_MAIN);
         lv_obj_add_style(g_keyboard.text, &style_keyboard[KB_STYLE_CURSOR], LV_PART_CURSOR | LV_STATE_FOCUSED);
+        lv_obj_set_style_bg_color(g_keyboard.input, lv_color_hex(UI_KEYBOARD_INPUT_BG_COLOR), LV_PART_ITEMS);
 
         // Help - Dial Scroll
         g_keyboard.dial_scroll_img = lv_img_create(lv_scr_act());
         lv_obj_add_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_FLOATING);
         lv_obj_clear_flag(g_keyboard.dial_scroll_img, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_set_pos(g_keyboard.dial_scroll_img, 520, 100);
+        lv_obj_set_pos(g_keyboard.dial_scroll_img, UI_KEYBOARD_DIAL_SCROLL_IMG_POS);
         osd_resource_path(filename, "%s", OSD_RESOURCE_720, DIAL_SCROLL_IMG);
         lv_img_set_src(g_keyboard.dial_scroll_img, filename);
 
@@ -127,13 +128,13 @@ void keyboard_init() {
         lv_label_set_text(g_keyboard.dial_scroll_text, _lang("Highlight Key"));
         lv_obj_set_style_text_font(g_keyboard.dial_scroll_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_scroll_text, LV_TEXT_ALIGN_LEFT, 0);
-        lv_obj_set_pos(g_keyboard.dial_scroll_text, 620, 130);
+        lv_obj_set_pos(g_keyboard.dial_scroll_text, UI_KEYBOARD_DIAL_SCOLLER_TEXT_POS);
 
         // Help - Dial Click
         g_keyboard.dial_click_img = lv_img_create(lv_scr_act());
         lv_obj_add_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_FLOATING);
         lv_obj_clear_flag(g_keyboard.dial_click_img, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_set_pos(g_keyboard.dial_click_img, 920, 100);
+        lv_obj_set_pos(g_keyboard.dial_click_img, UI_KEYBOARD_DIAL_CLICK_IMG_POS);
         osd_resource_path(filename, "%s", OSD_RESOURCE_720, DIAL_CLICK_IMG);
         lv_img_set_src(g_keyboard.dial_click_img, filename);
 
@@ -142,14 +143,14 @@ void keyboard_init() {
         lv_label_set_text(g_keyboard.dial_click_text, _lang("Select Key"));
         lv_obj_set_style_text_font(g_keyboard.dial_click_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.dial_click_text, LV_TEXT_ALIGN_LEFT, 0);
-        lv_obj_set_pos(g_keyboard.dial_click_text, 1020, 130);
+        lv_obj_set_pos(g_keyboard.dial_click_text, UI_KEYBOARD_DIAL_CLICK_TEXT_POS);
         lv_label_set_recolor(g_keyboard.dial_click_text, true);
 
         // Help - Right Button
         g_keyboard.right_button_img = lv_img_create(lv_scr_act());
         lv_obj_add_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_FLOATING);
         lv_obj_clear_flag(g_keyboard.right_button_img, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_set_pos(g_keyboard.right_button_img, 1270, 100);
+        lv_obj_set_pos(g_keyboard.right_button_img, UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_POS);
         osd_resource_path(filename, "%s", OSD_RESOURCE_720, RIGHT_BUTTON_IMG);
         lv_img_set_src(g_keyboard.right_button_img, filename);
 
@@ -159,7 +160,7 @@ void keyboard_init() {
         lv_label_set_text(g_keyboard.right_button_text, buf);
         lv_obj_set_style_text_font(g_keyboard.right_button_text, UI_MENU_ENTRY_FONT, 0);
         lv_obj_set_style_text_align(g_keyboard.right_button_text, LV_TEXT_ALIGN_LEFT, 0);
-        lv_obj_set_pos(g_keyboard.right_button_text, 1360, 116);
+        lv_obj_set_pos(g_keyboard.right_button_text, UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_TEXT);
         lv_label_set_recolor(g_keyboard.right_button_text, true);
 
         keyboard_close();
