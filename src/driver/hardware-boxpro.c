@@ -250,7 +250,7 @@ void csic_pclk_invert_set(uint8_t is_invert) {
 void pclk_phase_set(video_source_t source) {
     LOGI("pclk_phase_set %d", pclk_phase[source]);
     // bit[0] hdmi in
-    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1);
+    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1, 0);
 
     // bit[1] analog in
     // TP2825_Set_Pclk((pclk_phase[source] >> 1) & 1);
