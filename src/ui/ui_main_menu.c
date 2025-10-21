@@ -68,7 +68,11 @@ static page_pack_t *find_pp(lv_obj_t *page) {
 
 static void select_menu_tab(page_pack_t *pp) {
     lv_obj_clear_flag(pp->icon, LV_OBJ_FLAG_HIDDEN);
+#ifdef HDZBOXPRO
+    lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_20, LV_STATE_CHECKED);
+#else
     lv_obj_set_style_bg_opa(((lv_menu_t *)menu)->selected_tab, LV_OPA_50, LV_STATE_CHECKED);
+#endif
 }
 
 static void deselect_menu_tab(page_pack_t *pp) {
@@ -262,6 +266,7 @@ static void main_menu_create_entry(lv_obj_t *menu, lv_obj_t *section, page_pack_
     pp->label = lv_label_create(cont);
     lv_label_set_text(pp->label, _lang(pp->name));
     lv_obj_set_style_text_font(pp->label, UI_MENU_ENTRY_FONT, 0);
+    lv_obj_set_style_text_color(pp->label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_label_set_long_mode(pp->label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
     pp->icon = lv_img_create(cont);

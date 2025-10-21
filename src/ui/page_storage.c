@@ -425,7 +425,7 @@ static lv_obj_t *page_storage_create(lv_obj_t *parent, panel_arr_t *arr) {
     page_storage.note = lv_label_create(cont);
     lv_obj_set_style_text_font(page_storage.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_storage.note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(page_storage.note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(page_storage.note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(page_storage.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_storage.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_storage.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 5, 2);

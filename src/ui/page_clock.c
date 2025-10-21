@@ -152,6 +152,9 @@ static void page_clock_create_dropdown(lv_obj_t *parent,
     page_clock_items[item].data.obj = create_dropdown_item(parent, page_clock_options[item].list, col, row, UI_PAGE_DROPDOWN_SIZE, 1, 4, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     page_clock_items[item].type = ITEM_TYPE_OBJ;
 
+#ifdef HDZBOXPRO
+    lv_obj_set_style_border_color(page_clock_items[item].data.obj, lv_color_hex(0x606060), 0);
+#endif
     int index = page_clock_get_dropdown_index(item, text);
     if (index != -1) {
         lv_dropdown_set_selected(page_clock_items[item].data.obj, index);
@@ -166,7 +169,7 @@ static lv_obj_t *page_clock_create_datetime_item_attr(lv_obj_t *parent, int row)
     lv_label_set_text(label, "");
     lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0);
-    lv_obj_set_style_text_color(label, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label, UI_CLOCK_DATE_PAD, 0);
     lv_obj_set_style_pad_left(label, 0, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
@@ -402,7 +405,7 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_label_set_text(note, buf);
         lv_obj_set_style_text_font(note, UI_PAGE_LABEL_FONT, 0);
         lv_obj_set_style_text_align(note, LV_TEXT_ALIGN_LEFT, 0);
-        lv_obj_set_style_text_color(note, lv_color_make(255, 255, 255), 0);
+        lv_obj_set_style_text_color(note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
         lv_obj_set_style_pad_top(note, UI_PAGE_TEXT_PAD, 0);
         lv_label_set_long_mode(note, LV_LABEL_LONG_WRAP);
         lv_obj_set_grid_cell(note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
@@ -422,6 +425,10 @@ static void page_clock_enter() {
     lv_obj_add_style(page_clock_items[ITEM_YEAR].data.obj, &style_dropdown, LV_PART_MAIN);
     page_clock_refresh_ui_timer = lv_timer_create(page_clock_refresh_ui_timer_cb, 250, NULL);
     lv_timer_set_repeat_count(page_clock_refresh_ui_timer, -1);
+
+#ifdef HDZBOXPRO
+    lv_obj_set_style_border_color(page_clock_items[0].data.obj, lv_palette_main(LV_PALETTE_RED), 0);
+#endif
 }
 
 /**
@@ -449,6 +456,12 @@ static void page_clock_exit() {
     page_clock_item_focused = 0;
     page_clock_set_clock_confirm = 0;
     page_clock_item_selected = ITEM_YEAR;
+
+#ifdef HDZBOXPRO
+    for (int i = 0; i < 6; i++) {
+        lv_obj_set_style_border_color(page_clock_items[i].data.obj, lv_color_hex(0x606060), 0);
+    }
+#endif
 }
 
 /**
@@ -500,6 +513,15 @@ static void page_clock_on_roller(uint8_t key) {
         }
         break;
     }
+#ifdef HDZBOXPRO
+    for (int i = 0; i < 6; i++) {
+        if (i == page_clock_item_selected) {
+            lv_obj_set_style_border_color(page_clock_items[i].data.obj, lv_palette_main(LV_PALETTE_RED), 0);
+        } else {
+            lv_obj_set_style_border_color(page_clock_items[i].data.obj, lv_color_hex(0x606060), 0);
+        }
+    }
+#endif
 }
 
 /**
@@ -543,6 +565,10 @@ static void page_clock_on_click(uint8_t key, int sel) {
             lv_dropdown_open(page_clock_items[page_clock_item_selected].data.obj);
             lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
             lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
+#ifdef HDZBOXPRO
+            lv_obj_set_style_bg_color(list, lv_color_hex(TEXT_COLOR_DEFAULT), LV_PART_SELECTED | LV_STATE_CHECKED);
+            lv_obj_set_style_bg_color(list, lv_color_hex(0x000000), LV_PART_SCROLLBAR);
+#endif
             page_clock_item_focused = 1;
         } else {
             lv_event_send(page_clock_items[page_clock_item_selected].data.obj, LV_EVENT_RELEASED, NULL);
