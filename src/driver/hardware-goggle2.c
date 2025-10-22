@@ -456,7 +456,12 @@ void vclk_phase_set(video_source_t source, uint8_t reg_8d_sel) {
     else
         I2C_Write(ADDR_FPGA, 0x8d, (vclk_phase[source] >> 24) & 0xff);
 
-    I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[source] >> 16) & 0xff);
+    if (source == VIDEO_SOURCE_HDZERO_IN_720P60_50 || source == VIDEO_SOURCE_HDZERO_IN_720P90) {
+        I2C_Write(ADDR_FPGA, 0x8e, 0x01);
+    } else {
+        I2C_Write(ADDR_FPGA, 0x8e, (vclk_phase[source] >> 16) & 0xff);
+    }
+
     I2C_Write(ADDR_AL, 0x14, (vclk_phase[source] >> 8) & 0xff);
 
     IT66121_set_phase(vclk_phase[source] & 3, 0);
@@ -584,7 +589,7 @@ void Display_UI_init() {
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
     screen.vtmg(0);
-    system_exec("aww 0x0300b084 0x00015565"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
+    system_exec("aww 0x0300b084 0x00002aaa"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
     I2C_Write(ADDR_FPGA, 0xa7, 0x00);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
