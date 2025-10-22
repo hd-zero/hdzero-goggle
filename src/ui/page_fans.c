@@ -469,7 +469,7 @@ page_pack_t pp_fans = {
         .cur = 0,
         .max = 4,
     },
-    .name = "Fan Control",
+    .name = "Fans",
     .create = page_fans_create,
     .enter = NULL,
     .exit = page_fans_mode_exit,
