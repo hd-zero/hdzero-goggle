@@ -83,6 +83,10 @@ void app_exit_menu() {
 }
 
 void app_switch_to_analog(bool is_av_in) {
+#ifdef HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
+
     dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
     osd_show(true);
@@ -117,6 +121,10 @@ void app_switch_to_analog(bool is_av_in) {
 }
 
 void app_switch_to_hdmi_in() {
+#if defined HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
+
 #if defined HDZBOXPRO
     // Restore image settings from av module
     screen.brightness(g_setting.image.oled);
@@ -157,6 +165,10 @@ void app_switch_to_hdmi_in() {
 //    false = user selected from auto scan page
 void app_switch_to_hdzero(bool is_default) {
     int ch;
+
+#if defined HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
 
 #if defined HDZBOXPRO
     // Restore image settings from av module
