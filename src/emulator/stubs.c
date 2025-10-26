@@ -27,12 +27,9 @@ void media_exit(media_t *media) {}
 
 #if HDZGOGGLE
 void Display_HDZ(int mode, int is_43) {}
-void RTC6715_Open(int on) {}
-void RTC6715_SetCH(int ch) {}
-int RTC6715_GetRssi() {}
-void gpadc_init() {}
 #elif HDZBOXPRO
 void Display_720P90(int mode) {}
 void Display_720P60_50(int mode, uint8_t is_43) {}
 void Display_1080P30(int mode) {}
+void Display_1080P24(int mode) {}
 #endif

@@ -50,6 +50,12 @@ echo "**********************************************"
 cmake . -DHDZ_BOXPRO=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=toolchain/share/buildroot/toolchainfile.cmake -Bbuild_boxpro
 
 echo
+echo "**********************************************"
+echo "Preparing HDZero Goggle2 Build Environment....."
+echo "**********************************************"
+cmake . -DHDZ_GOGGLE2=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=toolchain/share/buildroot/toolchainfile.cmake -Bbuild_goggle2
+
+echo
 echo "****************************************"
 echo "*** HDZero Goggle Build Instructions ***"
 echo "****************************************"
@@ -60,3 +66,9 @@ echo "****************************************"
 echo "*** HDZero BoxPro Build Instructions ***"
 echo "****************************************"
 echo "cd build_boxpro; make -j"
+
+echo
+echo "****************************************"
+echo "*** HDZero Goggle2 Build Instructions ***"
+echo "****************************************"
+echo "cd build_goggle2; make -j"

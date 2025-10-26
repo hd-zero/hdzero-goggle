@@ -1,6 +1,6 @@
 #include "gpadc.h"
 
-#if HDZBOXPRO
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
 
 #include <stdint.h>
 #include <stdio.h>
@@ -67,5 +67,8 @@ int gpdac0_get() {
     fclose(file);
     return -1;
 }
-
+#else
+void gpadc_init() {}
+void gpadc_on(uint8_t is_on) {}
+int gpdac0_get() {}
 #endif

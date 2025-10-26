@@ -22,22 +22,27 @@
 #include "ui/ui_main_menu.h"
 #include "ui/ui_porting.h"
 #include "ui/ui_style.h"
+#include <log/log.h>
 
 enum {
+
+    ROW_GOGGLE_ANALOG_MODULE = -1,
     ROW_GOGGLE_HDZERO = 0,
     ROW_GOGGLE_ANALOG,
     ROW_GOGGLE_HDMI,
     ROW_GOGGLE_AV,
     ROW_GOGGLE_HDZ_BAND,
     ROW_GOGGLE_HDZ_WIDTH,
-    ROW_GOGGLE_ANALOG_RATIO,
     ROW_GOGGLE_ANALOG_VIDEO,
+    ROW_GOGGLE_ANALOG_RATIO,
     ROW_GOGGLE_TEST_PATTERN,
     ROW_GOGGLE_BACK,
     ROW_GOGGLE_COUNT
 };
 
 enum {
+
+    ROW_BOXPRO_ANALOG_MODULE = -2,
     ROW_BOXPRO_ANALOG_VIDEO = -1,
     ROW_BOXPRO_HDZERO = 0,
     ROW_BOXPRO_ANALOG,
@@ -51,19 +56,33 @@ enum {
     ROW_BOXPRO_COUNT
 };
 
-#if HDZGOGGLE
+enum {
+    ROW_GOGGLE2_HDZERO = 0,
+    ROW_GOGGLE2_ANALOG,
+    ROW_GOGGLE2_HDMI,
+    ROW_GOGGLE2_AV,
+    ROW_GOGGLE2_HDZ_BAND,
+    ROW_GOGGLE2_HDZ_WIDTH,
+    ROW_GOGGLE2_ANALOG_MODULE,
+    ROW_GOGGLE2_ANALOG_RATIO,
+    ROW_GOGGLE2_TEST_PATTERN,
+    ROW_GOGGLE2_BACK,
+    ROW_GOGGLE2_COUNT
+};
+
+#if defined(HDZGOGGLE)
 #define ROW_HDZERO       ROW_GOGGLE_HDZERO
 #define ROW_ANALOG       ROW_GOGGLE_ANALOG
 #define ROW_HDMI         ROW_GOGGLE_HDMI
 #define ROW_AV           ROW_GOGGLE_AV
 #define ROW_HDZ_BAND     ROW_GOGGLE_HDZ_BAND
 #define ROW_HDZ_WIDTH    ROW_GOGGLE_HDZ_WIDTH
-#define ROW_ANALOG_RATIO ROW_GOGGLE_ANALOG_RATIO
 #define ROW_ANALOG_VIDEO ROW_GOGGLE_ANALOG_VIDEO
+#define ROW_ANALOG_RATIO ROW_GOGGLE_ANALOG_RATIO
 #define ROW_TEST_PATTERN ROW_GOGGLE_TEST_PATTERN
 #define ROW_BACK         ROW_GOGGLE_BACK
 #define ROW_COUNT        ROW_GOGGLE_COUNT
-#elif HDZBOXPRO
+#elif defined(HDZBOXPRO)
 #define ROW_HDZERO       ROW_BOXPRO_HDZERO
 #define ROW_ANALOG       ROW_BOXPRO_ANALOG
 #define ROW_HDMI         ROW_BOXPRO_HDMI
@@ -71,10 +90,21 @@ enum {
 #define ROW_HDZ_BAND     ROW_BOXPRO_HDZ_BAND
 #define ROW_HDZ_WIDTH    ROW_BOXPRO_HDZ_WIDTH
 #define ROW_ANALOG_RATIO ROW_BOXPRO_ANALOG_RATIO
-#define ROW_ANALOG_VIDEO ROW_BOXPRO_ANALOG_VIDEO
 #define ROW_TEST_PATTERN ROW_BOXPRO_TEST_PATTERN
 #define ROW_BACK         ROW_BOXPRO_BACK
 #define ROW_COUNT        ROW_BOXPRO_COUNT
+#elif defined(HDZGOGGLE2)
+#define ROW_HDZERO        ROW_GOGGLE2_HDZERO
+#define ROW_ANALOG        ROW_GOGGLE2_ANALOG
+#define ROW_HDMI          ROW_GOGGLE2_HDMI
+#define ROW_AV            ROW_GOGGLE2_AV
+#define ROW_HDZ_BAND      ROW_GOGGLE2_HDZ_BAND
+#define ROW_HDZ_WIDTH     ROW_GOGGLE2_HDZ_WIDTH
+#define ROW_ANALOG_MODULE ROW_GOGGLE2_ANALOG_MODULE
+#define ROW_ANALOG_RATIO  ROW_GOGGLE2_ANALOG_RATIO
+#define ROW_TEST_PATTERN  ROW_GOGGLE2_TEST_PATTERN
+#define ROW_BACK          ROW_GOGGLE2_BACK
+#define ROW_COUNT         ROW_GOGGLE2_COUNT
 #endif
 
 // local
@@ -127,33 +157,31 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group2, cont, 2, _lang("HDZero BW"), _lang("Wide"), _lang("Narrow"), "", "", ROW_HDZ_WIDTH);
     btn_group_set_sel(&btn_group2, g_setting.source.hdzero_bw);
 
+#if defined(HDZGOGGLE)
+    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", ROW_ANALOG_VIDEO);
+    btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
+#elif defined(HDZGOGGLE2)
+    create_btn_group_item(&btn_group2, cont, 2, _lang("Analog Module"), _lang("Built-in"), _lang("Expansion"), "", "", ROW_ANALOG_MODULE);
+    btn_group_set_sel(&btn_group2, g_setting.source.analog_module);
+#endif
+
     create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", ROW_ANALOG_RATIO);
     btn_group_set_sel(&btn_group3, g_setting.source.analog_ratio);
 
-    if (ROW_ANALOG_VIDEO > 0) {
-        create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", ROW_ANALOG_VIDEO);
-        btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
-    }
-
-    // By default this Row is hidden unless selftest is detected.
-    label[4] = create_label_item(cont, "Display Pattern: Normal", 1, ROW_TEST_PATTERN, 3);
-    lv_obj_add_flag(label[4], LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(pp_source.p_arr.panel[ROW_TEST_PATTERN], FLAG_SELECTABLE);
     if (g_setting.storage.selftest) {
-        lv_obj_clear_flag(label[4], LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(pp_source.p_arr.panel[ROW_TEST_PATTERN], FLAG_SELECTABLE);
+        label[4] = create_label_item(cont, "Display Pattern: Normal", 1, ROW_TEST_PATTERN, 3);
     }
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, ROW_BACK, 3);
-    pp_source.p_arr.max = ROW_COUNT;
+    create_label_item(cont, buf, 1, ROW_BACK - 1 + g_setting.storage.selftest, 3);
+    pp_source.p_arr.max = ROW_COUNT - 1 + g_setting.storage.selftest;
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        label[5] = create_label_item(cont, _lang("Analog input requires Expansion Module"), 1, ROW_COUNT, 3);
-        lv_obj_set_style_text_font(label[5], UI_PAGE_LABEL_FONT, 0);
-        lv_obj_set_style_pad_top(label[5], UI_PAGE_TEXT_PAD, 0);
-    }
-
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    label[5] = create_label_item(cont, _lang("Analog input requires Expansion Module"), 1, ROW_COUNT, 3);
+    lv_obj_set_style_text_font(label[5], UI_PAGE_LABEL_FONT, 0);
+    lv_obj_set_style_pad_top(label[5], UI_PAGE_TEXT_PAD, 0);
+#endif
+    LOGI("pp_source.p_arr.max: %d", pp_source.p_arr.max);
     return page;
 }
 
@@ -188,11 +216,17 @@ void source_status_timer() {
     }
     lv_label_set_text(label[0], buf);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), state2string(g_source_info.av_bay_status));
-    } else if (TARGET_BOXPRO == getTargetType()) {
+#if defined(HDZGOGGLE)
+    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), state2string(g_source_info.av_bay_status));
+#elif defined(HDZBOXPRO)
+    snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#elif defined(HDZGOGGLE2)
+    if (g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_INTERNAL) {
         snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+    } else {
+        snprintf(buf, sizeof(buf), "%s: %s", _lang("Analog"), _lang("Expansion Module"));
     }
+#endif
     lv_label_set_text(label[1], buf);
 
     snprintf(buf, sizeof(buf), "HDMI %s: %s", _lang("In"), state2string(g_source_info.hdmi_in_status));
@@ -215,7 +249,7 @@ static void page_source_select_hdzero() {
     app_switch_to_hdzero(true);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_HDZERO;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
@@ -225,18 +259,18 @@ static void page_source_select_hdmi() {
 }
 
 static void page_source_select_av_in() {
-    app_switch_to_analog(SOURCE_AV_IN);
+    app_switch_to_analog(1);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_IN;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
 static void page_source_select_analog() {
-    app_switch_to_analog(SOURCE_AV_MODULE);
+    app_switch_to_analog(0);
     app_state_push(APP_STATE_VIDEO);
     g_source_info.source = SOURCE_AV_MODULE;
-    dvr_select_audio_source(2);
+    dvr_select_audio_source(g_setting.record.audio_source);
     dvr_enable_line_out(true);
 }
 
@@ -283,44 +317,60 @@ void source_cycle() {
 }
 
 static void page_source_on_click(uint8_t key, int sel) {
-    if (sel == ROW_HDZERO) {
+    switch (sel) {
+    case ROW_HDZERO:
         page_source_select_hdzero();
-    } else if (sel == ROW_ANALOG) {
+        break;
+    case ROW_ANALOG:
         page_source_select_analog();
-    } else if (sel == ROW_HDMI) {
-        app_switch_to_hdmi_in();
-    } else if (sel == ROW_AV) {
+        break;
+    case ROW_HDMI:
+        page_source_select_hdmi();
+        break;
+    case ROW_AV:
         page_source_select_av_in();
-    } else if (sel == ROW_HDZ_BAND) {
+        break;
+    case ROW_HDZ_BAND:
         btn_group_toggle_sel(&btn_group1);
         g_setting.source.hdzero_band = btn_group_get_sel(&btn_group1);
         page_scannow_set_channel_label();
         ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
-    } else if (sel == ROW_HDZ_WIDTH) {
+        break;
+    case ROW_HDZ_WIDTH:
         btn_group_toggle_sel(&btn_group2);
         g_setting.source.hdzero_bw = btn_group_get_sel(&btn_group2);
         ini_putl("source", "hdzero_bw", g_setting.source.hdzero_bw, SETTING_INI);
-    } else if (sel == ROW_ANALOG_RATIO) {
-        btn_group_toggle_sel(&btn_group3);
-        g_setting.source.analog_ratio = btn_group_get_sel(&btn_group3);
-        ini_putl("source", "analog_ratio", g_setting.source.analog_ratio, SETTING_INI);
-    } else if (sel == ROW_ANALOG_VIDEO) {
+        break;
+#if defined(HDZGOGGLE)
+    case ROW_ANALOG_VIDEO:
         btn_group_toggle_sel(&btn_group0);
         g_setting.source.analog_format = btn_group_get_sel(&btn_group0);
         ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
-    } else if (sel == ROW_TEST_PATTERN) {
+        break;
+#elif defined(HDZGOGGLE2)
+    case ROW_ANALOG_MODULE:
+        btn_group_toggle_sel(&btn_group2);
+        g_setting.source.analog_module = btn_group_get_sel(&btn_group2);
+        ini_putl("source", "analog_module", g_setting.source.analog_module, SETTING_INI);
+        break;
+#endif
+    case ROW_ANALOG_RATIO:
+        btn_group_toggle_sel(&btn_group3);
+        g_setting.source.analog_ratio = btn_group_get_sel(&btn_group3);
+        ini_putl("source", "analog_ratio", g_setting.source.analog_ratio, SETTING_INI);
+        break;
+    case ROW_TEST_PATTERN:
         if (g_setting.storage.selftest && label[4]) {
             uint8_t oled_te = (oled_tst_mode != 0);
             uint8_t oled_tm = (oled_tst_mode & 0x0F) - 1;
             // LOGI("OLED TE=%d,TM=%d",oled_te,oled_tm);
-            Screen_Pattern(oled_te, oled_tm, 4);
+            screen.pattern(oled_te, oled_tm, 4);
             if (++oled_tst_mode > 5) {
                 oled_tst_mode = 0;
             }
         }
+        break;
     }
-
-    Analog_Module_Power(0);
 }
 
 static void page_source_enter() {
@@ -330,7 +380,7 @@ static void page_source_enter() {
 static void page_source_exit() {
     // LOGI("page_source_exit %d",oled_tst_mode);
     if ((oled_tst_mode != 0) && g_setting.storage.selftest) {
-        Screen_Pattern(0, 0, 4);
+        screen.pattern(0, 0, 4);
         oled_tst_mode = 0;
     }
     in_sourcepage = false;

@@ -514,7 +514,7 @@ void csic_pclk_invert_set(uint8_t is_invert) {
 void pclk_phase_set(video_source_t source) {
     LOGI("pclk_phase_set %d", pclk_phase[source]);
     // bit[0] hdmi in
-    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1);
+    IT66021_Set_Pclk((pclk_phase[source] >> 0) & 1, 0);
 
     // bit[1] analog in
     TP2825_Set_Pclk((pclk_phase[source] >> 1) & 1);
@@ -539,7 +539,7 @@ void hw_stat_init() {
     g_hw_stat.hdzero_open = 0;
     g_hw_stat.m0_open = 0;
 
-    g_hw_stat.av_chid = 0;
+    g_hw_stat.is_av_in = 1;
     g_hw_stat.av_pal[0] = g_hw_stat.av_pal[1] = g_hw_stat.av_pal_w = 0;
     g_hw_stat.av_valid[0] = g_hw_stat.av_valid[1] = 0;
 
@@ -562,9 +562,9 @@ void Display_VO_SWITCH(uint8_t sel) // 0 = UI;  1 = HDZERO or AV_in or HDMI_in
     I2C_Write(ADDR_FPGA, 0x06, 0x0F);
 }
 
-void Screen_ON(int bON) {
+void hw_screen_on(int bON) {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(bON);
+    screen.display(bON);
     pthread_mutex_unlock(&hardware_mutex);
 }
 
@@ -581,24 +581,24 @@ void Display_UI_init() {
     I2C_Write(ADDR_FPGA, 0x80, 0x00);
     I2C_Write(ADDR_FPGA, 0x84, 0x11);
 
-    OLED_SetTMG(0);
+    screen.vtmg(0);
     system_exec("aww 0x0300b084 0x00001565"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_UI() {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(0);
+    screen.display(0);
 
     Display_UI_init();
 
-    Screen_Display(1);
+    screen.display(1);
     pthread_mutex_unlock(&hardware_mutex);
 }
 
 void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 {
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     system_exec("dispw -s vdpo 720p60");
@@ -609,22 +609,23 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
     I2C_Write(ADDR_FPGA, 0x80, (mode == VR_540P60) ? 0x01 : 0x00);
 
     DM5680_SetFPS(mode);
-    if (mode == VR_540P60)
-        MFPGA_Set540P60();
-    else
-        MFPGA_Set720P60(mode, is_43);
-    OLED_SetTMG(1);
+    if (mode == VR_540P60) {
+        screen.mfpga.set540p60();
+    } else {
+        screen.mfpga.set720p60(mode, is_43);
+    }
+    screen.vtmg(1);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_720P90_t(int mode) {
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     system_exec("dispw -s vdpo 720p90");
@@ -634,19 +635,19 @@ void Display_720P90_t(int mode) {
     I2C_Write(ADDR_FPGA, 0x80, 0x03);
 
     DM5680_SetFPS(mode);
-    MFPGA_Set720P90(mode);
-    OLED_SetTMG(1);
+    screen.mfpga.set720p90(mode);
+    screen.vtmg(1);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
 void Display_1080P30_t(int mode) {
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     system_exec("dispw -s vdpo 1080p60");
@@ -658,14 +659,38 @@ void Display_1080P30_t(int mode) {
     // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
 
     DM5680_SetFPS(mode);
-    MFPGA_Set1080P30();
-    OLED_SetTMG(2);
+    screen.mfpga.set1080p30();
+    screen.vtmg(2);
 
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
+    system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+}
+
+void Display_1080P24_t(int mode) {
+    screen.display(0);
+    I2C_Write(ADDR_FPGA, 0x8C, 0x00);
+
+    system_exec("dispw -s vdpo 1080p60");
+    g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
+    vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30, 0);
+    pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_1080P30);
+
+    I2C_Write(ADDR_FPGA, 0x80, 0x84);
+    // I2C_Write(ADDR_FPGA, 0x84, 0x00); // close OSD
+
+    DM5680_SetFPS(mode);
+    screen.mfpga.set1080p30();
+    screen.vtmg(2);
+
+    I2C_Write(ADDR_FPGA, 0x8C, 0x01);
+
+    g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
+    Display_VO_SWITCH(1);
+    screen.display(1);
     system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
 }
 
@@ -678,6 +703,12 @@ void Display_720P60_50(int mode, uint8_t is_43) {
 void Display_720P90(int mode) {
     pthread_mutex_lock(&hardware_mutex);
     Display_720P90_t(mode);
+    pthread_mutex_unlock(&hardware_mutex);
+}
+
+void Display_1080P24(int mode) {
+    pthread_mutex_lock(&hardware_mutex);
+    Display_1080P24_t(mode);
     pthread_mutex_unlock(&hardware_mutex);
 }
 
@@ -697,8 +728,8 @@ void HDZero_open(int bw) {
         DM6302_init(0, g_hw_stat.hdz_bw);
         DM5680_SetBB(1);
         g_hw_stat.hdzero_open = 1;
+        LOGI("HDZero: open");
     }
-    LOGI("HDZero: open");
 }
 
 void HDZero_Close() {
@@ -740,16 +771,19 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
                 break;
             case VR_1080P30:
                 Display_1080P30_t(CAM_MODE);
-
                 break;
+            case VR_1080P24:
+                Display_1080P24_t(CAM_MODE);
+                break;
+
             default:
                 LOGW("cam_mode =%d not suppored!!\n ", CAM_MODE);
                 break;
             }
 
-            if (CAM_MODE == VR_1080P30)
+            if (CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24)
                 fhd_req = 1;
-            else if (cam_mode_last == VR_1080P30)
+            else if (cam_mode_last == VR_1080P30 || cam_mode_last == VR_1080P24)
                 fhd_req = -1;
             dvr_update_vi_conf(CAM_MODE);
             system_script(REC_STOP_LIVE);
@@ -762,9 +796,9 @@ int HDZERO_detect() // return = 1: vtmg to V536 changed
             cam_4_3_last = cam_4_3;
 
             if (CAM_MODE != VR_720P50)
-                MFPGA_SetRatio(cam_4_3);
+                screen.mfpga.set_ratio(cam_4_3);
             else
-                MFPGA_SetRatio(0);
+                screen.mfpga.set_ratio(0);
         }
     }
     pthread_mutex_unlock(&hardware_mutex);
@@ -789,28 +823,24 @@ void AV_Mode_Switch(int is_pal) {
     int tmg = is_pal ? VDPO_TMG_720P50 : VDPO_TMG_720P60;
 
     if (g_hw_stat.vdpo_tmg != tmg) {
-        Screen_Display(0);
+        screen.display(0);
         AV_Mode_Switch_fpga(is_pal);
-        Screen_Display(1);
+        screen.display(1);
     }
 }
 
-void Source_AV(source_t mode) // 0=AV in, 1=AV module
-{
+void Source_AV(bool is_av_in) {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
-    g_hw_stat.av_chid = SOURCE_AV_MODULE == mode ? 1 : 0;
+    g_hw_stat.is_av_in = is_av_in;
 
-    TP2825_init(mode, g_setting.source.analog_format);
+    TP2825_init(is_av_in, g_setting.source.analog_format);
 
-    // TP2825_Switch_Mode(g_hw_stat.av_pal[g_hw_stat.av_chid]);
     TP2825_Switch_Mode(g_setting.source.analog_format);
-    TP2825_Switch_CH(mode);
+    TP2825_Switch_CH(is_av_in);
 
-    // AV_Mode_Switch_fpga(g_hw_stat.av_pal[g_hw_stat.av_chid]);
-    // g_hw_stat.av_pal_w = g_hw_stat.av_pal[g_hw_stat.av_chid];
     AV_Mode_Switch_fpga(g_setting.source.analog_format);
     g_hw_stat.av_pal_w = g_setting.source.analog_format;
 
@@ -820,7 +850,7 @@ void Source_AV(source_t mode) // 0=AV in, 1=AV module
     I2C_Write(ADDR_FPGA, 0x89, 0x01);
 
     HDZero_Close();
-    OLED_SetTMG(1);
+    screen.vtmg(1);
 
     if (g_setting.source.analog_ratio == SETTING_SOURCES_ANALOG_RATIO_4_3)
         I2C_Write(ADDR_FPGA, 0x8f, 0x80); // bit[7]: 0=16:9, 1=original
@@ -831,7 +861,7 @@ void Source_AV(source_t mode) // 0=AV in, 1=AV module
 
     g_hw_stat.source_mode = SOURCE_MODE_AV;
     Display_VO_SWITCH(1);
-    Screen_Display(1);
+    screen.display(1);
 
     pthread_mutex_unlock(&hardware_mutex);
 }
@@ -857,11 +887,11 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
         if (det_last != det) {
             det_last = det;
         } else {
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = det;
-            g_hw_stat.av_pal[g_hw_stat.av_chid] = ((rdat & 0xAC) == 0x2c) ? 1 : 0;
+            g_hw_stat.av_valid[g_hw_stat.is_av_in] = det;
+            g_hw_stat.av_pal[g_hw_stat.is_av_in] = ((rdat & 0xAC) == 0x2c) ? 1 : 0;
 
-            g_hw_stat.av_chid = g_hw_stat.av_chid ? 0 : 1;
-            TP2825_Switch_CH(g_hw_stat.av_chid ? SOURCE_AV_MODULE : SOURCE_AV_IN);
+            g_hw_stat.is_av_in = 1 - g_hw_stat.is_av_in;
+            TP2825_Switch_CH(g_hw_stat.is_av_in);
             det_last = -1;
         }
 
@@ -880,19 +910,18 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             g_hw_stat.av_pal_w = g_hw_stat.av_pal_w ? 0 : 1;
 
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
-            // LOGI("Switch mode:%d", g_hw_stat.av_pal_w);
 
-            if (g_hw_stat.av_pal[g_hw_stat.av_chid])
+            if (g_hw_stat.av_pal[g_hw_stat.is_av_in])
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
-            if (g_hw_stat.av_pal_w == g_hw_stat.av_pal[g_hw_stat.av_chid])
+            if (g_hw_stat.av_pal_w == g_hw_stat.av_pal[g_hw_stat.is_av_in])
                 I2C_Write(ADDR_FPGA, 0x89, 0x01);
             else
                 I2C_Write(ADDR_FPGA, 0x89, 0x00);
 
-            g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+            g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
 
             LOGI("AV_in_detect -- switch: av_pal = %d,  rdat = %02x\n", g_hw_stat.av_pal_w, rdat);
         } else {
@@ -901,24 +930,24 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             h_lock = ((rdat & 0x28) == 0x28) ? 1 : 0;
             vh_lock = ((rdat & 0x68) == 0x68) ? 1 : 0;
 
-            // LOGI("rdat=%x, state=%d, dcnt2=%d", rdat,g_hw_stat.av_valid[g_hw_stat.av_chid],det2_cnt);
+            // LOGI("rdat=%x, state=%d, dcnt2=%d", rdat,g_hw_stat.av_valid[g_hw_stat.is_av_in],det2_cnt);
 
-            switch (g_hw_stat.av_valid[g_hw_stat.av_chid]) {
+            switch (g_hw_stat.av_valid[g_hw_stat.is_av_in]) {
             case 0: // video loss
                 if (h_lock || vh_lock) {
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 1;
                 }
                 break;
 
             case 1: // search
                 if (vloss) {
                     det2_cnt = 0;
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
                 } else if (vh_lock) {
                     det2_cnt++;
                     if (det2_cnt >= AV_DET_LOCK_CNT) {
                         det2_cnt = 0;
-                        g_hw_stat.av_valid[g_hw_stat.av_chid] = 2;
+                        g_hw_stat.av_valid[g_hw_stat.is_av_in] = 2;
                         ret = 1;
                     }
                 } else
@@ -928,19 +957,19 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             case 2: // locked
                 if (vloss) {
                     det2_cnt = 0;
-                    g_hw_stat.av_valid[g_hw_stat.av_chid] = 0;
+                    g_hw_stat.av_valid[g_hw_stat.is_av_in] = 0;
                 } else if (vh_lock == 0) {
                     det2_cnt++;
                     if (det2_cnt >= AV_DET_DROP_CNT) {
                         det2_cnt = 0;
-                        g_hw_stat.av_valid[g_hw_stat.av_chid] = 1;
+                        g_hw_stat.av_valid[g_hw_stat.is_av_in] = 1;
                     }
                 } else
                     det2_cnt = 0;
                 break;
             }
 
-            int clamp_idx = g_hw_stat.av_valid[g_hw_stat.av_chid];
+            int clamp_idx = g_hw_stat.av_valid[g_hw_stat.is_av_in];
             if (clamp_idx == 1) {
                 clamp_idx = vh_lock ? 2 : 1;
             }
@@ -954,7 +983,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 
 void Source_HDMI_in() {
     pthread_mutex_lock(&hardware_mutex);
-    Screen_Display(0);
+    screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
     HDZero_Close();
@@ -965,7 +994,6 @@ void Source_HDMI_in() {
 
     g_hw_stat.source_mode = SOURCE_MODE_HDMIIN;
     Display_VO_SWITCH(1);
-    // Screen_Display(1);
 
     pthread_mutex_unlock(&hardware_mutex);
 }
@@ -992,7 +1020,7 @@ int HDMI_in_detect() {
                     ret = 1;
                     LOGI("IT66021: VTMG change: %d", vtmg);
 
-                    Screen_Display(0);
+                    screen.display(0);
                     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
                     switch (vtmg) {
@@ -1007,11 +1035,10 @@ int HDMI_in_detect() {
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_1080P60);
                         I2C_Write(ADDR_FPGA, 0x80, 0x00);
 
-                        OLED_SetTMG(2);
+                        screen.vtmg(2);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P60;
                         break;
 
@@ -1024,11 +1051,10 @@ int HDMI_in_detect() {
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x20);
 
-                        OLED_SetTMG(0);
+                        screen.vtmg(0);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080P50;
                         break;
 
@@ -1041,11 +1067,10 @@ int HDMI_in_detect() {
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x40);
 
-                        OLED_SetTMG(0);
+                        screen.vtmg(0);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_1080Pother;
                         break;
 
@@ -1058,11 +1083,10 @@ int HDMI_in_detect() {
 
                         I2C_Write(ADDR_FPGA, 0x80, 0x60);
 
-                        OLED_SetTMG(1);
+                        screen.vtmg(1);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P50;
                         break;
 
@@ -1074,11 +1098,10 @@ int HDMI_in_detect() {
                         pclk_phase_set(VIDEO_SOURCE_HDMI_IN_720P60);
                         I2C_Write(ADDR_FPGA, 0x80, 0x80);
 
-                        OLED_SetTMG(1);
+                        screen.vtmg(1);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P60;
                         break;
 
@@ -1091,13 +1114,16 @@ int HDMI_in_detect() {
 
                         I2C_Write(ADDR_FPGA, 0x80, 0xA0);
 
-                        OLED_SetTMG(1);
+                        screen.vtmg(1);
 
                         I2C_Write(ADDR_FPGA, 0x8C, 0x04);
                         I2C_Write(ADDR_FPGA, 0x06, 0x0F);
-                        Screen_Display(1);
                         g_hw_stat.hdmiin_vtmg = HDMIIN_VTMG_720P100;
                         break;
+                    }
+
+                    if (vtmg != HDMIIN_VTMG_UNKNOW) {
+                        screen.display(1);
                     }
                 }
 
@@ -1176,7 +1202,7 @@ void Analog_Module_Power(bool ForceSet) {
         if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
             beep();
             Analog_Module_Power_State_Last = Analog_Module_Power_State;
-            DM5680_Power_AnalogModule(Analog_Module_Power_State);
+            DM5680_ExternalAnalog_Power(Analog_Module_Power_State);
         }
     }
 }

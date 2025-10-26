@@ -31,15 +31,19 @@ void TP2825_VER() {
         LOGI("TP2825L detected");
     }
 }
-
-void TP2825_init(source_t mode, int is_pal) {
+/*
+is_av_in:
+        0: AV line in
+        1: External Analog Module
+*/
+void TP2825_init(bool is_av_in, bool is_pal) {
     TP2825_close();
     usleep(1000);
     TP2825_open();
     usleep(1000);
 
     TP2825_VER();
-    I2C_Write(ADDR_TP2825, 0x41, SOURCE_AV_IN == mode ? 0 : 1);
+    I2C_Write(ADDR_TP2825, 0x41, 1 - is_av_in);
 
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
@@ -194,9 +198,11 @@ void TP2825_init(source_t mode, int is_pal) {
         LOGI("TP2825 CKPOL is Inversed");
     } else
         I2C_Write(ADDR_TP2825, 0x4E, 0x77);
+
+    LOGI("TP2825 init: is_av_in=%d, is_pal=%d", is_av_in, is_pal);
 }
 
-void TP2825_Switch_Mode(int is_pal) {
+void TP2825_Switch_Mode(bool is_pal) {
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x02, 0xCE);
         I2C_Write(ADDR_TP2825, 0x0D, 0x11);
@@ -248,9 +254,10 @@ void TP2825_Switch_Mode(int is_pal) {
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
 }
 
-void TP2825_Switch_CH(source_t mode) {
-    I2C_Write(ADDR_TP2825, 0x41, SOURCE_AV_IN == mode ? 0 : 1);
+void TP2825_Switch_CH(bool is_av_in) {
+    I2C_Write(ADDR_TP2825, 0x41, 1 - is_av_in);
     I2C_Write(ADDR_TP2825, 0x06, TP2825_REG06);
+    // LOGI("TP2825 switch channel: %d", is_av_in);
 }
 
 void TP2825_Set_Clamp(int idx) {

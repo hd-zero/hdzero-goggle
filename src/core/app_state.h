@@ -39,10 +39,10 @@ void app_state_push(app_state_t state);
 
 void app_switch_to_menu();
 void app_exit_menu();
-void app_switch_to_analog(source_t source);
+void app_switch_to_analog(bool is_av_in);
 void app_switch_to_hdmi_in();
 void app_switch_to_hdzero(bool is_default);
-
+void hdzero_switch_channel(int channel);
 #ifdef __cplusplus
 }
 #endif

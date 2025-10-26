@@ -13,6 +13,7 @@
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/it66121.h"
+#include "driver/rtc6715.h"
 #include "driver/screen.h"
 #include "ui/page_common.h"
 #include "ui/page_imagesettings.h"
@@ -41,11 +42,13 @@ void app_switch_to_menu() {
     // Stop recording if switching to menu mode from video mode regardless
     dvr_cmd(DVR_STOP);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        dvr_update_vi_conf(VR_1080P30);
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        dvr_update_vi_conf(VR_720P60);
-    }
+#if defined HDZGOGGLE
+    dvr_update_vi_conf(VR_1080P30);
+#elif defined HDZBOXPRO
+    dvr_update_vi_conf(VR_720P60);
+#elif defined HDZGOGGLE2
+    dvr_update_vi_conf(VR_1080P30);
+#endif
 
     Display_UI();
     lvgl_switch_to_1080p();
@@ -58,13 +61,14 @@ void app_switch_to_menu() {
     if (g_source_info.source == SOURCE_HDMI_IN) // HDMI
         IT66121_init();
 
+    rtc6715.init(0, 0);
     system_script(REC_STOP_LIVE);
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        // Restore image settings from av module
-        Screen_Brightness(g_setting.image.oled);
-        Set_Contrast(g_setting.image.contrast);
-    }
+#ifdef HDZBOXPRO
+    // Restore image settings from av module
+    screen.brightness(g_setting.image.oled);
+    Set_Contrast(g_setting.image.contrast);
+#endif
 }
 
 void app_exit_menu() {
@@ -74,20 +78,14 @@ void app_exit_menu() {
     } else if (SOURCE_HDMI_IN == g_source_info.source) {
         app_switch_to_hdmi_in();
     } else {
-        app_switch_to_analog(g_source_info.source);
+        app_switch_to_analog(g_source_info.source == SOURCE_AV_IN);
     }
 }
 
-void app_switch_to_analog(source_t source) {
-    Source_AV(source);
-
-    if (TARGET_BOXPRO == getTargetType()) {
-        // Solve LCD residual image
-        if (SOURCE_AV_MODULE == source) {
-            Screen_Brightness(7);
-            Set_Contrast(14);
-        }
-    }
+void app_switch_to_analog(bool is_av_in) {
+#ifdef HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
 
     dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
@@ -97,20 +95,42 @@ void app_switch_to_analog(source_t source) {
     lv_timer_handler();
     Display_Osd(g_setting.record.osd);
 
-    g_setting.autoscan.last_source = SOURCE_AV_IN == source ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
+    Source_AV(is_av_in);
+
+    if (is_av_in) {
+        rtc6715.init(0, 0);
+    } else {
+#if defined HDZBOXPRO
+        // Solve LCD residual image
+        screen.brightness(7);
+        Set_Contrast(14);
+#endif
+        rtc6715.init(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
+        rtc6715.set_ch(g_setting.source.analog_channel - 1);
+    }
+
+    g_setting.autoscan.last_source = is_av_in ? SETTING_AUTOSCAN_SOURCE_AV_IN : SETTING_AUTOSCAN_SOURCE_AV_MODULE;
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
-    // usleep(300*1000);
+    // audio in&out
+    dvr_select_audio_source(g_setting.record.audio_source);
+    dvr_enable_line_out(true);
+
     sleep(1);
     system_script(REC_STOP_LIVE);
 }
 
 void app_switch_to_hdmi_in() {
-    if (TARGET_BOXPRO == getTargetType()) {
-        // Restore image settings from av module
-        Screen_Brightness(g_setting.image.oled);
-        Set_Contrast(g_setting.image.contrast);
-    }
+#if defined HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
+
+#if defined HDZBOXPRO
+    // Restore image settings from av module
+    screen.brightness(g_setting.image.oled);
+    Set_Contrast(g_setting.image.contrast);
+#endif
+    rtc6715.init(0, 0);
 
     Source_HDMI_in();
     IT66121_close();
@@ -146,11 +166,16 @@ void app_switch_to_hdmi_in() {
 void app_switch_to_hdzero(bool is_default) {
     int ch;
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        // Restore image settings from av module
-        Screen_Brightness(g_setting.image.oled);
-        Set_Contrast(g_setting.image.contrast);
-    }
+#if defined HDZGOGGLE2
+    system_exec("aww 0x0300b084 0x0001555");
+#endif
+
+#if defined HDZBOXPRO
+    // Restore image settings from av module
+    screen.brightness(g_setting.image.oled);
+    Set_Contrast(g_setting.image.contrast);
+#endif
+    rtc6715.init(0, 0);
 
     if (is_default) {
         ch = g_setting.scan.channel - 1;
@@ -169,40 +194,43 @@ void app_switch_to_hdzero(bool is_default) {
     DM5680_req_vldflg();
     progress_bar.start = 0;
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        switch (CAM_MODE) {
-        case VR_720P50:
-        case VR_720P60:
-        case VR_960x720P60:
-        case VR_540P60:
-            Display_720P60_50(CAM_MODE, cam_4_3);
-            break;
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    switch (CAM_MODE) {
+    case VR_720P50:
+    case VR_720P60:
+    case VR_960x720P60:
+    case VR_540P60:
+        Display_720P60_50(CAM_MODE, cam_4_3);
+        break;
 
-        case VR_540P90:
-        case VR_540P90_CROP:
-            Display_720P90(CAM_MODE);
-            break;
+    case VR_540P90:
+    case VR_540P90_CROP:
+        Display_720P90(CAM_MODE);
+        break;
 
-        case VR_1080P30:
-            Display_1080P30(CAM_MODE);
-            break;
-
-        default:
-            perror("switch_to_video CaM_MODE error");
-        }
-
-        channel_osd_mode = CHANNEL_SHOWTIME;
-
-        if (CAM_MODE == VR_1080P30)
-            lvgl_switch_to_1080p();
-        else
-            lvgl_switch_to_720p();
-        osd_fhd(CAM_MODE == VR_1080P30);
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        Display_HDZ(CAM_MODE, cam_4_3);
-        channel_osd_mode = CHANNEL_SHOWTIME;
-        lvgl_switch_to_720p();
+    case VR_1080P30:
+        Display_1080P30(CAM_MODE);
+        break;
+    case VR_1080P24:
+        Display_1080P24(CAM_MODE);
+        break;
+    default:
+        perror("switch_to_video CaM_MODE error");
     }
+
+    channel_osd_mode = CHANNEL_SHOWTIME;
+
+    if (CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24)
+        lvgl_switch_to_1080p();
+    else
+        lvgl_switch_to_720p();
+    osd_fhd(CAM_MODE == VR_1080P30 || CAM_MODE == VR_1080P24);
+#elif defined HDZBOXPRO
+    Display_HDZ(CAM_MODE, cam_4_3);
+    channel_osd_mode = CHANNEL_SHOWTIME;
+    lvgl_switch_to_720p();
+    LOGI("lvgl_switch_to_720p");
+#endif
 
     osd_clear();
     osd_show(true);
@@ -213,5 +241,27 @@ void app_switch_to_hdzero(bool is_default) {
     ini_putl("autoscan", "last_source", g_setting.autoscan.last_source, SETTING_INI);
 
     dvr_update_vi_conf(CAM_MODE);
+    system_script(REC_STOP_LIVE);
+}
+
+void hdzero_switch_channel(int channel) {
+    channel &= 0x7f;
+
+#if defined HDZBOXPRO
+    // Restore image settings from av module
+    screen.brightness(g_setting.image.oled);
+    Set_Contrast(g_setting.image.contrast);
+#endif
+
+    LOGI("hdzero_switch_channel to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, channel, CAM_MODE, cam_4_3);
+    DM6302_SetChannel(g_setting.source.hdzero_band, channel);
+    DM5680_clear_vldflg();
+    DM5680_req_vldflg();
+    channel_osd_mode = CHANNEL_SHOWTIME;
+
+    osd_clear();
+    osd_show(true);
+    lv_timer_handler();
+
     system_script(REC_STOP_LIVE);
 }

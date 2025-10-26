@@ -48,7 +48,7 @@ static slider_group_t *selected_slider_group = NULL;
 
 static lv_coord_t col_dsc[] = {UI_POWER_COLS};
 static lv_coord_t row_dsc[] = {UI_POWER_ROWS};
-lv_obj_t *label_cell_count;
+static lv_obj_t *label_cell_count;
 
 static void page_power_update_cell_count() {
     char str[10];
@@ -124,19 +124,16 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_osd_display_mode, cont, 2, _lang("Display Mode"), _lang("Total"), _lang("Cell Avg."), "", "", ROW_OSD_DISPLAY_MODE);
     create_btn_group_item(&btn_group_warn_type, cont, 3, _lang("Warning Type"), _lang("Beep"), _lang("Visual"), _lang("Both"), "", ROW_WARN_TYPE);
 
-    switch (getTargetType()) {
-    case TARGET_GOGGLE:
-        if (getHwRevision() >= HW_REV_2) {
-            create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
-            pp_power.p_arr.max = ROW_COUNT;
-        } else {
-            pp_power.p_arr.max = ROW_COUNT - 1;
-        }
-        break;
-    case TARGET_BOXPRO:
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    if (getHwRevision() >= HW_REV_2) {
+        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+        pp_power.p_arr.max = ROW_COUNT;
+    } else {
         pp_power.p_arr.max = ROW_COUNT - 1;
-        break;
     }
+#elif defined(HDZBOXPRO)
+    pp_power.p_arr.max = ROW_COUNT - 1;
+#endif
 
     // Back entry
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
@@ -340,11 +337,13 @@ static void page_power_on_click(uint8_t key, int sel) {
 
     case ROW_POWER_ANA:
         // Batch 2 goggles only
-        if (TARGET_GOGGLE == getTargetType() && getHwRevision() >= HW_REV_2) {
+        if (getHwRevision() >= HW_REV_2) {
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
             btn_group_toggle_sel(&btn_group_power_ana);
             g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
             ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
             Analog_Module_Power(1);
+#endif
         }
         break;
 

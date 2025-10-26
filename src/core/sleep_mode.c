@@ -27,30 +27,22 @@ void go_sleep() {
 
     // Stop DVR
     dvr_cmd(DVR_STOP);
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    dvr_update_vi_conf(VR_1080P30);
+#elif defined(HDZBOXPRO)
+    dvr_update_vi_conf(VR_720P60);
+#endif
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        dvr_update_vi_conf(VR_1080P30);
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        dvr_update_vi_conf(VR_720P60);
-    }
-
-    Screen_ON(0);
+    hw_screen_on(0);
 
     // Turn off HDZero Receiver
     HDZero_Close();
 
-    switch (getTargetType()) {
-    case TARGET_GOGGLE:
-        // Turn off Analog Receiver  -- Batch 2 goggles only
-        if (getHwRevision() == HW_REV_2) {
-            DM5680_Power_AnalogModule(1);
-        }
-        break;
-    case TARGET_BOXPRO:
-        // Turn off Analog Receiver
-        RTC6715_Open(0);
-        break;
+    // Turn off Analog Receiver
+    if (getHwRevision() == HW_REV_2) {
+        DM5680_ExternalAnalog_Power(1);
     }
+    rtc6715.init(0, 0);
 
     // Minimum fan
     fans_auto_mode_save = g_setting.fans.auto_mode;
@@ -62,12 +54,8 @@ void go_sleep() {
     g_setting.fans.right_speed = MIN_FAN_SIDE;
     g_setting.fans.auto_mode = 0;
     fans_top_setspeed(MIN_FAN_TOP);
-
-    if (TARGET_GOGGLE == getTargetType()) {
-        fans_left_setspeed(MIN_FAN_SIDE);
-        fans_right_setspeed(MIN_FAN_SIDE);
-    }
-
+    fans_left_setspeed(MIN_FAN_SIDE);
+    fans_right_setspeed(MIN_FAN_SIDE);
     isSleeping = true;
     beepCnt = 0;
 }
@@ -75,15 +63,13 @@ void go_sleep() {
 void wake_up() {
     LOGI("Exiting sleep mode");
     isSleeping = false;
-    Screen_ON(1); // Turn on display
+    hw_screen_on(1); // Turn on display
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        Analog_Module_Power(1);
-        g_setting.fans.right_speed = fan_speed_save.right;
-        g_setting.fans.left_speed = fan_speed_save.left;
-        fans_right_setspeed(fan_speed_save.right);
-        fans_left_setspeed(fan_speed_save.left);
-    }
+    Analog_Module_Power(1);
+    g_setting.fans.right_speed = fan_speed_save.right;
+    g_setting.fans.left_speed = fan_speed_save.left;
+    fans_right_setspeed(fan_speed_save.right);
+    fans_left_setspeed(fan_speed_save.left);
 
     g_setting.fans.top_speed = fan_speed_save.top;
     g_setting.fans.auto_mode = fans_auto_mode_save;

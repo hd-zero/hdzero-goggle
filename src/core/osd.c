@@ -344,23 +344,20 @@ void osd_analog_rssi_show(bool bShow) {
 
     lv_obj_clear_flag(analog_rssi_bar, LV_OBJ_FLAG_HIDDEN);
 
-    int rssi_volt_mv = RTC6715_GetRssi();
-    /*
-    1600 -> 0%
-    2200 -> 100%
-    */
+    int rssi_volt_mv;
 
-    // if (cnt == 19)
-    //     LOGI(" rssi rssi_volt_mv:%d", rssi_volt_mv);
+    if (g_setting.analog_rssi.calib_min == g_setting.analog_rssi.calib_max)
+        rssi_volt_mv = 0;
+    else {
+        rssi_volt_mv = rtc6715.rssi;
+        if (rssi_volt_mv <= g_setting.analog_rssi.calib_min)
+            rssi_volt_mv = 0;
+        else if (rssi_volt_mv >= g_setting.analog_rssi.calib_max)
+            rssi_volt_mv = 100;
+        else
+            rssi_volt_mv = (rssi_volt_mv - g_setting.analog_rssi.calib_min) * 100 / (g_setting.analog_rssi.calib_max - g_setting.analog_rssi.calib_min);
+    }
 
-    rssi_volt_mv -= 1600;
-    rssi_volt_mv = (rssi_volt_mv < 0) ? 0 : rssi_volt_mv;
-    rssi_volt_mv /= 6;
-    // cnt++;
-    // if (cnt == 20) {
-    //     cnt = 0;
-    //     LOGI(" rssi pct:%d", rssi_volt_mv);
-    // }
     lv_bar_set_value(analog_rssi_bar, rssi_volt_mv, LV_ANIM_OFF);
 }
 
@@ -409,10 +406,16 @@ void osd_channel_show(bool bShow) {
     } else {
         if (g_source_info.source == SOURCE_HDZERO) {
             ch = g_setting.scan.channel & 0x7F;
-        } else if (TARGET_BOXPRO == getTargetType() && g_source_info.source == SOURCE_AV_MODULE) {
-            ch = g_setting.source.analog_channel & 0x7F;
         } else {
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+            if (g_source_info.source == SOURCE_AV_MODULE) {
+                ch = g_setting.source.analog_channel & 0x7F;
+            } else {
+                bShow = false;
+            }
+#elif defined(HDZGOGGLE)
             bShow = false;
+#endif
         }
 
         if (bShow) {
@@ -517,21 +520,21 @@ bool fhd_change() {
     if (fhd_req) {
         osd_show(false);
 
-        if (TARGET_GOGGLE == getTargetType()) {
-            if (fhd_req == 1) {
-                lvgl_switch_to_1080p();
-                osd_fhd(1);
-                // LOGI("fhd_change to 1080p");
-            } else {
-                lvgl_switch_to_720p();
-                osd_fhd(0);
-                // LOGI("fhd_change to 720p");
-            }
-        } else if (TARGET_BOXPRO == getTargetType()) {
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        if (fhd_req == 1) {
+            lvgl_switch_to_1080p();
+            osd_fhd(1);
+            // LOGI("fhd_change to 1080p");
+        } else {
             lvgl_switch_to_720p();
             osd_fhd(0);
             // LOGI("fhd_change to 720p");
         }
+#elif defined(HDZBOXPRO)
+        lvgl_switch_to_720p();
+        osd_fhd(0);
+        // LOGI("fhd_change to 720p");
+#endif
 
         osd_clear();
         osd_show(true);
@@ -629,17 +632,19 @@ void osd_show_all_elements() {
     else
         lv_obj_add_flag(g_osd_hdzero.osd_tempe[is_fhd][0], LV_OBJ_FLAG_HIDDEN);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        if (g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].show)
-            lv_obj_clear_flag(g_osd_hdzero.osd_tempe[is_fhd][1], LV_OBJ_FLAG_HIDDEN);
-        else
-            lv_obj_add_flag(g_osd_hdzero.osd_tempe[is_fhd][1], LV_OBJ_FLAG_HIDDEN);
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    if (g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].show)
+        lv_obj_clear_flag(g_osd_hdzero.osd_tempe[is_fhd][1], LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(g_osd_hdzero.osd_tempe[is_fhd][1], LV_OBJ_FLAG_HIDDEN);
 
-        if (g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].show)
-            lv_obj_clear_flag(g_osd_hdzero.osd_tempe[is_fhd][2], LV_OBJ_FLAG_HIDDEN);
-        else
-            lv_obj_add_flag(g_osd_hdzero.osd_tempe[is_fhd][2], LV_OBJ_FLAG_HIDDEN);
-    }
+    if (g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].show)
+        lv_obj_clear_flag(g_osd_hdzero.osd_tempe[is_fhd][2], LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(g_osd_hdzero.osd_tempe[is_fhd][2], LV_OBJ_FLAG_HIDDEN);
+#elif defined(HDZBOXPRO)
+
+#endif
 }
 
 void osd_elements_set_dummy_sources() {
@@ -702,10 +707,15 @@ void osd_hdzero_update(void) {
     bool source_is_analog = (g_source_info.source == SOURCE_AV_MODULE);
     bool showRXOSD = false;
 
-    if ((TARGET_GOGGLE == getTargetType() && source_is_hdzero) ||
-        (TARGET_BOXPRO == getTargetType() && (source_is_hdzero || source_is_analog))) {
+#if defined(HDZGOGGLE)
+    if (source_is_hdzero) {
         showRXOSD = g_setting.osd.is_visible;
     }
+#elif defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    if (source_is_hdzero || source_is_analog) {
+        showRXOSD = g_setting.osd.is_visible;
+    }
+#endif
 
     osd_rec_show(g_setting.osd.is_visible);
     osd_llock_show(g_setting.osd.is_visible);
@@ -741,9 +751,11 @@ void osd_hdzero_update(void) {
     osd_channel_show(showRXOSD);
     osd_vlq_show(showRXOSD && source_is_hdzero);
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        osd_analog_rssi_show(showRXOSD && source_is_analog);
-    }
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    osd_analog_rssi_show(showRXOSD && source_is_analog);
+#elif defined(HDZGOGGLE)
+
+#endif
 
     if (gif_cnt % 10 == 0) { // delay needed to allow gif to flash
         osd_resource_path(buf, "%s", is_fhd, lowBattery_gif);
@@ -786,13 +798,15 @@ void osd_hdzero_update(void) {
     if (g_setting.storage.selftest) {
         snprintf(buf, sizeof(buf), "T:%d-%d", fan_speed.top, g_temperature.top / 10);
         lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][0], buf);
-        if (TARGET_GOGGLE == getTargetType()) {
-            snprintf(buf, sizeof(buf), "L:%d-%d", fan_speed.left, g_temperature.left / 10);
-            lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][1], buf);
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        snprintf(buf, sizeof(buf), "L:%d-%d", fan_speed.left, g_temperature.left / 10);
+        lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][1], buf);
 
-            snprintf(buf, sizeof(buf), "R:%d-%d", fan_speed.right, g_temperature.right / 10);
-            lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][2], buf);
-        }
+        snprintf(buf, sizeof(buf), "R:%d-%d", fan_speed.right, g_temperature.right / 10);
+        lv_label_set_text(g_osd_hdzero.osd_tempe[is_fhd][2], buf);
+#elif defined(HDZBOXPRO)
+
+#endif
     }
 }
 
@@ -872,10 +886,12 @@ static void embedded_osd_init(uint8_t fhd) {
 
     if (g_setting.storage.selftest) {
         osd_object_create_label(fhd, &g_osd_hdzero.osd_tempe[fhd][0], "TOP:-.- oC", &g_setting.osd.element[OSD_GOGGLE_TEMP_TOP].position, so);
-        if (TARGET_GOGGLE == getTargetType()) {
-            osd_object_create_label(fhd, &g_osd_hdzero.osd_tempe[fhd][1], "LEFT:-.- oC", &g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].position, so);
-            osd_object_create_label(fhd, &g_osd_hdzero.osd_tempe[fhd][2], "RIGHT:-.- oC", &g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].position, so);
-        }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        osd_object_create_label(fhd, &g_osd_hdzero.osd_tempe[fhd][1], "LEFT:-.- oC", &g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].position, so);
+        osd_object_create_label(fhd, &g_osd_hdzero.osd_tempe[fhd][2], "RIGHT:-.- oC", &g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].position, so);
+#elif defined(HDZBOXPRO)
+
+#endif
     }
 }
 
@@ -902,16 +918,21 @@ void osd_update_element_positions() {
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant2[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT2].position);
     osd_object_set_pos(is_fhd, g_osd_hdzero.ant3[is_fhd], &g_setting.osd.element[OSD_GOGGLE_ANT3].position);
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        osd_analog_rssi_update_location();
-    }
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    osd_analog_rssi_update_location();
+#elif defined(HDZGOGGLE)
+
+#endif
 
     if (g_setting.storage.selftest) {
         osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][0], &g_setting.osd.element[OSD_GOGGLE_TEMP_TOP].position);
-        if (TARGET_GOGGLE == getTargetType()) {
-            osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][1], &g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].position);
-            osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][2], &g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].position);
-        }
+
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][1], &g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT].position);
+        osd_object_set_pos(is_fhd, g_osd_hdzero.osd_tempe[is_fhd][2], &g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT].position);
+#elif defined(HDZBOXPRO)
+
+#endif
     }
 }
 
@@ -931,9 +952,11 @@ static void fc_osd_init(uint8_t fhd, uint16_t OFFSET_X, uint16_t OFFSET_Y) {
         }
     }
 
-    if (TARGET_BOXPRO == getTargetType() && !fhd) {
+#if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+    if (!fhd) {
         osd_analog_rssi_create();
     }
+#endif
 }
 
 static void create_osd_scr(void) {
@@ -967,11 +990,11 @@ int osd_init(void) {
     fc_osd_init(0, OFFSET_X, OFFSET_Y);
     embedded_osd_init(0);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        fc_osd_init(1, OFFSET_X + (OFFSET_X >> 1), OFFSET_Y + (OFFSET_Y >> 1));
-    } else if (TARGET_BOXPRO == getTargetType()) {
-        fc_osd_init(1, OFFSET_X, OFFSET_Y);
-    }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    fc_osd_init(1, OFFSET_X + (OFFSET_X >> 1), OFFSET_Y + (OFFSET_Y >> 1));
+#elif defined(HDZBOXPRO)
+    fc_osd_init(1, OFFSET_X, OFFSET_Y);
+#endif
 
     embedded_osd_init(1);
 

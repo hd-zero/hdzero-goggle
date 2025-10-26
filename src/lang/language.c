@@ -24,6 +24,7 @@ static struct Language languages[] = {
     {LANG_RUSSIAN, "ru_ru", "Russian", NULL},
     {LANG_SPANISH, "es_es", "Spanish", NULL},
     {LANG_JAPANESE, "ja_jp", "Japanese", NULL},
+    {LANG_GERMAN, "de_de", "German", NULL},
 };
 
 const char *language_config_file[] = {
@@ -33,6 +34,7 @@ const char *language_config_file[] = {
     "RUS.TXT",
     "SPA.TXT",
     "JPN.TXT",
+    "GER.TXT",
 };
 
 struct CallbackPayload {
@@ -87,7 +89,7 @@ void language_init() {
         languages[i].translations = translations;
 
         for (size_t index = 0; index < TRANSLATE_STRING_NUM; index++) {
-            LOGD("%s: %s", languages[i].translations[index].in_english, languages[i].translations[index].translate);
+            ; // LOGD("%s: %s", languages[i].translations[index].in_english, languages[i].translations[index].translate);
         }
 
         ini_close(&file);

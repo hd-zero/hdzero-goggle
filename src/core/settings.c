@@ -55,11 +55,11 @@ const setting_t g_setting_defaults = {
         .naming = SETTING_NAMING_CONTIGUOUS,
     },
     .image = {
-#if HDZGOGGLE
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
         .oled = 8,
         .saturation = 28,
         .contrast = 25,
-#elif HDZBOXPRO
+#elif defined(HDZBOXPRO)
         .oled = 12,
         .saturation = 47,
         .contrast = 30,
@@ -216,7 +216,7 @@ const setting_t g_setting_defaults = {
         .netmask = "255.255.255.0",
         .gateway = "192.168.2.1",
         .dns = "192.168.2.1",
-        .rf_channel = 6,
+        .rf_channel = 11,
         .root_pw = "divimath",
         .ssh = false,
     },
@@ -233,6 +233,10 @@ const setting_t g_setting_defaults = {
     },
     .language = {
         .lang = LANG_ENGLISH_DEFAULT,
+    },
+    .analog_rssi = {
+        .calib_min = 1600,
+        .calib_max = 2100,
     },
     .has_all_features = true,
 };
@@ -484,6 +488,10 @@ void settings_load(void) {
     // storage
     g_setting.storage.logging = settings_get_bool("storage", "logging", g_setting_defaults.storage.logging);
 
+    // analog rssi
+    g_setting.analog_rssi.calib_min = ini_getl("analog_rssi", "calib_min", g_setting_defaults.analog_rssi.calib_min, SETTING_INI);
+    g_setting.analog_rssi.calib_max = ini_getl("analog_rssi", "calib_max", g_setting_defaults.analog_rssi.calib_max, SETTING_INI);
+
     // language
     if (!language_config()) {
         g_setting.language.lang = ini_getl("language", "lang", g_setting_defaults.language.lang, SETTING_INI);
@@ -501,29 +509,29 @@ void settings_load(void) {
         g_setting.storage.logging = log_file_open(APP_LOG_FILE);
     }
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        char buf[64];
-        char value_str[2] = {0};
-        fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
-        sprintf(buf, "/sys/class/gpio/gpio%d/direction", GPIO_IS_PRO);
-        fs_printf(buf, "in");
-        usleep(1000 * 100);
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", GPIO_IS_PRO);
-        FILE *fp = fopen(buf, "r");
-        if (!fp) {
-            return;
-        }
-        if (fgets(value_str, sizeof(value_str), fp) == NULL) {
-            LOGE("Failed to read GPIO_IS_PRO");
-            fclose(fp);
-            return;
-        }
-        fclose(fp);
-        if (atoi(value_str)) {
-            LOGI("IS NOT PRO");
-            g_setting.has_all_features = false;
-        } else {
-            LOGI("IS PRO");
-        }
+#ifdef HDZBOXPRO
+    char buf[64];
+    char value_str[2] = {0};
+    fs_printf("/sys/class/gpio/export", "%d", GPIO_IS_PRO);
+    sprintf(buf, "/sys/class/gpio/gpio%d/direction", GPIO_IS_PRO);
+    fs_printf(buf, "in");
+    usleep(1000 * 100);
+    sprintf(buf, "/sys/class/gpio/gpio%d/value", GPIO_IS_PRO);
+    FILE *fp = fopen(buf, "r");
+    if (!fp) {
+        return;
     }
+    if (fgets(value_str, sizeof(value_str), fp) == NULL) {
+        LOGE("Failed to read GPIO_IS_PRO");
+        fclose(fp);
+        return;
+    }
+    fclose(fp);
+    if (atoi(value_str)) {
+        LOGI("IS NOT PRO");
+        g_setting.has_all_features = false;
+    } else {
+        LOGI("IS PRO");
+    }
+#endif
 }

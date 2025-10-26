@@ -3,11 +3,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdbool.h>
+typedef struct {
+    void (*init)(bool power_on, bool audio_on);
+    void (*set_ch)(int ch);
+    int rssi;
+} rtc6715_t;
 
-void RTC6715_Open(int on);
-void RTC6715_SetCH(int ch);
-int RTC6715_GetRssi();
+extern void *thread_rtc6715_rssi(void *ptr);
 
+extern rtc6715_t rtc6715;
 #ifdef __cplusplus
 }
 #endif

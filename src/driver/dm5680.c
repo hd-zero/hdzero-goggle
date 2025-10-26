@@ -323,10 +323,18 @@ void DM5680_ResetHDMI_RX(uint8_t on) // Reset HDMI_RX,0=reset
     Cmd_to_DM5680(1, Cmd, 5);
 }
 
-void DM5680_Power_AnalogModule(uint8_t on) {
+void DM5680_ExternalAnalog_Power(uint8_t on) {
     uint8_t Cmd[5] = {0xAA, 0x55, 0x02, 0x6, 0x00};
+    // Note Cmd[4] = 1 means power on for external analog module
+    Cmd[4] = on;
+    // LOGI("DM5680_ExternalAnalog_Power %d", on);
+    Cmd_to_DM5680(1, Cmd, 5);
+}
+void DM5680_InternalAnalog_Power(uint8_t on) {
+    uint8_t Cmd[5] = {0xAA, 0x55, 0x02, 0x7, 0x00};
+    // Note Cmd[4] = 0 means power on for internal analog module
     Cmd[4] = !on;
-
+    // LOGI("DM5680_InternalAnalog_Power %d", on);
     Cmd_to_DM5680(1, Cmd, 5);
 }
 

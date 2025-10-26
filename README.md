@@ -106,7 +106,7 @@ Emulator support for both Goggle and BoxPro is supported by setting the appropri
 ```
 ~/hdzero-goggle$ mkdir build_emu
 ~/hdzero-goggle$ cd build_emu
-~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug -DHDZ_GOGGLE=ON -DHDZ_BOXPRO=OFF
+~/hdzero-goggle/build_emu$ cmake .. -DEMULATOR_BUILD=ON -DCMAKE_BUILD_TYPE=Debug -DHDZ_GOGGLE=ON -DHDZ_BOXPRO=OFF -DHDZ_GOGGLE2=OFF
 ~/hdzero-goggle/build_emu$ make -j $(nproc)
 ~/hdzero-goggle/build_emu$ ./HDZGOGGLE
 ```

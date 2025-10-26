@@ -47,14 +47,14 @@ static void update_visibility() {
         lv_obj_add_flag(pp_fans.p_arr.panel[1], FLAG_SELECTABLE);
     }
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        slider_enable(&slider_group[1], btn_group_fans.current != 0);
-        if (btn_group_fans.current == 0) {
-            lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
-        } else {
-            lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
-        }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    slider_enable(&slider_group[1], btn_group_fans.current != 0);
+    if (btn_group_fans.current == 0) {
+        lv_obj_clear_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
+    } else {
+        lv_obj_add_flag(pp_fans.p_arr.panel[2], FLAG_SELECTABLE);
     }
+#endif
 }
 
 static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
@@ -93,13 +93,13 @@ static lv_obj_t *page_fans_create(lv_obj_t *parent, panel_arr_t *arr) {
     snprintf(buf, sizeof(buf), "%d", g_setting.fans.top_speed);
     lv_label_set_text(slider_group[0].label, buf);
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
-        lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
-        lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
-        snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
-        lv_label_set_text(slider_group[1].label, buf);
-    }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    create_slider_item(&slider_group[1], cont, _lang("Side Fans"), MAX_FAN_SIDE, 2, rows++);
+    lv_slider_set_range(slider_group[1].slider, MIN_FAN_SIDE, MAX_FAN_SIDE);
+    lv_slider_set_value(slider_group[1].slider, g_setting.fans.left_speed, LV_ANIM_OFF);
+    snprintf(buf, sizeof(buf), "%d", g_setting.fans.left_speed);
+    lv_label_set_text(slider_group[1].label, buf);
+#endif
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, rows++, 1);
@@ -241,9 +241,11 @@ static void page_fans_mode_on_click(uint8_t key, int sel) {
     } else if (sel == 1) {
         slider = slider_group[0].slider;
         fans_mode = FANS_MODE_TOP;
-    } else if (TARGET_GOGGLE == getTargetType() && sel == 2) {
+    } else if (sel == 2) {
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
         slider = slider_group[1].slider;
         fans_mode = FANS_MODE_SIDE;
+#endif
     } else {
         return;
     }
@@ -467,7 +469,7 @@ page_pack_t pp_fans = {
         .cur = 0,
         .max = 4,
     },
-    .name = "Fan Control",
+    .name = "Fans",
     .create = page_fans_create,
     .enter = NULL,
     .exit = page_fans_mode_exit,

@@ -118,7 +118,7 @@ int statusbar_init(void) {
         label[i] = lv_label_create(cont);
         lv_obj_set_width(label[i], UI_STATUS_BAR_LABEL_WIDTH()); /*Set smaller width to make the lines wrap*/
         lv_obj_set_style_text_align(label[i], LV_TEXT_ALIGN_LEFT, 0);
-        lv_obj_set_style_text_color(label[i], lv_color_make(255, 255, 255), 0);
+        lv_obj_set_style_text_color(label[i], lv_color_hex(TEXT_COLOR_DEFAULT), 0);
         lv_obj_set_style_text_font(label[i], UI_MENU_ENTRY_FONT, 0);
 
         if (i == STS_SDCARD) {
@@ -142,11 +142,11 @@ int statusbar_init(void) {
     } else if (g_source_info.source == SOURCE_AV_IN) {
         snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
     } else if (g_source_info.source == SOURCE_AV_MODULE) {
-        if (TARGET_GOGGLE == getTargetType()) {
-            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-        } else if (TARGET_BOXPRO == getTargetType()) {
-            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-        }
+#if defined(HDZGOGGLE)
+        sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif defined(HDZBOXPRO) || defined(HDZGOGGLE2)
+        sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
     } else {
         sprintf(buf, " ");
     }
@@ -190,7 +190,7 @@ void statubar_update(void) {
                     beep();
                     beep_gap = 0;
                 }
-                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_hex(TEXT_COLOR_DEFAULT), 0);
             }
             break;
 
@@ -198,7 +198,7 @@ void statubar_update(void) {
             if (low)
                 lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 0, 0), 0);
             else
-                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_hex(TEXT_COLOR_DEFAULT), 0);
             break;
 
         case SETTING_POWER_WARNING_TYPE_BOTH:
@@ -209,7 +209,7 @@ void statubar_update(void) {
                 }
                 lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 0, 0), 0);
             } else
-                lv_obj_set_style_text_color(label[STS_BATT], lv_color_make(255, 255, 255), 0);
+                lv_obj_set_style_text_color(label[STS_BATT], lv_color_hex(TEXT_COLOR_DEFAULT), 0);
             break;
         default:
             break;
@@ -230,11 +230,11 @@ void statubar_update(void) {
         } else if (g_source_info.source == SOURCE_AV_IN) {
             snprintf(buf, sizeof(buf), "AV %s", _lang("In"));
         } else if (g_source_info.source == SOURCE_AV_MODULE) {
-            if (TARGET_GOGGLE == getTargetType()) {
-                sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
-            } else if (TARGET_BOXPRO == getTargetType()) {
-                sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
-            }
+#if defined(HDZGOGGLE)
+            sprintf(buf, "%s: %s", _lang("RF"), _lang("Analog"));
+#elif defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+            sprintf(buf, "%s: %s %s", _lang("RF"), _lang("Analog"), channel2str(0, 0, g_setting.source.analog_channel));
+#endif
         } else {
             sprintf(buf, " ");
         }

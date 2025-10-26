@@ -326,7 +326,11 @@ static void page_wifi_update_settings() {
     // Activate WiFi services
     if (g_setting.wifi.enable) {
         if (g_app_state == APP_STATE_MAINMENU) {
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
             dvr_update_vi_conf(VR_1080P30);
+#elif defined(HDZBOXPRO)
+            dvr_update_vi_conf(VR_720P60);
+#endif
         }
         if (WIFI_MODE_AP == g_setting.wifi.mode) {
             system_script(WIFI_AP_ON);
@@ -375,7 +379,7 @@ static void page_wifi_update_page_1_notes() {
     }
 
     static char buf[1024];
-    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n%s:\n    1. %s.\n    2. %s:\n\n        rtsp://%s:8554/hdzero\n\n",
+    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n%s:\n    1. %s.\n    2. %s:\n        rtsp://%s:8554/hdzero\n",
              _lang("Password Requirements"),
              _lang("Minimum 8 characters"),
              _lang("maximum 64 characters"),
@@ -388,7 +392,7 @@ static void page_wifi_update_page_1_notes() {
 
 static void page_wifi_update_page_3_notes() {
     static char buf[256];
-    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n\n",
+    snprintf(buf, sizeof(buf), "%s:\n    %s,%s.\n",
              _lang("Password Requirements"),
              _lang("Minimum 8 characters"),
              _lang("maximum 64 characters"));
@@ -671,7 +675,7 @@ static void page_wifi_create_page_1(lv_obj_t *parent) {
     page_wifi.page_1.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_1.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_wifi.page_1.note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(page_wifi.page_1.note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(page_wifi.page_1.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_wifi.page_1.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_wifi.page_1.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
@@ -720,10 +724,10 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     page_wifi.page_3.apply_settings = create_label_item(parent, "Apply Settings", 1, 3, 3);
 
     page_wifi.page_3.note = lv_label_create(parent);
-    lv_obj_set_style_text_font(page_wifi.page_3.note, &lv_font_montserrat_16, 0);
+    lv_obj_set_style_text_font(page_wifi.page_3.note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(page_wifi.page_3.note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(page_wifi.page_3.note, lv_color_make(255, 255, 255), 0);
-    lv_obj_set_style_pad_top(page_wifi.page_3.note, 12, 0);
+    lv_obj_set_style_text_color(page_wifi.page_3.note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
+    lv_obj_set_style_pad_top(page_wifi.page_3.note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(page_wifi.page_3.note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(page_wifi.page_3.note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 7, 2);
     page_wifi_update_page_3_notes();

@@ -8,17 +8,18 @@
 extern "C" {
 #endif
 
-#if HDZGOGGLE
-
-#define UI_MENU_ENTRY_FONT                &lv_font_montserrat_26
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+#define DISP_HOR_RES_FHD                  1920
+#define DISP_VER_RES_FHD                  1080
+#define UI_MENU_ENTRY_FONT                &lv_font_montserrat_24
 #define UI_MENU_LABEL_FONT                &lv_font_montserrat_16
 #define UI_MENU_SIZE                      lv_disp_get_hor_res(NULL) - 500, lv_disp_get_ver_res(NULL) - 96
 #define UI_MENU_POSITION                  250, 96
 #define UI_MENU_ROOT_SIZE                 250, 975
 #define UI_MENU_PROG_BAR_SIZE             320, 20
-#define UI_PAGE_VIEW_SIZE                 1200, 900
+#define UI_PAGE_VIEW_SIZE                 1053, 900
 #define UI_PAGE_TEXT_SIZE                 320, 60
-#define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_26
+#define UI_PAGE_TEXT_FONT                 &lv_font_montserrat_24
 #define UI_PAGE_TEXT_PAD                  12
 #define UI_PAGE_LABEL_FONT                &lv_font_montserrat_16
 #define UI_PAGE_LABEL_SIZE(cols)          320 * cols, 60
@@ -63,7 +64,7 @@ extern "C" {
 #define UI_SCANNOW_CHAN_FONT              &lv_font_montserrat_40
 #define UI_SCANNOW_CHAN_PAD               12
 #define UI_SCANNOW_PAGE_PAD               60
-#define UI_SCANNOW_SCANNER_SIZE           1158, 250
+#define UI_SCANNOW_SCANNER_SIZE           1053, 250
 #define UI_SCANNOW_PROG_BAR_SIZE          500, 50
 #define UI_SCANNOW_FREQ_SIZE              1164, 500
 #define UI_CLOCK_COLS                     160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
@@ -97,6 +98,8 @@ extern "C" {
 #define UI_STORAGE_ROWS                   60, 60, 60, 60, 60, 60, 60, 40, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_COLS                   160, 160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_ROWS                   60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
+#define UI_ANALOG_RSSI_COLS               160, 160, 160, 160, 160, 160, LV_GRID_TEMPLATE_LAST
+#define UI_ANALOG_RSSI_ROWS               60, 60, 60, 60, 60, 60, 60, 60, 60, 60, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_RELEASE_NOTES_MIN_SIZE 600
 #define UI_VERSION_RELEASE_NOTES_MAX_SIZE 1280
 #define UI_VERSION_FIRMWARE_MIN_SIZE      UI_VERSION_RELEASE_NOTES_MIN_SIZE
@@ -113,6 +116,27 @@ extern "C" {
 #define UI_STYLE_SUBMENU_PAD_TOP          96
 #define UI_STYLE_SUBMENU_PAD_LEFT         48
 
+#define UI_KEYBOARD_TEXT_ALIGN                 0, -372
+#define UI_KEYBOARD_INPUT_SIZE                 1416, 374
+#define UI_KEYBOARD_TEXT_SIZE                  1416, 60
+#define UI_KEYBOARD_INPUT_BG_COLOR             0xffffff
+#define UI_KEYBOARD_DIAL_SCROLL_IMG_POS        520, 100
+#define UI_KEYBOARD_DIAL_SCOLLER_TEXT_POS      620, 130
+#define UI_KEYBOARD_DIAL_CLICK_IMG_POS         920, 100
+#define UI_KEYBOARD_DIAL_CLICK_TEXT_POS        1020, 130
+#define UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_POS  1270, 100
+#define UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_TEXT 1360, 116
+
+#define UI_STYLE_SELECT_BG_COLOR     0x646464
+#define UI_STYLE_DROPDOWN_BG_COLOR   0x646464
+#define UI_STYLE_DROPDOWN_TEXT_COLOR 0xFFFFFF
+#define UI_STYLE_KEYBOARD_BG_COLOR   0x646464
+#define UI_STYLE_KEYBOARD_TEXT_COLOR 0x000000
+
+// text color
+#define TEXT_COLOR_DEFAULT 0xffffff
+#define TEXT_COLOR_DISABLE 0x808080
+
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t c[] = {264, 64, 267, 64, 267, 64, 267, 64, 267, 64, 267, LV_GRID_TEMPLATE_LAST};
     return c;
@@ -127,8 +151,9 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
     return 267;
 }
 
-#elif HDZBOXPRO
-
+#elif defined HDZBOXPRO
+#define DISP_HOR_RES_FHD                  1280
+#define DISP_VER_RES_FHD                  720
 #define UI_MENU_ENTRY_FONT                &lv_font_montserrat_18
 #define UI_MENU_LABEL_FONT                &lv_font_montserrat_14
 #define UI_MENU_SIZE                      lv_disp_get_hor_res(NULL) - 300, lv_disp_get_ver_res(NULL) - 48
@@ -216,6 +241,8 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_STORAGE_ROWS                   40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_COLS                   106, 106, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_ROWS                   40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
+#define UI_ANALOG_RSSI_COLS               106, 106, 106, 106, 106, 106, LV_GRID_TEMPLATE_LAST
+#define UI_ANALOG_RSSI_ROWS               40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
 #define UI_VERSION_RELEASE_NOTES_MIN_SIZE 600
 #define UI_VERSION_RELEASE_NOTES_MAX_SIZE 1280
 #define UI_VERSION_FIRMWARE_MIN_SIZE      UI_VERSION_RELEASE_NOTES_MIN_SIZE
@@ -231,6 +258,27 @@ static inline int UI_STATUS_BAR_LABEL_WIDTH() {
 #define UI_WIFI_ROWS                      40, 40, 40, 40, 40, 40, 40, 26, LV_GRID_TEMPLATE_LAST
 #define UI_STYLE_SUBMENU_PAD_TOP          110
 #define UI_STYLE_SUBMENU_PAD_LEFT         32
+
+#define UI_KEYBOARD_TEXT_ALIGN                 0, -250
+#define UI_KEYBOARD_INPUT_SIZE                 980, 250
+#define UI_KEYBOARD_TEXT_SIZE                  980, 40
+#define UI_KEYBOARD_INPUT_BG_COLOR             0x404040
+#define UI_KEYBOARD_DIAL_SCROLL_IMG_POS        346, 64
+#define UI_KEYBOARD_DIAL_SCOLLER_TEXT_POS      450, 96
+#define UI_KEYBOARD_DIAL_CLICK_IMG_POS         612, 64
+#define UI_KEYBOARD_DIAL_CLICK_TEXT_POS        710, 96
+#define UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_POS  822, 64
+#define UI_KEYBOARD_DIAL_RIGHT_BUTTON_IMG_TEXT 905, 85
+
+#define UI_STYLE_SELECT_BG_COLOR     0x404040
+#define UI_STYLE_DROPDOWN_BG_COLOR   0x606060
+#define UI_STYLE_DROPDOWN_TEXT_COLOR 0x202020
+#define UI_STYLE_KEYBOARD_BG_COLOR   0x606060
+#define UI_STYLE_KEYBOARD_TEXT_COLOR 0x202020
+
+// text color
+#define TEXT_COLOR_DEFAULT           0x808080
+#define TEXT_COLOR_DISABLE           0x303030
 
 static inline lv_coord_t *UI_STATUS_BAR_COLS() {
     static lv_coord_t pro[] = {176, 42, 178, 42, 178, 42, 178, 42, 178, 42, 178, LV_GRID_TEMPLATE_LAST};

@@ -102,11 +102,11 @@ void start_running(void) {
         app_state_push(APP_STATE_VIDEO);
         if (source == SETTING_AUTOSCAN_SOURCE_AV_MODULE) { // AV Module
             g_hw_stat.av_pal[1] = g_setting.source.analog_format;
-            app_switch_to_analog(SOURCE_AV_MODULE);
+            app_switch_to_analog(0);
             g_source_info.source = SOURCE_AV_MODULE;
         } else if (source == SETTING_AUTOSCAN_SOURCE_AV_IN) { // AV in
             g_hw_stat.av_pal[0] = g_setting.source.analog_format;
-            app_switch_to_analog(SOURCE_AV_IN);
+            app_switch_to_analog(1);
             g_source_info.source = SOURCE_AV_IN;
         } else { // HDMI in
             sleep(2);
@@ -130,7 +130,7 @@ static void device_init(void) {
     enable_bmi270();
     IT66021_init();
     IT66121_init();
-    TP2825_init(SOURCE_AV_IN, g_setting.source.analog_format);
+    TP2825_init(1, g_setting.source.analog_format);
     DM5680_req_ver();
     fans_top_setspeed(g_setting.fans.top_speed);
 }
@@ -168,9 +168,9 @@ int main(int argc, char *argv[]) {
     gpio_init();
     uart_init();
 
-    if (TARGET_BOXPRO == getTargetType()) {
-        gpadc_init();
-    }
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+    gpadc_init();
+#endif
 
     // 3. Initialize core devices.
     mcp3021_init();
@@ -189,9 +189,9 @@ int main(int argc, char *argv[]) {
     lv_timer_handler();
 
     // 5. Prepare Display
-    Screen_Startup();
+    screen.start_up();
     Display_UI_init();
-    Screen_Pattern(0, 0, 0);
+    screen.pattern(0, 0, 0);
     osd_init();
     ims_init();
     ui_osd_element_pos_init();
@@ -212,9 +212,9 @@ int main(int argc, char *argv[]) {
     gif_cnt = 0;
 
     // 8.1 set initial analog module power state
-    if (TARGET_GOGGLE == getTargetType()) {
-        Analog_Module_Power(0);
-    }
+#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
+    Analog_Module_Power(0);
+#endif
 
     // Head alarm
     head_alarm_init();

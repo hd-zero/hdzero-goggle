@@ -258,7 +258,11 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_label_item(content, buf, 1, RIGHT_DOUBLE, 1);
     pageItems[RIGHT_DOUBLE] = create_dropdown_item(content, btnOptionsStr, 2, RIGHT_DOUBLE, UI_INPUT_DROPDOWN_WIDTH, row_dsc[RIGHT_DOUBLE], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(pageItems[RIGHT_DOUBLE], btnIndexFromId(g_setting.inputs.right_double_click));
-
+#ifdef HDZBOXPRO
+    for (int i = 0; i < BACK_BTN; i++) {
+        lv_obj_set_style_border_color(pageItems[i], lv_color_hex(0x606060), 0);
+    }
+#endif
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     pageItems[BACK_BTN] = create_label_item(content, buf, 1, BACK_BTN, 1);
 
@@ -268,6 +272,7 @@ static lv_obj_t *page_input_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("'Toggle source' will switch between HDZero and Expansion module"));
     lv_label_set_text(label, buf);
     lv_obj_set_style_text_font(label, UI_PAGE_LABEL_FONT, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label, UI_PAGE_TEXT_PAD, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 2, LV_GRID_ALIGN_START, pp_input.p_arr.max, 1);
 
@@ -284,6 +289,9 @@ static void page_input_enter() {
     pp_input.p_arr.cur = currentHighlight;
     reset_dropdown_styles();
     lv_obj_add_style(pageItems[currentHighlight], &style_dropdown, LV_PART_MAIN);
+#ifdef HDZBOXPRO
+    lv_obj_set_style_border_color(pageItems[0], lv_palette_main(LV_PALETTE_RED), 0);
+#endif
 }
 
 /**
@@ -295,6 +303,12 @@ static void page_input_exit() {
     }
 
     reset_dropdown_styles();
+
+#ifdef HDZBOXPRO
+    for (int i = 0; i < ROW_COUNT; i++) {
+        lv_obj_set_style_border_color(pageItems[i], lv_color_hex(0x606060), 0);
+    }
+#endif
 }
 
 /**
@@ -323,6 +337,15 @@ static void page_input_on_roller(uint8_t key) {
             lv_obj_add_style(pageItems[currentHighlight], &style_dropdown, LV_PART_MAIN);
         }
     }
+#ifdef HDZBOXPRO
+    for (int i = 0; i < ROW_COUNT; i++) {
+        if (i == currentHighlight) {
+            lv_obj_set_style_border_color(pageItems[i], lv_palette_main(LV_PALETTE_RED), 0);
+        } else {
+            lv_obj_set_style_border_color(pageItems[i], lv_color_hex(0x606060), 0);
+        }
+    }
+#endif
 }
 
 /**
@@ -345,6 +368,10 @@ static void page_input_on_click(uint8_t key, int sel) {
         lv_obj_t *const list = lv_dropdown_get_list(currentItem);
         lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN);
         lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
+#ifdef HDZBOXPRO
+        lv_obj_set_style_bg_color(list, lv_color_hex(TEXT_COLOR_DEFAULT), LV_PART_SELECTED | LV_STATE_CHECKED);
+        lv_obj_set_style_bg_color(list, lv_color_hex(0x000000), LV_PART_SCROLLBAR);
+#endif
         previousSelection = lv_dropdown_get_selected(currentItem);
         app_state_push(APP_STATE_SUBMENU_ITEM_FOCUSED);
     }

@@ -59,7 +59,7 @@ enum {
     ROW_BOXLITE_COUNT
 };
 
-#if HDZGOGGLE
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
 #define ROW_CUR_VERSION        ROW_GOGGLE_CUR_VERSION
 #define ROW_RESET_ALL_SETTINGS ROW_GOGGLE_RESET_ALL_SETTINGS
 #define ROW_UPDATE_VTX         ROW_GOGGLE_UPDATE_VTX
@@ -67,7 +67,7 @@ enum {
 #define ROW_UPDATE_ESP32       ROW_GOGGLE_UPDATE_ESP32
 #define ROW_BACK               ROW_GOGGLE_BACK
 #define ROW_COUNT              ROW_GOGGLE_COUNT
-#elif HDZBOXPRO
+#elif defined HDZBOXPRO
 #define ROW_CUR_VERSION        (g_setting.has_all_features ? ROW_BOXPRO_CUR_VERSION : ROW_BOXLITE_CUR_VERSION)
 #define ROW_RESET_ALL_SETTINGS (g_setting.has_all_features ? ROW_BOXPRO_RESET_ALL_SETTINGS : ROW_BOXLITE_RESET_ALL_SETTINGS)
 #define ROW_UPDATE_VTX         (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_VTX : ROW_BOXLITE_UPDATE_VTX)
@@ -315,11 +315,18 @@ static void flash_goggle() {
     lv_timer_handler();
 
     is_need_update_progress = true;
+#if defined(HDZGOGGLE)
+    char shell_path[] = "/mnt/app/script/update_goggle.sh";
+#elif defined(HDZBOXPRO)
+    char shell_path[] = "/mnt/app/script/update_boxpro.sh";
+#elif defined(HDZGOGGLE2)
+    char shell_path[] = "/mnt/app/script/update_goggle2.sh";
+#endif
     ret = flash_hdzero("/tmp/GOGGLE",
                        fw_select_goggle.files[fw_select_goggle.which],
                        fw_select_goggle.path,
                        fw_select_goggle.files[fw_select_goggle.which],
-                       "/mnt/app/script/update_goggle.sh",
+                       shell_path,
                        fw_select_goggle.zipped);
     is_need_update_progress = false;
 
@@ -336,7 +343,7 @@ static void flash_goggle() {
         reboot_flag = true;
         lv_timer_handler();
     } else if (ret == 2) {
-        snprintf(buf, sizeof(buf), "$FFFF00 %s.#", _lang("No firmware found"));
+        snprintf(buf, sizeof(buf), "#FFFF00 %s.#", _lang("No firmware found"));
         lv_label_set_text(btn_goggle, buf);
     } else if (ret == 3) {
         snprintf(buf, sizeof(buf), "#FFFF00 %s. %s.#", _lang("Multiple versions been found"), _lang("Keep only one"));
@@ -513,12 +520,15 @@ static void page_version_fw_scan_for_updates() {
     bool has_online_vtx_update = false;
     char buf[1024];
 
-#if HDZGOGGLE
+#if defined HDZGOGGLE
     const char *local_filename = "HDZERO_GOGGLE";
     const char *remote_filename = "GOGGLE";
-#elif HDZBOXPRO
+#elif defined HDZBOXPRO
     const char *local_filename = "HDZERO_BOXPRO";
     const char *remote_filename = "BoxPro";
+#elif defined HDZGOGGLE2
+    const char *local_filename = "HDZERO_GOGGLE2";
+    const char *remote_filename = "GOGGLE2";
 #endif
 
     page_version_fw_select_reset(&fw_select_goggle);
@@ -529,15 +539,15 @@ static void page_version_fw_scan_for_updates() {
         fw_select_goggle.alt_title = _lang("SD Card");
     }
 
-    if (TARGET_GOGGLE == getTargetType()) {
-        page_version_fw_select_reset(&fw_select_vtx);
-        snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
-        page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+    page_version_fw_select_reset(&fw_select_vtx);
+    snprintf(fw_select_vtx.path, sizeof(fw_select_vtx.path), "/mnt/extsd");
+    page_version_get_latest_fw_files(&fw_select_vtx, "HDZERO_TX", false);
 
-        if (fw_select_vtx.ready) {
-            fw_select_vtx.alt_title = _lang("SD Card");
-        }
+    if (fw_select_vtx.ready) {
+        fw_select_vtx.alt_title = _lang("SD Card");
     }
+#endif
 
     if (g_setting.wifi.enable) {
         if (!fw_select_goggle.ready) {
@@ -546,13 +556,13 @@ static void page_version_fw_scan_for_updates() {
                 0 < page_version_get_latest_fw_files(&fw_select_goggle, ".bin", true);
         }
 
-        if (TARGET_GOGGLE == getTargetType()) {
-            if (!fw_select_vtx.ready) {
-                has_online_vtx_update =
-                    0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
-                    0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
-            }
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        if (!fw_select_vtx.ready) {
+            has_online_vtx_update =
+                0 < page_version_get_latest_fw_path("VTX", fw_select_vtx.path, sizeof(fw_select_vtx.path)) &&
+                0 < page_version_get_latest_fw_files(&fw_select_vtx, ".zip", true);
         }
+#endif
 
         if (has_online_goggle_update || has_online_vtx_update) {
             snprintf(buf, sizeof(buf), "%s\n%s.",
@@ -856,7 +866,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_grid_row_dsc_array(cont, row_dsc, 0);
 
     create_select_item(arr, cont);
-    cur_ver_label = create_label_item(cont, _lang("Current Version"), 1, ROW_CUR_VERSION, 2);
+    cur_ver_label = create_label_item(cont, _lang("Current Version"), 1, ROW_CUR_VERSION, 3);
 
     btn_reset_all_settings = create_label_item(cont, _lang("Reset all settings"), 1, ROW_RESET_ALL_SETTINGS, 2);
 
@@ -909,7 +919,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_label_set_text(label_note, "");
     lv_obj_set_style_text_font(label_note, UI_PAGE_LABEL_FONT, 0);
     lv_obj_set_style_text_align(label_note, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_color(label_note, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_text_color(label_note, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_obj_set_style_pad_top(label_note, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label_note, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label_note, LV_GRID_ALIGN_START, 1, 4, LV_GRID_ALIGN_START, 6, 2);
