@@ -29,6 +29,10 @@ def extract_simplified_chinese_unicode():
     return list_to_plain_string(extract_unicode_points(Path(__file__).parent / "../../mkapp/app/language/zh_hans.ini", re.compile(r'[\u4e00-\u9fff]')))
 
 
+def extract_spanish_unicode():
+    return list_to_plain_string(extract_unicode_points(Path(__file__).parent / "../../mkapp/app/language/es_es.ini", re.compile(r'[\u00C0-\u00FF]')))
+
+
 def patch():
     folder_path = "out"
 
