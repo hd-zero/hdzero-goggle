@@ -1048,6 +1048,15 @@ static void reset_all_settings_reset_label_text() {
     lv_label_set_text(btn_reset_all_settings, _lang("Reset all settings"));
 }
 
+static void close_language_dropdown() {
+    if (dropdown_lang_is_opened) {
+        lv_event_send(dropdown_lang, LV_EVENT_RELEASED, NULL);
+        lv_obj_remove_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
+        dropdown_lang_is_opened = false;
+        pp_version.p_arr.max = ROW_COUNT; // enable roller operation on input_device.c
+    }
+}
+
 static void page_version_enter() {
     autoscan_filesystem = false;
     version_update_title();
@@ -1094,11 +1103,7 @@ static void page_version_on_click(uint8_t key, int sel) {
 
     if (sel == ROW_LANGUAGE) {
         if (dropdown_lang_is_opened) {
-            lv_event_send(dropdown_lang, LV_EVENT_RELEASED, NULL);
-            lv_dropdown_close(dropdown_lang);
-            lv_obj_remove_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
-            dropdown_lang_is_opened = false;
-            pp_version.p_arr.max = ROW_COUNT; // enable roller operation on input_device.c
+            close_language_dropdown();
             uint16_t selected = lv_dropdown_get_selected(dropdown_lang);
             if (selected != g_setting.language.lang) {
                 ini_putl("language", "lang", selected, SETTING_INI);
