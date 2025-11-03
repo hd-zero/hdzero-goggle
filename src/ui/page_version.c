@@ -1073,6 +1073,11 @@ static void page_version_exit() {
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
     page_version_fw_select_hide(&fw_select_vtx);
     page_version_fw_select_hide(&fw_select_goggle);
+    if (dropdown_lang_is_opened) {
+        lv_dropdown_set_selected(dropdown_lang, g_setting.language.lang);
+        close_language_dropdown();
+    }
+
     autoscan_filesystem = true;
 }
 
