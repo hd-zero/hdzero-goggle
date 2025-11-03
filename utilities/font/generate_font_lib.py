@@ -1,25 +1,32 @@
 import re
 import subprocess
 import os
+from pathlib import Path
+
+
+def extract_unicode_points(input_file: Path, char_pattern: re.Pattern = re.compile('.')) -> list[int]:
+    codes: list[int] = []
+
+    with open(input_file, 'r', encoding='utf-8') as file:
+        for line in file:
+            if line.count('"') == 0:
+                continue
+            text = line[line.find('"') + 1:line.rfind('"')]
+            for char in text:
+                if char_pattern.match(char):
+                    code_point = ord(char)
+                    if not code_point in codes:
+                        codes.append(code_point)
+
+    return sorted(codes)
+
+
+def list_to_plain_string(list: list[int]) -> str:
+    return ",".join(map(str, list))
 
 
 def extract_simplified_chinese_unicode():
-    input_file_path = "../../mkapp/app/language/zh_hans.ini"
-    range_str = ""
-    char_pattern = re.compile(r'[\u4e00-\u9fff]')
-
-    unique_chars = set()
-
-    with open(input_file_path, "r", encoding="utf-8") as file:
-        for line in file:
-            for char in line:
-                if char_pattern.match(char):
-                    unique_chars.add(char)
-
-        for char in sorted(unique_chars):
-            range_str += f"{ord(char)},"
-
-    return range_str[:-1]
+    return list_to_plain_string(extract_unicode_points(Path(__file__).parent / "../../mkapp/app/language/zh_hans.ini", re.compile(r'[\u4e00-\u9fff]')))
 
 
 def patch():
