@@ -71,6 +71,9 @@ def generate_fonts():
     cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
     cmd_range_cyrillic = " --range 1024-1279"
 
+    cmd_font_spanish = " --font Montserrat-Medium.ttf"
+    cmd_range_spanish = " --range " + extract_spanish_unicode()
+
     font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
                  26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
 
@@ -89,6 +92,8 @@ def generate_fonts():
         command += cmd_range_simplified_chinese
         command += cmd_font_cyrillic
         command += cmd_range_cyrillic
+        command += cmd_font_spanish
+        command += cmd_range_spanish
 
 
         command += cmd_format
