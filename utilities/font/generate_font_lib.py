@@ -1,3 +1,4 @@
+import json
 import re
 import subprocess
 import os
@@ -25,12 +26,8 @@ def list_to_plain_string(list: list[int]) -> str:
     return ",".join(map(str, list))
 
 
-def extract_simplified_chinese_unicode():
-    return list_to_plain_string(extract_unicode_points(Path(__file__).parent / "../../mkapp/app/language/zh_hans.ini", re.compile(r'[\u4e00-\u9fff]')))
-
-
-def extract_spanish_unicode():
-    return list_to_plain_string(extract_unicode_points(Path(__file__).parent / "../../mkapp/app/language/es_es.ini", re.compile(r'[\u00C0-\u00FF]')))
+def unicode_points_range(input_file: Path, char_pattern: re.Pattern = re.compile('.')) -> str:
+    return list_to_plain_string(extract_unicode_points(input_file, char_pattern))
 
 
 def patch():
@@ -64,15 +61,14 @@ def generate_fonts():
     cmd_font_lvgl_privite = " --font FontAwesome5-Solid+Brands+Regular.woff"
     cmd_range_lvgl_privite = " --range 61441,61448,61451,61452,61452,61453,61457,61459,61461,61465,61468,61473,61478,61479,61480,61502,61507,61512,61515,61516,61517,61521,61522,61523,61524,61543,61544,61550,61552,61553,61556,61559,61560,61561,61563,61587,61589,61636,61637,61639,61641,61664,61671,61674,61683,61724,61732,61787,61931,62016,62017,62018,62019,62020,62087,62099,62212,62189,62810,63426,63650"
 
-    cmd_font_simplified_chinese = " --font simhei.ttf"
-    cmd_range_simplified_chinese = "  --range " + \
-        extract_simplified_chinese_unicode()
+    cmd_languages: str = ""
 
-    cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
-    cmd_range_cyrillic = " --range 1024-1279"
+    with open(Path(__file__).parent / "language_info.json", 'r') as f:
+        language_info = json.load(f)
 
-    cmd_font_spanish = " --font Montserrat-Medium.ttf"
-    cmd_range_spanish = " --range " + extract_spanish_unicode()
+    BASE_LANGUAGE_PATH: Path = Path(__file__).parent / "../../mkapp/app/language"
+    for language in language_info:
+        cmd_languages += " --font " + language["font"] + " --range " + unicode_points_range(BASE_LANGUAGE_PATH / language["ini"], re.compile(language["range"]))
 
     font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
                  26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
@@ -88,13 +84,7 @@ def generate_fonts():
         command += cmd_range_default
         command += cmd_font_lvgl_privite
         command += cmd_range_lvgl_privite
-        command += cmd_font_simplified_chinese
-        command += cmd_range_simplified_chinese
-        command += cmd_font_cyrillic
-        command += cmd_range_cyrillic
-        command += cmd_font_spanish
-        command += cmd_range_spanish
-
+        command += cmd_languages
 
         command += cmd_format
         command += cmd_output + str(s) + ".c"
