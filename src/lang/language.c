@@ -7,6 +7,7 @@
 #include "core/common.hh"
 #include "language.h"
 #include "ui/page_common.h"
+#include "util/system.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -131,21 +132,56 @@ bool language_config() {
     int i = 0;
 
     for (i = 0; i < LANG_END; i++) {
+        bool languageFound = false;
+
         snprintf(buf, sizeof(buf), "/mnt/extsd/%s", language_config_file[i]);
         if (access(buf, F_OK) == 0) {
             LOGI("%s found", language_config_file[i]);
             ini_putl("language", "lang", i, SETTING_INI);
             g_setting.language.lang = i;
-            return true;
+            languageFound = true;
+        } else {
+            to_lowercase(buf);
+            if (access(buf, F_OK) == 0) {
+                LOGI("%s found", language_config_file[i]);
+                ini_putl("language", "lang", i, SETTING_INI);
+                g_setting.language.lang = i;
+                languageFound = true;
+            }
         }
 
-        to_lowercase(buf);
-        if (access(buf, F_OK) == 0) {
-            LOGI("%s found", language_config_file[i]);
-            ini_putl("language", "lang", i, SETTING_INI);
-            g_setting.language.lang = i;
+        if (languageFound) {
+            char cmd[259];
+            snprintf(cmd, sizeof(cmd), "rm %s", buf);
+            system_exec(cmd);
             return true;
         }
     }
     return false;
+}
+
+/**
+ * Build a '\n'-separated list of all available languages
+ */
+char *languageList(char *buffer, size_t len) {
+    for (size_t i = 0; i < ARRAY_SIZE(languages) && len > 0; i++) {
+        const char * const currentLanguageName = _lang(languages[i].name);
+        const size_t nameLength = strlen(currentLanguageName);
+
+        if (nameLength >= len) {
+            char tmp[256];
+            snprintf(tmp, len, "%s", currentLanguageName);
+            strcat(buffer, tmp);
+            len = 0;
+        } else {
+            strcat(buffer, currentLanguageName);
+            len -= nameLength;
+            if (i < ARRAY_SIZE(languages) - 1 && len > 1) {
+                strcat(buffer, "\n");
+                len--;
+            }
+        }
+    }
+
+    return buffer;
 }

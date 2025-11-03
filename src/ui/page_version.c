@@ -35,6 +35,7 @@ enum {
     ROW_GOGGLE_UPDATE_VTX,
     ROW_GOGGLE_UPDATE_GOGGLE,
     ROW_GOGGLE_UPDATE_ESP32,
+    ROW_GOGGLE_LANGUAGE,
     ROW_GOGGLE_BACK,
     ROW_GOGGLE_COUNT
 };
@@ -45,6 +46,7 @@ enum {
     ROW_BOXPRO_RESET_ALL_SETTINGS,
     ROW_BOXPRO_UPDATE_GOGGLE,
     ROW_BOXPRO_UPDATE_ESP32,
+    ROW_BOXPRO_LANGUAGE,
     ROW_BOXPRO_BACK,
     ROW_BOXPRO_COUNT
 };
@@ -55,6 +57,7 @@ enum {
     ROW_BOXLITE_CUR_VERSION = 0,
     ROW_BOXLITE_RESET_ALL_SETTINGS,
     ROW_BOXLITE_UPDATE_GOGGLE,
+    ROW_BOXLITE_LANGUAGE,
     ROW_BOXLITE_BACK,
     ROW_BOXLITE_COUNT
 };
@@ -65,6 +68,7 @@ enum {
 #define ROW_UPDATE_VTX         ROW_GOGGLE_UPDATE_VTX
 #define ROW_UPDATE_GOGGLE      ROW_GOGGLE_UPDATE_GOGGLE
 #define ROW_UPDATE_ESP32       ROW_GOGGLE_UPDATE_ESP32
+#define ROW_LANGUAGE           ROW_GOGGLE_LANGUAGE
 #define ROW_BACK               ROW_GOGGLE_BACK
 #define ROW_COUNT              ROW_GOGGLE_COUNT
 #elif defined HDZBOXPRO
@@ -73,6 +77,7 @@ enum {
 #define ROW_UPDATE_VTX         (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_VTX : ROW_BOXLITE_UPDATE_VTX)
 #define ROW_UPDATE_GOGGLE      (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_GOGGLE : ROW_BOXLITE_UPDATE_GOGGLE)
 #define ROW_UPDATE_ESP32       (g_setting.has_all_features ? ROW_BOXPRO_UPDATE_ESP32 : ROW_BOXLITE_UPDATE_ESP32)
+#define ROW_LANGUAGE           (g_setting.has_all_features ? ROW_BOXPRO_LANGUAGE : ROW_BOXLITE_LANGUAGE)
 #define ROW_BACK               (g_setting.has_all_features ? ROW_BOXPRO_BACK : ROW_BOXLITE_BACK)
 #define ROW_COUNT              (g_setting.has_all_features ? ROW_BOXPRO_COUNT : ROW_BOXLITE_COUNT)
 #endif
@@ -122,6 +127,10 @@ static lv_obj_t *alert_img = NULL;
 static fw_select_t fw_select_goggle;
 static fw_select_t fw_select_vtx;
 static fw_select_t *fw_select_current = &fw_select_vtx;
+static lv_obj_t *dropdown_lang;
+static lv_obj_t *msgbox_language_changed = NULL;
+
+static bool dropdown_lang_is_opened = false;
 
 #define ADDR_AL            0x65
 #define ADDR_FPGA          0x64
@@ -839,6 +848,7 @@ static void page_version_fw_select_create(const char *device, fw_select_t *fw_se
     page_version_fw_select_hide(fw_select);
 }
 
+char language_options_str[256];
 static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[128];
     static char page_name[32];
@@ -897,6 +907,16 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
         lv_obj_add_flag(bar_esp, LV_OBJ_FLAG_HIDDEN);
     }
 
+    sprintf(buf, "%s", _lang("Language"));
+    create_label_item(cont, buf, 1, ROW_LANGUAGE, 1);
+
+    dropdown_lang = create_dropdown_item(cont, languageList(language_options_str, 256), 3, ROW_LANGUAGE,  UI_INPUT_DROPDOWN_WIDTH, row_dsc[ROW_LANGUAGE], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
+    lv_dropdown_set_selected(dropdown_lang, g_setting.language.lang);
+
+    lv_obj_t *list = lv_dropdown_get_list(dropdown_lang);
+    lv_obj_add_style(list, &style_dropdown, LV_PART_MAIN); // The dropdown consists of a button and a list. You need to add a style to the list separately.
+    lv_obj_set_style_text_color(list, lv_color_make(0, 0, 0), LV_PART_SELECTED | LV_STATE_CHECKED);
+
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
     create_label_item(cont, buf, 1, ROW_BACK, 1);
 
@@ -911,6 +931,12 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
              _lang("Please repower goggle now"));
     msgbox_settings_reset = create_msgbox_item(_lang("Settings reset"), buf);
     lv_obj_add_flag(msgbox_settings_reset, LV_OBJ_FLAG_HIDDEN);
+
+    snprintf(buf, sizeof(buf), "%s.\n%s.",
+        _lang("Language has been changed"),
+        _lang("Please repower goggle now"));
+    msgbox_language_changed = create_msgbox_item(_lang("Set Language"), buf);
+    lv_obj_add_flag(msgbox_language_changed, LV_OBJ_FLAG_HIDDEN);
 
     msgbox_release_notes = create_msgbox_item(_lang("Release Notes"), _lang("Empty"));
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
@@ -1022,6 +1048,15 @@ static void reset_all_settings_reset_label_text() {
     lv_label_set_text(btn_reset_all_settings, _lang("Reset all settings"));
 }
 
+static void close_language_dropdown() {
+    if (dropdown_lang_is_opened) {
+        lv_event_send(dropdown_lang, LV_EVENT_RELEASED, NULL);
+        lv_obj_remove_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
+        dropdown_lang_is_opened = false;
+        pp_version.p_arr.max = ROW_COUNT; // enable roller operation on input_device.c
+    }
+}
+
 static void page_version_enter() {
     autoscan_filesystem = false;
     version_update_title();
@@ -1038,12 +1073,27 @@ static void page_version_exit() {
     lv_obj_add_flag(msgbox_release_notes, LV_OBJ_FLAG_HIDDEN);
     page_version_fw_select_hide(&fw_select_vtx);
     page_version_fw_select_hide(&fw_select_goggle);
+    if (dropdown_lang_is_opened) {
+        lv_dropdown_set_selected(dropdown_lang, g_setting.language.lang);
+        close_language_dropdown();
+    }
+
     autoscan_filesystem = true;
 }
 
 static void page_version_on_roller(uint8_t key) {
 
     version_update_title();
+
+    if (dropdown_lang_is_opened) {
+        if (key == DIAL_KEY_UP) {
+            uint32_t evt = LV_KEY_DOWN;
+            lv_event_send(dropdown_lang, LV_EVENT_KEY, &evt);
+        } else if (key == DIAL_KEY_DOWN) {
+            uint32_t evt = LV_KEY_UP;
+            lv_event_send(dropdown_lang, LV_EVENT_KEY, &evt);
+        }
+    }
 
     if (reset_all_settings_confirm == CONFIRMATION_CONFIRMED) {
         reset_all_settings_reset_label_text();
@@ -1055,6 +1105,23 @@ static void page_version_on_click(uint8_t key, int sel) {
     char buf[128];
     FILE *fp;
     int dat[16];
+
+    if (sel == ROW_LANGUAGE) {
+        if (dropdown_lang_is_opened) {
+            close_language_dropdown();
+            uint16_t selected = lv_dropdown_get_selected(dropdown_lang);
+            if (selected != g_setting.language.lang) {
+                ini_putl("language", "lang", selected, SETTING_INI);
+                lv_obj_clear_flag(msgbox_language_changed, LV_OBJ_FLAG_HIDDEN);
+                app_state_push(APP_STATE_USER_INPUT_DISABLED);
+            }
+        } else {
+            lv_dropdown_open(dropdown_lang);
+            lv_obj_add_style(dropdown_lang, &style_dropdown, LV_PART_MAIN);
+            dropdown_lang_is_opened = true;
+            pp_version.p_arr.max = 0; // disable roller operation on input_device.c
+        }
+    }
 
     if (!page_version_release_notes_active()) {
         version_update_title();
