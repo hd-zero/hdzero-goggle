@@ -910,12 +910,7 @@ static lv_obj_t *page_version_create(lv_obj_t *parent, panel_arr_t *arr) {
     sprintf(buf, "%s", _lang("Language"));
     create_label_item(cont, buf, 1, ROW_LANGUAGE, 1);
 
-    dropdown_lang = lv_dropdown_create(cont);
-    lv_dropdown_set_options(dropdown_lang, languageList(language_options_str, 256));
-    lv_obj_set_style_text_font(dropdown_lang, &lv_font_montserrat_26, 0);
-    lv_obj_set_size(dropdown_lang, 360, 60);
-    lv_obj_set_grid_cell(dropdown_lang, LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, ROW_LANGUAGE, 1);
-
+    dropdown_lang = create_dropdown_item(cont, languageList(language_options_str, 256), 3, ROW_LANGUAGE,  UI_INPUT_DROPDOWN_WIDTH, row_dsc[ROW_LANGUAGE], 2, 10, LV_GRID_ALIGN_START, UI_PAGE_TEXT_FONT);
     lv_dropdown_set_selected(dropdown_lang, g_setting.language.lang);
 
     lv_obj_t *list = lv_dropdown_get_list(dropdown_lang);
