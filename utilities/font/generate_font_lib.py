@@ -1,3 +1,4 @@
+import argparse
 import json
 import re
 import shutil
@@ -123,4 +124,11 @@ def copy_to_target_folder(src: Path, dst: Path):
 
 
 if __name__ == '__main__':
-    generate_fonts()
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument('-c', '--copy', action='store_true', help='Copy generated fonts to target folder')
+    argument_parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+    args = argument_parser.parse_args()
+
+    generate_fonts(args.verbose)
+    if args.copy:
+        copy_to_target_folder(Path(__file__).parent / 'out', Path(__file__).parent / '../../lib/lvgl/lvgl/src/font')
