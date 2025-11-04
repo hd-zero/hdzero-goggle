@@ -48,7 +48,9 @@ def patch():
                     file.writelines(lines_to_keep)
 
 
-def generate_fonts():
+def generate_fonts(verbose: bool=False):
+    print("Generating fonts")
+
     cmd_app = "lv_font_conv"
     cmd_bpp = " --bpp 4"
     cmd_size = " --size "
@@ -75,6 +77,7 @@ def generate_fonts():
                  26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
 
     for s in font_size:
+        print(f'Generating font size {s}...', end="")
         command = ""
         command += cmd_app
         command += cmd_bpp
@@ -89,12 +92,19 @@ def generate_fonts():
 
         command += cmd_format
         command += cmd_output + str(s) + ".c"
-        print(command)
-        subprocess.run(command, text=True, shell=True, capture_output=True)
+        if verbose:
+            print(f'\n{command}')
+        result = subprocess.run(command, text=True, shell=True, capture_output=True)
+        if result.returncode != 0:
+            print(f'{result.stderr}')
+            raise Exception("Failed to generate font")
+        else:
+            print('✓')
 
-    print("Patch")
+    print("Patch...", end="")
     patch()
     print("Done")
+    print('=' * 50)
 
 
 def copy_to_target_folder(src: Path, dst: Path):
