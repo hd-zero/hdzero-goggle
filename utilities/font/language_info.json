@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Simplified Chinese",
+        "ini": "zh_hans.ini",
+        "font": "simhei.ttf",
+        "range": "[\u4E00-\u9FFF]"
+    },
+    {
+        "name": "Russian",
+        "ini": "ru_ru.ini",
+        "font": "Montserrat-Medium.ttf",
+        "range": "[\u0400-\u04FF]"
+    },
+    {
+        "name": "Spanish",
+        "ini": "es_es.ini",
+        "font": "Montserrat-Medium.ttf",
+        "range": "[\u00C0-\u00FF]"
+    }
+]

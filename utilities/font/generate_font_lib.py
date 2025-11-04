@@ -1,25 +1,35 @@
+import argparse
+import json
 import re
+import shutil
 import subprocess
 import os
+from pathlib import Path
 
 
-def extract_simplified_chinese_unicode():
-    input_file_path = "../../mkapp/app/language/zh_hans.ini"
-    range_str = ""
-    char_pattern = re.compile(r'[\u4e00-\u9fff]')
+def extract_unicode_points(input_file: Path, char_pattern: re.Pattern = re.compile('.')) -> list[int]:
+    codes: list[int] = []
 
-    unique_chars = set()
-
-    with open(input_file_path, "r", encoding="utf-8") as file:
+    with open(input_file, 'r', encoding='utf-8') as file:
         for line in file:
-            for char in line:
+            if line.count('"') == 0:
+                continue
+            text = line[line.find('"') + 1:line.rfind('"')]
+            for char in text:
                 if char_pattern.match(char):
-                    unique_chars.add(char)
+                    code_point = ord(char)
+                    if not code_point in codes:
+                        codes.append(code_point)
 
-        for char in sorted(unique_chars):
-            range_str += f"{ord(char)},"
+    return sorted(codes)
 
-    return range_str[:-1]
+
+def list_to_plain_string(list: list[int]) -> str:
+    return ",".join(map(str, list))
+
+
+def unicode_points_range(input_file: Path, char_pattern: re.Pattern = re.compile('.')) -> str:
+    return list_to_plain_string(extract_unicode_points(input_file, char_pattern))
 
 
 def patch():
@@ -39,51 +49,86 @@ def patch():
                     file.writelines(lines_to_keep)
 
 
-cmd_app = "lv_font_conv"
-cmd_bpp = " --bpp 4"
-cmd_size = " --size "
-cmd_compress = " --no-compress"
-cmd_format = " --format lvgl"
-cmd_output = " -o out/lv_font_montserrat_"
+def generate_fonts(verbose: bool=False):
+    print("Generating fonts")
 
-cmd_font_default = " --font Montserrat-Medium.ttf"
-cmd_range_default = " --range 32-127,176,8226"
+    cmd_app = "lv_font_conv"
+    cmd_bpp = " --bpp 4"
+    cmd_size = " --size "
+    cmd_compress = " --no-compress"
+    cmd_format = " --format lvgl"
+    cmd_output = " -o out/lv_font_montserrat_"
 
-cmd_font_lvgl_privite = " --font FontAwesome5-Solid+Brands+Regular.woff"
-cmd_range_lvgl_privite = " --range 61441,61448,61451,61452,61452,61453,61457,61459,61461,61465,61468,61473,61478,61479,61480,61502,61507,61512,61515,61516,61517,61521,61522,61523,61524,61543,61544,61550,61552,61553,61556,61559,61560,61561,61563,61587,61589,61636,61637,61639,61641,61664,61671,61674,61683,61724,61732,61787,61931,62016,62017,62018,62019,62020,62087,62099,62212,62189,62810,63426,63650"
+    cmd_font_default = " --font Montserrat-Medium.ttf"
+    cmd_range_default = " --range 32-127,176,8226"
 
-cmd_font_simplified_chinese = " --font simhei.ttf"
-cmd_range_simplified_chinese = "  --range " + \
-    extract_simplified_chinese_unicode()
+    cmd_font_lvgl_privite = " --font FontAwesome5-Solid+Brands+Regular.woff"
+    cmd_range_lvgl_privite = " --range 61441,61448,61451,61452,61452,61453,61457,61459,61461,61465,61468,61473,61478,61479,61480,61502,61507,61512,61515,61516,61517,61521,61522,61523,61524,61543,61544,61550,61552,61553,61556,61559,61560,61561,61563,61587,61589,61636,61637,61639,61641,61664,61671,61674,61683,61724,61732,61787,61931,62016,62017,62018,62019,62020,62087,62099,62212,62189,62810,63426,63650"
 
-cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
-cmd_range_cyrillic = " --range 1024-1279"
+    cmd_languages: str = ""
 
-font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
-             26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
+    with open(Path(__file__).parent / "language_info.json", 'r') as f:
+        language_info = json.load(f)
 
-for s in font_size:
-    command = ""
-    command += cmd_app
-    command += cmd_bpp
-    command += cmd_size + str(s)
-    command += cmd_compress
+    BASE_LANGUAGE_PATH: Path = Path(__file__).parent / "../../mkapp/app/language"
+    for language in language_info:
+        cmd_languages += " --font " + language["font"] + " --range " + unicode_points_range(BASE_LANGUAGE_PATH / language["ini"], re.compile(language["range"]))
 
-    command += cmd_font_default
-    command += cmd_range_default
-    command += cmd_font_lvgl_privite
-    command += cmd_range_lvgl_privite
-    command += cmd_font_simplified_chinese
-    command += cmd_range_simplified_chinese
-    command += cmd_font_cyrillic
-    command += cmd_range_cyrillic
+    font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
+                 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
+
+    for s in font_size:
+        print(f'Generating font size {s}...', end="")
+        command = ""
+        command += cmd_app
+        command += cmd_bpp
+        command += cmd_size + str(s)
+        command += cmd_compress
+
+        command += cmd_font_default
+        command += cmd_range_default
+        command += cmd_font_lvgl_privite
+        command += cmd_range_lvgl_privite
+        command += cmd_languages
+
+        command += cmd_format
+        command += cmd_output + str(s) + ".c"
+        if verbose:
+            print(f'\n{command}')
+        result = subprocess.run(command, text=True, shell=True, capture_output=True)
+        if result.returncode != 0:
+            print(f'{result.stderr}')
+            raise Exception("Failed to generate font")
+        else:
+            print('✓')
+
+    print("Patch...", end="")
+    patch()
+    print("Done")
+    print('=' * 50)
 
 
-    command += cmd_format
-    command += cmd_output + str(s) + ".c"
-    print(command)
-    subprocess.run(command, text=True, shell=True, capture_output=True)
-    
-print("Patch")
-patch()
-print("Done")
+def copy_to_target_folder(src: Path, dst: Path):
+    if not dst.exists():
+        dst.mkdir(parents=True)
+
+    try:
+        for file in src.glob('*.c'):
+            print(f'Copying {file.name} to {dst.resolve()}')
+            shutil.copy(file, dst)
+
+        print('Done')
+    except PermissionError:
+        print('PermissionError: Need higher privileges (e.g. sudo) to copy files')
+    print('=' * 50)
+
+
+if __name__ == '__main__':
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument('-c', '--copy', action='store_true', help='Copy generated fonts to target folder')
+    argument_parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+    args = argument_parser.parse_args()
+
+    generate_fonts(args.verbose)
+    if args.copy:
+        copy_to_target_folder(Path(__file__).parent / 'out', Path(__file__).parent / '../../lib/lvgl/lvgl/src/font')
