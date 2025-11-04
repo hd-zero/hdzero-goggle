@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 import subprocess
 import os
 from pathlib import Path
@@ -94,6 +95,21 @@ def generate_fonts():
     print("Patch")
     patch()
     print("Done")
+
+
+def copy_to_target_folder(src: Path, dst: Path):
+    if not dst.exists():
+        dst.mkdir(parents=True)
+
+    try:
+        for file in src.glob('*.c'):
+            print(f'Copying {file.name} to {dst.resolve()}')
+            shutil.copy(file, dst)
+
+        print('Done')
+    except PermissionError:
+        print('PermissionError: Need higher privileges (e.g. sudo) to copy files')
+    print('=' * 50)
 
 
 if __name__ == '__main__':
