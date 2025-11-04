@@ -44,3 +44,11 @@ python3 generate_font_lib.py
 Copy the generated font library (i.e. all lv_font_*.c files) from the `out` directory to the `lib/lvgl/lvgl/src/font`
 directory. Don't forget to commit them to the repository or others won't be able to see all characters necessary by the
 localized strings.
+
+This can also be achieved by calling the script with the `--copy` flag:
+
+```
+python3 generate_font_lib.py --copy
+```
+
+Note that this operation might need privileges to copy the files to the target directory.
