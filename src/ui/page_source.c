@@ -161,8 +161,8 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Video"), "NTSC", "PAL", "", "", ROW_ANALOG_VIDEO);
     btn_group_set_sel(&btn_group0, g_setting.source.analog_format);
 #elif defined(HDZGOGGLE2)
-    create_btn_group_item(&btn_group2, cont, 2, _lang("Analog Module"), _lang("Built-in"), _lang("Expansion"), "", "", ROW_ANALOG_MODULE);
-    btn_group_set_sel(&btn_group2, g_setting.source.analog_module);
+    create_btn_group_item(&btn_group0, cont, 2, _lang("Analog Module"), _lang("Built-in"), _lang("Expansion"), "", "", ROW_ANALOG_MODULE);
+    btn_group_set_sel(&btn_group0, g_setting.source.analog_module);
 #endif
 
     create_btn_group_item(&btn_group3, cont, 2, _lang("Analog Ratio"), _lang("4:3"), _lang("16:9"), "", "", ROW_ANALOG_RATIO);
@@ -349,8 +349,8 @@ static void page_source_on_click(uint8_t key, int sel) {
         break;
 #elif defined(HDZGOGGLE2)
     case ROW_ANALOG_MODULE:
-        btn_group_toggle_sel(&btn_group2);
-        g_setting.source.analog_module = btn_group_get_sel(&btn_group2);
+        btn_group_toggle_sel(&btn_group0);
+        g_setting.source.analog_module = btn_group_get_sel(&btn_group0);
         ini_putl("source", "analog_module", g_setting.source.analog_module, SETTING_INI);
         break;
 #endif
