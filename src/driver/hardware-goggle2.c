@@ -694,8 +694,9 @@ void Display_1080P24_t(int mode) {
 
     DM5680_SetFPS(mode);
     screen.mfpga.set1080p30();
-    screen.vtmg(2);
+    screen.vtmg(0);
 
+    I2C_Write(ADDR_FPGA, 0xa7, 0x00);
     I2C_Write(ADDR_FPGA, 0x8C, 0x01);
 
     g_hw_stat.source_mode = SOURCE_MODE_HDZERO;
