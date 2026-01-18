@@ -540,10 +540,13 @@ static void get_event(int fd) {
             if (event.code == REL_X) {
                 // LOGI("x = %d", event.value);
             } else if (event.code == REL_Y) {
-                roller_value = event.value;
-                // LOGI("y = %d", event.value);
+                if (roller_value != event.value) {
+                    timeradd(&event.time, &rel_time_diff, &next_rel);
+                    roller_value = event.value;
+                    // LOGI("y = %d", event.value);
+                }
+                event_type_last = EV_REL;
             }
-            event_type_last = EV_REL;
         } else {
             discard_scroll = true;
             LOGI("discard EV_REL");
