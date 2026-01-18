@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include <log/log.h>
@@ -453,28 +454,44 @@ static void get_event(int fd) {
 
     static int roller_value = 0;
 
+    // time (sec, usec) difference above which will the next scroll wheel event be accepted
+    // 10000 usec = 10msec is more than short enough (100Hz)
+    // scroll events
+    const struct timeval scroll_time_diff = {0, 10000};
+    // direction change events
+    const struct timeval rel_time_diff = {0, 20000};
+    // expected timestamp in the future beyond that will the events be accepted
+    static struct timeval next_scroll = {0, 0};
+    static struct timeval next_rel = {0, 0};
+    static bool discard_scroll = false;
+
     read(fd, &event, sizeof(event));
 
     switch (event.type) {
     case EV_SYN:
         if (event.code == SYN_REPORT) {
             if (event_type_last == EV_REL) {
-                if (roller_value == 1) {
-                    roller_up_acc++;
-                    roller_down_acc = 0;
-                } else if (roller_value == -1) {
-                    roller_down_acc++;
-                    roller_up_acc = 0;
-                }
+                if (!discard_scroll && timercmp(&event.time, &next_scroll, >)) {
+                    timeradd(&event.time, &scroll_time_diff, &next_scroll);
+                    if (roller_value == 1) {
+                        roller_up_acc++;
+                        roller_down_acc = 0;
+                    } else if (roller_value == -1) {
+                        roller_down_acc++;
+                        roller_up_acc = 0;
+                    }
 
-                if (roller_up_acc == DIAL_SENSITIVITY) {
-                    roller_up();
-                    g_key = DIAL_KEY_UP;
-                    roller_up_acc = 0;
-                } else if (roller_down_acc == DIAL_SENSITIVITY) {
-                    roller_down();
-                    g_key = DIAL_KEY_DOWN;
-                    roller_down_acc = 0;
+                    if (roller_up_acc == DIAL_SENSITIVITY) {
+                        roller_up();
+                        g_key = DIAL_KEY_UP;
+                        roller_up_acc = 0;
+                    } else if (roller_down_acc == DIAL_SENSITIVITY) {
+                        roller_down();
+                        g_key = DIAL_KEY_DOWN;
+                        roller_down_acc = 0;
+                    }
+                } else {
+                    // LOGI("discard EV_SYN");
                 }
             } else if (event_type_last == EV_KEY) {
                 if (btn_value) {
@@ -518,13 +535,19 @@ static void get_event(int fd) {
         }
         break;
     case EV_REL:
-        if (event.code == REL_X) {
-            // LOGI("x = %d", event.value);
-        } else if (event.code == REL_Y) {
-            roller_value = event.value;
-            // LOGI("y = %d", event.value);
+        if (timercmp(&event.time, &next_rel, >)) {
+            discard_scroll = false;
+            if (event.code == REL_X) {
+                // LOGI("x = %d", event.value);
+            } else if (event.code == REL_Y) {
+                roller_value = event.value;
+                // LOGI("y = %d", event.value);
+            }
+            event_type_last = EV_REL;
+        } else {
+            discard_scroll = true;
+            LOGI("discard EV_REL");
         }
-        event_type_last = EV_REL;
         break;
     default:
         // LOGI("unknown [type=%d, code=%d value=%d]", event.type, event.code, event.value);
