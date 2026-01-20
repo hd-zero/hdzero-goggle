@@ -134,7 +134,7 @@ static void change_channel_analog(uint8_t const channel) {
         LOGE("Invalid analog channel %d", channel);
         return;
     }
-    if (g_setting.scan.channel != channel || g_app_state != APP_STATE_VIDEO) {
+    if (g_setting.source.analog_channel != channel || g_app_state != APP_STATE_VIDEO) {
         g_setting.source.analog_channel = channel;
         beep();
         pthread_mutex_lock(&lvgl_mutex);
