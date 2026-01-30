@@ -22,13 +22,12 @@ bool dvr_is_recording = false;
 bool record_pending = false;
 
 static time_t dvr_recording_start = 0;
-static int ret_prev = 1;
 static pthread_mutex_t dvr_mutex;
 
 ///////////////////////////////////////////////////////////////////
 //-1=error;
 // 0=idle,1=recording,2=stopped,3=No SD card,4=recorf file path error,
-// 5=SD card Full,6=Encoder error
+// 5=SD card Full,6=Encoder error,7=Open Record File Failed
 void dvr_update_status() {
     pthread_mutex_lock(&dvr_mutex);
     if (dvr_is_recording) {
@@ -41,8 +40,8 @@ void dvr_update_status() {
         if (ret != 1) {
             dvr_is_recording = false;
             system_script(REC_STOP);
-            record_pending = (ret_prev != -1); // retry only if not 2 fails in a row
-            sleep(2);                          // wait for record process
+            record_pending = (ret != 7); // don't retry if record file failed
+            sleep(2);                         // wait for record process
         }
     }
     pthread_mutex_unlock(&dvr_mutex);
