@@ -19,8 +19,10 @@
 #include "util/system.h"
 
 bool dvr_is_recording = false;
+bool record_pending = false;
 
 static time_t dvr_recording_start = 0;
+static int ret_prev = 1;
 static pthread_mutex_t dvr_mutex;
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +41,8 @@ void dvr_update_status() {
         if (ret != 1) {
             dvr_is_recording = false;
             system_script(REC_STOP);
-            sleep(2); // wait for record process
+            record_pending = (ret_prev != -1); // retry only if not 2 fails in a row
+            sleep(2);                          // wait for record process
         }
     }
     pthread_mutex_unlock(&dvr_mutex);
@@ -311,16 +314,11 @@ static void dvr_update_record_conf() {
 void dvr_cmd(osd_dvr_cmd_t cmd) {
     LOGI("dvr_cmd: sdcard=%d, recording=%d, cmd=%d", g_sdcard_enable, dvr_is_recording, cmd);
 
-    if (!g_sdcard_enable)
-        return;
-
-    pthread_mutex_lock(&dvr_mutex);
-
     bool start_rec = dvr_is_recording;
 
     switch (cmd) {
     case DVR_TOGGLE:
-        start_rec = !dvr_is_recording;
+        start_rec = !dvr_is_recording && !record_pending;
         break;
     case DVR_STOP:
         start_rec = false;
@@ -330,14 +328,26 @@ void dvr_cmd(osd_dvr_cmd_t cmd) {
         break;
     }
 
+    if (!g_sdcard_enable) {
+        record_pending = start_rec;
+        return;
+    }
+
+    pthread_mutex_lock(&dvr_mutex);
+
     if (start_rec) {
         if (!dvr_is_recording && !sdcard_is_full()) {
             dvr_update_record_conf();
-            dvr_is_recording = true;
-            usleep(100 * 1000);
-            system_script(REC_START);
-            dvr_recording_start = time(NULL);
-            sleep(2); // wait for record process
+            if (g_sdcard_ready) {
+                dvr_is_recording = true;
+                record_pending = false;
+                usleep(100 * 1000);
+                system_script(REC_START);
+                dvr_recording_start = time(NULL);
+                sleep(2); // wait for record process
+            } else {
+                record_pending = true;
+            }
         }
     } else {
         if (dvr_is_recording) {

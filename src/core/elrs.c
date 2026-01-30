@@ -356,7 +356,7 @@ void msp_process_packet() {
                 else {
                     switch (record_state) {
                     case DVR_STOP:
-                        if (!dvr_is_recording) {
+                        if (!dvr_is_recording && !record_pending) {
                             // discard "timer off" if dvr not already started
                             record_time = 0;
                             break;

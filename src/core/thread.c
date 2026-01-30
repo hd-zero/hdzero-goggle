@@ -49,22 +49,32 @@ static void detect_sdcard(void) {
     // repair is not currently executing.
     if (ok_to_execute) {
         g_sdcard_enable = sdcard_mounted();
+        if (!g_sdcard_enable)
+            g_sdcard_ready = false;
 
         // General Runtime behavior
         if (-1 == g_bootup_sdcard_state) {
+            g_sdcard_ready = true;
             if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
                 sdcard_update_free_size();
                 g_sdcard_det_req = 0;
+                g_sdcard_ready = false;
             }
 
             // Only repair sd card when inserted
             if (sdcard_init_scan && g_sdcard_enable) {
                 if (sdcard_ready_cb) {
                     sdcard_ready_cb();
+                    g_sdcard_ready = false;
                 }
                 sdcard_init_scan = false;
             } else if (!g_sdcard_enable && sdcard_enable_last) {
+                g_sdcard_ready = false;
                 sdcard_init_scan = true;
+            }
+
+            if (record_pending && g_sdcard_ready && !sdcard_is_full()) {
+                dvr_cmd(DVR_START);
             }
 
             sdcard_enable_last = g_sdcard_enable;
