@@ -45,14 +45,18 @@ void TP2825_init(bool is_av_in, bool is_pal) {
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     }
 
-    I2C_Write(ADDR_TP2825, 0x10, 0x10);
-    I2C_Write(ADDR_TP2825, 0x11, 0x48);
-    // I2C_Write(ADDR_TP2825, 0x12, 0x51);
-    // I2C_Write(ADDR_TP2825, 0x13, 0x80);
-    // I2C_Write(ADDR_TP2825, 0x14, 0x80);
+    I2C_Write(ADDR_TP2825, 0x10, 0x10); // brightness
+    I2C_Write(ADDR_TP2825, 0x11, 0x3A); // contrast
+    // I2C_Write(ADDR_TP2825, 0x12, 0x51); // sharpness? bit 3-0 strength
+    I2C_Write(ADDR_TP2825, 0x13, 0x50); // hue
+    // I2C_Write(ADDR_TP2825, 0x14, 0x80); // saturation
     // I2C_Write(ADDR_TP2825, 0x15, 0x00);
+    // I2C_Write(ADDR_TP2825, 0x17, 0x00); // sharpness? bit 3-0 strength
+    // I2C_Write(ADDR_TP2825, 0x19, 0x00); // black blamp bit 7: pedestal En
+    //                                                      6-4: clamp filter/speed
+    //                                                      3-0: calibration/offset
 
-    I2C_Write(ADDR_TP2825, 0x25, 0x28);
+    I2C_Write(ADDR_TP2825, 0x25, 0x60); // AGC/Peak white clamping
 
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
 
