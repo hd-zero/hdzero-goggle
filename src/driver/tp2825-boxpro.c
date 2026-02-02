@@ -45,8 +45,8 @@ void TP2825_init(bool is_av_in, bool is_pal) {
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     }
 
-    I2C_Write(ADDR_TP2825, 0x10, 0x0D); // brightness
-    I2C_Write(ADDR_TP2825, 0x11, 0x39); // contrast
+    I2C_Write(ADDR_TP2825, 0x10, 0x12); // brightness
+    I2C_Write(ADDR_TP2825, 0x11, 0x34); // contrast
     // I2C_Write(ADDR_TP2825, 0x12, 0x51); // sharpness? bit 3-0 strength
     I2C_Write(ADDR_TP2825, 0x13, 0x50); // hue
     // I2C_Write(ADDR_TP2825, 0x14, 0x80); // saturation
