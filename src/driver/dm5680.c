@@ -325,17 +325,9 @@ void DM5680_ResetHDMI_RX(uint8_t on) // Reset HDMI_RX,0=reset
 
 void DM5680_ExternalAnalog_Power(uint8_t on) {
     uint8_t Cmd[5] = {0xAA, 0x55, 0x02, 0x6, 0x00};
-	#if defined(HDZGOGGLE)
-      // Note Cmd[4] = 0 means power on for external analog module
+	      // Note Cmd[4] = 0 means power on for external analog module
 	Cmd[4] = !on;
-    #elif defined(HDZBOXPRO)
-      // keep above goggle logic for boxpro in case it is used
-      Cmd[4] = !on;
-    #elif defined(HDZGOGGLE2)
-      // Note Cmd[4] = 1 means power on for external analog module
-      Cmd[4] = on;
-    #endif
-    // LOGI("DM5680_ExternalAnalog_Power %d", on);
+       // LOGI("DM5680_ExternalAnalog_Power %d", on);
     Cmd_to_DM5680(1, Cmd, 5);
 }
 void DM5680_InternalAnalog_Power(uint8_t on) {
