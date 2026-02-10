@@ -988,7 +988,7 @@ void Set_Brightness(uint8_t bri) {
 }
 
 void Set_Contrast(uint8_t con) {
-    int8_t val = con << 2;
+    int8_t val = con * 255 / 48;
     I2C_Write(ADDR_FPGA, 0x86, val);
 }
 
