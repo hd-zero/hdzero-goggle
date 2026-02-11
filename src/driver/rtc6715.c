@@ -56,8 +56,8 @@ static void rtc6715_power(bool is_on) {
     gpio_set(GPIO_RTC6715_ON, is_on);
 #elif defined(HDZGOGGLE2)
     DM5680_InternalAnalog_Power(is_on);
-#endif
     I2C_Write(ADDR_FPGA, 0x8C, (is_on << 1)); // rf switch
+#endif
 
     if (is_on) {
         usleep(200 * 1000); // wait for power stable
