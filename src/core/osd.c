@@ -174,7 +174,7 @@ void osd_rec_show(bool bShow) {
         return;
     }
 
-    if (!g_sdcard_enable) {
+    if (!g_sdcard_enable || !g_sdcard_ready) {
         osd_resource_path(buf, "%s", is_fhd, noSdcard_bmp);
         lv_img_set_src(g_osd_hdzero.sd_rec[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
