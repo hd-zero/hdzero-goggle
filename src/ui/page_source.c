@@ -371,6 +371,7 @@ static void page_source_on_click(uint8_t key, int sel) {
         }
         break;
     }
+    Analog_Module_Power(0);
 }
 
 static void page_source_enter() {
