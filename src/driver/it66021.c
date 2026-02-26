@@ -232,7 +232,7 @@ int IT66021_Get_VTMG(int *freq_ref) {
     }
 
     for (i = 0; i < IT66121_9A_READ_N; i++) {
-        for (j = IT66121_9A_READ_N - 1; j >= i; j--) {
+        for (j = IT66121_9A_READ_N - 2; j >= i; j--) {
             if (r9a[j] > r9a[j + 1]) {
                 int temp = r9a[j];
                 r9a[j] = r9a[j + 1];
