@@ -11,6 +11,59 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+uint8_t orbit_x = 0, orbit_y = 0;
+uint8_t orbit_move = 0;
+
+void TP2825_orbit(int orbit_setting) {
+    static int orbit_level = 0;
+
+    if (orbit_setting > 0 && orbit_x > 0 && orbit_y > 0) {
+
+        if (orbit_level != orbit_setting) {
+            orbit_level = orbit_setting;
+            orbit_move = 0;
+        }
+
+        switch (orbit_move) {
+        case 0:
+            I2C_Write(ADDR_TP2825, 0x0A, orbit_x);
+            I2C_Write(ADDR_TP2825, 0x08, orbit_y);
+            orbit_move = 1;
+            break;
+        case 1:
+            if (orbit_level > 1) {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y + 1);
+            } else {
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y + 1);
+            }
+            orbit_move = 2;
+            break;
+        case 2:
+            if (orbit_level > 1) {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 2);
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y);
+            } else {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+            }
+            orbit_move = 3;
+            break;
+        case 3:
+            if (orbit_level > 1) {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y - 1);
+            } else {
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y);
+            }
+            orbit_move = 0;
+            break;
+        default:
+            orbit_move = 0;
+            break;
+        }
+    }
+}
+
 void TP2825_close() {
     gpio_set(GPIO_TP2825_RSTB, 0);
     LOGI("TP2825 close");
@@ -45,26 +98,14 @@ void TP2825_init(bool is_av_in, bool is_pal) {
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     }
 
-    I2C_Write(ADDR_TP2825, 0x10, 0x00); // brightness
-    I2C_Write(ADDR_TP2825, 0x11, 0x3C); // contrast
-    I2C_Write(ADDR_TP2825, 0x12, 0x10);
+    I2C_Write(ADDR_TP2825, 0x10, 0x10); // brightness
+    I2C_Write(ADDR_TP2825, 0x11, 0x48); // contrast
+    I2C_Write(ADDR_TP2825, 0x12, 0x58); // sharpness
     I2C_Write(ADDR_TP2825, 0x13, 0x48); // hue
     I2C_Write(ADDR_TP2825, 0x14, 0x70); // saturation
     I2C_Write(ADDR_TP2825, 0x17, 0x30); // analog sharpness
-    I2C_Write(ADDR_TP2825, 0x2C, 0x38); // output sharpness
-    I2C_Write(ADDR_TP2825, 0x1a, 0x3C);
-    // I2C_Write(ADDR_TP2825, 0x14, 0x80); // saturation
-    // I2C_Write(ADDR_TP2825, 0x15, 0x00);
-    // I2C_Write(ADDR_TP2825, 0x19, 0x00); // black clamp bit 7: pedestal En
-    //                                                      6-4: clamp filter/speed
-    //                                                      3-0: calibration/offset
 
-    // AGC params
-    I2C_Write(ADDR_TP2825, 0x21, 0xFF); //
-    I2C_Write(ADDR_TP2825, 0x22, 0xFF); //
-    I2C_Write(ADDR_TP2825, 0x23, 0x58); //
-    I2C_Write(ADDR_TP2825, 0x27, 0x14); // White level
-    I2C_Write(ADDR_TP2825, 0x25, 0x18); // AGC gain
+    I2C_Write(ADDR_TP2825, 0x25, 0x28);
 
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
 
@@ -74,19 +115,20 @@ void TP2825_init(bool is_av_in, bool is_pal) {
 void TP2825_Switch_Mode(bool is_pal) {
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x07, 0x12);
-        I2C_Write(ADDR_TP2825, 0x08, 0x18);
+        I2C_Write(ADDR_TP2825, 0x08, orbit_y = 0x18);
         I2C_Write(ADDR_TP2825, 0x09, 0x20);
-        I2C_Write(ADDR_TP2825, 0x0A, 0x10);
+        I2C_Write(ADDR_TP2825, 0x0A, orbit_x = 0x10);
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     } else {
         I2C_Write(ADDR_TP2825, 0x07, 0x02);
-        I2C_Write(ADDR_TP2825, 0x08, 0x12);
+        I2C_Write(ADDR_TP2825, 0x08, orbit_y = 0x12);
         I2C_Write(ADDR_TP2825, 0x09, 0xF0);
-        I2C_Write(ADDR_TP2825, 0x0A, 0x10);
+        I2C_Write(ADDR_TP2825, 0x0A, orbit_x = 0x10);
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     }
 
     I2C_Write(ADDR_TP2825, 0x06, 0x80);
+    orbit_move = 0;
 }
 
 void TP2825_Switch_CH(bool is_av_in) {
