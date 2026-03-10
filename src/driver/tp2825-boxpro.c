@@ -86,17 +86,18 @@ void TP2825_init(bool is_av_in, bool is_pal) {
 
     if (is_pal) {
         I2C_Write(ADDR_TP2825, 0x07, 0x12);
-        I2C_Write(ADDR_TP2825, 0x08, 0x18);
+        I2C_Write(ADDR_TP2825, 0x08, orbit_y = 0x18);
         I2C_Write(ADDR_TP2825, 0x09, 0x20);
-        I2C_Write(ADDR_TP2825, 0x0A, 0x10);
+        I2C_Write(ADDR_TP2825, 0x0A, orbit_x = 0x10);
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     } else {
         I2C_Write(ADDR_TP2825, 0x07, 0x02);
-        I2C_Write(ADDR_TP2825, 0x08, 0x12);
+        I2C_Write(ADDR_TP2825, 0x08, orbit_y = 0x12);
         I2C_Write(ADDR_TP2825, 0x09, 0xF0);
-        I2C_Write(ADDR_TP2825, 0x0A, 0x10);
+        I2C_Write(ADDR_TP2825, 0x0A, orbit_x = 0x10);
         I2C_Write(ADDR_TP2825, 0x0B, 0xD0);
     }
+    orbit_move = 0;
 
     I2C_Write(ADDR_TP2825, 0x10, 0x10); // brightness
     I2C_Write(ADDR_TP2825, 0x11, 0x48); // contrast
