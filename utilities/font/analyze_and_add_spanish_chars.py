@@ -11,7 +11,28 @@ target_font_file = 'Montserrat-Medium.ttf'  # Fuente TTF
 output_dir = 'out'  # Directorio de salida
 
 # Caracteres españoles a agregar (puntos Unicode)
-spanish_unicode_points = [161, 191, 193, 201, 205, 209, 211, 218, 220, 225, 233, 237, 241, 243, 250, 252]
+spanish_unicode_points = [161, # ¡
+                          191, # ¿
+                          193, # Á
+                          196, # Ä
+                          201, # È
+                          205, # Í
+                          209, # Ñ
+                          211, # Ó
+                          214, # Ö
+                          218, # Ú
+                          220, # Ü
+                          223, # ß
+                          225, # á
+                          228, # ä
+                          233, # é
+                          237, # í
+                          241, # ñ
+                          243, # ó
+                          246, # ö
+                          250, # ú
+                          252  # ü
+                          ]
 
 def extract_simplified_chinese_unicode():
     """Extrae caracteres chinos del archivo zh_hans.ini"""

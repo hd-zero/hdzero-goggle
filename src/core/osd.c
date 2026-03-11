@@ -105,7 +105,7 @@ void osd_toggle() {
     settings_put_bool("osd", "is_visible", g_setting.osd.is_visible);
 }
 
-#if HDZGOGGLE
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
 
 void osd_show_hdmi_in_dvr(uint8_t is_show) {
     uint8_t reg;
@@ -174,7 +174,7 @@ void osd_rec_show(bool bShow) {
         return;
     }
 
-    if (!g_sdcard_enable) {
+    if (!g_sdcard_enable || !g_sdcard_ready) {
         osd_resource_path(buf, "%s", is_fhd, noSdcard_bmp);
         lv_img_set_src(g_osd_hdzero.sd_rec[is_fhd], buf);
         lv_obj_clear_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
@@ -186,7 +186,7 @@ void osd_rec_show(bool bShow) {
         } else
             lv_obj_add_flag(g_osd_hdzero.sd_rec[is_fhd], LV_OBJ_FLAG_HIDDEN);
     }
-#if HDZGOGGLE
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
     osd_hdmi_in_dvr_update();
 #endif
 }

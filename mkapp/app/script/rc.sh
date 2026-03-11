@@ -22,11 +22,11 @@ function config_uart_vdpo()
 
 	dispw -x
 
-	if [ $PLATFORM == "HDZGOGGLE"]; then
+	if [ $PLATFORM == "HDZGOGGLE" ]; then
 		dispw -s vdpo 1080p50
-	elif [ $PLATFORM == "HDZGOGGLE2"]; then
+	elif [ $PLATFORM == "HDZGOGGLE2" ]; then
 		dispw -s vdpo 1080p50
-	elif [ $PLATFORM == "HDZBOXPRO"]; then
+	elif [ $PLATFORM == "HDZBOXPRO" ]; then
 		dispw -s vdpo 720p60
 	fi
 }
@@ -46,13 +46,13 @@ function beep()
 
 function update_boot()
 {
-	if [ $PLATFORM == "HDZGOGGLE"]; then
+	if [ $PLATFORM == "HDZGOGGLE" ]; then
         local boot_file=/mnt/extsd/HDZG_BOOT.bin
         local os_file=/mnt/extsd/HDZG_OS.bin
-    elif [ $PLATFORM == "HDZGOGGLE2"]; then
+    elif [ $PLATFORM == "HDZGOGGLE2" ]; then
         local boot_file=/mnt/extsd/HDZG_BOOT.bin
         local os_file=/mnt/extsd/HDZG_OS.bin
-	elif [ $PLATFORM == "HDZBOXPRO"]; then
+	elif [ $PLATFORM == "HDZBOXPRO" ]; then
         local boot_file=/mnt/extsd/HDZB_BOOT.bin
         local os_file=/mnt/extsd/HDZB_OS.bin
 	fi
@@ -102,9 +102,9 @@ fi
 /mnt/app/script/sdstat_log_backup.sh
 
 	#system led
-if [ $PLATFORM == "HDZGOGGLE"]; then
+if [ $PLATFORM == "HDZGOGGLE" ]; then
 	/mnt/app/script/system_daemon.sh &
-elif [ $PLATFORM == "HDZGOGGLE2"]; then
+elif [ $PLATFORM == "HDZGOGGLE2" ]; then
 	/mnt/app/script/system_daemon.sh &
 fi
 

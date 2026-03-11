@@ -134,7 +134,7 @@ static void change_channel_analog(uint8_t const channel) {
         LOGE("Invalid analog channel %d", channel);
         return;
     }
-    if (g_setting.scan.channel != channel || g_app_state != APP_STATE_VIDEO) {
+    if (g_setting.source.analog_channel != channel || g_app_state != APP_STATE_VIDEO) {
         g_setting.source.analog_channel = channel;
         beep();
         pthread_mutex_lock(&lvgl_mutex);
@@ -349,10 +349,23 @@ void msp_process_packet() {
             if (g_app_state == APP_STATE_VIDEO) {
                 record_state = packet.payload[0] == 0 ? 1 : 2;
                 uint32_t delay = packet.payload[1] | (uint32_t)packet.payload[2] << 8;
-                if (delay == 0)
+                if (delay == 0) {
+                    record_time = 0;
                     dvr_cmd(record_state);
-                else
-                    record_time = time(NULL) + delay;
+                }
+                else {
+                    switch (record_state) {
+                    case DVR_STOP:
+                        if (!dvr_is_recording && !record_pending) {
+                            // discard "timer off" if dvr not already started
+                            record_time = 0;
+                            break;
+                        }
+                    // fall thru' if dvr started
+                    case DVR_START:
+                        record_time = time(NULL) + delay;
+                    }
+                }
             }
         } break;
         case MSP_GET_VRX_MODE:
