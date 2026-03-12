@@ -32,27 +32,30 @@ void TP2825_orbit(int orbit_setting) {
             break;
         case 1:
             if (orbit_level > 1) {
-                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x + 1);
                 I2C_Write(ADDR_TP2825, 0x08, orbit_y + 1);
             } else {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x);
                 I2C_Write(ADDR_TP2825, 0x08, orbit_y + 1);
             }
             orbit_move = 2;
             break;
         case 2:
             if (orbit_level > 1) {
-                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 2);
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x + 2);
                 I2C_Write(ADDR_TP2825, 0x08, orbit_y);
             } else {
-                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x + 1);
+                I2C_Write(ADDR_TP2825, 0x08, orbit_y + 1);
             }
             orbit_move = 3;
             break;
         case 3:
             if (orbit_level > 1) {
-                I2C_Write(ADDR_TP2825, 0x0A, orbit_x - 1);
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x + 1);
                 I2C_Write(ADDR_TP2825, 0x08, orbit_y - 1);
             } else {
+                I2C_Write(ADDR_TP2825, 0x0A, orbit_x + 1);
                 I2C_Write(ADDR_TP2825, 0x08, orbit_y);
             }
             orbit_move = 0;
@@ -101,10 +104,10 @@ void TP2825_init(bool is_av_in, bool is_pal) {
 
     I2C_Write(ADDR_TP2825, 0x10, 0x10); // brightness
     I2C_Write(ADDR_TP2825, 0x11, 0x48); // contrast
-    I2C_Write(ADDR_TP2825, 0x12, 0x58); // sharpness
-    I2C_Write(ADDR_TP2825, 0x13, 0x48); // hue
-    I2C_Write(ADDR_TP2825, 0x14, 0x70); // saturation
-    I2C_Write(ADDR_TP2825, 0x17, 0x30); // analog sharpness
+    I2C_Write(ADDR_TP2825, 0x2C, 0x28); // horizontal sharpness
+    I2C_Write(ADDR_TP2825, 0x13, 0x80); // hue
+    I2C_Write(ADDR_TP2825, 0x14, 0x80); // saturation
+    I2C_Write(ADDR_TP2825, 0x17, 0x31); // vertical sharpness
 
     I2C_Write(ADDR_TP2825, 0x25, 0x28);
 
