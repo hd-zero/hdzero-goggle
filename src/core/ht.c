@@ -96,15 +96,7 @@ static void detect_motion(bool is_moving) {
 #endif
         if (is_moving) {
             // we got motion, turn oled back on, start over
-#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
             screen.brightness(g_setting.image.oled);
-#elif defined(HDZBOXPRO)
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                screen.brightness(7);
-            } else {
-                screen.brightness(g_setting.image.oled);
-            }
-#endif
             state = OLED_MD_DETECTING;
             cnt = 0;
         }
@@ -153,11 +145,6 @@ static void detect_motion(bool is_moving) {
             LOGI("OLED ON from protection.");
 
             screen.brightness(g_setting.image.oled);
-#ifdef HDZBOXPRO
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                screen.brightness(7);
-            }
-#endif
 
             hw_screen_on(1);
             state = OLED_MD_DETECTING;
