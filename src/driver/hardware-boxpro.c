@@ -937,7 +937,7 @@ int HDMI_in_detect() {
                         break;
 
                     case HDMIIN_VTMG_720P100:
-                        system_exec("dispw -s vdpo 720p30"); // 100fps actually
+                        system_exec("dispw -s vdpo 720p90"); // 100fps actually
                         dvr_update_vi_conf(VR_540P90);
                         g_hw_stat.vdpo_tmg = VDPO_TMG_720P100;
                         I2C_Write(ADDR_FPGA, 0x8D, 0x04);
