@@ -85,6 +85,14 @@ that internal counter, not the 1-based numbering used here. In other words, if
 broadcast line **N** typically maps to `VANC_LINE = N - 1` (for example,
 broadcast lines 12–15 map to `VANC_LINE` 11–14). Verify this against your
 exact sync timing if your pipeline defines `vsync` differently.
+Note: The line numbers above are **1-based video line numbers**. In the sample
+Verilog module, `v_count` resets to `0` on the rising edge of `vsync` and then
+increments on each rising edge of `hsync`, so the `VANC_LINE` parameter follows
+that internal counter, not the 1-based numbering used here. In other words, if
+`vsync` marks the start-of-frame boundary before the first counted line, then
+broadcast line **N** typically maps to `VANC_LINE = N - 1` (for example,
+broadcast lines 12–15 map to `VANC_LINE` 11–14). Verify this against your
+exact sync timing if your pipeline defines `vsync` differently.
 
 ### Horizontal Position
 
