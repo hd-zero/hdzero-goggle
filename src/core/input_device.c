@@ -30,6 +30,7 @@
 #include "core/elrs.h"
 #include "core/settings.h"
 #include "core/sleep_mode.h"
+#include "driver/beep.h"
 #include "driver/dm6302.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
@@ -61,6 +62,8 @@ static uint16_t tune_timer = 0;
 
 static int epfd;
 static pthread_t input_device_pid;
+
+static int btn_value = 0;
 
 // action: 1 = tune up, 2 = tune down, 3 = confirm
 void exit_tune_channel() {
@@ -216,6 +219,14 @@ void tune_channel_timer() {
 static int roller_up_acc = 0;
 static int roller_down_acc = 0;
 
+static bool scroll_sim_mode = false;
+static bool scroll_sim_mode_pending = false;
+
+#define SCROLL_REPEAT_NONE 0
+#define SCROLL_REPEAT_UP   1
+#define SCROLL_REPEAT_DOWN 2
+static int scroll_sim_mode_repeat = SCROLL_REPEAT_NONE;
+
 void (*btn_click_callback)() = &osd_toggle;
 void (*btn_press_callback)() = &app_switch_to_menu;
 
@@ -224,6 +235,9 @@ void (*rbtn_press_callback)() = &step_topfan;
 void (*rbtn_double_click_callback)() = &ht_set_center_position;
 
 void (*roller_callback)(uint8_t key) = &tune_channel;
+
+static void roller_up(void);
+static void roller_down(void);
 
 static void btn_press(void) // long press left key
 {
@@ -350,31 +364,68 @@ void rbtn_click(right_button_t click_type) {
     if (g_app_state == APP_STATE_USER_INPUT_DISABLED)
         return;
 
-    pthread_mutex_lock(&lvgl_mutex);
-
-    switch (g_app_state) {
-    case APP_STATE_SUBMENU:
-    case APP_STATE_WIFI:
-        if (click_type == RIGHT_CLICK)
-            submenu_right_button(true);
-        else if (click_type == RIGHT_LONG_PRESS)
-            submenu_right_button(false);
-        break;
-    case APP_STATE_VIDEO:
-        if (click_type == RIGHT_CLICK) {
-            (*rbtn_click_callback)();
-        } else if (click_type == RIGHT_LONG_PRESS) {
-            (*rbtn_press_callback)();
-        } else if (click_type == RIGHT_DOUBLE_CLICK) {
-            (*rbtn_double_click_callback)();
+    if (scroll_sim_mode) {
+        switch (click_type) {
+        case RIGHT_LONG_PRESS:
+            if (btn_value) {
+                scroll_sim_mode = false;
+                scroll_sim_mode_pending = true;
+                beep();
+            }
+            break;
+        case RIGHT_CLICK:
+            if (scroll_sim_mode_repeat == SCROLL_REPEAT_NONE) {
+                roller_up();
+            }
+            if (btn_value)
+                scroll_sim_mode_repeat = SCROLL_REPEAT_UP;
+            else
+                scroll_sim_mode_repeat = SCROLL_REPEAT_NONE;
+            break;
+        case RIGHT_DOUBLE_CLICK:
+            if (scroll_sim_mode_repeat == SCROLL_REPEAT_NONE) {
+                roller_down();
+            }
+            if (btn_value)
+                scroll_sim_mode_repeat = SCROLL_REPEAT_DOWN;
+            else
+                scroll_sim_mode_repeat = SCROLL_REPEAT_NONE;
+            break;
+        default:
+            break;
         }
-        break;
-    case APP_STATE_SLEEP:
-        wake_up();
-        break;
-    }
+    } else if (g_setting.ease.no_dial && btn_value) {
+        scroll_sim_mode = true;
+        scroll_sim_mode_pending = true;
+        beep();
+    } else {
 
-    pthread_mutex_unlock(&lvgl_mutex);
+        pthread_mutex_lock(&lvgl_mutex);
+
+        switch (g_app_state) {
+        case APP_STATE_SUBMENU:
+        case APP_STATE_WIFI:
+            if (click_type == RIGHT_CLICK)
+                submenu_right_button(true);
+            else if (click_type == RIGHT_LONG_PRESS)
+                submenu_right_button(false);
+            break;
+        case APP_STATE_VIDEO:
+            if (click_type == RIGHT_CLICK) {
+                (*rbtn_click_callback)();
+            } else if (click_type == RIGHT_LONG_PRESS) {
+                (*rbtn_press_callback)();
+            } else if (click_type == RIGHT_DOUBLE_CLICK) {
+                (*rbtn_double_click_callback)();
+            }
+            break;
+        case APP_STATE_SLEEP:
+            wake_up();
+            break;
+        }
+
+        pthread_mutex_unlock(&lvgl_mutex);
+    }
 }
 
 static void roller_up(void) {
@@ -449,7 +500,6 @@ static void roller_down(void) {
 static void get_event(int fd) {
     struct input_event event;
     static int event_type_last = 0;
-    static int btn_value = 0;
     static int btn_press_time = 0;
 
     static int roller_value = 0;
@@ -471,6 +521,9 @@ static void get_event(int fd) {
     case EV_SYN:
         if (event.code == SYN_REPORT) {
             if (event_type_last == EV_REL) {
+                if (g_setting.ease.no_dial)
+                    break;
+
                 if (!discard_scroll && timercmp(&event.time, &next_scroll, >)) {
                     timeradd(&event.time, &scroll_time_diff, &next_scroll);
                     if (roller_value == 1) {
@@ -495,20 +548,42 @@ static void get_event(int fd) {
                 }
             } else if (event_type_last == EV_KEY) {
                 if (btn_value) {
-                    if (btn_press_time == 10) {
-                        btn_press();
-                        g_key = DIAL_KEY_PRESS;
+                    if (!g_setting.ease.no_dial) {
+                        if (btn_press_time == 10) {
+                            btn_press();
+                            g_key = DIAL_KEY_PRESS;
+                        }
+                    } else {
+                        if (scroll_sim_mode_repeat == SCROLL_REPEAT_DOWN) {
+                            roller_down();
+                        } else if (scroll_sim_mode_repeat == SCROLL_REPEAT_UP) {
+                            roller_up();
+                        }
                     }
-                    btn_press_time++;
+                    if (scroll_sim_mode_pending)
+                        btn_press_time = 0;
+                    else
+                        btn_press_time++;
                     // LOGI("btn down");
                 } else {
-                    if (btn_press_time < 10) {
-                        btn_click();
-                        g_key = DIAL_KEY_CLICK;
+                    if (scroll_sim_mode_pending) {
+                        scroll_sim_mode_pending = false;
+                    } else {
+                        if (scroll_sim_mode_repeat == SCROLL_REPEAT_NONE) {
+                            if (btn_press_time < 10) {
+                                btn_click();
+                                g_key = DIAL_KEY_CLICK;
+                            } else if (g_setting.ease.no_dial) {
+                                if (btn_press_time < 50) {
+                                    btn_press();
+                                    g_key = DIAL_KEY_PRESS;
+                                }
+                                // else if(btn_press_time > 200){
+                                //	btn_super_press();
+                                // }
+                            }
+                        }
                     }
-                    // else if(btn_press_time > 200){
-                    //	btn_super_press();
-                    // }
                     btn_press_time = 0;
                 }
             }
@@ -590,6 +665,8 @@ static void *thread_input_device(void *ptr) {
         } else {
             roller_up_acc = 0;
             roller_down_acc = 0;
+            if (scroll_sim_mode_repeat != SCROLL_REPEAT_NONE)
+                beep();
         }
     }
     return NULL;

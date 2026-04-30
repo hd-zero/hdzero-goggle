@@ -134,7 +134,7 @@ static void page_elrs_on_roller(uint8_t key) {
 static void elrs_status_timer(struct _lv_timer_t *timer) {
     char label[80];
     uint8_t status[7] = {0};
-    uint16_t size = sizeof(status) - 1;
+    uint16_t size = sizeof(status);
 
     if (!msp_read_resposne(MSP_GET_BP_STATUS, &size, status)) {
         msp_send_packet(MSP_GET_BP_STATUS, MSP_PACKET_COMMAND, 0, NULL);

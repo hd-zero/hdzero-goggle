@@ -1668,13 +1668,6 @@ void DM6302_DCOC(uint8_t SEL6302) {
 int DM6302_init(uint8_t freq, uint8_t bw) {
     int to_cnt = 0;
     uint32_t r0 = 1, r1 = 1;
-#if defined HDZGOGGLE
-    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
-#elif defined HDZBOXPRO
-    system_exec("aww 0x05002814 0x00000018"); // set i2c speed to 500KHz
-#elif defined HDZGOGGLE2
-    system_exec("aww 0x05002814 0x00000008"); // set i2c speed to 1MHz
-#endif
 
     while (r0) {
         DM5680_ResetRF(0);
@@ -1760,8 +1753,6 @@ int DM6302_init(uint8_t freq, uint8_t bw) {
 
     DM6302_M0();
     LOGI("M0 done");
-
-    system_exec("aww 0x05002814 0x00000058"); // set i2c speed to 200KHz
 
     return 0;
 }

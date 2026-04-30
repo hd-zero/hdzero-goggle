@@ -10,6 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 bool g_sdcard_enable = false;
+bool g_sdcard_ready = false;
 bool g_sdcard_det_req = false;
 bool g_autoscan_exit = true;
 bool g_scanning = false;

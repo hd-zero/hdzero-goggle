@@ -21,6 +21,20 @@ def extract_simplified_chinese_unicode():
 
     return range_str[:-1]
 
+def extract_japanese_unicode():
+    ini_path = "../../mkapp/app/language/ja_jp.ini"
+
+    # ひらがな・カタカナ・CJK 漢字・全角記号
+    jp_pattern = re.compile(r'[\u3000-\u303F\u3040-\u30FF\u4E00-\u9FFF]')
+    unique_chars = set()
+
+    with open(ini_path, "r", encoding="utf-8") as f:
+        for line in f:
+            for ch in line:
+                if jp_pattern.match(ch):
+                    unique_chars.add(ch)
+
+    return ",".join(str(ord(c)) for c in sorted(unique_chars))
 
 def patch():
     folder_path = "out"
@@ -59,6 +73,9 @@ cmd_range_simplified_chinese = "  --range " + \
 cmd_font_cyrillic = " --font Montserrat-Medium.ttf"
 cmd_range_cyrillic = " --range 1024-1279"
 
+cmd_font_japanese = " --font NotoSansCJKjp-Regular.otf"
+cmd_range_japanese = " --range " + extract_japanese_unicode()
+
 font_size = [8, 10, 12, 14, 16, 18, 20, 22, 24,
              26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
 
@@ -77,6 +94,8 @@ for s in font_size:
     command += cmd_range_simplified_chinese
     command += cmd_font_cyrillic
     command += cmd_range_cyrillic
+    command += cmd_font_japanese
+    command += cmd_range_japanese
 
 
     command += cmd_format
