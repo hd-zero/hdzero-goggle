@@ -8,6 +8,7 @@ extern "C" {
 
 #include "ui/page_common.h"
 
+void TP2825_orbit(int orbit_setting);
 void TP2825_close();
 void TP2825_open();
 
