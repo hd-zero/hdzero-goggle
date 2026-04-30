@@ -23,7 +23,7 @@ if (HDZ_BOXPRO)
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/platform "HDZBOXPRO")
 endif()
 
-option(HDZ_GOGGLE "Target Goggles2" OFF)
+option(HDZ_GOGGLE2 "Target Goggles2" OFF)
 if (HDZ_GOGGLE2)
 	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DHDZGOGGLE2=1")
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/platform "HDZGOGGLE2")
