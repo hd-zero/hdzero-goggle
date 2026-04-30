@@ -251,6 +251,13 @@ void camTypeDetect(uint8_t rData) {
 #elif defined(HDZBOXPRO)
         load_fc_osd_font(0);
 #endif
+    } else if (cur_cam == VR_1080P24 || last_cam == VR_1080P24) {
+        // LOGI("Cam_mode changed:%d", cur_cam);
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
+        load_fc_osd_font(cur_cam == VR_1080P24);
+#elif defined(HDZBOXPRO)
+        load_fc_osd_font(0);
+#endif
     }
 }
 
@@ -267,7 +274,7 @@ void fcTypeDetect(uint8_t *rData) {
 
         // LOGI("fc_variant changed:%s", fc_variant_rcv);
 #if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
-        load_fc_osd_font(cur_cam == VR_1080P30);
+        load_fc_osd_font(cur_cam == VR_1080P30 || cur_cam == VR_1080P24);
 #elif defined(HDZBOXPRo)
         load_fc_osd_font(0);
 #endif

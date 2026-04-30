@@ -343,7 +343,7 @@ void IT66021_edid() {
 void IT66021_Set_Pclk(int inv, int dly) {
     IT66021_Mask_WR(0, 0x0f, 0x03, 0x00);
     if (inv)
-        I2C_L_Write(ADDR_IT66021, 0x50, 0xA0 + dly);
+        I2C_L_Write(ADDR_IT66021, 0x50, 0xB2);
     else
-        I2C_L_Write(ADDR_IT66021, 0x50, 0xB0 + dly);
+        I2C_L_Write(ADDR_IT66021, 0x50, 0xA1);
 }
