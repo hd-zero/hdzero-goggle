@@ -198,6 +198,10 @@ void source_status_timer() {
     if (!in_sourcepage)
         return;
 
+    if (btn_group_get_sel(&btn_group1) != g_setting.source.hdzero_band) {
+        btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
+    }
+
     ch = g_setting.scan.channel & 0x7F;
     if (g_setting.source.hdzero_band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) {
         if (ch <= 8) {
@@ -376,6 +380,7 @@ static void page_source_on_click(uint8_t key, int sel) {
 
 static void page_source_enter() {
     in_sourcepage = true;
+    btn_group_set_sel(&btn_group1, g_setting.source.hdzero_band);
 }
 
 static void page_source_exit() {
