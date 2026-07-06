@@ -17,6 +17,7 @@
 #include "driver/it66121.h"
 #include "driver/tp2825.h"
 #include "ui/page_common.h"
+#include "util/system.h"
 
 #define UART_WAIT (100 * 1000)
 
@@ -24,6 +25,13 @@ void self_test() {
     int i;
     uint32_t dat0, dat1;
     char *msg[2] = {"[Error]", "[Pass] "};
+
+#ifdef HDZGOGGLE2
+    system_exec("dispw -s vdpo 1080p50");
+    system_exec("aww 0x0300b340 0x00000008");
+    system_exec("aww 0x0300b084 0x00002aaa"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
+
+#endif
 
     if (!g_setting.storage.selftest)
         return;

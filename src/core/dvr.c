@@ -159,6 +159,7 @@ void dvr_update_vi_conf(video_resolution_t fmt) {
 #endif
     }
     pthread_mutex_unlock(&dvr_mutex);
+    sync();
 
     LOGI("update_record_vi_conf: fmt=%d", fmt);
 }
