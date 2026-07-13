@@ -85,6 +85,7 @@ extern "C" {
 #define REC_packTYPE        REC_packTS
 #define REC_packSnapTYPE    REC_packJPG
 #define REC_packIndexLEN    4
+#define REC_labelMAXLEN     33                  //32 chars + NUL, keeps names under 64
 #define REC_packTYPES       {REC_packMP4,REC_packTS}
 #define DOT                 "."
 #define REC_packEXTS        {DOT REC_packMP4, DOT REC_packTS}
@@ -93,6 +94,11 @@ extern "C" {
 
 #define REC_filePathGet(BUFF, MAXLEN, PATH, PREFIX, INDEX, FILEFMT) \
     snprintf((BUFF), (MAXLEN), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
+
+/* Race-labelled recording: YYYY-MM-DD-NNNN-label.ext - date+index lead so a
+   plain filename sort lists the day in recording order */
+#define REC_labelPathGet(BUFF, MAXLEN, PATH, DATE, INDEX, LABEL, FILEFMT) \
+    snprintf((BUFF), (MAXLEN), "%s%s-%04d-%s.%s", (PATH), (DATE), (INDEX), (LABEL), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 

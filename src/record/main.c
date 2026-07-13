@@ -326,6 +326,14 @@ int record_start(RecordContext_t *recCtx) {
 
     char dateString[16];
     char sFile[256];
+    if (recCtx->params.label[0]) {
+        /* race-labelled recording: date + index lead so filenames sort in
+           recording order, e.g. 2026-07-13-0042-WinterCup-Qual1-H2.mp4 */
+        const time_t t = time(0);
+        const struct tm *date = localtime(&t);
+        snprintf(dateString, sizeof(dateString), "%04d-%02d-%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday);
+        REC_labelPathGet(sFile, sizeof(sFile), recCtx->params.packPath, dateString, nbFileIndex, recCtx->params.label, recCtx->params.packType);
+    } else
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
         REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
@@ -434,6 +442,9 @@ int record_start(RecordContext_t *recCtx) {
         fclose(recording_file);
     }
 
+    if (recCtx->params.label[0]) {
+        REC_labelPathGet(sFile, sizeof(sFile), recCtx->params.packPath, dateString, nbFileIndex, recCtx->params.label, REC_packSnapTYPE);
+    } else
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
         REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
@@ -493,6 +504,14 @@ bool record_pack(RecordContext_t *recCtx) {
     int nbFileIndex = recCtx->nbFileIndex;
     char dateString[16];
     char sFile[256];
+    if (recCtx->params.label[0]) {
+        /* race-labelled recording: date + index lead so filenames sort in
+           recording order, e.g. 2026-07-13-0042-WinterCup-Qual1-H2.mp4 */
+        const time_t t = time(0);
+        const struct tm *date = localtime(&t);
+        snprintf(dateString, sizeof(dateString), "%04d-%02d-%02d", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday);
+        REC_labelPathGet(sFile, sizeof(sFile), recCtx->params.packPath, dateString, nbFileIndex, recCtx->params.label, recCtx->params.packType);
+    } else
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
         REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, recCtx->params.packType);
@@ -562,6 +581,9 @@ bool record_pack(RecordContext_t *recCtx) {
 
     pthread_mutex_unlock(&recCtx->mutex);
 
+    if (recCtx->params.label[0]) {
+        REC_labelPathGet(sFile, sizeof(sFile), recCtx->params.packPath, dateString, nbFileIndex, recCtx->params.label, REC_packSnapTYPE);
+    } else
     switch (recCtx->params.fileNaming) {
     case NAMING_CONTIGUOUS:
         REC_filePathGet(sFile, sizeof(sFile), recCtx->params.packPath, REC_packPREFIX, nbFileIndex, REC_packSnapTYPE);
@@ -734,6 +756,11 @@ int record_checkDisk(RecordContext_t *recCtx) {
                 char *sTypes[] = REC_packEXTS;
                 int nIndex = disk_countMovies(recCtx->params.packPath, REC_packPREFIX,
                                               sTypes, REC_packTypesNUM, REC_packIndexLEN);
+                int nLabeled = disk_maxLabeledIndex(recCtx->params.packPath,
+                                                    sTypes, REC_packTypesNUM);
+                if (nLabeled > nIndex) {
+                    nIndex = nLabeled;
+                }
                 recCtx->nbFileIndex = nIndex + 1;
                 LOGD("movies index: %d", recCtx->nbFileIndex);
             }

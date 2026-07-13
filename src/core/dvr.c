@@ -1,8 +1,11 @@
 #include "dvr.h"
 
+#include <ctype.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <log/log.h>
@@ -23,6 +26,33 @@ bool record_pending = false;
 
 static time_t dvr_recording_start = 0;
 static pthread_mutex_t dvr_mutex;
+
+// Race label for the next recording, pushed by a race timer over the ELRS
+// backpack (MSP_SET_DVR_NAME). It expires so a recording made well after the
+// heat (e.g. freestyle) doesn't inherit the race's name.
+#define DVR_RACE_LABEL_TTL_S (5 * 60)
+static char dvr_race_label[REC_labelMAXLEN] = "";
+static time_t dvr_race_label_time = 0;
+
+// Store a filename-safe copy of the label: alnum kept, spaces become '-',
+// everything else dropped, capped to REC_labelMAXLEN. Empty input clears it.
+void dvr_set_race_label(const uint8_t *label, uint16_t len) {
+    char clean[REC_labelMAXLEN];
+    size_t n = 0;
+    for (uint16_t i = 0; i < len && n < sizeof(clean) - 1; i++) {
+        char c = (char)label[i];
+        if (isalnum((unsigned char)c) || c == '-' || c == '_') {
+            clean[n++] = c;
+        } else if (c == ' ' && n > 0 && clean[n - 1] != '-') {
+            clean[n++] = '-';
+        }
+    }
+    clean[n] = 0;
+
+    strcpy(dvr_race_label, clean);
+    dvr_race_label_time = time(NULL);
+    LOGI("dvr race label set to \"%s\"", dvr_race_label);
+}
 
 ///////////////////////////////////////////////////////////////////
 //-1=error;
@@ -309,6 +339,13 @@ static void dvr_update_record_conf() {
     ini_putl("record", "audio", g_setting.record.audio, REC_CONF);
     dvr_select_audio_source(g_setting.record.audio_source);
     ini_putl("record", "naming", g_setting.record.naming, REC_CONF);
+
+    // Pass the race label to the record process; always written so a stale
+    // label never survives in the conf, and expired labels are dropped
+    if (dvr_race_label[0] && time(NULL) - dvr_race_label_time > DVR_RACE_LABEL_TTL_S) {
+        dvr_race_label[0] = 0;
+    }
+    ini_puts("record", "label", dvr_race_label, REC_CONF);
 
     sync();
 }
