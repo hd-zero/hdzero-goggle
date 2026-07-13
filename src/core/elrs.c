@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include <log/log.h>
+#include <minIni.h>
 
 #include "core/app_state.h"
 #include "core/battery.h"
@@ -102,26 +103,45 @@ static uint8_t hdz_ch2index(uint8_t is_lowband, uint8_t ch) {
     return chan;
 }
 
-static uint8_t hdz_index2ch(uint8_t index) {
-    uint8_t chan;
-
-    if (index < 48)
-        chan = hdzero_channel_map[index];
-    else
-        chan = 0;
-
-    return chan;
+// Maps a 48-entry VTx table index (A/B/E/F/R/L x 8) to an HDZero band mode +
+// channel, so a race timer can move the goggles between Raceband and Lowband.
+// Returns false when the index has no HDZero equivalent.
+static bool hdz_index2bandch(uint8_t index, uint8_t *band, uint8_t *channel) {
+    if (index >= 48) {
+        return false;
+    }
+    if (index >= 5 * 8) { // L1..8 - HDZero Lowband mode
+        *band = SETTING_SOURCES_HDZERO_BAND_LOWBAND;
+        *channel = index - 5 * 8 + 1;
+        return true;
+    }
+    uint8_t const ch = hdzero_channel_map[index];
+    if (ch == 0) {
+        return false;
+    }
+    *band = SETTING_SOURCES_HDZERO_BAND_RACEBAND;
+    *channel = ch;
+    return true;
 }
 
-static void channel_channel_hdzero(uint8_t const channel) {
-    if (channel == 0 || channel > HDZERO_CHANNEL_NUM) {
-        LOGE("Invalid HDZero channel %d", channel);
+static void channel_channel_hdzero(uint8_t const band, uint8_t const channel) {
+    uint8_t const max_channel = (band == SETTING_SOURCES_HDZERO_BAND_RACEBAND) ? 12 : 8;
+    if (channel == 0 || channel > max_channel) {
+        LOGE("Invalid HDZero channel %d for band %d", channel, band);
         return;
     }
-    if ((g_setting.scan.channel & 0xF) != channel || g_app_state != APP_STATE_VIDEO) {
+    bool const band_changed = g_setting.source.hdzero_band != band;
+    if (band_changed || (g_setting.scan.channel & 0xF) != channel || g_app_state != APP_STATE_VIDEO) {
         g_setting.scan.channel = channel;
         beep();
         pthread_mutex_lock(&lvgl_mutex);
+        if (band_changed) {
+            // Same steps as the source menu's Raceband/Lowband toggle;
+            // app_switch_to_hdzero below re-tunes with the new band
+            g_setting.source.hdzero_band = band;
+            page_scannow_set_channel_label();
+            ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
+        }
         dvr_cmd(DVR_STOP);
         app_switch_to_hdzero(true);
         app_state_push(APP_STATE_VIDEO);
@@ -299,7 +319,12 @@ void msp_process_packet() {
         case MSP_SET_BAND_CHAN: {
             uint8_t const chan = packet.payload[0];
             if (g_source_info.source == SOURCE_HDZERO) {
-                channel_channel_hdzero(hdz_index2ch(chan));
+                uint8_t band, new_ch;
+                if (hdz_index2bandch(chan, &band, &new_ch)) {
+                    channel_channel_hdzero(band, new_ch);
+                } else {
+                    LOGE("No HDZero channel for VTx table index %d", chan);
+                }
             } else {
 #if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
                 if (g_source_info.source == SOURCE_AV_MODULE) {
@@ -330,12 +355,12 @@ void msp_process_packet() {
                 break;
             }
             if (g_source_info.source == SOURCE_HDZERO) {
-                uint8_t const new_ch = hdzero_channel_map[freq_index];
-                if (new_ch == 0) {
+                uint8_t band, new_ch;
+                if (!hdz_index2bandch(freq_index, &band, &new_ch)) {
                     LOGE("Invalid HDZero channel for frequency %d", freq);
                     break;
                 }
-                channel_channel_hdzero(new_ch);
+                channel_channel_hdzero(band, new_ch);
             } else if (g_source_info.source == SOURCE_AV_MODULE) {
                 change_channel_analog(freq_index + 1);
             }
