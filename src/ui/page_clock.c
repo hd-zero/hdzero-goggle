@@ -420,6 +420,10 @@ static lv_obj_t *page_clock_create(lv_obj_t *parent, panel_arr_t *arr) {
  * Main entry routine for this page.
  */
 static void page_clock_enter() {
+    // Reload from the RTC so the rollers show the current time, not the
+    // values cached at boot or last manual set - the clock may have been
+    // updated since via the ELRS backpack or NTP.
+    rtc_get_clock(&page_clock_rtc_date);
     page_clock_build_options_from_date(&page_clock_rtc_date);
     page_clock_refresh_datetime();
     lv_obj_add_style(page_clock_items[ITEM_YEAR].data.obj, &style_dropdown, LV_PART_MAIN);
