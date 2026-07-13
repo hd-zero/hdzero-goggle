@@ -310,6 +310,25 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
  */
 static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
     page_clock_refresh_datetime();
+
+    // Keep the set-clock rollers tracking the live clock once a second,
+    // pausing while the user has a roller open or an unsaved change so
+    // the refresh never fights a manual edit.
+    static uint8_t ticks = 0;
+    if (++ticks < 4) {
+        return;
+    }
+    ticks = 0;
+
+    if (!page_clock_is_dirty && !page_clock_item_focused) {
+        rtc_get_clock(&page_clock_rtc_date);
+        page_clock_build_options_from_date(&page_clock_rtc_date);
+        for (int i = 0; i < ITEM_FORMAT; ++i) {
+            if (page_clock_items[i].data.obj) {
+                page_clock_items[i].last_option = lv_dropdown_get_selected(page_clock_items[i].data.obj);
+            }
+        }
+    }
 }
 
 /**
