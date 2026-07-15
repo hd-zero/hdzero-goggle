@@ -78,6 +78,7 @@ static lv_timer_t *page_clock_refresh_ui_timer = NULL;
 static lv_timer_t *page_clock_set_clock_timer = NULL;
 static int page_clock_set_clock_confirm = 0;
 static int page_clock_is_dirty = 0;
+static uint32_t page_clock_last_input = 0;
 static struct rtc_date page_clock_rtc_date = {0};
 
 /**
@@ -312,21 +313,44 @@ static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
     page_clock_refresh_datetime();
 
     // Keep the set-clock rollers tracking the live clock once a second,
-    // pausing while the user has a roller open or an unsaved change so
-    // the refresh never fights a manual edit.
+    // pausing while the user has a roller open, an unsaved change, or has
+    // touched the page recently, so the refresh never fights the user.
     static uint8_t ticks = 0;
     if (++ticks < 4) {
         return;
     }
     ticks = 0;
 
-    if (!page_clock_is_dirty && !page_clock_item_focused) {
-        rtc_get_clock(&page_clock_rtc_date);
+    if (page_clock_is_dirty || page_clock_item_focused ||
+        lv_tick_elaps(page_clock_last_input) < 3000) {
+        return;
+    }
+
+    struct rtc_date date;
+    rtc_get_clock(&date);
+
+    // Rebuilding the option lists disturbs the cursor mid-scroll, so only
+    // do the full rebuild when the lists themselves change (the day count
+    // depends on year/month); otherwise just move the selected indices.
+    if (date.year != page_clock_rtc_date.year || date.month != page_clock_rtc_date.month) {
+        page_clock_rtc_date = date;
         page_clock_build_options_from_date(&page_clock_rtc_date);
+    } else {
+        page_clock_rtc_date = date;
+        // First option of each roller, matching page_clock_build_options_from_date()
+        const int starts[ITEM_FORMAT] = {2023, 1, 1, 0, 0, 0};
+        const int values[ITEM_FORMAT] = {date.year, date.month, date.day, date.hour, date.min, date.sec};
         for (int i = 0; i < ITEM_FORMAT; ++i) {
-            if (page_clock_items[i].data.obj) {
-                page_clock_items[i].last_option = lv_dropdown_get_selected(page_clock_items[i].data.obj);
+            lv_obj_t *obj = page_clock_items[i].data.obj;
+            if (obj && (int)lv_dropdown_get_selected(obj) != values[i] - starts[i]) {
+                lv_dropdown_set_selected(obj, values[i] - starts[i]);
             }
+        }
+    }
+
+    for (int i = 0; i < ITEM_FORMAT; ++i) {
+        if (page_clock_items[i].data.obj) {
+            page_clock_items[i].last_option = lv_dropdown_get_selected(page_clock_items[i].data.obj);
         }
     }
 }
@@ -491,6 +515,8 @@ static void page_clock_exit() {
  * Main navigation routine for this page.
  */
 static void page_clock_on_roller(uint8_t key) {
+    page_clock_last_input = lv_tick_get();
+
     // Ignore commands until timer has expired before allowing user to proceed.
     if (page_clock_set_clock_confirm == 2) {
         return;
@@ -552,6 +578,8 @@ static void page_clock_on_roller(uint8_t key) {
  */
 static void page_clock_on_click(uint8_t key, int sel) {
     char buf[128];
+    page_clock_last_input = lv_tick_get();
+
     // Ignore commands until timer has expired before allowing user to proceed.
     if (page_clock_set_clock_confirm == 2) {
         return;
