@@ -15,7 +15,6 @@ uint32_t disk_availableSize(char* sPath);
 bool     disk_checkPath(char* sPath);
 bool     disk_checkFile(char* sPath);
 int      disk_countMovies(char* sPath, char* sPrefix, char* sExts[], int nExts, int nIndexLen);
-int      disk_maxLabeledIndex(char* sPath, char* sExts[], int nExts);
 
 typedef struct
 {

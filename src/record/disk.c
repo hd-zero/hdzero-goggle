@@ -304,64 +304,6 @@ int disk_countMovies(char* sPath, char* sPrefix, char* sExts[], int nExts, int n
     return nIndexMax;
 }
 
-/* Max file index used by race-labelled recordings (YYYY-MM-DD-NNNN-label.ext),
-   so the shared index never collides with hdz_ names. Returns -1 when none. */
-int disk_maxLabeledIndex(char* sPath, char* sExts[], int nExts)
-{
-    DIR* dp = opendir(sPath);
-    if( dp == NULL ) {
-        LOGE("opendir %s fail\n", sPath);
-        return -1;
-    }
-
-    struct dirent *dirp;
-    char sTemp[8];
-    int  nIndexMax = -1;
-    int  i;
-
-    while( (dirp = readdir(dp)) != NULL ) {
-        const char* sName = dirp->d_name;
-        int size = strlen(sName);
-
-        /* YYYY-MM-DD-NNNN- prefix */
-        if( size < 16 ) {
-            continue;
-        }
-        if( !(isdigit((unsigned char)sName[0]) && isdigit((unsigned char)sName[1]) &&
-              isdigit((unsigned char)sName[2]) && isdigit((unsigned char)sName[3]) &&
-              sName[4] == '-' &&
-              isdigit((unsigned char)sName[5]) && isdigit((unsigned char)sName[6]) &&
-              sName[7] == '-' &&
-              isdigit((unsigned char)sName[8]) && isdigit((unsigned char)sName[9]) &&
-              sName[10] == '-' &&
-              isdigit((unsigned char)sName[11]) && isdigit((unsigned char)sName[12]) &&
-              isdigit((unsigned char)sName[13]) && isdigit((unsigned char)sName[14]) &&
-              sName[15] == '-') ) {
-            continue;
-        }
-
-        for(i=0; i<nExts; i++) {
-            int nExtLen = strlen(sExts[i]);
-            if( size > nExtLen && strcmp(sName + (size - nExtLen), sExts[i]) == 0 ) {
-                break;
-            }
-        }
-        if( i >= nExts ) {
-            continue;
-        }
-
-        memset(sTemp, 0, sizeof(sTemp));
-        memcpy(sTemp, sName + 11, 4);
-        int nIndex = atoi(sTemp);
-        if( nIndex > nIndexMax ) {
-            nIndexMax = nIndex;
-        }
-    }
-
-    closedir(dp);
-    return nIndexMax;
-}
-
 void sdcard_check(SdcardContext_t* sdstat, uint32_t tkNow)
 {
 	uint32_t mbTotal=0;
