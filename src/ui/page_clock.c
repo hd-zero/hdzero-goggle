@@ -74,7 +74,6 @@ static int page_clock_item_focused = 0;
 static date_time_t page_clock_datetime = {0};
 static dropdown_list_t page_clock_options[ITEM_SECOND + 1];
 static lv_timer_t *page_clock_set_clock_pending_timer = NULL;
-static lv_timer_t *page_clock_refresh_ui_timer = NULL;
 static lv_timer_t *page_clock_set_clock_timer = NULL;
 static int page_clock_set_clock_confirm = 0;
 static int page_clock_is_dirty = 0;
@@ -307,9 +306,11 @@ static void page_clock_set_clock_pending_cb(struct _lv_timer_t *timer) {
 }
 
 /**
- * Callback timer for refreshing the date/time/format wihtin the UI.
+ * Refresh the date/time/format and rollers within the UI. Driven from
+ * page_clock_on_update so the page stays live even when it is only
+ * highlighted in the main menu, not entered.
  */
-static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
+static void page_clock_refresh_ui(void) {
     page_clock_refresh_datetime();
 
     // Keep the set-clock rollers tracking the live clock once a second,
@@ -353,6 +354,28 @@ static void page_clock_refresh_ui_timer_cb(struct _lv_timer_t *timer) {
             page_clock_items[i].last_option = lv_dropdown_get_selected(page_clock_items[i].data.obj);
         }
     }
+}
+
+/**
+ * Called continuously from the main menu loop for every page, so the
+ * clock is already showing the live time when the user scrolls onto the
+ * Clock menu item - no need to enter the page first.
+ */
+static void page_clock_on_update(uint32_t delta_ms) {
+    // Pace with the lvgl tick rather than delta_ms, which resets its
+    // reference on every call and alternates between tiny and huge values
+    static uint32_t last_refresh_ms = 0;
+
+    if (!page_clock_datetime.date) {
+        return;
+    }
+
+    if (lv_tick_elaps(last_refresh_ms) < 250) {
+        return;
+    }
+    last_refresh_ms = lv_tick_get();
+
+    page_clock_refresh_ui();
 }
 
 /**
@@ -470,8 +493,6 @@ static void page_clock_enter() {
     page_clock_build_options_from_date(&page_clock_rtc_date);
     page_clock_refresh_datetime();
     lv_obj_add_style(page_clock_items[ITEM_YEAR].data.obj, &style_dropdown, LV_PART_MAIN);
-    page_clock_refresh_ui_timer = lv_timer_create(page_clock_refresh_ui_timer_cb, 250, NULL);
-    lv_timer_set_repeat_count(page_clock_refresh_ui_timer, -1);
 
 #ifdef HDZBOXPRO
     lv_obj_set_style_border_color(page_clock_items[0].data.obj, lv_palette_main(LV_PALETTE_RED), 0);
@@ -482,11 +503,6 @@ static void page_clock_enter() {
  * Main exit routine for this page.
  */
 static void page_clock_exit() {
-    if (page_clock_refresh_ui_timer) {
-        lv_timer_del(page_clock_refresh_ui_timer);
-        page_clock_refresh_ui_timer = NULL;
-    }
-
     page_clock_set_clock_reset();
     page_clock_refresh_styles();
     page_clock_clear_datetime();
@@ -660,7 +676,7 @@ page_pack_t pp_clock = {
     .enter = page_clock_enter,
     .exit = page_clock_exit,
     .on_created = NULL,
-    .on_update = NULL,
+    .on_update = page_clock_on_update,
     .on_roller = page_clock_on_roller,
     .on_click = page_clock_on_click,
     .on_right_button = NULL,
