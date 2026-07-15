@@ -1,5 +1,6 @@
 #include "disk.h"
 
+#include <ctype.h>
 #include <stdint.h>
 #include <sys/vfs.h>
 #include <sys/stat.h>
