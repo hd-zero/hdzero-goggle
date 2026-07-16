@@ -8,6 +8,7 @@
 
 #include "../conf/ui.h"
 #include "common.hh"
+#include "driver/hardware.h"
 #include "player/media.h"
 #include "record/record_definitions.h"
 #include "ui/ui_style.h"
@@ -25,6 +26,8 @@ player_cmd_t cmd;
 LV_IMG_DECLARE(img_Play_0);
 LV_IMG_DECLARE(img_Stop_0);
 LV_IMG_DECLARE(img_star);
+
+static bool ui_retimed_for_playback = false;
 
 static bool stars_positioned_on_timeline = false;
 static size_t stars_count = 0;
@@ -346,6 +349,17 @@ void mplayer_file(char *fname) {
     load_stars(fname);
     init_mplayer();
     media_init(fname);
+
+    // The menu UI refreshes at 50Hz on the goggles, which drops frames of
+    // 60 and 90 fps DVR files unevenly; retime to 60Hz while playing (90fps
+    // then falls into an even 3:2 cadence)
+    int fps = media_get_fps(media);
+    LOGI("mplayer fps=%d", fps);
+    if (fps >= 55) {
+        Display_UI_SetRefresh(60);
+        ui_retimed_for_playback = true;
+    }
+
     media_start();
     update_mplayer();
 }
@@ -355,6 +369,10 @@ void mplayer_exit() {
     if (media) {
         media_exit(media);
         media = NULL;
+    }
+    if (ui_retimed_for_playback) {
+        Display_UI_SetRefresh(0);
+        ui_retimed_for_playback = false;
     }
     pthread_mutex_lock(&lvgl_mutex);
     free_mplayer();

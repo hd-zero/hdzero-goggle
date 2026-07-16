@@ -569,6 +569,27 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
+// 1080p50 and 1080p60 share the same 148.5MHz pixel clock, so the OLED and
+// FPGA settings from Display_UI_init stay valid; only the vdpo timing changes.
+void Display_UI_SetRefresh(int hz) {
+    int tmg = (hz == 60) ? VDPO_TMG_1080P60 : VDPO_TMG_1080P50;
+
+    pthread_mutex_lock(&hardware_mutex);
+    if ((g_hw_stat.source_mode == SOURCE_MODE_UI) && (g_hw_stat.vdpo_tmg != tmg)) {
+        screen.display(0);
+
+        system_exec((hz == 60) ? "dispw -s vdpo 1080p60" : "dispw -s vdpo 1080p50");
+        g_hw_stat.vdpo_tmg = tmg;
+        system_exec("aww 0x0300b340 0x00000008");
+        system_exec("aww 0x0300b084 0x00003fff"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
+        system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+
+        screen.display(1);
+        LOGI("Display_UI_SetRefresh: %dHz", (hz == 60) ? 60 : 50);
+    }
+    pthread_mutex_unlock(&hardware_mutex);
+}
+
 void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 {
     screen.display(0);

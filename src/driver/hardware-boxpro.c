@@ -606,6 +606,11 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
+// The BoxPRO UI already runs at 720p60, which suits 60 and 90 fps DVR files,
+// so there is nothing to retime here.
+void Display_UI_SetRefresh(int hz) {
+}
+
 void HDZero_open(int bw) {
     if (bw != g_hw_stat.hdz_bw) // reopen with different bw
         HDZero_Close();

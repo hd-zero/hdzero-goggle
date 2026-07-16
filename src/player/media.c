@@ -204,6 +204,17 @@ void media_control(media_t *media, player_cmd_t *cmd) {
     pthread_mutex_unlock(&playCtx->mutex);
 }
 
+int media_get_fps(media_t *media) {
+    if (!media)
+        return 0;
+
+    PlayContext_t *playCtx = (PlayContext_t *)media->context;
+    if (!playCtx || !playCtx->dmx)
+        return 0;
+
+    return (playCtx->dmx->fpsX1000 + 500) / 1000;
+}
+
 media_t *media_instantiate(char *filename, notify_cb_t notify) {
     int ret = 0;
     pthread_t pid;

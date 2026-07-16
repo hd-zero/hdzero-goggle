@@ -196,8 +196,11 @@ int ffpack_newVideoStream(FFPack_t* ff, uint16_t programId, FFStreamParameters_t
     stream->r_frame_rate.den = 0;//1;
     stream->avg_frame_rate.num = param->video.fps;
     stream->avg_frame_rate.den = 1;
-    stream->time_base.num = 1;//0;
-    stream->time_base.den = param->video.fps;//100000;//1; //10us
+    /* a 1/fps time base rounds every capture timestamp to a whole frame
+     * slot (and collides when the real rate drifts from the configured
+     * fps), baking judder into the file; 90kHz keeps timestamps exact */
+    stream->time_base.num = 1;
+    stream->time_base.den = 90000;
     cp->codec_type = param->mediaType;
     cp->codec_id = param->codecId;
     cp->width = param->video.width;
