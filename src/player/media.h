@@ -39,7 +39,6 @@ typedef struct {
 media_t *media_instantiate(char *filename, notify_cb_t notify);
 void media_exit(media_t *media);
 void media_control(media_t *media, player_cmd_t *cmd);
-int media_get_fps(media_t *media); // video fps rounded to nearest integer, 0 if unknown
 
 #ifdef __cplusplus
 }

@@ -569,23 +569,39 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
-// 1080p50 and 1080p60 share the same 148.5MHz pixel clock, so the OLED and
-// FPGA settings from Display_UI_init stay valid; only the vdpo timing changes.
+// Retime the UI output for DVR playback. 60Hz keeps the 1080p UI on the
+// same 148.5MHz pixel clock, so the OLED and FPGA settings from
+// Display_UI_init stay valid. 90Hz reuses the vdpo timing, clock phases and
+// OLED mode proven by the live 720p90 path (the FPGA stays on the UI input).
+// 0 restores the stock menu timing with a full Display_UI_init.
 void Display_UI_SetRefresh(int hz) {
-    int tmg = (hz == 60) ? VDPO_TMG_1080P60 : VDPO_TMG_1080P50;
+    int tmg = (hz == 90) ? VDPO_TMG_720P90 : (hz == 60) ? VDPO_TMG_1080P60 : VDPO_TMG_1080P50;
 
     pthread_mutex_lock(&hardware_mutex);
     if ((g_hw_stat.source_mode == SOURCE_MODE_UI) && (g_hw_stat.vdpo_tmg != tmg)) {
         screen.display(0);
 
-        system_exec((hz == 60) ? "dispw -s vdpo 1080p60" : "dispw -s vdpo 1080p50");
-        g_hw_stat.vdpo_tmg = tmg;
-        system_exec("aww 0x0300b340 0x00000008");
-        system_exec("aww 0x0300b084 0x00003fff"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
-        system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+        if (hz == 90) {
+            system_exec("dispw -s vdpo 720p90");
+            g_hw_stat.vdpo_tmg = VDPO_TMG_720P90;
+            system_exec("aww 0x0300b340 0x00000008");
+            vclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90, 0);
+            pclk_phase_set(VIDEO_SOURCE_HDZERO_IN_720P90);
+            screen.vtmg(1);
+            system_exec("aww 0x0300b084 0x00003fff"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
+            system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+        } else if (hz == 60) {
+            system_exec("dispw -s vdpo 1080p60");
+            g_hw_stat.vdpo_tmg = VDPO_TMG_1080P60;
+            system_exec("aww 0x0300b340 0x00000008");
+            system_exec("aww 0x0300b084 0x00003fff"); // Set vdpo clock driver strength to level 2. Refer datasheet 12.7.5.11
+            system_exec("aww 0x06542018 0x00000044"); // disable horizontal chroma FIR filter.
+        } else {
+            Display_UI_init();
+        }
 
         screen.display(1);
-        LOGI("Display_UI_SetRefresh: %dHz", (hz == 60) ? 60 : 50);
+        LOGI("Display_UI_SetRefresh: %dHz", hz ? hz : 50);
     }
     pthread_mutex_unlock(&hardware_mutex);
 }

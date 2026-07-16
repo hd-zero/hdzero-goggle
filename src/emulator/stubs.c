@@ -24,7 +24,6 @@ void *thread_media(void *params) { return NULL; }
 void media_control(media_t *media, player_cmd_t *cmd) {}
 media_t *media_instantiate(char *filename, notify_cb_t notify) { return NULL; }
 void media_exit(media_t *media) {}
-int media_get_fps(media_t *media) { return 0; }
 
 #if HDZGOGGLE
 void Display_HDZ(int mode, int is_43) {}

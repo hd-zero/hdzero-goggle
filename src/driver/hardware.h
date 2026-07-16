@@ -89,7 +89,7 @@ void Source_HDMI_in();
 void Source_AV(bool is_av_in);
 void Display_UI_init();
 void Display_UI();
-void Display_UI_SetRefresh(int hz); // retime the UI output for DVR playback (e.g. 60); 0 restores the default UI timing
+void Display_UI_SetRefresh(int hz); // retime the UI output for DVR playback (60 = 1080p60, 90 = 720p90); 0 restores the default UI timing
 
 void Display_720P90(int mode);
 void Display_720P60_50(int mode, uint8_t is_43);

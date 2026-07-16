@@ -17,6 +17,7 @@
 
 #include "adec2ao.h"
 #include "awdmx.h"
+#include "driver/hardware.h"
 #include "gogglemsg.h"
 #include "vdec2vo.h"
 #include "version.h"
@@ -66,6 +67,7 @@ typedef struct
     pthread_mutex_t mutex;
 
     int playingTime; // ms
+    int retimedHz;   // nonzero while the UI output is retimed for this file
 } PlayContext_t;
 
 static int play_start(PlayContext_t *playCtx) {
@@ -204,17 +206,6 @@ void media_control(media_t *media, player_cmd_t *cmd) {
     pthread_mutex_unlock(&playCtx->mutex);
 }
 
-int media_get_fps(media_t *media) {
-    if (!media)
-        return 0;
-
-    PlayContext_t *playCtx = (PlayContext_t *)media->context;
-    if (!playCtx || !playCtx->dmx)
-        return 0;
-
-    return (playCtx->dmx->fpsX1000 + 500) / 1000;
-}
-
 media_t *media_instantiate(char *filename, notify_cb_t notify) {
     int ret = 0;
     pthread_t pid;
@@ -249,7 +240,28 @@ media_t *media_instantiate(char *filename, notify_cb_t notify) {
         goto failed;
     } else {
         Vdec2VoParams_t vvParams;
+        int voWidth = VO_WIDTH;
+        int voHeight = VO_HEIGHT;
         memset(&vvParams, 0, sizeof(vvParams));
+
+#if PLAY_HDZERO && (defined(HDZGOGGLE) || defined(HDZGOGGLE2))
+        // The menu UI drives the panel at 1080p50, which drops frames of
+        // 60/90fps DVR files unevenly. Retime for the duration of playback:
+        // 90fps files reuse the live-mode 720p90 timing so every frame is
+        // shown, 60fps files keep the 1080p UI on the same pixel clock.
+        int fps = (playCtx->dmx->fpsX1000 + 500) / 1000;
+        if (fps >= 80) {
+            playCtx->retimedHz = 90;
+            voWidth = 1280;
+            voHeight = 720;
+        } else if (fps >= 55) {
+            playCtx->retimedHz = 60;
+        }
+        if (playCtx->retimedHz) {
+            LOGD("retiming display to %dHz for %dfps file", playCtx->retimedHz, fps);
+            Display_UI_SetRefresh(playCtx->retimedHz);
+        }
+#endif
 
         vvParams.initRotation = 0;
         vvParams.pixelFormat = MM_PIXEL_FORMAT_YVU_PLANAR_420;
@@ -258,8 +270,8 @@ media_t *media_instantiate(char *filename, notify_cb_t notify) {
         vvParams.vdec.width = playCtx->dmx->width;
         vvParams.vdec.height = playCtx->dmx->height;
 
-        vvParams.vo.width = VO_WIDTH;
-        vvParams.vo.height = VO_HEIGHT;
+        vvParams.vo.width = voWidth;
+        vvParams.vo.height = voHeight;
         vvParams.vo.intfType = VO_intfTYPE;
         vvParams.vo.intfSync = VO_intfSYNC;
         vvParams.vo.uiChn = VO_uiCHN;
@@ -299,6 +311,9 @@ failed:
     adec2ao_deinitSys(playCtx->aa);
     vdec2vo_deinitSys(playCtx->vv);
     awdmx_close(playCtx->dmx);
+    if (playCtx->retimedHz) {
+        Display_UI_SetRefresh(0);
+    }
     pthread_mutex_destroy(&playCtx->mutex);
     free(playCtx);
     LOGD("exit done");
@@ -316,6 +331,9 @@ void media_exit(media_t *media) {
     adec2ao_deinitSys(playCtx->aa);
     vdec2vo_deinitSys(playCtx->vv);
     awdmx_close(playCtx->dmx);
+    if (playCtx->retimedHz) {
+        Display_UI_SetRefresh(0);
+    }
     pthread_mutex_destroy(&playCtx->mutex);
     free(media->context);
     free(media);
