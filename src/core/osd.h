@@ -92,6 +92,9 @@ int osd_init(void);
 int osd_clear(void);
 void osd_fhd(uint8_t);
 void osd_signal_update();
+#ifdef EMULATOR_BUILD
+void osd_inject_mock_fc(void); // emulator: mock a Betaflight OSD for the FPV view
+#endif
 void osd_hdzero_update(void);
 void osd_rec_update(bool enable);
 void osd_show(bool show);

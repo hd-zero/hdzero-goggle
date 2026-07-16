@@ -2,7 +2,13 @@
 
 #include <arpa/inet.h>
 #include <errno.h>
+#if defined(__linux__)
 #include <linux/if.h>
+#else
+#include <net/if.h>
+#include <sys/socket.h>
+#include <sys/sockio.h>
+#endif
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <time.h>
@@ -348,6 +354,10 @@ static void page_wifi_update_settings() {
  * Acquire the actual address in use.
  */
 static const char *page_wifi_get_real_address() {
+#if defined(_WIN32)
+    // wlan0 SIOCGIFADDR has no Windows equivalent; wifi is device-only, inert here.
+    return NULL;
+#else
     const char *address = NULL;
     int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
@@ -364,6 +374,7 @@ static const char *page_wifi_get_real_address() {
     }
 
     return address;
+#endif
 }
 
 /**
@@ -617,8 +628,16 @@ static void page_wifi_apply_settings_timer_cb(struct _lv_timer_t *timer) {
  * Verify if user entered text contains a valid network adresses.
  */
 static bool page_wifi_is_network_address_valid(const char *address) {
+#if defined(_WIN32)
+    // Portable IPv4 validation (avoids winsock); equivalent to inet_pton for AF_INET.
+    unsigned a, b, c, d;
+    char extra;
+    return sscanf(address, "%u.%u.%u.%u%c", &a, &b, &c, &d, &extra) == 4 &&
+           a < 256 && b < 256 && c < 256 && d < 256;
+#else
     struct sockaddr_in sa;
     return 1 == inet_pton(AF_INET, address, &(sa.sin_addr));
+#endif
 }
 
 /**

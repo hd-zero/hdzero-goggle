@@ -9,7 +9,10 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <termios.h>
+#include <time.h> // clock() / CLOCKS_PER_SEC (not pulled in transitively on older mingw)
+#if !defined(_WIN32)
+#include <termios.h> // serial config (device only); mingw/Windows has no <termios.h>
+#endif
 #include <unistd.h>
 
 #include "core/common.hh"
@@ -63,6 +66,13 @@ esp_loader_error_t loader_port_serial_write(const uint8_t *data, uint16_t size, 
 }
 
 static esp_loader_error_t read_char(uint8_t *c, uint32_t timeout) {
+#if defined(_WIN32)
+    // ESP32 serial flasher is device-only; POSIX select() on a serial fd is not
+    // available under mingw, so this is inert in the Windows emulator build.
+    (void)c;
+    (void)timeout;
+    return ESP_LOADER_ERROR_FAIL;
+#else
     struct timeval tv = {timeout / 1000, (timeout % 1000) * 1000};
     fd_set rd;
     FD_ZERO(&rd);
@@ -82,6 +92,7 @@ static esp_loader_error_t read_char(uint8_t *c, uint32_t timeout) {
     } else {
         return ESP_LOADER_ERROR_FAIL;
     }
+#endif
 }
 
 static esp_loader_error_t read_data(uint8_t *buffer, uint32_t size) {

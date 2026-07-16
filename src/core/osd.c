@@ -23,9 +23,10 @@
 #include "core/elrs.h"
 #include "core/msp_displayport.h"
 #include "core/settings.h"
+#include "platform/paths.h"
+
 #include "driver/dm5680.h"
 #include "driver/fans.h"
-#include "driver/fbtools.h"
 #include "driver/hardware.h"
 #include "driver/i2c.h"
 #include "driver/nct75.h"
@@ -75,7 +76,8 @@ void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_t
     vsnprintf(filename, sizeof(filename), fmt, args);
     va_end(args);
     strcpy(buf2, buf);
-    strcpy(buf, RESOURCE_PATH_SDCARD);
+    strcpy(buf, path_extsd());
+    strcat(buf, "/resource/OSD/GOGGLE/");
 
     if (osd_resource_type == OSD_RESOURCE_1080) {
         strcat(buf, "FHD/");
@@ -84,7 +86,8 @@ void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_t
 
     if (access(buf, F_OK) != 0) {
         strcpy(buf, buf2);
-        strcpy(buf, RESOURCE_PATH);
+        strcpy(buf, path_app());
+        strcat(buf, "/resource/OSD/GOGGLE/");
         if (osd_resource_type == OSD_RESOURCE_1080) {
             strcat(buf, "FHD/");
         }
@@ -1111,13 +1114,13 @@ void load_fc_osd_font(uint8_t fhd) {
     int i;
 
     if (fhd) {
-        snprintf(fp[0], sizeof(fp[0]), "%s%s_FHD_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
-        snprintf(fp[1], sizeof(fp[1]), "%s%s_FHD_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
-        snprintf(fp[2], sizeof(fp[2]), "%sBTFL_FHD_000.bmp", FC_OSD_LOCAL_PATH);
+        snprintf(fp[0], sizeof(fp[0]), "%s/resource/OSD/FC/%s_FHD_000.bmp", path_extsd(), fc_variant);
+        snprintf(fp[1], sizeof(fp[1]), "%s/resource/OSD/FC/%s_FHD_000.bmp", path_app(), fc_variant);
+        snprintf(fp[2], sizeof(fp[2]), "%s/resource/OSD/FC/BTFL_FHD_000.bmp", path_app());
     } else {
-        snprintf(fp[0], sizeof(fp[0]), "%s%s_000.bmp", FC_OSD_SDCARD_PATH, fc_variant);
-        snprintf(fp[1], sizeof(fp[1]), "%s%s_000.bmp", FC_OSD_LOCAL_PATH, fc_variant);
-        snprintf(fp[2], sizeof(fp[2]), "%sBTFL_000.bmp", FC_OSD_LOCAL_PATH);
+        snprintf(fp[0], sizeof(fp[0]), "%s/resource/OSD/FC/%s_000.bmp", path_extsd(), fc_variant);
+        snprintf(fp[1], sizeof(fp[1]), "%s/resource/OSD/FC/%s_000.bmp", path_app(), fc_variant);
+        snprintf(fp[2], sizeof(fp[2]), "%s/resource/OSD/FC/BTFL_000.bmp", path_app());
     }
 
     // Optimized for runtime execution
@@ -1180,6 +1183,43 @@ void osd_shadow_clear(void) {
 void osd_signal_update() {
     sem_post(&osd_semaphore);
 }
+
+#ifdef EMULATOR_BUILD
+// Mock a Betaflight MSP-DisplayPort OSD so the emulator's FPV view is
+// representative for design work — no flight controller required.
+// Edit the PUT(row, col, "text") lines to try layouts, rebuild, and see it render.
+// Grid is HD_VMAX(18) rows x HD_HMAX(50) cols; (0,0) is top-left.
+void osd_inject_mock_fc(void) {
+    for (int i = 0; i < HD_VMAX; i++)
+        for (int j = 0; j < HD_HMAX; j++)
+            fc_osd[i][j] = 0x20; // clear to spaces
+#define PUT(r, c, s)                                                    \
+    do {                                                                \
+        const char *_p = (s);                                           \
+        for (int _k = 0; _p[_k] && ((c) + _k) < HD_HMAX; _k++)          \
+            fc_osd[(r)][(c) + _k] = (uint16_t)(uint8_t)_p[_k];          \
+    } while (0)
+    // ---- top row: pack voltage / timer / link ----
+    PUT(0, 1, "16.8V");
+    PUT(0, 22, "05:23");
+    PUT(0, 43, "RSSI 98");
+    PUT(1, 1, "12.4A");
+    PUT(1, 45, "LQ 99");
+    // ---- middle: altitude / crosshair / speed ----
+    PUT(8, 1, "ALT  42M");
+    PUT(8, 24, "-+-");
+    PUT(8, 44, "58 KMH");
+    // ---- bottom: throttle / mode / capacity / gps / home / rec ----
+    PUT(16, 1, "THR  42%");
+    PUT(16, 23, "ACRO");
+    PUT(16, 42, "1250MAH");
+    PUT(17, 1, "GPS 12");
+    PUT(17, 20, "HOME  128M");
+    PUT(17, 46, "REC");
+#undef PUT
+    osd_signal_update();
+}
+#endif
 
 void *thread_osd(void *ptr) {
     static uint8_t fhd_d = 0;

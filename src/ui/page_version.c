@@ -132,7 +132,7 @@ static bool is_need_update_progress = false;
 static bool reboot_flag = false;
 static lv_obj_t *cur_ver_label;
 static int reset_all_settings_confirm = CONFIRMATION_UNCONFIRMED;
-static atomic_bool autoscan_filesystem = ATOMIC_VAR_INIT(true);
+static atomic_bool autoscan_filesystem = true; // was ATOMIC_VAR_INIT(true) — macro removed in C23 / modern GCC
 
 #undef RETURN_ON_ERROR
 #define RETURN_ON_ERROR(m, x)              \
@@ -411,7 +411,11 @@ static const char *page_version_find_latest_fw(const char *path) {
     if (dir) {
         struct dirent *entry = readdir(dir);
         while (entry != NULL) {
+#if defined(_WIN32)
+            if (0) { // fw scan disabled on Windows (mingw dirent lacks d_type; inert in emulator)
+#else
             if (entry->d_type == DT_DIR) {
+#endif
                 if (dname != NULL) {
                     if (str_compare_versions(entry->d_name, dname) > 0) {
                         dname = entry->d_name;
@@ -472,7 +476,11 @@ static int page_version_get_latest_fw_files(fw_select_t *fw_select, const char *
     if (dir) {
         struct dirent *entry = readdir(dir);
         while (entry != NULL) {
+#if defined(_WIN32)
+            if (0) { // fw scan disabled on Windows (mingw dirent lacks d_type; inert in emulator)
+#else
             if (entry->d_type == DT_REG) {
+#endif
                 if (strstr(entry->d_name, pattern)) {
                     bool match = false;
                     for (int j = 0; j < fw_select->count; ++j) {
