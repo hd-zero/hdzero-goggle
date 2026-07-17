@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/select.h> // fd_set/select (transitive via sys/types on glibc; explicit for portability)
 #include <sys/types.h>
 #include <termios.h>
 #include <termios.h> /* POSIX Terminal Control Definitions */
@@ -27,6 +28,10 @@
 #include "core/osd.h"
 #include "driver/uart.h"
 #include "ui/page_common.h"
+
+#ifdef EMULATOR_BUILD
+#include "emulator/dm5680_emu.h" // mock receiver that answers on the UART socketpairs
+#endif
 
 /////////////////////////////////////////////////////////////////////
 // global
@@ -239,8 +244,24 @@ int uart_init() {
     fd_dm5680r = uart_open(1);
     fd_dm5680l = uart_open(2);
 
+#ifdef EMULATOR_BUILD
+    // Emulator: stand up the mock receiver on the UART peer ends before the recv
+    // threads start, so their first blocking select() has a device to answer. On the
+    // Windows emulator uart_emu_peer_fd() returns -1, so this attaches nothing.
+    dm5680_emu_start();
+#endif
+
+#if !defined(_WIN32)
+    // These recv threads block in select() on the UART fd -- real serial on the
+    // goggle, a socketpair under the POSIX emulator -- so select() sleeps until data
+    // arrives (no busy-spin). The Windows emulator has no selectable UART fd (its
+    // compat select() is a stub), so its recv threads stay off.
     pthread_create(&tid_l, NULL, pthread_recv_dm5680l, NULL);
     pthread_create(&tid_r, NULL, pthread_recv_dm5680r, NULL);
+#else
+    (void)tid_l, (void)tid_r;
+#endif
+
     pthread_mutex_init(&cmd_to5680_mutex, NULL);
 
     is_inited = true;

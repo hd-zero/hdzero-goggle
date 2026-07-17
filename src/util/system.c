@@ -10,11 +10,27 @@
 
 int system_exec(const char *command) {
     LOGI("System Execute: %s", command);
+#ifdef EMULATOR_BUILD
+    // The emulator stands in for the goggle hardware, not the host OS. These
+    // commands are device operations (display driver `dispw`, register pokes
+    // `aww`, wifi bring-up + root-password scripts, writes under /etc). Running
+    // them on a dev machine ranges from useless to destructive (the passwd
+    // script tried to change the host user's password), so we log and report
+    // success without touching the host. Real file I/O goes through fopen/minIni,
+    // not this path, so nothing the emulator legitimately needs is lost.
+    LOGI("  [emulator] not executed (host-safe no-op)");
+    return 0;
+#else
     return system(command);
+#endif
 }
 
 int system_script(const char *command) {
     LOGI("System Script: %s", command);
+#ifdef EMULATOR_BUILD
+    LOGI("  [emulator] not executed (host-safe no-op)");
+    return 0;
+#else
 
     // basename may edit argument
     const char *script = fs_basename(command);
@@ -45,4 +61,5 @@ int system_script(const char *command) {
     }
 
     return retval;
+#endif
 }
