@@ -8,9 +8,15 @@
 
 #include "../conf/ui.h"
 #include "common.hh"
+#include "driver/hardware.h"
 #include "player/media.h"
 #include "record/record_definitions.h"
+#include "ui/ui_porting.h"
 #include "ui/ui_style.h"
+
+#if defined(HDZGOGGLE)
+static bool lvgl_at_720p = false;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // locals
@@ -31,6 +37,40 @@ static size_t stars_count = 0;
 static size_t stars_timestamps_s[MAX_STARS] = {
     0,
 };
+
+// Display bring-up bench readout (see Display_UI_BenchNext). The label is
+// only readable when the recipe under test actually displays - which is
+// exactly the signal the bench is after.
+static lv_obj_t *bench_label = NULL;
+
+static void bench_show(int idx, const char *desc) {
+    char text[96];
+
+    if (idx < 0 || !bench_label)
+        return;
+
+    snprintf(text, sizeof(text),
+             "Display test %d: %s\nright click = next, hold = restore", idx, desc);
+    lv_label_set_text(bench_label, text);
+    lv_obj_clear_flag(bench_label, LV_OBJ_FLAG_HIDDEN);
+}
+
+// Auto-hide for the control bar: gone after a few quiet seconds, back on
+// any dial activity.
+#define BAR_HIDE_MS 4000
+static lv_timer_t *bar_hide_timer = NULL;
+
+static void bar_hide_cb(lv_timer_t *timer) {
+    (void)timer;
+    if (controller.enable)
+        lv_obj_add_flag(controller.bar, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void bar_show(void) {
+    lv_obj_clear_flag(controller.bar, LV_OBJ_FLAG_HIDDEN);
+    if (bar_hide_timer)
+        lv_timer_reset(bar_hide_timer);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 static void time2str(uint32_t t1, uint32_t t2, char *s) {
@@ -172,10 +212,21 @@ static void init_mplayer() {
     controller.enable = true;
     controller.is_playing = true;
     controller.value = controller.range = 0;
+
+    bench_label = lv_label_create(controller.bg);
+    lv_label_set_text(bench_label, "");
+    lv_obj_set_style_text_font(bench_label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_color(bench_label, lv_color_make(255, 255, 255), 0);
+    lv_obj_set_style_bg_color(bench_label, lv_color_make(0, 0, 0), 0);
+    lv_obj_set_style_bg_opa(bench_label, LV_OPA_70, 0);
+    lv_obj_set_style_pad_all(bench_label, 8, 0);
+    lv_obj_set_pos(bench_label, 20, 20);
+    lv_obj_add_flag(bench_label, LV_OBJ_FLAG_HIDDEN);
 }
 
 static void free_mplayer() {
     controller.enable = false;
+    bench_label = NULL; // child of controller.bg, freed with it
     lv_obj_del(controller._btn);
     lv_obj_del(controller._label);
     lv_obj_del(controller._slider);
@@ -206,6 +257,7 @@ uint8_t mplayer_on_key(uint8_t key) {
         return 0;
 
     LOGI("mplayer_on_key: %d", key);
+    bar_show();
 
     switch (key) {
     case DIAL_KEY_PRESS:
@@ -236,6 +288,18 @@ uint8_t mplayer_on_key(uint8_t key) {
 
         media_seek(controller.value);
         break;
+
+    case RIGHT_KEY_CLICK: {
+        const char *desc = NULL;
+        bench_show(Display_UI_BenchNext(&desc), desc);
+        break;
+    }
+
+    case RIGHT_KEY_PRESS: {
+        const char *desc = NULL;
+        bench_show(Display_UI_BenchRestore(&desc), desc);
+        break;
+    }
     }
 
     update_mplayer();
@@ -286,10 +350,23 @@ void load_stars(char *fname) {
     }
 }
 
+static lv_obj_t *play_error_label = NULL;
+
 void media_init(char *fname) {
     media = media_instantiate(fname, notify_cb);
     if (!media) {
         perror("media_instantiate failed.");
+        // an honest message beats a silent black screen
+        play_error_label = lv_label_create(lv_scr_act());
+        lv_label_set_text(play_error_label,
+                          "Cannot play this file on the goggles.\n"
+                          "The recording itself is fine - copy it to a PC to watch it.\n"
+                          "Record in TS format for on-goggle playback.\n\n"
+                          "Long-press the Enter button to exit");
+        lv_obj_set_style_text_font(play_error_label, &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_align(play_error_label, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_set_style_text_color(play_error_label, lv_color_make(255, 64, 64), 0);
+        lv_obj_center(play_error_label);
         return;
     }
 }
@@ -346,16 +423,51 @@ void mplayer_file(char *fname) {
     load_stars(fname);
     init_mplayer();
     media_init(fname);
+    int const retimed = media_retimed_hz(media);
+    if (retimed == 90) {
+#if defined(HDZGOGGLE)
+        // The G1 DE wraps a 1920-stride framebuffer at this mode's
+        // 1280-wide scanout - the control bar rendered comb-torn and
+        // doubled. Re-render the UI at 1280x720 exactly like the race
+        // OSD does in this display mode (app_state does the same when
+        // entering live 720p90). goggles2 crops the 1920 layout cleanly
+        // and stays as field-verified.
+        lvgl_switch_to_720p();
+        lvgl_at_720p = true;
+#endif
+        // the 720p90 display mode scans out the top-left 1280x720 of the
+        // layout; move the control bar up into the visible window
+        lv_obj_set_pos(controller.bar, (1280 - UI_MPLAYER_CB_WIDTH) >> 1, 720 - 160);
+    }
     media_start();
     update_mplayer();
+    bar_hide_timer = lv_timer_create(bar_hide_cb, BAR_HIDE_MS, NULL);
 }
 
 void mplayer_exit() {
+    if (bar_hide_timer) {
+        lv_timer_del(bar_hide_timer);
+        bar_hide_timer = NULL;
+    }
+    // never leave a bench display mode running outside the player
+    const char *desc = NULL;
+    Display_UI_BenchRestore(&desc);
+
+    if (play_error_label) {
+        lv_obj_del(play_error_label);
+        play_error_label = NULL;
+    }
     pthread_mutex_unlock(&lvgl_mutex);
     if (media) {
         media_exit(media);
         media = NULL;
     }
     pthread_mutex_lock(&lvgl_mutex);
+#if defined(HDZGOGGLE)
+    if (lvgl_at_720p) {
+        lvgl_switch_to_1080p();
+        lvgl_at_720p = false;
+    }
+#endif
     free_mplayer();
 }

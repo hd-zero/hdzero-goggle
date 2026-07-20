@@ -569,6 +569,50 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
+// The DVR playback display bench (see hardware-goggle.c) served its purpose
+// here: goggles2 findings are hardware-verified and shipped as
+// Display_Playback_SetMode below. Key facts, so nobody re-treads the dead
+// end: the FPGA's UI input path (reg 0x20=0) only ever locks 1080p50 - even
+// a bare vdpo switch to 1080p60 goes black regardless of FPGA/MFPGA/vtmg
+// configuration. The live-video path (reg 0x20=1) is the way: the decoded
+// video rides the vdpo overlay plane over the VRX mute raster (pure black
+// 0x000000 chroma-keys through, which is why OSD widgets use 0x010101).
+int Display_UI_BenchNext(const char **desc) {
+    (void)desc;
+    return -1;
+}
+
+int Display_UI_BenchRestore(const char **desc) {
+    (void)desc;
+    return -1;
+}
+
+void Display_720P90_t(int mode);
+void Display_1080P30_t(int mode);
+
+// goggles2 needs no baseband for playback - nothing to warm up.
+void Display_Playback_Prewarm(void) {
+}
+
+// Playback display modes, hardware-verified (9.5.11 bench, 9.5.12 field):
+// 1080p60 pixel-perfect; 720p90 needs the VO layer sized 1280x720 and shows
+// the top-left 1280x720 of the UI layout. Baseband stays off - the VRX mute
+// raster behind the vdpo overlay is all the video input the FPGA needs.
+void Display_Playback_SetMode(int hz) {
+    pthread_mutex_lock(&hardware_mutex);
+    screen.display(0);
+
+    Display_UI_init();
+    if (hz == 90)
+        Display_720P90_t(VR_540P90);
+    else if (hz == 60)
+        Display_1080P30_t(VR_1080P30);
+
+    screen.display(1);
+    pthread_mutex_unlock(&hardware_mutex);
+    LOGI("Display_Playback_SetMode: %dHz", hz ? hz : 50);
+}
+
 void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 {
     screen.display(0);
