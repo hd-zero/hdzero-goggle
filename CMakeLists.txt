@@ -29,16 +29,6 @@ if (HDZ_GOGGLE2)
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/platform "HDZGOGGLE2")
 endif()
 
-# Temporary high-volume scroll-wheel diagnostics for worn-encoder investigation.
-# Goggle 1 only; must not be enabled for Goggle 2 / BoxPro.
-option(SCROLL_DIAG "Enable Goggle-1 scroll diagnostic logging (SCROLL_* records)" OFF)
-if (SCROLL_DIAG)
-	if (NOT HDZ_GOGGLE)
-		message(FATAL_ERROR "SCROLL_DIAG requires -DHDZ_GOGGLE=ON")
-	endif()
-	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -DSCROLL_DIAG=1")
-endif()
-
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS}")
 

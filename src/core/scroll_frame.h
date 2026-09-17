@@ -56,10 +56,6 @@ scroll_frame_syn_kind_t scroll_frame_take_syn(scroll_frame_t *f,
                                               int *out_rel_y,
                                               int *out_key_value);
 
-// Rel-only consume used by latch unit tests. Does not touch key_pending.
-// Production SYN dispatch uses scroll_frame_take_syn().
-bool scroll_frame_take_pending(scroll_frame_t *f, int *out_value);
-
 // Pure input-event dispatch over one source's frame latch.
 // type/code/value are linux/input.h EV_* / SYN_* / REL_* integers.
 typedef enum {

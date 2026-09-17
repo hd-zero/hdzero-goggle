@@ -44,19 +44,6 @@ scroll_frame_syn_kind_t scroll_frame_take_syn(scroll_frame_t *f,
     return kind;
 }
 
-bool scroll_frame_take_pending(scroll_frame_t *f, int *out_value) {
-    if (!f->rel_y_pending)
-        return false;
-
-    if (out_value)
-        *out_value = f->roller_value;
-
-    f->rel_y_pending = false;
-    if (f->syn_kind == SCROLL_FRAME_KIND_REL)
-        f->syn_kind = SCROLL_FRAME_KIND_NONE;
-    return true;
-}
-
 scroll_dispatch_result_t scroll_dispatch_event(scroll_frame_t *f,
                                                int type,
                                                int code,

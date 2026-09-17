@@ -76,7 +76,6 @@ static int btn_value = 0;
 // gate, and dial-button hold counter. event1 must never mutate event0.
 typedef struct {
     int fd;
-    int eventn;
     scroll_frame_t frame;
     scroll_burst_t burst;
     struct timeval next_scroll;
@@ -95,39 +94,6 @@ static const struct timeval goggle1_scroll_time_diff = {0, 10000};
 // CLOCK: input_event.time is CLOCK_REALTIME (evdev default). gettimeofday()
 // wake estimates share that domain. EVIOCSCLOCKID/CLOCK_MONOTONIC is a
 // deferred follow-up — not required to fix the orphan-SYN button bug.
-#endif
-
-// Temporary Goggle-1 scroll diagnostics (compile with -DSCROLL_DIAG=1).
-// Logging only -- no changes to throttle, filter, or accumulator decisions.
-#if defined(SCROLL_DIAG)
-#if !defined(HDZGOGGLE)
-#error "SCROLL_DIAG is supported only for HDZGOGGLE builds"
-#endif
-
-static int scroll_diag_sign(int value) {
-    return (value > 0) ? 1 : (value < 0) ? -1 : 0;
-}
-
-static void scroll_diag_fmt_tv(char *buf, size_t buflen, const struct timeval *tv) {
-    snprintf(buf, buflen, "%ld.%06ld", (long)tv->tv_sec, (long)tv->tv_usec);
-}
-
-static long scroll_diag_tv_diff_ms(const struct timeval *a, const struct timeval *b) {
-    long sec_diff = (long)a->tv_sec - (long)b->tv_sec;
-    long usec_diff = (long)a->tv_usec - (long)b->tv_usec;
-    return sec_diff * 1000L + usec_diff / 1000L;
-}
-
-static const char *scroll_diag_filter_out_name(scroll_filter_event_t e) {
-    switch (e) {
-    case SCROLL_FILTER_UP:
-        return "UP";
-    case SCROLL_FILTER_DOWN:
-        return "DOWN";
-    default:
-        return "NONE";
-    }
-}
 #endif
 
 // action: 1 = tune up, 2 = tune down, 3 = confirm
@@ -289,6 +255,13 @@ static int roller_down_acc = 0;
 // or short opposite-direction glitch pulses. This additional stateful layer
 // sits between the timing protection below and the accumulator above, and
 // only applies to this target -- see scroll_filter.h.
+//
+// goggle1_scroll_filter and roller_up_acc/roller_down_acc are intentionally
+// process-global, not per-source: validated hardware exposes exactly one
+// physical REL_Y source (the dial encoder). Only the frame latch, burst
+// gate, next_scroll gate, and button counter in scroll_src_t are
+// source-owned (see the scroll_src_t comment above) -- those are the state
+// that must not leak between /dev/input/eventN sources.
 static scroll_filter_t goggle1_scroll_filter;
 #endif
 
@@ -575,69 +548,18 @@ static void roller_down(void) {
 static void goggle1_apply_scroll_candidate(unsigned src_idx,
                                            const struct timeval *emit_event_time,
                                            int candidate) {
-    int fd = scroll_srcs[src_idx].fd;
-    int eventn = scroll_srcs[src_idx].eventn;
-#if !defined(SCROLL_DIAG)
-    (void)fd;
-    (void)eventn;
-#endif
-#if defined(SCROLL_DIAG)
-    char ts_ev_buf[32];
-    char ts_wall_buf[32];
-    char ts_next_buf[32];
-#endif
-
     if (g_setting.ease.no_dial)
         return;
 
     struct timeval *next_scroll = &scroll_srcs[src_idx].next_scroll;
 
-    if (!timercmp(emit_event_time, next_scroll, >)) {
-#if defined(SCROLL_DIAG)
-        {
-            struct timeval last_accept;
-            struct timeval gate_remain;
-            long since_accept_ms;
-            long gate_remain_ms;
-
-            timersub(next_scroll, &goggle1_scroll_time_diff, &last_accept);
-            timersub(next_scroll, emit_event_time, &gate_remain);
-            since_accept_ms = scroll_diag_tv_diff_ms(emit_event_time, &last_accept);
-            gate_remain_ms = gate_remain.tv_sec * 1000L + gate_remain.tv_usec / 1000L;
-
-            scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), emit_event_time);
-            scroll_diag_fmt_tv(ts_next_buf, sizeof(ts_next_buf), next_scroll);
-            LOGI("SCROLL_DROP10 eventN=%d fd=%d ts_ev=%s next_scroll=%s since_accept_ms=%ld gate_remain_ms=%ld val=%d sign=%d",
-                 eventn, fd, ts_ev_buf, ts_next_buf, since_accept_ms, gate_remain_ms,
-                 candidate, scroll_diag_sign(candidate));
-        }
-#endif
+    if (!timercmp(emit_event_time, next_scroll, >))
         return;
-    }
 
     timeradd(emit_event_time, &goggle1_scroll_time_diff, next_scroll);
 
     int filtered_value = candidate;
-#if defined(SCROLL_DIAG)
-    scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), emit_event_time);
-    LOGI("SCROLL_BURST_EMIT eventN=%d fd=%d ts_ev=%s val=%d sign=%d",
-         eventn, fd, ts_ev_buf, candidate, scroll_diag_sign(candidate));
-
-    int dir_before = goggle1_scroll_filter.dir;
-    int pend_before = goggle1_scroll_filter.pending_count;
-    long idle_ms = -1;
-    int idle_reset = 0;
-    if (goggle1_scroll_filter.have_last_event_time) {
-        idle_ms = scroll_diag_tv_diff_ms(emit_event_time, &goggle1_scroll_filter.last_event_time);
-        if (idle_ms < 0 || idle_ms > 160)
-            idle_reset = 1;
-    }
-    scroll_filter_event_t filter_out;
-    filter_out = scroll_filter_step(&goggle1_scroll_filter, emit_event_time, candidate);
-    switch (filter_out) {
-#else
     switch (scroll_filter_step(&goggle1_scroll_filter, emit_event_time, candidate)) {
-#endif
     case SCROLL_FILTER_UP:
         filtered_value = 1;
         break;
@@ -648,12 +570,6 @@ static void goggle1_apply_scroll_candidate(unsigned src_idx,
         filtered_value = 0;
         break;
     }
-#if defined(SCROLL_DIAG)
-    LOGI("SCROLL_FILTER eventN=%d fd=%d in=%d out=%s dir_before=%d dir_after=%d pend_before=%d pend_after=%d idle_ms=%ld reset=%d",
-         eventn, fd, scroll_diag_sign(candidate), scroll_diag_filter_out_name(filter_out),
-         dir_before, goggle1_scroll_filter.dir, pend_before, goggle1_scroll_filter.pending_count,
-         idle_ms, idle_reset);
-#endif
 
     if (filtered_value == 1) {
         roller_up_acc++;
@@ -663,38 +579,11 @@ static void goggle1_apply_scroll_candidate(unsigned src_idx,
         roller_up_acc = 0;
     }
 
-#if defined(SCROLL_DIAG)
-    if (filtered_value != 0) {
-        LOGI("SCROLL_ACC up=%d down=%d sens=%d",
-             roller_up_acc, roller_down_acc, DIAL_SENSITIVITY);
-    }
-#endif
-
     if (roller_up_acc == DIAL_SENSITIVITY) {
-#if defined(SCROLL_DIAG)
-        {
-            struct timeval wall_now;
-            gettimeofday(&wall_now, NULL);
-            scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), emit_event_time);
-            scroll_diag_fmt_tv(ts_wall_buf, sizeof(ts_wall_buf), &wall_now);
-            LOGI("SCROLL_LOGICAL dir=UP ts_ev=%s ts_wall=%s eventN=%d fd=%d app_state=%d",
-                 ts_ev_buf, ts_wall_buf, eventn, fd, (int)g_app_state);
-        }
-#endif
         roller_up();
         g_key = DIAL_KEY_UP;
         roller_up_acc = 0;
     } else if (roller_down_acc == DIAL_SENSITIVITY) {
-#if defined(SCROLL_DIAG)
-        {
-            struct timeval wall_now;
-            gettimeofday(&wall_now, NULL);
-            scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), emit_event_time);
-            scroll_diag_fmt_tv(ts_wall_buf, sizeof(ts_wall_buf), &wall_now);
-            LOGI("SCROLL_LOGICAL dir=DOWN ts_ev=%s ts_wall=%s eventN=%d fd=%d app_state=%d",
-                 ts_ev_buf, ts_wall_buf, eventn, fd, (int)g_app_state);
-        }
-#endif
         roller_down();
         g_key = DIAL_KEY_DOWN;
         roller_down_acc = 0;
@@ -752,14 +641,8 @@ static void get_event(
 
 #if defined(HDZGOGGLE)
     int fd = scroll_srcs[src_idx].fd;
-    int eventn = scroll_srcs[src_idx].eventn;
     scroll_frame_t *src_frame = &scroll_srcs[src_idx].frame;
     scroll_burst_t *src_burst = &scroll_srcs[src_idx].burst;
-#if defined(SCROLL_DIAG)
-    char ts_ev_buf[32];
-#else
-    (void)eventn;
-#endif
 #endif
 
 #if !defined(HDZGOGGLE)
@@ -813,18 +696,10 @@ static void get_event(
             // Orphan SYN (no pending on THIS source) is a no-op — never uses
             // process-global event_type_last, never btn_click() on stale KEY.
             int key_v = 0;
-#if defined(SCROLL_DIAG)
-            int roller_value = 0;
-            scroll_frame_syn_kind_t syn = scroll_frame_take_syn(src_frame, &roller_value, &key_v);
-#else
             scroll_frame_syn_kind_t syn = scroll_frame_take_syn(src_frame, NULL, &key_v);
-#endif
             if (syn == SCROLL_FRAME_SYN_REL_Y) {
-#if defined(SCROLL_DIAG)
-                scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), &event.time);
-                LOGI("SCROLL_SYN_CLEAR eventN=%d fd=%d ts_ev=%s val=%d sign=%d",
-                     eventn, fd, ts_ev_buf, roller_value, scroll_diag_sign(roller_value));
-#endif
+                // REL_Y frame consumed; scroll_filter/accumulator already
+                // acted on it via the burst-gate decision, not here.
             } else if (syn == SCROLL_FRAME_SYN_KEY) {
                 if (!g_setting.ease.no_dial) {
                     switch (scroll_btn_apply_key_syn(&scroll_srcs[src_idx].btn, key_v)) {
@@ -972,18 +847,23 @@ static void get_event(
         if (event.code == REL_X) {
             // LOGI("x = %d", event.value);
         } else if (event.code == REL_Y) {
-            struct timeval wall_now;
-            scroll_burst_result_t burst_out;
-
             scroll_frame_on_rel_y(src_frame, event.value);
-            gettimeofday(&wall_now, NULL);
-            scroll_burst_on_rel_y(src_burst, &event.time, event.value, &wall_now, &burst_out);
-#if defined(SCROLL_DIAG)
-            scroll_diag_fmt_tv(ts_ev_buf, sizeof(ts_ev_buf), &event.time);
-            LOGI("SCROLL_RAW eventN=%d fd=%d ts_ev=%s val=%d sign=%d",
-                 eventn, fd, ts_ev_buf, event.value, scroll_diag_sign(event.value));
-#endif
-            goggle1_handle_burst_result(src_idx, &burst_out);
+
+            // no_dial mode drives scrolling from button-hold sim mode
+            // instead (see the SYN_REPORT KEY handling above), so raw dial
+            // activity is not a scroll candidate here. Also skip feeding
+            // the burst gate in that mode: otherwise encoder activity would
+            // still open a windowing episode and shorten
+            // goggle1_epoll_timeout_ms() below DIAL_SENSITIVTY_TIMEOUT_MS,
+            // suppressing the periodic sim-mode beep() cadence.
+            if (!g_setting.ease.no_dial) {
+                struct timeval wall_now;
+                scroll_burst_result_t burst_out;
+
+                gettimeofday(&wall_now, NULL);
+                scroll_burst_on_rel_y(src_burst, &event.time, event.value, &wall_now, &burst_out);
+                goggle1_handle_burst_result(src_idx, &burst_out);
+            }
         }
 #else
         if (timercmp(&event.time, &next_rel, >)) {
@@ -1016,12 +896,7 @@ static void get_event(
 #endif
 }
 
-static void add_to_epfd(int epfd, int fd
-#if defined(HDZGOGGLE)
-                        ,
-                        int eventn
-#endif
-) {
+static void add_to_epfd(int epfd, int fd) {
     struct epoll_event event = {
         .events = EPOLLIN,
     };
@@ -1030,7 +905,6 @@ static void add_to_epfd(int epfd, int fd
     assert(scroll_src_count < EPOLL_FD_CNT);
     unsigned idx = (unsigned)scroll_src_count;
     scroll_srcs[idx].fd = fd;
-    scroll_srcs[idx].eventn = eventn;
     scroll_frame_init(&scroll_srcs[idx].frame);
     scroll_burst_init(&scroll_srcs[idx].burst);
     scroll_btn_init(&scroll_srcs[idx].btn);
@@ -1169,9 +1043,10 @@ static void *thread_input_device(void *ptr) {
 void input_device_init() {
 #if defined(HDZGOGGLE)
     // Burst gate already suppresses intra-detent bipolar chatter, so each
-    // filter input is one quiet-bounded episode. Replay of HDZGOGGLE-diag.log
-    // showed confirm=2 swallowing 20 first-opposite episodes (confirm=1
-    // emitted them). Keep compiled default 2 for raw-pulse tests.
+    // filter input is one quiet-bounded episode. Hardware log replay showed
+    // confirm=2 swallowing a meaningful fraction of legitimate first-opposite
+    // episodes that confirm=1 emitted correctly. Keep compiled default 2 for
+    // raw-pulse tests.
     scroll_filter_init(&goggle1_scroll_filter);
     goggle1_scroll_filter.reversal_confirm = 1;
 #endif
@@ -1190,14 +1065,7 @@ void input_device_init() {
         int fd = open(buf, O_RDONLY);
 #endif
         if (fd >= 0) {
-#if defined(HDZGOGGLE)
-            add_to_epfd(epfd, fd, i);
-#if defined(SCROLL_DIAG)
-            LOGI("SCROLL_OPEN eventN=%d fd=%d nonblock=1", i, fd);
-#endif
-#else
             add_to_epfd(epfd, fd);
-#endif
             LOGI("opened %s", buf);
         }
     }

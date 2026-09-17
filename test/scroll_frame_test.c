@@ -23,6 +23,22 @@ static void check_true(const char *name, int cond) {
     }
 }
 
+// Test-side rel-only consume, mirroring scroll_frame_take_syn's rel_y_pending
+// handling but without touching key_pending. Reads only the public fields of
+// scroll_frame_t -- no production-only helper needed for this.
+static int test_take_pending_rel(scroll_frame_t *f, int *out_value) {
+    if (!f->rel_y_pending)
+        return 0;
+
+    if (out_value)
+        *out_value = f->roller_value;
+
+    f->rel_y_pending = false;
+    if (f->syn_kind == SCROLL_FRAME_KIND_REL)
+        f->syn_kind = SCROLL_FRAME_KIND_NONE;
+    return 1;
+}
+
 int main(void) {
     // event0 REL_Y → event1 SYN = no scroll (cross-source isolation)
     {
@@ -33,9 +49,9 @@ int main(void) {
         scroll_frame_on_rel_y(&src[0], -1);
 
         int out = 0;
-        int took1 = scroll_frame_take_pending(&src[1], &out);
+        int took1 = test_take_pending_rel(&src[1], &out);
         int still0 = src[0].rel_y_pending;
-        int took0 = scroll_frame_take_pending(&src[0], &out);
+        int took0 = test_take_pending_rel(&src[0], &out);
 
         check_true("cross_source_event1_syn_no_consume", !took1);
         check_true("cross_source_event0_pending_preserved", still0);
@@ -50,7 +66,7 @@ int main(void) {
         scroll_frame_on_rel_y(&f, 1);
 
         int out = 0;
-        int took = scroll_frame_take_pending(&f, &out);
+        int took = test_take_pending_rel(&f, &out);
         check_true("matching_syn_consumes", took && out == 1);
         check_true("matching_syn_clears_pending", !f.rel_y_pending);
     }
@@ -62,8 +78,8 @@ int main(void) {
         scroll_frame_on_rel_y(&f, -1);
 
         int out = 0;
-        int first = scroll_frame_take_pending(&f, &out);
-        int second = scroll_frame_take_pending(&f, &out);
+        int first = test_take_pending_rel(&f, &out);
+        int second = test_take_pending_rel(&f, &out);
         check_true("orphan_second_syn_first_ok", first && out == -1);
         check_true("orphan_second_syn_no_second_consume", !second);
     }
@@ -76,10 +92,10 @@ int main(void) {
 
         int out = 0;
         // Caller takes pending then decides to DROP10 -- pending already gone.
-        int dropped_frame = scroll_frame_take_pending(&f, &out);
+        int dropped_frame = test_take_pending_rel(&f, &out);
         check_true("drop10_take_clears_pending", dropped_frame && !f.rel_y_pending);
 
-        int orphan = scroll_frame_take_pending(&f, &out);
+        int orphan = test_take_pending_rel(&f, &out);
         check_true("drop10_then_orphan_syn_no_consume", !orphan);
     }
 
@@ -90,7 +106,7 @@ int main(void) {
         scroll_frame_on_rel_y(&f, 1);
         scroll_frame_on_rel_y(&f, -1);
         int out = 0;
-        int took = scroll_frame_take_pending(&f, &out);
+        int took = test_take_pending_rel(&f, &out);
         check_true("last_rel_y_wins", took && out == -1);
     }
 
