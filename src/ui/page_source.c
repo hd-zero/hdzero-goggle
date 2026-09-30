@@ -169,7 +169,8 @@ static lv_obj_t *page_source_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group3, g_setting.source.analog_ratio);
 
     if (g_setting.storage.selftest) {
-        label[4] = create_label_item(cont, "Display Pattern: Normal", 1, ROW_TEST_PATTERN, 3);
+        snprintf(buf, sizeof(buf), "%s: %s", _lang("Display Pattern"), _lang("Normal"));
+        label[4] = create_label_item(cont, buf, 1, ROW_TEST_PATTERN, 3);
     }
 
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
@@ -238,8 +239,8 @@ void source_status_timer() {
     if (g_setting.storage.selftest && label[3]) {
         uint8_t oled_tm = oled_tst_mode & 0x0F;
         char *pattern_label[6] = {"Normal", "Color Bar", "Grid", "All Black", "All White", "Boot logo"};
-        char str[32];
-        snprintf(str, sizeof(buf), "Display Pattern: %s", pattern_label[oled_tm]);
+        char str[64];
+        snprintf(str, sizeof(str), "%s: %s", _lang("Display Pattern"), _lang(pattern_label[oled_tm]));
         lv_label_set_text(label[4], str);
     }
 }

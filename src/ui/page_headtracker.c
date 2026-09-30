@@ -343,7 +343,7 @@ static void page_headtracker_on_click_page2(uint8_t key, int sel) {
         g_setting.ht.alarm_state = btn_group_get_sel(&alarm_state);
         ini_putl("ht", "alarm_state", g_setting.ht.alarm_state, SETTING_INI);
     } else if (sel == 2) {
-        snprintf(buf, sizeof(buf), "%s...", "Updating Angle");
+        snprintf(buf, sizeof(buf), "%s...", _lang("Updating Angle"));
         lv_label_set_text(label_alarm_angle, buf);
         set_alarm_angle_timer = lv_timer_create(page_headtracker_set_alarm_angle_timer_cb, 1000, NULL);
         lv_timer_set_repeat_count(set_alarm_angle_timer, 1);
