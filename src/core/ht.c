@@ -44,7 +44,11 @@ static bool is_moving = true;
 static volatile bool calibrating = false;
 static int calibration_count = 0;
 
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
 static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0 + 23.0) * DEG_TO_RAD};
+#elif defined HDZBOXPRO
+static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD};
+#endif
 
 static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500;
