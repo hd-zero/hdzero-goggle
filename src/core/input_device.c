@@ -20,6 +20,12 @@
 
 #include "defines.h"
 #include "input_device.h"
+#include "scroll_filter.h"
+#if defined(HDZGOGGLE)
+#include "input_drain.h"
+#include "scroll_burst.h"
+#include "scroll_frame.h"
+#endif
 
 #include "common.hh"
 #include "ht.h"
@@ -64,6 +70,31 @@ static int epfd;
 static pthread_t input_device_pid;
 
 static int btn_value = 0;
+
+#if defined(HDZGOGGLE)
+// Per opened /dev/input/eventN: source-owned frame latch, burst/µmaj, 10ms
+// gate, and dial-button hold counter. event1 must never mutate event0.
+typedef struct {
+    int fd;
+    scroll_frame_t frame;
+    scroll_burst_t burst;
+    struct timeval next_scroll;
+    scroll_btn_t btn;
+} scroll_src_t;
+static scroll_src_t scroll_srcs[EPOLL_FD_CNT];
+static int scroll_src_count;
+
+// Secondary 10ms safety gate on burst candidates only (NOT before burst).
+// Per-source: a candidate on event0 must not close event1's gate.
+// Uses input_event.time / emit_event_time. With QUIET=20ms, successive
+// episode decision times are typically >= ~25ms apart, so this gate should
+// not suppress valid new episodes; retained for Phase 2 hardware validation.
+static const struct timeval goggle1_scroll_time_diff = {0, 10000};
+
+// CLOCK: input_event.time is CLOCK_REALTIME (evdev default). gettimeofday()
+// wake estimates share that domain. EVIOCSCLOCKID/CLOCK_MONOTONIC is a
+// deferred follow-up — not required to fix the orphan-SYN button bug.
+#endif
 
 // action: 1 = tune up, 2 = tune down, 3 = confirm
 void exit_tune_channel() {
@@ -218,6 +249,21 @@ void tune_channel_timer() {
 
 static int roller_up_acc = 0;
 static int roller_down_acc = 0;
+
+#if defined(HDZGOGGLE)
+// Original Goggle 1 rotary encoders can wear and produce duplicate, skipped,
+// or short opposite-direction glitch pulses. This additional stateful layer
+// sits between the timing protection below and the accumulator above, and
+// only applies to this target -- see scroll_filter.h.
+//
+// goggle1_scroll_filter and roller_up_acc/roller_down_acc are intentionally
+// process-global, not per-source: validated hardware exposes exactly one
+// physical REL_Y source (the dial encoder). Only the frame latch, burst
+// gate, next_scroll gate, and button counter in scroll_src_t are
+// source-owned (see the scroll_src_t comment above) -- those are the state
+// that must not leak between /dev/input/eventN sources.
+static scroll_filter_t goggle1_scroll_filter;
+#endif
 
 static bool scroll_sim_mode = false;
 static bool scroll_sim_mode_pending = false;
@@ -497,39 +543,219 @@ static void roller_down(void) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void get_event(int fd) {
+#if defined(HDZGOGGLE)
+// Apply one burst-gate candidate: secondary next_scroll, then scroll_filter, then acc.
+static void goggle1_apply_scroll_candidate(unsigned src_idx,
+                                           const struct timeval *emit_event_time,
+                                           int candidate) {
+    if (g_setting.ease.no_dial)
+        return;
+
+    struct timeval *next_scroll = &scroll_srcs[src_idx].next_scroll;
+
+    if (!timercmp(emit_event_time, next_scroll, >))
+        return;
+
+    timeradd(emit_event_time, &goggle1_scroll_time_diff, next_scroll);
+
+    int filtered_value = candidate;
+    switch (scroll_filter_step(&goggle1_scroll_filter, emit_event_time, candidate)) {
+    case SCROLL_FILTER_UP:
+        filtered_value = 1;
+        break;
+    case SCROLL_FILTER_DOWN:
+        filtered_value = -1;
+        break;
+    default:
+        filtered_value = 0;
+        break;
+    }
+
+    if (filtered_value == 1) {
+        roller_up_acc++;
+        roller_down_acc = 0;
+    } else if (filtered_value == -1) {
+        roller_down_acc++;
+        roller_up_acc = 0;
+    }
+
+    if (roller_up_acc == DIAL_SENSITIVITY) {
+        roller_up();
+        g_key = DIAL_KEY_UP;
+        roller_up_acc = 0;
+    } else if (roller_down_acc == DIAL_SENSITIVITY) {
+        roller_down();
+        g_key = DIAL_KEY_DOWN;
+        roller_down_acc = 0;
+    }
+}
+
+static void goggle1_handle_burst_result(unsigned src_idx, const scroll_burst_result_t *r) {
+    if (r->action != SCROLL_BURST_EMIT)
+        return;
+    goggle1_apply_scroll_candidate(src_idx, &r->emit_event_time, r->candidate);
+}
+
+static void goggle1_poll_src_due(unsigned src_idx) {
+    struct timeval wall;
+    gettimeofday(&wall, NULL);
+    scroll_burst_result_t r;
+    scroll_burst_poll_due(&scroll_srcs[src_idx].burst, &wall, &r);
+    goggle1_handle_burst_result(src_idx, &r);
+}
+
+static void goggle1_poll_all_due(void) {
+    for (int i = 0; i < scroll_src_count; i++)
+        goggle1_poll_src_due((unsigned)i);
+}
+
+static int goggle1_epoll_timeout_ms(void) {
+    struct timeval wall;
+    gettimeofday(&wall, NULL);
+    int timeout = DIAL_SENSITIVTY_TIMEOUT_MS;
+    for (int i = 0; i < scroll_src_count; i++) {
+        int ms = scroll_burst_ms_until_wake(&scroll_srcs[i].burst, &wall);
+        if (ms < 0)
+            continue;
+        if (ms < timeout)
+            timeout = ms;
+    }
+    return timeout;
+}
+#endif
+
+static void get_event(
+#if defined(HDZGOGGLE)
+    unsigned src_idx
+#else
+    int fd
+#endif
+) {
     struct input_event event;
+
+#if !defined(HDZGOGGLE)
     static int event_type_last = 0;
     static int btn_press_time = 0;
-
     static int roller_value = 0;
+#endif
 
+#if defined(HDZGOGGLE)
+    int fd = scroll_srcs[src_idx].fd;
+    scroll_frame_t *src_frame = &scroll_srcs[src_idx].frame;
+    scroll_burst_t *src_burst = &scroll_srcs[src_idx].burst;
+#endif
+
+#if !defined(HDZGOGGLE)
     // time (sec, usec) difference above which will the next scroll wheel event be accepted
     // 10000 usec = 10msec is more than short enough (100Hz)
     // scroll events
     const struct timeval scroll_time_diff = {0, 10000};
-    // direction change events
-    const struct timeval rel_time_diff = {0, 20000};
     // expected timestamp in the future beyond that will the events be accepted
     static struct timeval next_scroll = {0, 0};
+    // direction change events. Goggle 1 no longer uses this: it replaced this
+    // blind time-based gate with the stateful scroll_filter (see below) after
+    // an adversarial review found the gate could hide, from that filter, the
+    // exact pulses it needed to see to reject alternating bounce correctly.
+    // Goggle 2 / BoxPro are unaffected and keep this exactly as before.
+    const struct timeval rel_time_diff = {0, 20000};
     static struct timeval next_rel = {0, 0};
     static bool discard_scroll = false;
+#endif
 
+#if defined(HDZGOGGLE)
+    // Non-blocking drain: fd opened O_RDONLY|O_NONBLOCK. Read until EAGAIN so
+    // a due 10ms decision sees every already-queued REL_Y. Never block here.
+    // Budget: yield after INPUT_DRAIN_BUDGET records so a chattering encoder
+    // cannot monopolize the input thread; the fd stays ready for epoll.
+    unsigned drained = 0;
+    for (;;) {
+        if (drained >= INPUT_DRAIN_BUDGET)
+            break;
+        ssize_t nread = read(fd, &event, sizeof(event));
+        input_drain_status_t drain_st = input_drain_status(nread, errno, sizeof(event),
+                                                           drained, INPUT_DRAIN_BUDGET);
+        if (drain_st == INPUT_DRAIN_EINTR)
+            continue;
+        if (drain_st == INPUT_DRAIN_EAGAIN || drain_st == INPUT_DRAIN_BUDGET_HIT)
+            break;
+        if (drain_st != INPUT_DRAIN_PROCESS) {
+            if (drain_st == INPUT_DRAIN_ERROR)
+                perror("input read");
+            break;
+        }
+        drained++;
+#else
     read(fd, &event, sizeof(event));
+#endif
 
     switch (event.type) {
     case EV_SYN:
         if (event.code == SYN_REPORT) {
+#if defined(HDZGOGGLE)
+            // Source-owned SYN: consume this fd's fresh REL_Y or KEY frame only.
+            // Orphan SYN (no pending on THIS source) is a no-op — never uses
+            // process-global event_type_last, never btn_click() on stale KEY.
+            int key_v = 0;
+            scroll_frame_syn_kind_t syn = scroll_frame_take_syn(src_frame, NULL, &key_v);
+            if (syn == SCROLL_FRAME_SYN_REL_Y) {
+                // REL_Y frame consumed; scroll_filter/accumulator already
+                // acted on it via the burst-gate decision, not here.
+            } else if (syn == SCROLL_FRAME_SYN_KEY) {
+                if (!g_setting.ease.no_dial) {
+                    switch (scroll_btn_apply_key_syn(&scroll_srcs[src_idx].btn, key_v)) {
+                    case SCROLL_BTN_LONG_PRESS:
+                        btn_press();
+                        g_key = DIAL_KEY_PRESS;
+                        break;
+                    case SCROLL_BTN_CLICK:
+                        btn_click();
+                        g_key = DIAL_KEY_CLICK;
+                        break;
+                    default:
+                        break;
+                    }
+                } else {
+                    int *btn_press_time = &scroll_srcs[src_idx].btn.press_time;
+                    if (key_v) {
+                        if (scroll_sim_mode_repeat == SCROLL_REPEAT_DOWN) {
+                            roller_down();
+                        } else if (scroll_sim_mode_repeat == SCROLL_REPEAT_UP) {
+                            roller_up();
+                        }
+                        if (scroll_sim_mode_pending)
+                            *btn_press_time = 0;
+                        else
+                            (*btn_press_time)++;
+                    } else {
+                        if (scroll_sim_mode_pending) {
+                            scroll_sim_mode_pending = false;
+                        } else if (scroll_sim_mode_repeat == SCROLL_REPEAT_NONE) {
+                            if (*btn_press_time < 10) {
+                                btn_click();
+                                g_key = DIAL_KEY_CLICK;
+                            } else if (*btn_press_time < 50) {
+                                btn_press();
+                                g_key = DIAL_KEY_PRESS;
+                            }
+                        }
+                        *btn_press_time = 0;
+                    }
+                }
+            }
+#else
             if (event_type_last == EV_REL) {
                 if (g_setting.ease.no_dial)
                     break;
 
                 if (!discard_scroll && timercmp(&event.time, &next_scroll, >)) {
                     timeradd(&event.time, &scroll_time_diff, &next_scroll);
-                    if (roller_value == 1) {
+
+                    int filtered_value = roller_value;
+
+                    if (filtered_value == 1) {
                         roller_up_acc++;
                         roller_down_acc = 0;
-                    } else if (roller_value == -1) {
+                    } else if (filtered_value == -1) {
                         roller_down_acc++;
                         roller_up_acc = 0;
                     }
@@ -587,6 +813,7 @@ static void get_event(int fd) {
                     btn_press_time = 0;
                 }
             }
+#endif
             // LOGI("------------ syn report ----------");
         } else if (event.code == SYN_MT_REPORT) {
             // LOGI("----------- syn mt report ------------");
@@ -595,7 +822,11 @@ static void get_event(int fd) {
     case EV_KEY:
         // LOGI("key code%d is %s!", event.code, event.value?"down":"up");
         btn_value = event.value;
+#if defined(HDZGOGGLE)
+        scroll_frame_on_key(src_frame, event.value);
+#else
         event_type_last = EV_KEY;
+#endif
         break;
     case EV_ABS:
         if ((event.code == ABS_X) ||
@@ -610,6 +841,31 @@ static void get_event(int fd) {
         }
         break;
     case EV_REL:
+#if defined(HDZGOGGLE)
+        // Every REL_Y: frame latch (stale-SYN) + burst µmaj/quiet (before any
+        // next_scroll). Decision emit feeds scroll_filter; SYN only clears latch.
+        if (event.code == REL_X) {
+            // LOGI("x = %d", event.value);
+        } else if (event.code == REL_Y) {
+            scroll_frame_on_rel_y(src_frame, event.value);
+
+            // no_dial mode drives scrolling from button-hold sim mode
+            // instead (see the SYN_REPORT KEY handling above), so raw dial
+            // activity is not a scroll candidate here. Also skip feeding
+            // the burst gate in that mode: otherwise encoder activity would
+            // still open a windowing episode and shorten
+            // goggle1_epoll_timeout_ms() below DIAL_SENSITIVTY_TIMEOUT_MS,
+            // suppressing the periodic sim-mode beep() cadence.
+            if (!g_setting.ease.no_dial) {
+                struct timeval wall_now;
+                scroll_burst_result_t burst_out;
+
+                gettimeofday(&wall_now, NULL);
+                scroll_burst_on_rel_y(src_burst, &event.time, event.value, &wall_now, &burst_out);
+                goggle1_handle_burst_result(src_idx, &burst_out);
+            }
+        }
+#else
         if (timercmp(&event.time, &next_rel, >)) {
             discard_scroll = false;
             if (event.code == REL_X) {
@@ -626,20 +882,39 @@ static void get_event(int fd) {
             discard_scroll = true;
             LOGI("discard EV_REL");
         }
+#endif
         break;
     default:
         // LOGI("unknown [type=%d, code=%d value=%d]", event.type, event.code, event.value);
         break;
     }
+#if defined(HDZGOGGLE)
+    } // end drain loop
+
+    // After draining this source, run any due micro-majority decision.
+    goggle1_poll_src_due(src_idx);
+#endif
 }
 
 static void add_to_epfd(int epfd, int fd) {
     struct epoll_event event = {
         .events = EPOLLIN,
-        .data = {
-            .fd = fd,
-        },
     };
+
+#if defined(HDZGOGGLE)
+    assert(scroll_src_count < EPOLL_FD_CNT);
+    unsigned idx = (unsigned)scroll_src_count;
+    scroll_srcs[idx].fd = fd;
+    scroll_frame_init(&scroll_srcs[idx].frame);
+    scroll_burst_init(&scroll_srcs[idx].burst);
+    scroll_btn_init(&scroll_srcs[idx].btn);
+    scroll_srcs[idx].next_scroll.tv_sec = 0;
+    scroll_srcs[idx].next_scroll.tv_usec = 0;
+    scroll_src_count++;
+    event.data.u32 = idx;
+#else
+    event.data.fd = fd;
+#endif
 
     int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
     assert(ret == 0);
@@ -650,7 +925,12 @@ static void *thread_input_device(void *ptr) {
     for (;;) {
         struct epoll_event events[EPOLL_FD_CNT];
 
-        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, DIAL_SENSITIVTY_TIMEOUT_MS);
+#if defined(HDZGOGGLE)
+        int timeout_ms = goggle1_epoll_timeout_ms();
+#else
+        int timeout_ms = DIAL_SENSITIVTY_TIMEOUT_MS;
+#endif
+        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, timeout_ms);
         if (ret < 0) {
             perror("epoll_wait");
             continue;
@@ -659,14 +939,31 @@ static void *thread_input_device(void *ptr) {
         if (ret > 0) {
             for (int i = 0; i < ret; i++) {
                 if (events[i].events & EPOLLIN) {
+#if defined(HDZGOGGLE)
+                    get_event(events[i].data.u32);
+#else
                     get_event(events[i].data.fd);
+#endif
                 }
             }
-        } else {
+        }
+#if defined(HDZGOGGLE)
+        // Always poll due decisions (timeout wake, or after input drain).
+        goggle1_poll_all_due();
+#endif
+        if (ret == 0) {
+#if defined(HDZGOGGLE)
+            // Only the long idle timeout resets the dial accumulator.
+            // Short µmaj decision wakes use timeout_ms < 1000 and must not.
+            if (timeout_ms >= DIAL_SENSITIVTY_TIMEOUT_MS) {
+#endif
             roller_up_acc = 0;
             roller_down_acc = 0;
             if (scroll_sim_mode_repeat != SCROLL_REPEAT_NONE)
                 beep();
+#if defined(HDZGOGGLE)
+            }
+#endif
         }
     }
     return NULL;
@@ -744,6 +1041,15 @@ static void *thread_input_device(void *ptr) {
 }
 
 void input_device_init() {
+#if defined(HDZGOGGLE)
+    // Burst gate already suppresses intra-detent bipolar chatter, so each
+    // filter input is one quiet-bounded episode. Hardware log replay showed
+    // confirm=2 swallowing a meaningful fraction of legitimate first-opposite
+    // episodes that confirm=1 emitted correctly. Keep compiled default 2 for
+    // raw-pulse tests.
+    scroll_filter_init(&goggle1_scroll_filter);
+    goggle1_scroll_filter.reversal_confirm = 1;
+#endif
 #ifndef EMULATOR_BUILD
     epfd = epoll_create(EPOLL_FD_CNT);
     assert(epfd > 0);
@@ -752,7 +1058,12 @@ void input_device_init() {
     for (int i = 0; i < EPOLL_FD_CNT; i++) {
         snprintf(buf, 64, "/dev/input/event%d", i);
 
+#if defined(HDZGOGGLE)
+        // O_NONBLOCK required for safe drain-until-EAGAIN before µmaj decide.
+        int fd = open(buf, O_RDONLY | O_NONBLOCK);
+#else
         int fd = open(buf, O_RDONLY);
+#endif
         if (fd >= 0) {
             add_to_epfd(epfd, fd);
             LOGI("opened %s", buf);
