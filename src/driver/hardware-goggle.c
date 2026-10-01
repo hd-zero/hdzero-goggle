@@ -3,9 +3,11 @@
 #if HDZGOGGLE
 
 #include <pthread.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <log/log.h>
@@ -29,6 +31,7 @@
 #include "tp2825.h"
 #include "uart.h"
 #include "ui/ui_porting.h"
+#include "util/hwlog.h"
 #include "util/system.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -37,6 +40,10 @@ hw_status_t g_hw_stat;
 int fhd_req = 0;
 // local
 pthread_mutex_t hardware_mutex;
+
+// Hardware transitions log to the shared SD-card diagnostic log
+// (util/hwlog): every receiver open/close and display-mode entry.
+// Un-commanded mode entries during playback are what this catches.
 
 uint32_t vclk_phase_default[VIDEO_SOURCE_NUM] = {
     // 0x8d,  0x8e,  0x14,  hdmi_out
@@ -569,6 +576,7 @@ void hw_screen_on(int bON) {
 }
 
 void Display_UI_init() {
+    hwlog("Display_UI_init (src=%d bb=%d)", g_hw_stat.source_mode, g_hw_stat.hdzero_open);
     g_hw_stat.source_mode = SOURCE_MODE_UI;
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
@@ -596,8 +604,209 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
+// ---- DVR display bring-up bench (generation 2) -----------------------------
+// Generation 1 established (on goggles2 hardware) that the FPGA's UI input
+// path (reg 0x20=0) only produces a picture at 1080p50 - even a bare vdpo
+// switch to 1080p60 with no other change goes black. So these recipes take
+// the opposite route: enter the *genuine* live-video display mode (FPGA
+// video input, reg 0x20=1), which provably runs at 720p90/1080p60/720p60
+// every day, and let the playback video ride in on the vdpo overlay plane.
+// The VRX contributes only its mute raster (or nothing, BB-off variants);
+// overlay pixels that are pure black chroma-key through to it, which is
+// why OSD widgets use 0x010101 backgrounds. Stepped from the playback
+// screen with the right button; recipe 0 always restores a working screen.
+void Display_720P90_t(int mode);
+void Display_1080P30_t(int mode);
+void Display_720P60_50_t(int mode, uint8_t is_43);
+
+static int bench_idx = 0;
+static bool bench_opened_bb = false;
+
+static const char *const bench_desc[] = {
+    "stock 1080p50 UI",
+    "video path 720p90",
+    "video path 720p90 +BB",
+    "video path 1080p60",
+    "video path 1080p60 +BB",
+    "video path 720p60 +BB",
+    "control 0x11: bg MUST be GREEN",
+    "key probe 0x01: TEXT on BLACK = winner",
+    "key probe 0x13: TEXT on BLACK = winner",
+    "key probe 0x15: TEXT on BLACK = winner",
+    "key probe 0x19: TEXT on BLACK = winner",
+    "key probe 0x31: TEXT on BLACK = winner",
+};
+#define BENCH_RECIPES (int)(sizeof(bench_desc) / sizeof(bench_desc[0]))
+
+static void bench_apply(int idx) {
+    bool const wants_bb = (idx == 2) || (idx == 4) || (idx == 5);
+
+    pthread_mutex_lock(&hardware_mutex);
+    screen.display(0);
+
+    Display_UI_init(); // deterministic 1080p50 baseline for every recipe
+
+    // Close unconditionally, not just when the bench opened it: playback
+    // keeps the baseband warm, and a warm baseband gives the key probes a
+    // black raster behind everything - voiding the green/black readout.
+    if (!wants_bb && g_hw_stat.hdzero_open) {
+        HDZero_Close();
+        bench_opened_bb = false;
+    }
+    if (wants_bb && !g_hw_stat.hdzero_open) {
+        HDZero_open(g_setting.source.hdzero_bw);
+        bench_opened_bb = true;
+    }
+
+    switch (idx) {
+    case 1:
+    case 2:
+        Display_720P90_t(VR_540P90);
+        break;
+    case 3:
+    case 4:
+        Display_1080P30_t(VR_1080P30);
+        break;
+    case 5:
+        Display_720P60_50_t(VR_720P60, 0);
+        break;
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11: {
+        // Chroma-key hunt, round 3: 720p90 with the baseband FORCED off,
+        // so keyed-through pixels show the FPGA's green idle raster.
+        // Round 1 (bit0 cleared) blanked the whole overlay; round 2 was
+        // void - playback's warm baseband gave every probe a black raster.
+        // Recipe 6 is the control at the stock value 0x11: it must show
+        // GREEN behind the text or the experiment premise is wrong. The
+        // probes keep bit0 (overlay enable) and toggle one bit each; the
+        // winner shows the text on a BLACK background.
+        static const uint8_t osd_probe[] = {0x11, 0x01, 0x13, 0x15, 0x19, 0x31};
+        Display_720P90_t(VR_540P90);
+        I2C_Write(ADDR_FPGA, 0x84, osd_probe[idx - 6]);
+        break;
+    }
+    default:
+        break; // recipe 0: the Display_UI_init baseline is the recipe
+    }
+
+    screen.display(1);
+    pthread_mutex_unlock(&hardware_mutex);
+
+    hwlog("bench recipe %d: %s", idx, bench_desc[idx]);
+    LOGI("bench recipe %d: %s", idx, bench_desc[idx]);
+    beep_dur(idx ? BEEP_SHORT : BEEP_LONG); // long beep = back on stock timing
+}
+
+int Display_UI_BenchNext(const char **desc) {
+    bench_idx = (bench_idx + 1) % BENCH_RECIPES;
+    bench_apply(bench_idx);
+    *desc = bench_desc[bench_idx];
+    return bench_idx;
+}
+
+int Display_UI_BenchRestore(const char **desc) {
+    *desc = bench_desc[0];
+    if (bench_idx != 0) {
+        bench_idx = 0;
+        bench_apply(0);
+    }
+    return 0;
+}
+
+// The receiver contributes nothing to playback - it only blackens the
+// raster the FPGA chroma-key punches through to, and the bench control
+// test proved the raster STAYS black after the receiver has run once
+// since boot and been shut down again. So: initialize once, close
+// immediately, and play back with the receiver off. Runs in the
+// background while the user is still on the playback list; SetMode
+// falls back to doing it synchronously BEFORE blanking the panel.
+static bool playback_raster_black = false;
+
+static void playback_blacken_raster(void) { // hardware_mutex held
+    if (playback_raster_black)
+        return;
+    if (g_hw_stat.hdzero_open) {
+        hwlog("raster already black - receiver ran this boot");
+        playback_raster_black = true;
+        return;
+    }
+    HDZero_open(g_setting.source.hdzero_bw);
+    HDZero_Close();
+    playback_raster_black = true;
+    hwlog("raster blackened - receiver back off");
+}
+
+static void *playback_prewarm_thread(void *arg) {
+    (void)arg;
+    pthread_mutex_lock(&hardware_mutex);
+    hwlog("prewarm start (src=%d bb=%d)", g_hw_stat.source_mode, g_hw_stat.hdzero_open);
+    if (g_hw_stat.source_mode == SOURCE_MODE_UI)
+        playback_blacken_raster();
+    hwlog("prewarm done");
+    pthread_mutex_unlock(&hardware_mutex);
+    return NULL;
+}
+
+void Display_Playback_Prewarm(void) {
+    hwlog("Prewarm called (raster_black=%d bb=%d)", playback_raster_black, g_hw_stat.hdzero_open);
+    if (playback_raster_black)
+        return;
+    pthread_t tid;
+    if (pthread_create(&tid, NULL, playback_prewarm_thread, NULL) == 0)
+        pthread_detach(tid);
+}
+
+void Display_Playback_SetMode(int hz) {
+    struct timespec t0, t1;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    pthread_mutex_lock(&hardware_mutex);
+    hwlog("Playback_SetMode %dHz start (src=%d bb=%d)", hz, g_hw_stat.source_mode, g_hw_stat.hdzero_open);
+
+    if (hz) {
+        // The G1 FPGA idles its video input on a green raster, and the
+        // overlay chroma-key punches near-black pixels through to it -
+        // dark video areas glow green (goggles2 idles black, so this
+        // never showed there). One receiver init since boot leaves the
+        // raster black for good; only runs here if the prewarm missed,
+        // and before blanking so any wait shows the menu, not black.
+        playback_blacken_raster();
+    }
+
+    screen.display(0);
+
+    if (hz) {
+        // Switch straight from the menu timing - the same transition the
+        // live race path makes daily - no UI-baseline reset first.
+        if (hz == 90)
+            Display_720P90_t(VR_540P90);
+        else
+            Display_1080P30_t(VR_1080P30);
+        // The race functions mark source_mode HDZERO, which makes the
+        // hardware monitor thread treat playback as live race mode - with
+        // the baseband running it may see camera-mode telemetry and
+        // reprogram the display mid-video. Mark the source back as UI so
+        // the monitor leaves playback alone (M0 and the mute raster are
+        // already up and unaffected).
+        g_hw_stat.source_mode = SOURCE_MODE_UI;
+    } else {
+        Display_UI_init();
+    }
+
+    screen.display(1);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    hwlog("Playback_SetMode %dHz done in %ldms", hz,
+          (t1.tv_sec - t0.tv_sec) * 1000 + (t1.tv_nsec - t0.tv_nsec) / 1000000L);
+    pthread_mutex_unlock(&hardware_mutex);
+    LOGI("Display_Playback_SetMode: %dHz", hz ? hz : 50);
+}
+
 void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 {
+    hwlog("Display_720P60_50_t mode=%d 43=%d (src=%d bb=%d)", mode, is_43, g_hw_stat.source_mode, g_hw_stat.hdzero_open);
     screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
@@ -625,6 +834,7 @@ void Display_720P60_50_t(int mode, uint8_t is_43) // fps: 0=50, 1=60
 }
 
 void Display_720P90_t(int mode) {
+    hwlog("Display_720P90_t mode=%d (src=%d bb=%d)", mode, g_hw_stat.source_mode, g_hw_stat.hdzero_open);
     screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
@@ -647,6 +857,7 @@ void Display_720P90_t(int mode) {
 }
 
 void Display_1080P30_t(int mode) {
+    hwlog("Display_1080P30_t mode=%d (src=%d bb=%d)", mode, g_hw_stat.source_mode, g_hw_stat.hdzero_open);
     screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
@@ -671,6 +882,7 @@ void Display_1080P30_t(int mode) {
 }
 
 void Display_1080P24_t(int mode) {
+    hwlog("Display_1080P24_t mode=%d (src=%d bb=%d)", mode, g_hw_stat.source_mode, g_hw_stat.hdzero_open);
     screen.display(0);
     I2C_Write(ADDR_FPGA, 0x8C, 0x00);
 
@@ -723,16 +935,22 @@ void HDZero_open(int bw) {
         HDZero_Close();
 
     if (g_hw_stat.hdzero_open == 0) {
+        struct timespec t0, t1;
+        clock_gettime(CLOCK_MONOTONIC, &t0);
         g_hw_stat.hdz_bw = bw;
         DM5680_SetBR(g_hw_stat.hdz_bw);
         DM6302_init(0, g_hw_stat.hdz_bw);
         DM5680_SetBB(1);
         g_hw_stat.hdzero_open = 1;
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        hwlog("HDZero_open bw=%d took %ldms", bw,
+              (t1.tv_sec - t0.tv_sec) * 1000 + (t1.tv_nsec - t0.tv_nsec) / 1000000L);
         LOGI("HDZero: open");
     }
 }
 
 void HDZero_Close() {
+    hwlog("HDZero_Close");
     DM5680_SetBB(0);
     DM5680_ResetRF(0);
     g_hw_stat.hdzero_open = 0;

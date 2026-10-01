@@ -606,6 +606,26 @@ void Display_UI() {
     pthread_mutex_unlock(&hardware_mutex);
 }
 
+// The BoxPRO UI already runs at 720p60, which suits 60 and 90 fps DVR files,
+// so there are no playback display modes to switch to.
+void Display_Playback_SetMode(int hz) {
+    (void)hz;
+}
+
+void Display_Playback_Prewarm(void) {
+}
+
+// No retime bench either, for the same reason.
+int Display_UI_BenchNext(const char **desc) {
+    (void)desc;
+    return -1;
+}
+
+int Display_UI_BenchRestore(const char **desc) {
+    (void)desc;
+    return -1;
+}
+
 void HDZero_open(int bw) {
     if (bw != g_hw_stat.hdz_bw) // reopen with different bw
         HDZero_Close();

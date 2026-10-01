@@ -90,6 +90,22 @@ void Source_AV(bool is_av_in);
 void Display_UI_init();
 void Display_UI();
 
+// DVR playback display mode, bench-verified on goggles2 hardware: the live
+// video path (FPGA video input) displays the vdpo overlay plane - which
+// carries the decoded video - at 1080p60 and 720p90; the UI path only ever
+// locks 1080p50. 90 = video-path 720p90 (caller must size the VO layer
+// 1280x720), 60 = video-path 1080p60, 0 = restore the stock menu UI.
+void Display_Playback_SetMode(int hz);
+void Display_Playback_Prewarm(void); // background bring-up of anything SetMode would block on; call when the playback page opens
+
+// DVR display bring-up bench: step through candidate display-mode recipes
+// on live hardware (right-button during playback). Returns the applied
+// recipe index and points *desc at a static description, or -1 on targets
+// without a bench. Restore puts the stock UI timing back; it is a no-op
+// when the bench is already on recipe 0.
+int Display_UI_BenchNext(const char **desc);
+int Display_UI_BenchRestore(const char **desc);
+
 void Display_720P90(int mode);
 void Display_720P60_50(int mode, uint8_t is_43);
 void Display_1080P30(int mode);
