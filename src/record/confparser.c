@@ -2,6 +2,7 @@
 #define LOG_TAG "CfgParser"
 #include <log/log.h>
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,7 @@
 #define KEY_FULL        "full"
 #define KEY_AUDIO       "audio"
 #define KEY_NAMING      "naming"
+#define KEY_LABEL       "label"
 
 #define KEY_WIDTH       "width"
 #define KEY_HEIGHT      "height"
@@ -444,6 +446,21 @@ void conf_loadRecordParams(char* confFile, RecordParams_t* para)
 
     lValue = ini_getbool(SEC_RECORD, KEY_AUDIO, TRUE, confFile);
     para->enableAudio = (lValue>0);
+
+    /* optional race label for the next recording, set by the goggles app
+       from the ELRS backpack; kept filename-safe here in case the conf was
+       edited by hand */
+    memset(para->label, 0, sizeof(para->label));
+    lValue = ini_gets(SEC_RECORD, KEY_LABEL, "", sTemp, sizearray(sTemp), confFile);
+    if( lValue > 0 ) {
+        int n = 0;
+        for( int i = 0; sTemp[i] != 0 && n < (int)sizeof(para->label) - 1; i++ ) {
+            char c = sTemp[i];
+            if( isalnum((unsigned char)c) || c == '-' || c == '_' ) {
+                para->label[n++] = c;
+            }
+        }
+    }
 }
 
 void conf_saveRecordParams(char* confFile, RecordParams_t* para)

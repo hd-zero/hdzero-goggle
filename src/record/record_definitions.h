@@ -85,6 +85,9 @@ extern "C" {
 #define REC_packTYPE        REC_packTS
 #define REC_packSnapTYPE    REC_packJPG
 #define REC_packIndexLEN    4
+#define REC_labelMAXLEN     44                  //43 chars + NUL; worst case name (date naming
+                                                //"YYYYMMDD-HHMMSS" + '-' + label + ".mp4") stays
+                                                //under the playback list's 64-char buffer
 #define REC_packTYPES       {REC_packMP4,REC_packTS}
 #define DOT                 "."
 #define REC_packEXTS        {DOT REC_packMP4, DOT REC_packTS}
@@ -93,6 +96,11 @@ extern "C" {
 
 #define REC_filePathGet(BUFF, MAXLEN, PATH, PREFIX, INDEX, FILEFMT) \
     snprintf((BUFF), (MAXLEN), "%s%s%04d.%s", (PATH), (PREFIX), (INDEX), (FILEFMT));
+
+/* Race-labelled recording: the stock name with "-label" appended before the
+   extension, e.g. hdz_0042-WinterCup-Mains-A-R5-H1.mp4 */
+#define REC_labelPathGet(BUFF, MAXLEN, PATH, PREFIX, INDEX, LABEL, FILEFMT) \
+    snprintf((BUFF), (MAXLEN), "%s%s%04d-%s.%s", (PATH), (PREFIX), (INDEX), (LABEL), (FILEFMT));
 
 #define ZeroMemory(p, size) memset(p, 0, size)
 
