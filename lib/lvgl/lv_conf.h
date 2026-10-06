@@ -47,7 +47,14 @@
  *=========================*/
 
 /*1: use custom malloc/free, 0: use the built-in `lv_mem_alloc()` and `lv_mem_free()`*/
+#ifdef EMULATOR_BUILD
+/* Desktop emulator: malloc-based memory. The 128MB static pool below is fine as
+   .bss on the goggle (ELF, unstored), but mingw materialises it into the PE .data
+   section -> a ~170MB .exe. malloc avoids the giant static entirely. */
+#define LV_MEM_CUSTOM 1
+#else
 #define LV_MEM_CUSTOM 0
+#endif
 #if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
     #define LV_MEM_SIZE (128U * 1024U * 1024U)          /*[bytes]*/

@@ -1,3 +1,5 @@
+// Goggle-only: the Linux I2C bus driver. The emulator has no bus and links
+// src/emulator/i2c_emu.c instead (CMake drops this file for EMULATOR_BUILD).
 #include "i2c.h"
 
 #include <fcntl.h>

@@ -1,0 +1,65 @@
+# syntax=docker/dockerfile:1
+# macOS (arm64) cross-compile image for the HDZero SDL emulator.
+#
+# Containerized LLVM cross toolchain: Linux -> arm64 macOS (Mach-O). clang retargets
+# via triple, ld64.lld links Mach-O — so build_xmac/HDZGOGGLE is produced entirely
+# in the container, with NO compilation on the host Mac. The resulting binary RUNS
+# natively on macOS (Apple Silicon).
+#
+# One host step is unavoidable: Apple's SDK is not redistributable, so it is staged
+# from your own Xcode/CLT into MacOSX.sdk.tar (see .devcontainer/build.sh prepare-mac)
+# and COPY'd in at image-build time. It is gitignored, never committed.
+#
+# Build (or use .devcontainer/build.sh images):
+#   docker build -f .devcontainer/Dockerfile.macos -t hdzero-dev-mac .devcontainer
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        clang \
+        lld \
+        llvm \
+        cmake \
+        make \
+        git \
+        ca-certificates \
+        curl \
+        xz-utils \
+        python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Complete the Mach-O toolchain with LLVM's cctools-equivalents under their Apple
+# names, so CMake's Darwin binutils detection (install_name_tool/otool/lipo) and
+# the ld64.lld linker are all on PATH. Avoids needing osxcross's cctools port.
+ENV LLVMBIN=/usr/lib/llvm-18/bin
+RUN ln -sf $LLVMBIN/llvm-install-name-tool /usr/local/bin/install_name_tool \
+ && ln -sf $LLVMBIN/llvm-otool            /usr/local/bin/otool \
+ && ln -sf $LLVMBIN/llvm-lipo             /usr/local/bin/lipo \
+ && ln -sf $LLVMBIN/ld64.lld              /usr/local/bin/ld64.lld \
+ && ln -sf /usr/bin/llvm-ar               /usr/local/bin/ar \
+ && ln -sf /usr/bin/llvm-ranlib           /usr/local/bin/ranlib \
+ && ln -sf /usr/bin/llvm-nm               /usr/local/bin/nm \
+ && ln -sf /usr/bin/llvm-strip            /usr/local/bin/strip
+
+# macOS SDK sysroot — staged from the host's Xcode/CLT (Apple SDK is NOT
+# redistributable, so it is provided at image-build time, never committed).
+COPY MacOSX.sdk.tar /tmp/MacOSX.sdk.tar
+RUN mkdir -p /opt/sdk && tar xf /tmp/MacOSX.sdk.tar -C /opt/sdk && rm /tmp/MacOSX.sdk.tar
+ENV MACOS_SDK=/opt/sdk/MacOSX.sdk
+
+COPY darwin-arm64.cmake /opt/toolchain/darwin-arm64.cmake
+
+# Cross-build SDL2 (static) for the target and install it into the image, so the
+# app build can find_package(SDL2) with zero extra setup.
+ARG SDL2_VERSION=2.30.10
+RUN curl -fsSL https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-${SDL2_VERSION}.tar.gz -o /tmp/sdl2.tgz \
+ && mkdir -p /tmp/sdl2 && tar xf /tmp/sdl2.tgz -C /tmp/sdl2 --strip-components=1 \
+ && cmake -S /tmp/sdl2 -B /tmp/sdl2/build \
+      -DCMAKE_TOOLCHAIN_FILE=/opt/toolchain/darwin-arm64.cmake \
+      -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=ON -DSDL_SHARED=OFF -DSDL_TEST=OFF \
+      -DCMAKE_INSTALL_PREFIX=/opt/sdl2-macos \
+ && cmake --build /tmp/sdl2/build -j"$(nproc)" \
+ && cmake --install /tmp/sdl2/build \
+ && rm -rf /tmp/sdl2 /tmp/sdl2.tgz
+ENV SDL2_MACOS=/opt/sdl2-macos
+
+WORKDIR /work

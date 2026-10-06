@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h> // uint8_t in the prototypes below
 
 typedef enum {
     RIGHT_CLICK = 0,
@@ -13,6 +14,10 @@ typedef enum {
 } right_button_t;
 
 void input_device_init();
+#ifdef EMULATOR_BUILD
+void input_device_pump(void);       // pump SDL events (call from main thread on macOS)
+void input_device_print_help(void); // print the keyboard<->goggle control map on launch
+#endif
 void tune_channel(uint8_t key);
 void tune_channel_timer();
 void tune_channel_confirm();

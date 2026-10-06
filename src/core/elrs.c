@@ -12,8 +12,46 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <termios.h>
+#if !defined(_WIN32)
+#include <termios.h> // serial config (device only); mingw/Windows has no <termios.h>
+#endif
 #include <unistd.h>
+
+// Desktop (SDL) emulator byte-order shims: neither Darwin nor Windows has the
+// <endian.h> le*toh() macros the code uses.
+#if defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define le16toh(x) OSSwapLittleToHostInt16(x)
+#define le32toh(x) OSSwapLittleToHostInt32(x)
+#define le64toh(x) OSSwapLittleToHostInt64(x)
+#elif defined(_WIN32)
+// mingw targets little-endian x86_64/arm64, so host order == little-endian.
+#define le16toh(x) (x)
+#define le32toh(x) (x)
+#define le64toh(x) (x)
+#endif
+
+#if defined(__APPLE__)
+// sem_timedwait() is not implemented on macOS, so poll sem_trywait().
+#include <time.h>
+static inline int compat_sem_timedwait(sem_t *sem, const struct timespec *abs_timeout) {
+    for (;;) {
+        if (sem_trywait(sem) == 0)
+            return 0;
+        if (errno != EAGAIN)
+            return -1;
+        struct timespec now;
+        clock_gettime(CLOCK_REALTIME, &now);
+        if (now.tv_sec > abs_timeout->tv_sec ||
+            (now.tv_sec == abs_timeout->tv_sec && now.tv_nsec >= abs_timeout->tv_nsec)) {
+            errno = ETIMEDOUT;
+            return -1;
+        }
+        usleep(1000);
+    }
+}
+#define sem_timedwait(sem, ts) compat_sem_timedwait((sem), (ts))
+#endif
 
 #include <log/log.h>
 

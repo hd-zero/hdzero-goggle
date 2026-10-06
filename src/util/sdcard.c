@@ -1,7 +1,11 @@
 #include "sdcard.h"
 
 #include <sys/stat.h>
+#if defined(__linux__)
 #include <sys/vfs.h>
+#else
+#include <sys/mount.h>
+#endif
 #include <unistd.h>
 
 static int g_sdcard_free_size = 0;

@@ -23,3 +23,15 @@ utilities/font/out
 # nix related
 result
 result-*
+sdcard/
+emu-out/
+build_emu_linux/
+
+# macOS SDK staged from local Xcode (Apple SDK not redistributable) + cross build dirs
+.devcontainer/MacOSX.sdk.tar
+build_xmac/
+build_win_x64/
+build_win_repro/
+
+# runtime-written config (the app creates this in its working dir)
+/setting.ini

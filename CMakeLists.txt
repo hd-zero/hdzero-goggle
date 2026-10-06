@@ -4,7 +4,15 @@ project(HDZGOGGLE VERSION 1.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(COMMON_COMPILER_FLAGS "-Wno-unused-function -Wno-unused-variable -Wno-deprecated-declarations -ffunction-sections -fdata-sections -Wl,-gc-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+set(COMMON_COMPILER_FLAGS "-Wno-unused-function -Wno-unused-variable -Wno-deprecated-declarations -ffunction-sections -fdata-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+# Dead-strip unused sections: macOS ld64 uses -dead_strip, GNU ld uses -gc-sections.
+if(APPLE)
+	# Also disable _FORTIFY_SOURCE: macOS clang's fortified __*_chk wrappers trap
+	# (SIGTRAP) on some firmware snprintf calls that are benign on Linux.
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -Wl,-dead_strip -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0")
+else()
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -Wl,-gc-sections")
+endif()
 
 option(EMULATOR_BUILD "emulate using SDL on host" OFF)
 if(NOT EMULATOR_BUILD)
@@ -42,15 +50,32 @@ set(OS_APP_PATH ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/app)
 set(RECORD_APP_PATH ${CMAKE_CURRENT_BINARY_DIR}/mkapp/app/app/record)
 
 # common build settings
-set(STANDARD_LIBRARIES
-	c
-	crypt
-	dl
-	m
-	pthread
-	rt
-	stdc++
-)
+if(APPLE)
+	# On macOS, crypt/dl/rt live in libSystem; C++ runtime is libc++.
+	set(STANDARD_LIBRARIES
+		c
+		m
+		pthread
+		c++
+	)
+elseif(WIN32)
+	# mingw (Windows): crypt/dl/rt don't exist; pthread is winpthread (posix model).
+	set(STANDARD_LIBRARIES
+		m
+		pthread
+		stdc++
+	)
+else()
+	set(STANDARD_LIBRARIES
+		c
+		crypt
+		dl
+		m
+		pthread
+		rt
+		stdc++
+	)
+endif()
 
 add_definitions(
 	-DAWCHIP=AW_V5 
@@ -88,6 +113,24 @@ file(GLOB SRC_FILES_UTIL "src/util/*.c" "src/util/*.h")
 file(GLOB SRC_FILES_PLAYER "src/player/*.c" "src/player/*.h")
 file(GLOB SRC_FILES_EMULATOR "src/emulator/*.c" "src/emulator/*.h")
 file(GLOB SRC_FILES_LANG "src/lang/*.c" "src/lang/*.h")
+file(GLOB SRC_FILES_PLATFORM "src/platform/*.c" "src/platform/*.h")
+
+# Per-target driver swaps: the emulator provides its own implementations of certain
+# hardware drivers (src/emulator/*), so drop the goggle versions to avoid duplicate
+# symbols. Keeps the hardware drivers free of any #ifdef EMULATOR_BUILD.
+#   uart.c       -> emulator/uart_emu.c         (socketpair UART)
+#   i2c.c        -> emulator/i2c_emu.c          (no-op bus)
+#   rtc_hw.c     -> emulator/rtc_hw_emu.c       (in-memory clock; rtc.c shared)
+#   fbtools.c    -> (none)                      (SDL renders instead; not referenced)
+#   input_evdev.c-> emulator/input_device_emu.c (SDL keyboard; core/input_device.c shared)
+if(EMULATOR_BUILD)
+	list(REMOVE_ITEM SRC_FILES_DRIVER
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/driver/uart.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/driver/i2c.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/driver/rtc_hw.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/driver/fbtools.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/driver/input_evdev.c")
+endif()
 
 if(HDZ_GOGGLE)
 	file(GLOB SRC_FILES_IMAGE  "src/image/goggle/*.c" "src/image/goggle/*.h")
@@ -106,6 +149,7 @@ set(SRC_FILES
 	${SRC_FILES_BMI}
 	${SRC_FILES_UTIL}
 	${SRC_FILES_LANG}
+	${SRC_FILES_PLATFORM}
 )
 
 if(EMULATOR_BUILD)
@@ -138,7 +182,48 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 if(EMULATOR_BUILD)
+	# SDL2_INCLUDE_DIRS carries both <prefix>/include and <prefix>/include/SDL2, so
+	# the code's `#include <SDL2/SDL.h>` resolves off Homebrew/MSYS too (on Linux the
+	# system /usr/include makes it implicit; the imported target only exposes the
+	# deep dir, hence the explicit dirs here).
+	target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+endif()
+
+# The emulator's mock video device decodes a small MPEG-1 clip with pl_mpeg
+# (single-header, in lib/). No ffmpeg is linked into any app binary on any OS.
+if(EMULATOR_BUILD)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
+	# Build step: turn a test video into the looping MPEG-1 clip the mock reads.
+	# Opt-in + graceful -- only runs if EMU_TEST_VIDEO points at a real file and
+	# ffmpeg is on the build host; otherwise the emulator just shows a gray FPV.
+	set(EMU_TEST_VIDEO "" CACHE FILEPATH "Test video to generate the emulator's loop.mpg from")
+	find_program(FFMPEG_BIN ffmpeg)
+	if(EMU_TEST_VIDEO AND EXISTS "${EMU_TEST_VIDEO}" AND FFMPEG_BIN)
+		add_custom_command(
+			OUTPUT ${CMAKE_BINARY_DIR}/loop.mpg
+			COMMAND ${FFMPEG_BIN} -y -i "${EMU_TEST_VIDEO}" -t 5 -an
+			        -c:v mpeg1video -b:v 6M -s 1928x1088 -r 30
+			        ${CMAKE_BINARY_DIR}/loop.mpg
+			DEPENDS "${EMU_TEST_VIDEO}"
+			COMMENT "Generating emulator FPV loop.mpg from ${EMU_TEST_VIDEO}")
+		add_custom_target(emu_video ALL DEPENDS ${CMAKE_BINARY_DIR}/loop.mpg)
+	endif()
+endif()
+
+# Per-platform POSIX compatibility headers for the desktop (SDL) emulator. Each
+# target OS gets an include dir of shims for the headers it lacks, so the dormant
+# device layer (serial/mount/ioctl/sockets) compiles against inert stubs. Linux
+# uses the real system headers, so it needs no compat dir.
+if(EMULATOR_BUILD AND WIN32)
+	target_include_directories(${PROJECT_NAME} BEFORE PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/platform/compat/windows)
+	target_sources(${PROJECT_NAME} PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/platform/compat/windows/posix_compat.c)
+elseif(EMULATOR_BUILD AND APPLE)
+	target_include_directories(${PROJECT_NAME} BEFORE PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/platform/compat/macos)
 endif()
 
 if(NOT EMULATOR_BUILD)

@@ -1,25 +1,17 @@
-#include <assert.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <linux/input.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/epoll.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <unistd.h>
 
 #include <log/log.h>
 #include <minIni.h>
 
-#ifdef EMULATOR_BUILD
-#include "SDLaccess.h"
-#endif
-
 #include "defines.h"
 #include "input_device.h"
+#include "input_device_internal.h"
 
 #include "common.hh"
 #include "ht.h"
@@ -58,12 +50,10 @@
 static uint8_t tune_state = 0; // 0=init; 1=waiting for key; 2=tuning
 static uint16_t tune_timer = 0;
 
-#define EPOLL_FD_CNT 4
-
-static int epfd;
 static pthread_t input_device_pid;
 
-static int btn_value = 0;
+// Shared with the input backends (input_device_internal.h): right button held state.
+int btn_value = 0;
 
 // action: 1 = tune up, 2 = tune down, 3 = confirm
 void exit_tune_channel() {
@@ -216,16 +206,11 @@ void tune_channel_timer() {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-static int roller_up_acc = 0;
-static int roller_down_acc = 0;
-
-static bool scroll_sim_mode = false;
-static bool scroll_sim_mode_pending = false;
-
-#define SCROLL_REPEAT_NONE 0
-#define SCROLL_REPEAT_UP   1
-#define SCROLL_REPEAT_DOWN 2
-static int scroll_sim_mode_repeat = SCROLL_REPEAT_NONE;
+// Shared with the input backends (input_device_internal.h): the no_dial scroll-
+// simulation state, driven by the hardware backend together with rbtn_click().
+bool scroll_sim_mode = false;
+bool scroll_sim_mode_pending = false;
+int scroll_sim_mode_repeat = SCROLL_REPEAT_NONE;
 
 void (*btn_click_callback)() = &osd_toggle;
 void (*btn_press_callback)() = &app_switch_to_menu;
@@ -236,10 +221,7 @@ void (*rbtn_double_click_callback)() = &ht_set_center_position;
 
 void (*roller_callback)(uint8_t key) = &tune_channel;
 
-static void roller_up(void);
-static void roller_down(void);
-
-static void btn_press(void) // long press left key
+void btn_press(void) // long press left key
 {
     LOGI("btn_press (%d)", g_app_state);
     if (g_scanning || (g_init_done != 1)) // no long pree Enter before done with init
@@ -301,7 +283,7 @@ static void btn_press(void) // long press left key
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void btn_click(void) // short press enter key
+void btn_click(void) // short press enter key
 {
     LOGI("btn_click (%d)", g_app_state);
     if (g_init_done != 1) // no short pree Enter before done with init
@@ -428,7 +410,7 @@ void rbtn_click(right_button_t click_type) {
     }
 }
 
-static void roller_up(void) {
+void roller_up(void) {
     LOGI("roller up (%d)", g_app_state);
 
     if (g_scanning)
@@ -463,7 +445,7 @@ static void roller_up(void) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void roller_down(void) {
+void roller_down(void) {
     LOGI("roller down (%d)", g_app_state);
 
     if (g_scanning)
@@ -497,272 +479,9 @@ static void roller_down(void) {
     pthread_mutex_unlock(&lvgl_mutex);
 }
 
-static void get_event(int fd) {
-    struct input_event event;
-    static int event_type_last = 0;
-    static int btn_press_time = 0;
-
-    static int roller_value = 0;
-
-    // time (sec, usec) difference above which will the next scroll wheel event be accepted
-    // 10000 usec = 10msec is more than short enough (100Hz)
-    // scroll events
-    const struct timeval scroll_time_diff = {0, 10000};
-    // direction change events
-    const struct timeval rel_time_diff = {0, 20000};
-    // expected timestamp in the future beyond that will the events be accepted
-    static struct timeval next_scroll = {0, 0};
-    static struct timeval next_rel = {0, 0};
-    static bool discard_scroll = false;
-
-    read(fd, &event, sizeof(event));
-
-    switch (event.type) {
-    case EV_SYN:
-        if (event.code == SYN_REPORT) {
-            if (event_type_last == EV_REL) {
-                if (g_setting.ease.no_dial)
-                    break;
-
-                if (!discard_scroll && timercmp(&event.time, &next_scroll, >)) {
-                    timeradd(&event.time, &scroll_time_diff, &next_scroll);
-                    if (roller_value == 1) {
-                        roller_up_acc++;
-                        roller_down_acc = 0;
-                    } else if (roller_value == -1) {
-                        roller_down_acc++;
-                        roller_up_acc = 0;
-                    }
-
-                    if (roller_up_acc == DIAL_SENSITIVITY) {
-                        roller_up();
-                        g_key = DIAL_KEY_UP;
-                        roller_up_acc = 0;
-                    } else if (roller_down_acc == DIAL_SENSITIVITY) {
-                        roller_down();
-                        g_key = DIAL_KEY_DOWN;
-                        roller_down_acc = 0;
-                    }
-                } else {
-                    // LOGI("discard EV_SYN");
-                }
-            } else if (event_type_last == EV_KEY) {
-                if (btn_value) {
-                    if (!g_setting.ease.no_dial) {
-                        if (btn_press_time == 10) {
-                            btn_press();
-                            g_key = DIAL_KEY_PRESS;
-                        }
-                    } else {
-                        if (scroll_sim_mode_repeat == SCROLL_REPEAT_DOWN) {
-                            roller_down();
-                        } else if (scroll_sim_mode_repeat == SCROLL_REPEAT_UP) {
-                            roller_up();
-                        }
-                    }
-                    if (scroll_sim_mode_pending)
-                        btn_press_time = 0;
-                    else
-                        btn_press_time++;
-                    // LOGI("btn down");
-                } else {
-                    if (scroll_sim_mode_pending) {
-                        scroll_sim_mode_pending = false;
-                    } else {
-                        if (scroll_sim_mode_repeat == SCROLL_REPEAT_NONE) {
-                            if (btn_press_time < 10) {
-                                btn_click();
-                                g_key = DIAL_KEY_CLICK;
-                            } else if (g_setting.ease.no_dial) {
-                                if (btn_press_time < 50) {
-                                    btn_press();
-                                    g_key = DIAL_KEY_PRESS;
-                                }
-                                // else if(btn_press_time > 200){
-                                //	btn_super_press();
-                                // }
-                            }
-                        }
-                    }
-                    btn_press_time = 0;
-                }
-            }
-            // LOGI("------------ syn report ----------");
-        } else if (event.code == SYN_MT_REPORT) {
-            // LOGI("----------- syn mt report ------------");
-        }
-        break;
-    case EV_KEY:
-        // LOGI("key code%d is %s!", event.code, event.value?"down":"up");
-        btn_value = event.value;
-        event_type_last = EV_KEY;
-        break;
-    case EV_ABS:
-        if ((event.code == ABS_X) ||
-            (event.code == ABS_MT_POSITION_X)) {
-            // LOGI("abs,x = %d", event.value);
-        } else if ((event.code == ABS_Y) ||
-                   (event.code == ABS_MT_POSITION_Y)) {
-            // LOGI("abs,y = %d", event.value);
-        } else if ((event.code == ABS_PRESSURE) ||
-                   (event.code == ABS_MT_PRESSURE)) {
-            // LOGI("pressure value: %d", event.value);
-        }
-        break;
-    case EV_REL:
-        if (timercmp(&event.time, &next_rel, >)) {
-            discard_scroll = false;
-            if (event.code == REL_X) {
-                // LOGI("x = %d", event.value);
-            } else if (event.code == REL_Y) {
-                if (roller_value != event.value) {
-                    timeradd(&event.time, &rel_time_diff, &next_rel);
-                    roller_value = event.value;
-                    // LOGI("y = %d", event.value);
-                }
-                event_type_last = EV_REL;
-            }
-        } else {
-            discard_scroll = true;
-            LOGI("discard EV_REL");
-        }
-        break;
-    default:
-        // LOGI("unknown [type=%d, code=%d value=%d]", event.type, event.code, event.value);
-        break;
-    }
-}
-
-static void add_to_epfd(int epfd, int fd) {
-    struct epoll_event event = {
-        .events = EPOLLIN,
-        .data = {
-            .fd = fd,
-        },
-    };
-
-    int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
-    assert(ret == 0);
-}
-
-static void *thread_input_device(void *ptr) {
-#ifndef EMULATOR_BUILD
-    for (;;) {
-        struct epoll_event events[EPOLL_FD_CNT];
-
-        int ret = epoll_wait(epfd, events, EPOLL_FD_CNT, DIAL_SENSITIVTY_TIMEOUT_MS);
-        if (ret < 0) {
-            perror("epoll_wait");
-            continue;
-        }
-
-        if (ret > 0) {
-            for (int i = 0; i < ret; i++) {
-                if (events[i].events & EPOLLIN) {
-                    get_event(events[i].data.fd);
-                }
-            }
-        } else {
-            roller_up_acc = 0;
-            roller_down_acc = 0;
-            if (scroll_sim_mode_repeat != SCROLL_REPEAT_NONE)
-                beep();
-        }
-    }
-    return NULL;
-#else
-    static uint32_t btn_d_start = 0;
-    static uint32_t btn_a_start = 0;
-
-    while (true) {
-        SDL_Event event;
-        SDL_LockMutex(global_sdl_mutex);
-        while (SDL_PollEvent(&event)) {
-            SDL_UnlockMutex(global_sdl_mutex);
-            switch (event.type) {
-            case SDL_QUIT:
-                exit(0);
-
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                case SDLK_d:
-                    if (!btn_d_start) {
-                        btn_d_start = event.key.timestamp;
-                    }
-                    break;
-
-                case SDLK_a:
-                    if (!btn_a_start) {
-                        btn_a_start = event.key.timestamp;
-                    }
-                    break;
-                }
-                break;
-
-            case SDL_KEYUP:
-                switch (event.key.keysym.sym) {
-                case SDLK_s:
-                    roller_up();
-                    g_key = DIAL_KEY_UP;
-                    break;
-
-                case SDLK_w:
-                    roller_down();
-                    g_key = DIAL_KEY_DOWN;
-                    break;
-
-                case SDLK_d:
-                    if (event.key.timestamp - btn_d_start > 500) {
-                        btn_press();
-                        g_key = DIAL_KEY_PRESS;
-                    } else {
-                        btn_click();
-                        g_key = DIAL_KEY_CLICK;
-                    }
-                    btn_d_start = 0;
-                    break;
-
-                case SDLK_a:
-                    if (event.key.timestamp - btn_a_start > 500) {
-                        rbtn_click(RIGHT_LONG_PRESS);
-                        g_key = RIGHT_KEY_PRESS;
-                    } else {
-                        rbtn_click(RIGHT_CLICK);
-                        g_key = RIGHT_KEY_CLICK;
-                    }
-                    btn_a_start = 0;
-                    break;
-                }
-                break;
-            }
-            SDL_LockMutex(global_sdl_mutex);
-        }
-        SDL_UnlockMutex(global_sdl_mutex);
-        usleep(50000); // Sorry, this will break windows, but it's not like it is working now anyway :-(
-    }
-#endif
-}
-
 void input_device_init() {
-#ifndef EMULATOR_BUILD
-    epfd = epoll_create(EPOLL_FD_CNT);
-    assert(epfd > 0);
-
-    char buf[64];
-    for (int i = 0; i < EPOLL_FD_CNT; i++) {
-        snprintf(buf, 64, "/dev/input/event%d", i);
-
-        int fd = open(buf, O_RDONLY);
-        if (fd >= 0) {
-            add_to_epfd(epfd, fd);
-            LOGI("opened %s", buf);
-        }
-    }
-    app_state_push(APP_STATE_MAINMENU);
-#else
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("Error initializing SDL: %s\n", SDL_GetError());
-    }
-#endif
-    pthread_create(&input_device_pid, NULL, thread_input_device, NULL);
+    // Bring up whichever input backend was compiled in (evdev on the goggle,
+    // SDL in the emulator) and run its read loop on a background thread.
+    input_backend_init();
+    pthread_create(&input_device_pid, NULL, input_backend_thread, NULL);
 }

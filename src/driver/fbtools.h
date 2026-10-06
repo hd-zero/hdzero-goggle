@@ -8,11 +8,12 @@
 extern "C" {
 #endif
 
-#include <linux/fb.h>
 #include <stdint.h>
 #include <stdio.h>
 
-// a framebuffer device structure;
+// Goggle-only: the Linux framebuffer. Emulator builds render via SDL and never
+// include this header (guarded in ui_porting.c), so there is no non-Linux variant.
+#include <linux/fb.h>
 typedef struct fbdev {
     int fb;
     unsigned long fb_mem_offset;

@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+# Windows (x86_64) cross-compile image for the HDZero SDL emulator.
+#
+# Extends the Linux dev image (hdzero-dev, from .devcontainer/Dockerfile) with the
+# mingw-w64 cross toolchain + prebuilt SDL2 mingw dev libraries, so
+# build_win_x64/HDZGOGGLE.exe can be produced from Linux or macOS with NO Windows
+# host. The .exe then runs on Windows, including Windows-on-ARM via x64 emulation.
+#
+# Build order (or just use .devcontainer/build.sh images):
+#   docker build -f .devcontainer/Dockerfile         -t hdzero-dev     .devcontainer
+#   docker build -f .devcontainer/Dockerfile.windows -t hdzero-dev-win .devcontainer
+#
+# The base (hdzero-dev) is amd64 — its own Dockerfile pins FROM --platform=linux/x86_64.
+# So on Apple Silicon this runs under emulation and cross-compiles the x86_64 Windows
+# .exe; the "base image platform" build warning on arm64 hosts is expected and benign.
+FROM hdzero-dev
+
+# mingw-w64 cross toolchain. The package provides both win32 and -posix threading
+# variants; windows-x64.cmake selects -posix so winpthread (pthread_*) is available.
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get update -qq && \
+    apt-get install -y -qq gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Prebuilt SDL2 mingw dev tree (headers + import libs + SDL2.dll) staged where
+# windows-x64.cmake looks: SDL2_DIR = /opt/sdl2-mingw/x86_64-w64-mingw32/lib/cmake/SDL2.
+ARG SDL2_VERSION=2.30.9
+RUN cd /tmp && \
+    wget -q "https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-devel-${SDL2_VERSION}-mingw.tar.gz" && \
+    tar xf "SDL2-devel-${SDL2_VERSION}-mingw.tar.gz" && \
+    mkdir -p /opt/sdl2-mingw && \
+    cp -r "SDL2-${SDL2_VERSION}/x86_64-w64-mingw32" /opt/sdl2-mingw/ && \
+    rm -rf /tmp/SDL2*
