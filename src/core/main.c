@@ -15,6 +15,9 @@
 
 #ifdef EMULATOR_BUILD
 #include "SDLaccess.h"
+#include "emulator/motor_audio_dev.h"
+#include "emulator/motor_audio_sdl.h"
+#include "motor_audio.h"
 SDL_mutex *global_sdl_mutex;
 #endif
 
@@ -147,6 +150,11 @@ void lvgl_init() {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef EMULATOR_BUILD
+    if (motor_audio_dev_main(argc, argv))
+        return 0;
+#endif
+
     pthread_mutex_init(&lvgl_mutex, NULL);
 
 #ifdef EMULATOR_BUILD
@@ -184,6 +192,9 @@ int main(int argc, char *argv[]) {
     elrs_init();
     ht_init();
     beep_init();
+#ifdef EMULATOR_BUILD
+    motor_audio_sdl_start(MOTOR_AUDIO_DEFAULT_RATE);
+#endif
 
     // 4. Initilize UI
     lvgl_init();

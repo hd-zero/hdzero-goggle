@@ -4,7 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "motor_audio.h"
+#include "motor_rpm_proto.h"
+#ifdef MOTOR_AUDIO_POC_HOST
+void load_fc_osd_font(uint8_t fhd);
+void osd_signal_update(void);
+#else
 #include "osd.h"
+#endif
 #include "util/time.h"
 
 uint8_t crc8tab[256] = {
@@ -357,6 +364,18 @@ void parser_config(uint8_t *rx_buf) {
     vtxTypeDetect(rx_buf[10]);
     vtxFcLockDetect(rx_buf[11]);
     vtxCamRatioDetect(rx_buf[12]);
+
+    /* Extended 0xFF service: length 21 includes 6 packed RPM bytes at [16..21]. */
+    if (rx_buf[0] >= MOTOR_RPM_SERVICE_LEN) {
+        uint16_t q[MOTOR_RPM_COUNT];
+        uint32_t rpm[MOTOR_RPM_COUNT];
+        int i;
+
+        motor_rpm_unpack(&rx_buf[MOTOR_RPM_SERVICE_OFF], q);
+        for (i = 0; i < MOTOR_RPM_COUNT; i++)
+            rpm[i] = motor_rpm_dequantize(q[i]);
+        motor_audio_set_rpm(rpm[0], rpm[1], rpm[2], rpm[3], motor_audio_now_ms());
+    }
 }
 
 /*
