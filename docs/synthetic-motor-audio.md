@@ -34,7 +34,13 @@ b5 = q3[11:4]
 - Blade-pass pulse, shaft asymmetry, quiet air noise, soft LP
 - Stale telemetry (>500 ms) or all-zero RPM fades to silence
 
-Hardware goggles currently have no general PCM sink wired (beeper is GPIO-only). The decoder still updates RPM targets so a future AO path can call `motor_audio_render()`.
+## Menu / settings
+
+**Record Option → Motor Audio** (`On` / `Off`), stored as `record.motor_audio` in `setting.ini` (default `Off`).
+
+- Independent of **Record Audio** — this is a live headphone mix, not a DVR flag.
+- Keeps the selected **Audio Source** (Mic / Line In / A/V In); when On, line-out also opens the DAC path (`audio_sel.sh out_dac_on`) so synthetic PCM can sit under the analog source.
+- Emulator: toggles the SDL playback device. Hardware still needs a Softwinner AO PCM feed into that DAC path (not wired yet); RPM decode and mute gate are ready.
 
 ## Host / emulator tooling
 

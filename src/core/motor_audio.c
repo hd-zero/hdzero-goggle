@@ -39,6 +39,7 @@ typedef struct {
 static motor_osc_t g_motors[MOTOR_AUDIO_MOTORS];
 static uint32_t g_last_rpm_ms;
 static uint8_t g_have_rpm;
+static uint8_t g_enabled = 1; /* default on for host tests; UI/settings override */
 static float g_master_gain;
 static int16_t g_peak_abs;
 static uint32_t g_render_ms;
@@ -93,6 +94,16 @@ static uint32_t xorshift32(uint32_t *s) {
 static float frand(uint32_t *s) {
     /* approx uniform [-1, 1] */
     return ((float)(xorshift32(s) & 0xFFFFFF) * (2.0f / 16777215.0f)) - 1.0f;
+}
+
+void motor_audio_set_enabled(int enabled) {
+    g_enabled = enabled ? 1 : 0;
+    if (!g_enabled)
+        g_master_gain = 0.0f;
+}
+
+int motor_audio_is_enabled(void) {
+    return g_enabled ? 1 : 0;
 }
 
 void motor_audio_set_time_fn(uint32_t (*fn)(void)) {
@@ -253,6 +264,15 @@ void motor_audio_render(int16_t *output, uint32_t frame_count, uint32_t sample_r
 
     if (!output || frame_count == 0 || sample_rate == 0)
         return;
+
+    if (!g_enabled) {
+        memset(output, 0, (size_t)frame_count * MOTOR_AUDIO_CHANNELS * sizeof(int16_t));
+        if (timestamp_ms != 0)
+            g_render_ms = timestamp_ms + (frame_count * 1000u) / sample_rate;
+        else
+            g_render_ms += (frame_count * 1000u) / sample_rate;
+        return;
+    }
 
     if (timestamp_ms != 0)
         now_ms = timestamp_ms;

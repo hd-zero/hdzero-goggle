@@ -31,6 +31,10 @@ extern "C" {
 
 void motor_audio_reset(void);
 
+/* Menu / settings gate. When disabled, render() outputs silence (RPM still updates). */
+void motor_audio_set_enabled(int enabled);
+int motor_audio_is_enabled(void);
+
 /*
  * Optional clock override for offline replay/tests. When set, motor_audio_now_ms()
  * returns (*fn)() instead of wall time. Pass NULL to restore wall clock.

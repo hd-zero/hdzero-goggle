@@ -102,6 +102,8 @@ typedef struct {
     bool osd;
     bool audio;
     setting_record_audio_source_t audio_source;
+    /* Mix synthetic motor sound into the selected audio source (headphones/line-out). */
+    bool motor_audio;
     setting_record_naming_t naming;
 } setting_record_t;
 

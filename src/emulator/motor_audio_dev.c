@@ -711,6 +711,10 @@ int motor_audio_dev_main(int argc, char **argv) {
     if (argc < 2)
         return 0;
 
+    /* So diagnostics show up immediately when stdout is redirected. */
+    setvbuf(stdout, NULL, _IOLBF, 0);
+    setvbuf(stderr, NULL, _IOLBF, 0);
+
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--motor-test") == 0) {
             do_test = 1;

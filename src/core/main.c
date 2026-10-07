@@ -17,7 +17,6 @@
 #include "SDLaccess.h"
 #include "emulator/motor_audio_dev.h"
 #include "emulator/motor_audio_sdl.h"
-#include "motor_audio.h"
 SDL_mutex *global_sdl_mutex;
 #endif
 
@@ -27,6 +26,7 @@ SDL_mutex *global_sdl_mutex;
 #include "core/elrs.h"
 #include "core/ht.h"
 #include "core/input_device.h"
+#include "core/motor_audio.h"
 #include "core/osd.h"
 #include "core/self_test.h"
 #include "core/settings.h"
@@ -192,8 +192,10 @@ int main(int argc, char *argv[]) {
     elrs_init();
     ht_init();
     beep_init();
+    motor_audio_set_enabled(g_setting.record.motor_audio ? 1 : 0);
 #ifdef EMULATOR_BUILD
-    motor_audio_sdl_start(MOTOR_AUDIO_DEFAULT_RATE);
+    if (g_setting.record.motor_audio)
+        motor_audio_sdl_start(MOTOR_AUDIO_DEFAULT_RATE);
 #endif
 
     // 4. Initilize UI

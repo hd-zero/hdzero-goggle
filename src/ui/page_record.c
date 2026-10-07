@@ -8,10 +8,17 @@
 #include "../conf/ui.h"
 
 #include "../core/common.hh"
+#include "core/dvr.h"
+#include "core/motor_audio.h"
+#include "core/settings.h"
 #include "driver/rtc.h"
 #include "lang/language.h"
 #include "page_common.h"
 #include "ui/ui_style.h"
+
+#ifdef EMULATOR_BUILD
+#include "emulator/motor_audio_sdl.h"
+#endif
 
 static btn_group_t btn_group_record_mode;
 static btn_group_t btn_group_format;
@@ -19,10 +26,27 @@ static btn_group_t btn_group_bitrate_scale;
 static btn_group_t btn_group_record_osd;
 static btn_group_t btn_group_record_audio;
 static btn_group_t btn_group_audio_source;
+static btn_group_t btn_group_motor_audio;
 static btn_group_t btn_group_file_naming;
 
 static lv_coord_t col_dsc[] = {UI_RECORD_COLS};
 static lv_coord_t row_dsc[] = {UI_RECORD_ROWS};
+
+static void apply_motor_audio_setting(bool enabled) {
+    g_setting.record.motor_audio = enabled;
+    settings_put_bool("record", "motor_audio", enabled);
+    motor_audio_set_enabled(enabled ? 1 : 0);
+    /* Keep current Mic/Line/AV source; only open/close DAC mix path. */
+    dvr_enable_line_out(true);
+#ifdef EMULATOR_BUILD
+    if (enabled) {
+        if (!motor_audio_sdl_is_running())
+            motor_audio_sdl_start(MOTOR_AUDIO_DEFAULT_RATE);
+    } else {
+        motor_audio_sdl_stop();
+    }
+#endif
+}
 
 static void update_visibility() {
     btn_group_enable(&btn_group_audio_source, btn_group_record_audio.current == 0);
@@ -33,12 +57,13 @@ static void update_visibility() {
         lv_obj_clear_flag(pp_record.p_arr.panel[5], FLAG_SELECTABLE);
     }
 
+    /* Motor Audio is independent of Record Audio (live headphone mix). */
     btn_group_enable(&btn_group_file_naming, rtc_has_battery() == 0);
 
     if (rtc_has_battery() == 0) {
-        lv_obj_add_flag(pp_record.p_arr.panel[6], FLAG_SELECTABLE);
+        lv_obj_add_flag(pp_record.p_arr.panel[7], FLAG_SELECTABLE);
     } else {
-        lv_obj_clear_flag(pp_record.p_arr.panel[6], FLAG_SELECTABLE);
+        lv_obj_clear_flag(pp_record.p_arr.panel[7], FLAG_SELECTABLE);
     }
 }
 
@@ -74,9 +99,10 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_btn_group_item(&btn_group_record_osd, cont, 2, _lang("Record OSD"), _lang("Yes"), _lang("No"), "", "", 3);
     create_btn_group_item(&btn_group_record_audio, cont, 2, _lang("Record Audio"), _lang("Yes"), _lang("No"), "", "", 4);
     create_btn_group_item(&btn_group_audio_source, cont, 3, _lang("Audio Source"), _lang("Mic"), _lang("Line In"), _lang("A/V In"), "", 5);
-    create_btn_group_item(&btn_group_file_naming, cont, 2, _lang("Naming Scheme"), _lang("Digits"), _lang("Date"), "", "", 6);
+    create_btn_group_item(&btn_group_motor_audio, cont, 2, _lang("Motor Audio"), _lang("On"), _lang("Off"), "", "", 6);
+    create_btn_group_item(&btn_group_file_naming, cont, 2, _lang("Naming Scheme"), _lang("Digits"), _lang("Date"), "", "", 7);
     snprintf(buf, sizeof(buf), "< %s", _lang("Back"));
-    create_label_item(cont, buf, 1, 7, 1);
+    create_label_item(cont, buf, 1, 8, 1);
 
     btn_group_set_sel(&btn_group_record_mode, g_setting.record.mode_manual ? 1 : 0);
     btn_group_set_sel(&btn_group_format, g_setting.record.format_ts ? 1 : 0);
@@ -84,6 +110,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_record_osd, g_setting.record.osd ? 0 : 1);
     btn_group_set_sel(&btn_group_record_audio, g_setting.record.audio ? 0 : 1);
     btn_group_set_sel(&btn_group_audio_source, g_setting.record.audio_source);
+    btn_group_set_sel(&btn_group_motor_audio, g_setting.record.motor_audio ? 0 : 1);
     btn_group_set_sel(&btn_group_file_naming, g_setting.record.naming);
 
     lv_obj_t *label2 = lv_label_create(cont);
@@ -97,7 +124,7 @@ static lv_obj_t *page_record_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_pad_top(label2, UI_PAGE_TEXT_PAD, 0);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_START, 1, 4,
-                         LV_GRID_ALIGN_START, 8, 3);
+                         LV_GRID_ALIGN_START, 9, 2);
 
     update_visibility();
 
@@ -134,7 +161,13 @@ static void page_record_on_click(uint8_t key, int sel) {
         btn_group_toggle_sel(&btn_group_audio_source);
         g_setting.record.audio_source = btn_group_get_sel(&btn_group_audio_source);
         ini_putl("record", "audio_source", g_setting.record.audio_source, SETTING_INI);
+        /* Re-apply line-out so DAC mix follows the new source selection. */
+        dvr_select_audio_source(g_setting.record.audio_source);
+        dvr_enable_line_out(true);
     } else if (sel == 6) {
+        btn_group_toggle_sel(&btn_group_motor_audio);
+        apply_motor_audio_setting(btn_group_get_sel(&btn_group_motor_audio) == 0);
+    } else if (sel == 7) {
         if (rtc_has_battery() == 0) {
             btn_group_toggle_sel(&btn_group_file_naming);
             g_setting.record.naming = btn_group_get_sel(&btn_group_file_naming);
@@ -146,7 +179,7 @@ static void page_record_on_click(uint8_t key, int sel) {
 page_pack_t pp_record = {
     .p_arr = {
         .cur = 0,
-        .max = 8,
+        .max = 9,
     },
     .name = "Record Option",
     .create = page_record_create,
