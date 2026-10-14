@@ -1167,13 +1167,9 @@ void Analog_Module_Power(bool ForceSet) {
         static bool Analog_Module_Power_State = 0;
         static bool Analog_Module_Power_State_Last = 0;
         if (g_setting.power.power_ana == 0) {
-            Analog_Module_Power_State = 0;
+            Analog_Module_Power_State = 1;
         } else {
-            if (g_source_info.source != SOURCE_AV_MODULE) {
-                Analog_Module_Power_State = 1;
-            } else {
-                Analog_Module_Power_State = 0;
-            }
+            Analog_Module_Power_State = g_source_info.source == SOURCE_AV_MODULE;
         }
         if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
             Analog_Module_Power_State_Last = Analog_Module_Power_State;
