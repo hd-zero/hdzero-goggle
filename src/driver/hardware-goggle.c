@@ -12,6 +12,7 @@
 
 #include "../core/app_state.h"
 #include "../core/common.hh"
+#include "../core/ht.h"
 #include "../core/osd.h"
 #include "../core/settings.h"
 #include "../ui/page_common.h"
@@ -1185,23 +1186,25 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
     I2C_Write(ADDR_FPGA, 0x77, (ch2 >> 8) & 0xff);
 }
 
-void Analog_Module_Power(bool ForceSet) {
+void external_analog_module_power() {
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        static bool Analog_Module_Power_State = 0;
-        static bool Analog_Module_Power_State_Last = 0;
-        if (g_setting.power.power_ana == 0) {
-            Analog_Module_Power_State = 0;
+        static bool pwr = 0;
+        static bool pwr_last = 0;
+
+        if (g_app_state == APP_STATE_SLEEP)
+            pwr = 0;
+        else if (oled_is_sleep == 1) {
+            pwr = 0;
+        } else if (g_setting.power.external_analog_power_auto == 0) {
+            pwr = 1;
         } else {
-            if (g_source_info.source != SOURCE_AV_MODULE) {
-                Analog_Module_Power_State = 1;
-            } else {
-                Analog_Module_Power_State = 0;
-            }
+            pwr = (g_source_info.source == SOURCE_AV_MODULE) && (g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_EXTERNAL);
         }
-        if ((Analog_Module_Power_State_Last != Analog_Module_Power_State) || (ForceSet == 1)) {
-            Analog_Module_Power_State_Last = Analog_Module_Power_State;
-            DM5680_ExternalAnalog_Power(Analog_Module_Power_State);
+
+        if (pwr_last != pwr) {
+            pwr_last = pwr;
+            DM5680_ExternalAnalog_Power(pwr);
         }
     }
 }

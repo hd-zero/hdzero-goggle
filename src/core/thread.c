@@ -244,6 +244,13 @@ static void *thread_peripheral(void *ptr) {
     return NULL;
 }
 
+static void *thread_external_analog_module_power(void *ptr) {
+    while (1) {
+        external_analog_module_power();
+        usleep(10 * 1000);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 // local
 static threads_obj_t threads_obj;
@@ -253,6 +260,7 @@ static void threads_instance(threads_obj_t *obj) {
     obj->instance[1] = thread_version;
     obj->instance[2] = thread_osd;
     obj->instance[3] = thread_rtc6715_rssi;
+    obj->instance[4] = thread_external_analog_module_power;
 }
 
 int create_threads() {

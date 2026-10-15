@@ -39,9 +39,6 @@ void go_sleep() {
     HDZero_Close();
 
     // Turn off Analog Receiver
-    if (getHwRevision() == HW_REV_2) {
-        DM5680_ExternalAnalog_Power(1);
-    }
     rtc6715.init(0, 0);
 
     // Minimum fan
@@ -65,7 +62,6 @@ void wake_up() {
     isSleeping = false;
     hw_screen_on(1); // Turn on display
 
-    Analog_Module_Power(1);
     g_setting.fans.right_speed = fan_speed_save.right;
     g_setting.fans.left_speed = fan_speed_save.left;
     fans_right_setspeed(fan_speed_save.right);

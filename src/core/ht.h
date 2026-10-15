@@ -60,6 +60,8 @@ void ht_set_center_position();
 int16_t *ht_get_channels();
 void head_alarm_init();
 
+extern uint8_t oled_is_sleep;
+
 #ifdef __cplusplus
 }
 #endif

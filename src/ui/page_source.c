@@ -290,7 +290,6 @@ void source_toggle() {
         page_source_select_hdzero();
         break;
     }
-    Analog_Module_Power(0);
 }
 
 void source_cycle() {
@@ -313,7 +312,6 @@ void source_cycle() {
         page_source_select_av_in();
         break;
     }
-    Analog_Module_Power(0);
 }
 
 static void page_source_on_click(uint8_t key, int sel) {
@@ -371,7 +369,6 @@ static void page_source_on_click(uint8_t key, int sel) {
         }
         break;
     }
-    Analog_Module_Power(0);
 }
 
 static void page_source_enter() {
