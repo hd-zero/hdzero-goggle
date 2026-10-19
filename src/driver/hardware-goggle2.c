@@ -1165,23 +1165,18 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
 void external_analog_module_power() {
     // Batch 2 goggles only
     if (getHwRevision() >= HW_REV_2) {
-        static bool pwr = 0;
-        static bool pwr_last = 0;
+        static int pwr = 0;
+        static int pwr_last = -1;
 
         if (g_app_state == APP_STATE_SLEEP) { // go sleep
             pwr = 0;
-        } else if (oled_is_sleep == 1) { // oled pff
+        } else if (oled_is_sleep == 1) { // oled off
             pwr = 0;
         } else if (g_setting.power.external_analog_power_auto == 0) { // always on
             pwr = 1;
-        } else if (g_app_state == APP_STATE_VIDEO ||
-                   APP_STATE_VIDEO == APP_STATE_IMS ||
-                   APP_STATE_IMS == APP_STATE_OSD_ELEMENT_PREV) {
-            // external analog module is using
+        } else {
             pwr = (g_source_info.source == SOURCE_AV_MODULE) &&
                   (g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_EXTERNAL);
-        } else {
-            pwr = 0;
         }
 
         if (pwr_last != pwr) {
