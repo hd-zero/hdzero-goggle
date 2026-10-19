@@ -1,5 +1,9 @@
 /******************
   File name : fbtools.c
+
+  Goggle-only: the Linux framebuffer driver. The SDL emulator renders through SDL
+  instead and never links this file (CMake drops it for EMULATOR_BUILD), so there
+  is no host-portability stub here.
   */
 #include "fbtools.h"
 

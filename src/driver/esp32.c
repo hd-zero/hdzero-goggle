@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/select.h> // fd_set/select (transitive via sys/types on glibc; explicit for portability)
 #include <sys/types.h>
 #include <termios.h>
 #include <termios.h> /* POSIX Terminal Control Definitions */

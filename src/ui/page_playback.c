@@ -24,8 +24,19 @@
 #include "util/filesystem.h"
 #include "util/math.h"
 #include "util/system.h"
+#if defined(EMULATOR_BUILD)
+// Emulator: point the DVR folder at a local mock directory so you can drop a copy
+// of your goggle's DCIM/100HDZRO/ folder (videos + .jpg thumbnails + .star.txt)
+// anywhere and test playback on the desktop. Set HDZ_MEDIA_DIR (MUST end with
+// '/'); defaults to ./mock-sd/ relative to the working directory.
+static inline const char *emu_media_dir(void) {
+    const char *d = getenv("HDZ_MEDIA_DIR");
+    return (d && *d) ? d : "mock-sd/";
+}
+#define MEDIA_FILES_DIR emu_media_dir()
+#else
 #define MEDIA_FILES_DIR REC_diskPATH REC_packPATH // "/mnt/extsd/movies" --> "/mnt/extsd" "/movies/"
-// #define MEDIA_FILES_DIR "/mnt/extsd/movies/"--Useful for testing playback page
+#endif
 bool status_displayed = false;
 lv_obj_t *status;
 LV_IMG_DECLARE(img_star);

@@ -1,0 +1,148 @@
+name: Build Emulator
+
+# Builds the SDL emulator for all three desktop targets. On every push / PR the
+# three build jobs run as a regression gate (with a headless Linux screenshot).
+# A GitHub Release with downloadable binaries is produced ONLY when a semver tag
+# (v*) is pushed -- ordinary pushes never release.
+#
+# Linux + Windows build inside the devcontainer images (same Dockerfiles as local
+# dev); macOS builds natively on a mac runner (its cross image needs Apple's
+# non-redistributable SDK, which CI can't stage). The goggle firmware is covered
+# by the existing build_and_release_* workflows.
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write # the release job needs to create releases + upload assets
+
+jobs:
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build devcontainer image
+        run: docker build -f .devcontainer/Dockerfile -t hdzero-dev .devcontainer
+
+      - name: Build Linux emulator
+        run: bash .devcontainer/build.sh linux
+
+      # Regression gate for the "build in a container, run natively" promise: the
+      # binary's highest required GLIBC symbol must not exceed the base image's glibc.
+      # This is what caught us before -- an unpinned base drifted to glibc 2.43 and the
+      # binary stopped running on older hosts. glibc can't be installed side-by-side to
+      # test against, so we assert the symbol floor statically instead (fast + exact).
+      - name: Assert glibc floor (no ABI drift)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src hdzero-dev bash -c '
+            floor=2.35   # .devcontainer/Dockerfile base (ubuntu-22.04); runs on this glibc and newer
+            need=$(objdump -T build_emu_linux/HDZGOGGLE | grep -oE "GLIBC_[0-9.]+" | sort -V | tail -1)
+            need=${need#GLIBC_}
+            echo "binary max GLIBC: ${need:-none} | floor: $floor"
+            if [ -n "$need" ] && [ "$(printf "%s\n%s\n" "$need" "$floor" | sort -V | tail -1)" != "$floor" ]; then
+              echo "::error::binary needs GLIBC_$need > floor $floor -- devcontainer base glibc drifted; pin .devcontainer/Dockerfile to an older base."
+              exit 1
+            fi
+          '
+
+      - name: Headless screenshot (main menu)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src -e REPO_ROOT=/src hdzero-dev \
+            bash .devcontainer/emu.sh shot menu 6 ""
+
+      - name: Strip + stage binary
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src hdzero-dev strip build_emu_linux/HDZGOGGLE
+          mkdir -p dist
+          cp build_emu_linux/HDZGOGGLE dist/hdzero-emulator-linux-x86_64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emulator-linux
+          path: |
+            dist/hdzero-emulator-linux-x86_64
+            emu-out/menu.png
+
+  windows:
+    name: Windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build devcontainer images
+        run: |
+          docker build -f .devcontainer/Dockerfile         -t hdzero-dev     .devcontainer
+          docker build -f .devcontainer/Dockerfile.windows -t hdzero-dev-win .devcontainer
+
+      - name: Cross-compile Windows .exe
+        run: bash .devcontainer/build.sh windows
+
+      - name: Strip + stage binary
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src hdzero-dev-win x86_64-w64-mingw32-strip build_win_x64/HDZGOGGLE.exe
+          mkdir -p dist
+          cp build_win_x64/HDZGOGGLE.exe dist/hdzero-emulator-windows-x86_64.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emulator-windows
+          path: dist/hdzero-emulator-windows-x86_64.exe
+
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install SDL2
+        run: brew install sdl2
+
+      - name: Build macOS emulator
+        run: |
+          cmake -S . -B build_emu -DEMULATOR_BUILD=ON -DHDZ_GOGGLE=ON -DCMAKE_BUILD_TYPE=Debug
+          make -C build_emu -j"$(sysctl -n hw.ncpu)"
+
+      - name: Strip + stage binary
+        run: |
+          strip build_emu/HDZGOGGLE
+          mkdir -p dist
+          cp build_emu/HDZGOGGLE dist/hdzero-emulator-macos-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emulator-macos
+          path: dist/hdzero-emulator-macos-arm64
+
+  release:
+    name: Release
+    needs: [linux, windows, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release binaries
+        run: |
+          mkdir -p release
+          find artifacts -type f -name 'hdzero-emulator-*' -exec cp {} release/ \;
+          echo "release assets:"; ls -la release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          draft: true
+          generate_release_notes: true

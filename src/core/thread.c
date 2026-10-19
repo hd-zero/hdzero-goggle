@@ -5,7 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#if defined(__linux__)
 #include <sys/vfs.h>
+#else
+#include <sys/mount.h>
+#endif
 #include <unistd.h>
 
 #include <log/log.h>
