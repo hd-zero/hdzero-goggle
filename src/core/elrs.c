@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include <log/log.h>
+#include <minIni.h>
 
 #include "core/app_state.h"
 #include "core/battery.h"
@@ -73,6 +74,10 @@ static const uint8_t hdzero_channel_map[ANALOG_CHANNEL_NUM] = {
     1, 2, 3, 4, 5, 6, 7, 8     // L
 };
 
+static uint8_t hdzero_channel_count(setting_sources_hdzero_band_t band) {
+    return band == SETTING_SOURCES_HDZERO_BAND_RACEBAND ? 12 : 8;
+}
+
 static int get_freq_index(uint16_t const freq) {
     for (size_t i = 0; i < ANALOG_CHANNEL_NUM; i++) {
         if (freq_table[i] == freq) {
@@ -102,24 +107,32 @@ static uint8_t hdz_ch2index(uint8_t is_lowband, uint8_t ch) {
     return chan;
 }
 
-static uint8_t hdz_index2ch(uint8_t index) {
-    uint8_t chan;
+static bool hdz_index2band_ch(uint8_t index, setting_sources_hdzero_band_t *band, uint8_t *channel) {
+    if (index >= ANALOG_CHANNEL_NUM) {
+        return false;
+    }
 
-    if (index < 48)
-        chan = hdzero_channel_map[index];
-    else
-        chan = 0;
+    uint8_t const mapped_channel = hdzero_channel_map[index];
+    if (mapped_channel == 0) {
+        return false;
+    }
 
-    return chan;
+    *band = index >= 5 * 8 ? SETTING_SOURCES_HDZERO_BAND_LOWBAND : SETTING_SOURCES_HDZERO_BAND_RACEBAND;
+    *channel = mapped_channel;
+    return true;
 }
 
-static void channel_channel_hdzero(uint8_t const channel) {
-    if (channel == 0 || channel > HDZERO_CHANNEL_NUM) {
-        LOGE("Invalid HDZero channel %d", channel);
+static void change_channel_hdzero(setting_sources_hdzero_band_t const band, uint8_t const channel) {
+    if (channel == 0 || channel > hdzero_channel_count(band)) {
+        LOGE("Invalid HDZero band %d channel %d", band, channel);
         return;
     }
-    if ((g_setting.scan.channel & 0xF) != channel || g_app_state != APP_STATE_VIDEO) {
+
+    if (g_setting.source.hdzero_band != band || (g_setting.scan.channel & 0xF) != channel || g_app_state != APP_STATE_VIDEO) {
+        g_setting.source.hdzero_band = band;
         g_setting.scan.channel = channel;
+        ini_putl("source", "hdzero_band", g_setting.source.hdzero_band, SETTING_INI);
+        ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
         beep();
         pthread_mutex_lock(&lvgl_mutex);
         dvr_cmd(DVR_STOP);
@@ -299,7 +312,13 @@ void msp_process_packet() {
         case MSP_SET_BAND_CHAN: {
             uint8_t const chan = packet.payload[0];
             if (g_source_info.source == SOURCE_HDZERO) {
-                channel_channel_hdzero(hdz_index2ch(chan));
+                setting_sources_hdzero_band_t band;
+                uint8_t channel;
+                if (hdz_index2band_ch(chan, &band, &channel)) {
+                    change_channel_hdzero(band, channel);
+                } else {
+                    LOGE("Invalid HDZero band/channel index %d", chan);
+                }
             } else {
 #if defined(HDZBOXPRO) || defined(HDZGOGGLE2)
                 if (g_source_info.source == SOURCE_AV_MODULE) {
@@ -330,12 +349,13 @@ void msp_process_packet() {
                 break;
             }
             if (g_source_info.source == SOURCE_HDZERO) {
-                uint8_t const new_ch = hdzero_channel_map[freq_index];
-                if (new_ch == 0) {
+                setting_sources_hdzero_band_t band;
+                uint8_t channel;
+                if (!hdz_index2band_ch(freq_index, &band, &channel)) {
                     LOGE("Invalid HDZero channel for frequency %d", freq);
                     break;
                 }
-                channel_channel_hdzero(new_ch);
+                change_channel_hdzero(band, channel);
             } else if (g_source_info.source == SOURCE_AV_MODULE) {
                 change_channel_analog(freq_index + 1);
             }
