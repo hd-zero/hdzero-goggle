@@ -83,6 +83,9 @@ extern uint8_t osd_page_buf[HD_VMAX][7];
 extern uint16_t last_rcv_seconds0;
 extern uint16_t last_rcv_seconds1;
 
+/* Shared HDZero displayport CRC table (also used by motor-audio replay tooling). */
+extern uint8_t crc8tab[256];
+
 #ifdef __cplusplus
 }
 #endif

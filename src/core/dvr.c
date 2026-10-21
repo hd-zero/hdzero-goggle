@@ -54,7 +54,11 @@ void dvr_enable_line_out(bool enable) {
         system_exec(buf);
         snprintf(buf, sizeof(buf), "%s out_linein_on", AUDIO_SEL_SH);
         system_exec(buf);
-        snprintf(buf, sizeof(buf), "%s out_dac_off", AUDIO_SEL_SH);
+        /* Keep selected analog source; open DAC only when motor audio mix is on. */
+        if (g_setting.record.motor_audio)
+            snprintf(buf, sizeof(buf), "%s out_dac_on", AUDIO_SEL_SH);
+        else
+            snprintf(buf, sizeof(buf), "%s out_dac_off", AUDIO_SEL_SH);
         system_exec(buf);
     } else {
         snprintf(buf, sizeof(buf), "%s out_off", AUDIO_SEL_SH);
