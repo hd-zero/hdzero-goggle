@@ -360,6 +360,7 @@ int generate_current_version(sys_version_t *sys_ver) {
     sys_ver->rx0 = rx_status[0].rx_ver;
     sys_ver->rx1 = rx_status[1].rx_ver;
     memset(sys_ver->commit, 0, sizeof(sys_ver->commit));
+    memset(sys_ver->current, 0, sizeof(sys_ver->current)); // stays empty if /mnt/app/version is missing
 
     FILE *fp = fopen("/mnt/app/version", "r");
     if (!fp) {
