@@ -771,17 +771,12 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             AV_Mode_Switch(g_hw_stat.av_pal_w);
             // LOGI("Switch mode:%d", g_hw_stat.av_pal_w);
 
-            if (g_hw_stat.av_pal)
-                I2C_Write(ADDR_FPGA, 0x80, 0x10);
-            else
-                I2C_Write(ADDR_FPGA, 0x80, 0x00);
-
             ret = 1;
 
             g_setting.source.analog_format = g_hw_stat.av_pal_w;
             ini_putl("source", "analog_format", g_setting.source.analog_format, SETTING_INI);
 
-            LOGI("AV_in_detect -- switch: av_pal = %d,  rdat = %02x\n", g_hw_stat.av_pal, rdat);
+            LOGI("AV_in_detect -- switch: av_pal = %d,  rdat = %02x\n", g_hw_stat.av_pal_w, rdat);
         } else {
             int vloss, h_lock, vh_lock;
             vloss = ((rdat & 0x80) == 0x80);
