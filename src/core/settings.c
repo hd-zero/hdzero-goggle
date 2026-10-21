@@ -42,7 +42,7 @@ const setting_t g_setting_defaults = {
         .cell_count_mode = SETTING_POWER_CELL_COUNT_MODE_AUTO,
         .cell_count = 2,
         .osd_display_mode = SETTING_POWER_OSD_DISPLAY_MODE_TOTAL,
-        .power_ana = false,
+        .external_analog_power_auto = true,
         .calibration_offset = 0,
     },
     .record = {
@@ -226,6 +226,12 @@ const setting_t g_setting_defaults = {
     },
     .source = {
         .analog_channel = 33, // R1
+#ifdef HDZGOGGLE
+        // Note Goggle V1 doesn't support internal analog module
+        .analog_module = SETTING_SOURCES_ANALOG_MODULE_EXTERNAL,
+#else
+        .analog_module = SETTING_SOURCES_ANALOG_MODULE_INTERNAL,
+#endif
         .analog_format = SETTING_SOURCES_ANALOG_FORMAT_NTSC,
         .analog_ratio = SETTING_SOURCES_ANALOG_RATIO_4_3,
         .hdzero_band = SETTING_SOURCES_HDZERO_BAND_RACEBAND,
@@ -353,6 +359,7 @@ void settings_load(void) {
 
     // source
     g_setting.source.analog_format = ini_getl("source", "analog_format", g_setting_defaults.source.analog_format, SETTING_INI);
+    g_setting.source.analog_module = ini_getl("source", "analog_module", g_setting_defaults.source.analog_module, SETTING_INI);
     g_setting.source.analog_ratio = ini_getl("source", "analog_ratio", g_setting_defaults.source.analog_ratio, SETTING_INI);
     g_setting.source.hdzero_band = ini_getl("source", "hdzero_band", g_setting_defaults.source.hdzero_band, SETTING_INI);
     g_setting.source.hdzero_bw = ini_getl("source", "hdzero_bw", g_setting_defaults.source.hdzero_bw, SETTING_INI);
@@ -414,7 +421,7 @@ void settings_load(void) {
     g_setting.power.cell_count_mode = ini_getl("power", "cell_count_mode", g_setting_defaults.power.cell_count_mode, SETTING_INI);
     g_setting.power.cell_count = ini_getl("power", "cell_count", g_setting_defaults.power.cell_count, SETTING_INI);
     g_setting.power.osd_display_mode = ini_getl("power", "osd_display_mode", g_setting_defaults.power.osd_display_mode, SETTING_INI);
-    g_setting.power.power_ana = ini_getl("power", "power_ana_rx", g_setting_defaults.power.power_ana, SETTING_INI);
+    g_setting.power.external_analog_power_auto = ini_getl("power", "external_analog_power_auto", g_setting_defaults.power.external_analog_power_auto, SETTING_INI);
     g_setting.power.calibration_offset = ini_getl("power", "calibration_offset_mv", g_setting_defaults.power.calibration_offset, SETTING_INI);
 
     // record

@@ -1022,7 +1022,7 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
     I2C_Write(ADDR_FPGA, 0x77, (ch2 >> 8) & 0xff);
 }
 
-void Analog_Module_Power(bool ForceSet) {
+void external_analog_module_power() {
 }
 
 int Get_VideoLatancy_status() // ret: 0=unlocked, 1=locked
