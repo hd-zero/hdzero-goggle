@@ -130,7 +130,7 @@ static lv_obj_t *page_playback_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_obj_set_style_text_color(label, lv_color_hex(TEXT_COLOR_DEFAULT), 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
     lv_obj_set_pos(label, 10, 700);
-    status = create_msgbox_item("Status", "None");
+    status = create_msgbox_item(_lang("Status"), _lang("None"));
     lv_obj_add_flag(status, LV_OBJ_FLAG_HIDDEN);
     return page;
 }
@@ -532,8 +532,9 @@ void pb_key(uint8_t const key) {
 
     case RIGHT_KEY_PRESS:
         if (!status_displayed) {
-            snprintf(text, sizeof(text), "%s", "Click center of dial to continue.\nClick function(right button) or scroll to exit.");
-            page_playback_open_status_box("Are you sure you want to DELETE the file", text);
+            snprintf(text, sizeof(text), "%s\n%s", _lang("Click center of dial to continue."),
+                     _lang("Click function(right button) or scroll to exit."));
+            page_playback_open_status_box(_lang("Are you sure you want to DELETE the file"), text);
             status_deleting = true;
         } else {
             page_playback_close_status_box();

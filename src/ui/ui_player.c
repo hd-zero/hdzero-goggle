@@ -8,6 +8,7 @@
 
 #include "../conf/ui.h"
 #include "common.hh"
+#include "lang/language.h"
 #include "player/media.h"
 #include "record/record_definitions.h"
 #include "ui/ui_style.h"
@@ -74,7 +75,7 @@ static void update_time_label(bool mediaOK) {
         }
 
     } else {
-        lv_label_set_text(controller._label, "Bad file");
+        lv_label_set_text(controller._label, _lang("Bad file"));
         lv_slider_set_value(controller._slider, 0, LV_ANIM_OFF);
     }
 }

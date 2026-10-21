@@ -704,7 +704,7 @@ static void page_wifi_create_page_2(lv_obj_t *parent) {
     page_wifi.page_2.dns.status = create_label_item(parent, "", 4, 5, 2);
     create_slider_item(&page_wifi.page_2.rf_channel.input, parent, _lang("RF Channel"), WIFI_RF_CHANNELS - 1, g_setting.wifi.rf_channel, 6);
     lv_slider_set_value(page_wifi.page_2.rf_channel.input.slider, g_setting.wifi.rf_channel - 1, LV_ANIM_OFF);
-    page_wifi.page_2.apply_settings = create_label_item(parent, "Apply Settings", 1, 7, 3);
+    page_wifi.page_2.apply_settings = create_label_item(parent, _lang("Apply Settings"), 1, 7, 3);
 
     page_wifi.page_2.row_count = 8;
 }
@@ -721,7 +721,7 @@ static void page_wifi_create_page_3(lv_obj_t *parent) {
     create_btn_group_item(&page_wifi.page_3.ssh.button, parent, 2, "SSH", _lang("On"), _lang("Off"), "", "", 2);
     btn_group_set_sel(&page_wifi.page_3.ssh.button, !g_setting.wifi.ssh);
 
-    page_wifi.page_3.apply_settings = create_label_item(parent, "Apply Settings", 1, 3, 3);
+    page_wifi.page_3.apply_settings = create_label_item(parent, _lang("Apply Settings"), 1, 3, 3);
 
     page_wifi.page_3.note = lv_label_create(parent);
     lv_obj_set_style_text_font(page_wifi.page_3.note, UI_PAGE_LABEL_FONT, 0);

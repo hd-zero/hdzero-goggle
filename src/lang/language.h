@@ -13,6 +13,7 @@ typedef enum {
     LANG_SPANISH,
     LANG_JAPANESE,
     LANG_GERMAN,
+    LANG_POLISH,
     LANG_END,
 } lang_e;
 

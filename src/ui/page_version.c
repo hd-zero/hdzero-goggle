@@ -1014,7 +1014,7 @@ static void elrs_version_timer(struct _lv_timer_t *timer) {
         return;
     }
     lv_timer_del(timer);
-    snprintf(label, sizeof(label), "ver: %s", version);
+    snprintf(label, sizeof(label), "%s: %s", _lang("ver"), version);
     lv_label_set_text(label_esp, label);
 }
 
