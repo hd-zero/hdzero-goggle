@@ -181,8 +181,9 @@ AwdmxContext_t *awdmx_open(char *sFile, CB_onDmxEof cbOnEof, void *context) {
     dmxCtx->width = DemuxMediaInfo.mVideoStreamInfo[nIndex].mWidth;
     dmxCtx->height = DemuxMediaInfo.mVideoStreamInfo[nIndex].mHeight;
     dmxCtx->codecType = DemuxMediaInfo.mVideoStreamInfo[nIndex].mCodecType;
+    dmxCtx->fpsX1000 = DemuxMediaInfo.mVideoStreamInfo[nIndex].mFrameRate;
     dmxCtx->msDuration = DemuxMediaInfo.mDuration;
-    LOGD("stream info %dx%d", DemuxMediaInfo.mVideoStreamInfo[nIndex].mWidth, DemuxMediaInfo.mVideoStreamInfo[nIndex].mHeight);
+    LOGD("stream info %dx%d @%dmfps", DemuxMediaInfo.mVideoStreamInfo[nIndex].mWidth, DemuxMediaInfo.mVideoStreamInfo[nIndex].mHeight, dmxCtx->fpsX1000);
 
     if (DemuxMediaInfo.mAudioNum > 0) {
         nIndex = DemuxMediaInfo.mAudioIndex;

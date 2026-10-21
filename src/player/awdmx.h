@@ -30,6 +30,7 @@ typedef struct
     int videoNum;
     uint16_t width;
     uint16_t height;
+    int fpsX1000; // video frame rate * 1000, 0 if unknown
     PAYLOAD_TYPE_E codecType;
 
     int audioNum;
