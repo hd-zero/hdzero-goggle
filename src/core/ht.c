@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#if !defined(__linux__)
+#include "platform/timer_compat.h" // POSIX interval-timer shim (macOS/Windows)
+#endif
 #include <unistd.h>
 
 #include <log/log.h>

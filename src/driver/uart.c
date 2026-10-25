@@ -11,6 +11,11 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <termios.h> /* POSIX Terminal Control Definitions */
+
+// macOS/BSD termios uses literal baud values and lacks the Linux B460800 alias.
+#ifndef B460800
+#define B460800 460800
+#endif
 #include <unistd.h>
 #include <unistd.h> /* UNIX Standard Definitions 	   */
 

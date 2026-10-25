@@ -15,6 +15,12 @@ void uart_close(int fd);
 int uart_read(int fd, uint8_t *data, int len);
 int uart_write(int fd, uint8_t *data, int len);
 
+#ifdef EMULATOR_BUILD
+// Device (peer) end of the emulator UART socketpair for `port`, or -1. A mock
+// device reads host commands and writes replies here. Absent on the goggle build.
+int uart_emu_peer_fd(int port);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

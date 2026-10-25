@@ -27,6 +27,7 @@ SDL_mutex *global_sdl_mutex;
 #include "core/osd.h"
 #include "core/self_test.h"
 #include "core/settings.h"
+#include "platform/paths.h"
 #include "core/sleep_mode.h"
 #include "core/thread.h"
 #include "driver/beep.h"
@@ -143,7 +144,7 @@ void lvgl_init() {
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_color_make(0xff, 0xff, 0xff), lv_palette_main(LV_PALETTE_RED),
                                               false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(64, 64, 64), 0);
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(12, 15, 18), 0);
 }
 
 int main(int argc, char *argv[]) {
@@ -155,6 +156,10 @@ int main(int argc, char *argv[]) {
         LOGE("Failed to create an SDL mutex!");
     }
 #endif
+
+    // 0. Resolve filesystem roots (optional config file / env; defaults to the
+    //    on-device paths, so the goggle firmware build is unchanged).
+    paths_init();
 
     // 1. Recall configuration
     settings_init();
@@ -219,18 +224,28 @@ int main(int argc, char *argv[]) {
 
     // 10. Execute main loop
     g_init_done = 1;
+#if defined(EMULATOR_BUILD)
+    input_device_print_help(); // announce the keyboard<->goggle control map
+#endif
     for (;;) {
         pthread_mutex_lock(&lvgl_mutex);
         main_menu_update();
         sleep_reminder();
         statubar_update();
         osd_hdzero_update();
+#if defined(EMULATOR_BUILD)
+        if (gif_cnt % 200 == 0)
+            osd_inject_mock_fc(); // ~1s: mock Betaflight OSD so the FPV view is representative
+#endif
         ims_update();
         ui_osd_element_pos_update();
         ht_detect_motion();
         lv_timer_handler();
         source_status_timer();
         pthread_mutex_unlock(&lvgl_mutex);
+#if defined(EMULATOR_BUILD) && (defined(__APPLE__) || defined(_WIN32))
+        input_device_pump(); // macOS + Windows: SDL events must be pumped on the main (window) thread
+#endif
         usleep(5000);
         gif_cnt++;
     }
