@@ -36,7 +36,7 @@ static void *pthread_recv_esp32(void *arg) {
     int i, len = 0;
     uint8_t buffer[128];
     fd_set rd;
-    struct timeval tv = {0, 100000};
+    struct timeval tv;
 
     // Init UART buffers
     uart3_rptr = 0;
@@ -48,6 +48,11 @@ static void *pthread_recv_esp32(void *arg) {
     for (;;) {
         FD_ZERO(&rd);
         FD_SET(fd_esp32, &rd);
+        // On Linux, select() overwrites tv with the time left; once it has
+        // timed out it stays {0, 0} and select() returns immediately, so the
+        // timeout has to be re-armed on every iteration.
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000;
         if (stopping) {
             LOGI("UART3:stopping, exiting thread.");
             return NULL;
@@ -71,8 +76,10 @@ static void *pthread_recv_esp32(void *arg) {
             }
             if (len)
                 esp32_rx();
-        } else
-            esp32_handler_timeout();
+        }
+        // Delayed DVR command: check it on every wake-up, not only on timeout,
+        // or a backpack talking more often than every 100 ms would hold it off.
+        esp32_handler_timeout();
     }
     return NULL;
 }
