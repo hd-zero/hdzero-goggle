@@ -405,26 +405,27 @@ int generate_current_version(sys_version_t *sys_ver) {
     return 0;
 }
 
-static const char *page_version_find_latest_fw(const char *path) {
-    char *dname = NULL;
+// Copies the name of the highest-versioned sub-directory of `path` into
+// `latest` and returns true, or returns false if there is none. The name is
+// copied because entry->d_name points into the DIR's internal buffer: it may
+// be reused by the next readdir() call and is freed by closedir().
+static bool page_version_find_latest_fw(const char *path, char *latest, size_t size) {
+    bool found = false;
     DIR *dir = opendir(path);
     if (dir) {
         struct dirent *entry = readdir(dir);
         while (entry != NULL) {
             if (entry->d_type == DT_DIR) {
-                if (dname != NULL) {
-                    if (str_compare_versions(entry->d_name, dname) > 0) {
-                        dname = entry->d_name;
-                    }
-                } else {
-                    dname = entry->d_name;
+                if (!found || str_compare_versions(entry->d_name, latest) > 0) {
+                    snprintf(latest, size, "%s", entry->d_name);
+                    found = true;
                 }
             }
             entry = readdir(dir);
         }
         closedir(dir);
     }
-    return dname;
+    return found;
 }
 
 static int page_version_get_latest_fw_path(const char *device, char *path, size_t size) {
@@ -432,20 +433,21 @@ static int page_version_get_latest_fw_path(const char *device, char *path, size_
     snprintf(tmp_path, sizeof(tmp_path), "/tmp/FIRMWARE/%s", device);
     snprintf(sdc_path, sizeof(sdc_path), "/mnt/extsd/FIRMWARE/%s", device);
 
-    const char *tmp_latest = page_version_find_latest_fw(tmp_path);
-    const char *sdc_latest = page_version_find_latest_fw(sdc_path);
+    char tmp_latest[256], sdc_latest[256];
+    bool has_tmp = page_version_find_latest_fw(tmp_path, tmp_latest, sizeof(tmp_latest));
+    bool has_sdc = page_version_find_latest_fw(sdc_path, sdc_latest, sizeof(sdc_latest));
 
-    if (tmp_latest && sdc_latest) {
+    if (has_tmp && has_sdc) {
         if (str_compare_versions(tmp_latest, sdc_latest) > 0) {
-            sdc_latest = NULL;
+            has_sdc = false;
         } else {
-            tmp_latest = NULL;
+            has_tmp = false;
         }
     }
 
-    if (tmp_latest) {
+    if (has_tmp) {
         return snprintf(path, size, "%s/%s", tmp_path, tmp_latest);
-    } else if (sdc_latest) {
+    } else if (has_sdc) {
         return snprintf(path, size, "%s/%s", sdc_path, sdc_latest);
     } else {
         return 0;

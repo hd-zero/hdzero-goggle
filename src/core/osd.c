@@ -389,7 +389,13 @@ char *channel2str(uint8_t is_hdzero, uint8_t is_lowband, uint8_t channel) // cha
         else
             return hdzero_channel_name[is_lowband][0];
     } else {
-        return analog_channel_name[channel - 1];
+        // channel comes from source.analog_channel, read from the settings file;
+        // an out-of-range value (e.g. 0) would index outside analog_channel_name.
+        static char unknown_channel_name[] = "--";
+        if ((channel > 0) && (channel <= ANALOG_CHANNEL_NUM))
+            return analog_channel_name[channel - 1];
+        else
+            return unknown_channel_name;
     }
 }
 

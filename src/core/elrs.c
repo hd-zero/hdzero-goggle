@@ -234,7 +234,12 @@ bool esp32_handler_process_byte(uint8_t c) {
             packet.flags = header->flags;
             // reset the offset iterator for re-use in payload below
             offset = 0;
-            if (packet.payload_size == 0)
+            if (packet.payload_size > MSP_PORT_INBUF_SIZE) {
+                // Would overrun packet.payload (the CRC is only checked after the
+                // payload), so drop the frame and wait for the next '$'.
+                LOGE("MSP payload too large (%u > %u), dropping packet", packet.payload_size, MSP_PORT_INBUF_SIZE);
+                input_state = MSP_IDLE;
+            } else if (packet.payload_size == 0)
                 input_state = MSP_CHECKSUM_V2_NATIVE;
             else
                 input_state = MSP_PAYLOAD_V2_NATIVE;
@@ -527,6 +532,8 @@ void elrs_clear_osd() {
 }
 
 static void handle_osd(uint8_t payload[], uint8_t size) {
+    if (size < 1)
+        return;
     switch (payload[0]) {
     case 0x00: // hearbeat
         break;
@@ -540,9 +547,13 @@ static void handle_osd(uint8_t payload[], uint8_t size) {
         break;
     case 0x03: // write string
     {
+        if (size < 4)
+            break;
         uint8_t row = payload[1];
         uint8_t col = payload[2];
         uint8_t attr = payload[3];
+        if (row >= HD_VMAX || col >= HD_HMAX)
+            break;
         // HDZero only allows 2 pages of characters (i.e. 512 characters)
         int page = (attr & 1) * 256;
         uint8_t len = size - 4 < HD_HMAX - col ? size - 4 : HD_HMAX - col;
