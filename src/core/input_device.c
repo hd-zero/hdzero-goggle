@@ -1,12 +1,28 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#ifndef EMULATOR_BUILD
 #include <linux/input.h>
+#include <sys/epoll.h>
+#else
+// Stub definitions for emulator
+#define EV_KEY 1
+#define EV_REL 2
+#define EV_SYN 0
+struct input_event {
+    unsigned long time;
+    unsigned short type;
+    unsigned short code;
+    int value;
+};
+#endif
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef EMULATOR_BUILD
 #include <sys/epoll.h>
+#endif
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>

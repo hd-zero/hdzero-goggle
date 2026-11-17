@@ -5,7 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#ifndef __APPLE__
 #include <sys/vfs.h>
+#else
+#include <sys/mount.h>
+#define statfs statfs
+#endif
 #include <unistd.h>
 
 #include <log/log.h>

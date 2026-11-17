@@ -49,7 +49,7 @@ static lv_obj_t *root_page;
  * To contain all menu pages.
  */
 
-#define PAGE_PACK_MAX_NUM 19
+#define PAGE_PACK_MAX_NUM 20
 
 static page_pack_t *page_packs[PAGE_PACK_MAX_NUM];
 static size_t page_packs_count = 0;
@@ -373,8 +373,12 @@ void main_menu_init(void) {
     keyboard_init();
 }
 
+// Forward declaration
+static void handle_bootup_action();
+
 static void bootup_action_completed() {
-    bootup_actions_fired = false;
+    // Continue with the next bootup action
+    handle_bootup_action();
 }
 
 static void handle_bootup_action() {

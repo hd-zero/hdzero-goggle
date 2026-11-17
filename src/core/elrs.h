@@ -52,6 +52,8 @@ typedef struct __attribute__((packed)) {
 #define MSP_GET_BP_VERSION 0x0381 // goggles to backpack
 #define MSP_GET_BP_STATUS  0x0382 // goggles to backpack
 #define MSP_SET_PTR        0x0383 // goggles to backpack
+#define MSP_RAW_GPS        0x006A // Get GPS coordinates
+#define MSP_COMP_GPS       0x0075 // Get GPS and compass data
 
 #define MSP_PORT_INBUF_SIZE 64
 

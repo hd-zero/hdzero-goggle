@@ -128,6 +128,8 @@ typedef struct {
     setting_ht_alarm_pattern_t alarm_pattern;
     bool alarm_on_arm;
     bool alarm_on_video;
+    bool pan_invert;
+    bool tilt_invert;
 } setting_head_tracker_t;
 
 typedef struct {
@@ -179,6 +181,8 @@ typedef enum {
     OSD_GOGGLE_TEMP_TOP,
     OSD_GOGGLE_TEMP_LEFT,
     OSD_GOGGLE_TEMP_RIGHT,
+    OSD_GOGGLE_HEAD_TRACKER_COMPASS,
+    OSD_GOGGLE_HEAD_TRACKER_ALTITUDE,
 
     OSD_GOGGLE_NUM,
 } osd_goggle_element_e;

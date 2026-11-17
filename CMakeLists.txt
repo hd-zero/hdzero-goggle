@@ -4,7 +4,12 @@ project(HDZGOGGLE VERSION 1.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(COMMON_COMPILER_FLAGS "-Wno-unused-function -Wno-unused-variable -Wno-deprecated-declarations -ffunction-sections -fdata-sections -Wl,-gc-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+set(COMMON_COMPILER_FLAGS "-Wno-unused-function -Wno-unused-variable -Wno-deprecated-declarations -ffunction-sections -fdata-sections -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+
+# Only add -gc-sections on Linux (not supported on macOS)
+if(NOT APPLE)
+	set(COMMON_COMPILER_FLAGS "${COMMON_COMPILER_FLAGS} -Wl,-gc-sections")
+endif()
 
 option(EMULATOR_BUILD "emulate using SDL on host" OFF)
 if(NOT EMULATOR_BUILD)
@@ -138,6 +143,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 if(EMULATOR_BUILD)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 endif()
 

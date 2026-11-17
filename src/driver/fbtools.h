@@ -8,7 +8,36 @@
 extern "C" {
 #endif
 
+#ifndef EMULATOR_BUILD
 #include <linux/fb.h>
+#else
+// Stub definitions for emulator build
+struct fb_fix_screeninfo {
+    char id[16];
+    unsigned long smem_start;
+    uint32_t smem_len;
+    uint32_t type;
+    uint32_t visual;
+    uint16_t xpanstep;
+    uint16_t ypanstep;
+    uint16_t ywrapstep;
+    uint32_t line_length;
+    unsigned long mmio_start;
+    uint32_t mmio_len;
+};
+
+struct fb_var_screeninfo {
+    uint32_t xres;
+    uint32_t yres;
+    uint32_t xres_virtual;
+    uint32_t yres_virtual;
+    uint32_t xoffset;
+    uint32_t yoffset;
+    uint32_t bits_per_pixel;
+    // Add other fields as needed
+};
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 

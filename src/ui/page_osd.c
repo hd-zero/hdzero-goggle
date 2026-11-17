@@ -22,6 +22,8 @@ enum {
     ROW_OSD_ORBIT = 0,
     ROW_OSD_MODE,
     ROW_OSD_STARTUP_VISIBILITY,
+    ROW_HEAD_TRACKER_COMPASS,
+    ROW_HEAD_TRACKER_ALTITUDE,
     ROW_ADJUST_OSD_ELEMENTS,
     ROW_BACK,
 
@@ -35,6 +37,8 @@ static lv_coord_t row_dsc[] = {UI_OSD_ROWS};
 static btn_group_t btn_group_osd_orbit;
 static btn_group_t btn_group_osd_mode;
 static btn_group_t btn_group_osd_startup_visibility;
+static btn_group_t btn_group_head_tracker_compass;
+static btn_group_t btn_group_head_tracker_altitude;
 
 static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     char buf[640];
@@ -62,6 +66,8 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     create_select_item(arr, cont);
 
     // create menu entries
+    create_btn_group_item(&btn_group_head_tracker_compass, cont, 2, _lang("HT Compass"), _lang("Off"), _lang("On"), "", "", ROW_HEAD_TRACKER_COMPASS);
+    create_btn_group_item(&btn_group_head_tracker_altitude, cont, 2, _lang("HT Altitude"), _lang("Off"), _lang("On"), "", "", ROW_HEAD_TRACKER_ALTITUDE);
     create_label_item(cont, _lang("Adjust OSD Elements"), 1, ROW_ADJUST_OSD_ELEMENTS, 1);
     snprintf(buf, sizeof(buf), "OSD %s", _lang("Orbit"));
     create_btn_group_item(&btn_group_osd_orbit, cont, 3, buf, _lang("Off"), _lang("Min"), _lang("Max"), "", ROW_OSD_ORBIT);
@@ -91,6 +97,8 @@ static lv_obj_t *page_osd_create(lv_obj_t *parent, panel_arr_t *arr) {
     btn_group_set_sel(&btn_group_osd_orbit, g_setting.osd.orbit);
     btn_group_set_sel(&btn_group_osd_mode, g_setting.osd.embedded_mode);
     btn_group_set_sel(&btn_group_osd_startup_visibility, g_setting.osd.startup_visibility);
+    btn_group_set_sel(&btn_group_head_tracker_compass, g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_COMPASS].show ? 1 : 0);
+    btn_group_set_sel(&btn_group_head_tracker_altitude, g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_ALTITUDE].show ? 1 : 0);
 
     // Set OSD orbit
     lvgl_screen_orbit(g_setting.osd.orbit > 0);
@@ -122,6 +130,18 @@ static void open_element_pos_preview() {
 
 static void on_click(uint8_t key, int sel) {
     switch (sel) {
+
+    case ROW_HEAD_TRACKER_COMPASS:
+        btn_group_toggle_sel(&btn_group_head_tracker_compass);
+        g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_COMPASS].show = btn_group_get_sel(&btn_group_head_tracker_compass);
+        settings_put_osd_element(&g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_COMPASS], "head_tracker_compass");
+        break;
+
+    case ROW_HEAD_TRACKER_ALTITUDE:
+        btn_group_toggle_sel(&btn_group_head_tracker_altitude);
+        g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_ALTITUDE].show = btn_group_get_sel(&btn_group_head_tracker_altitude);
+        settings_put_osd_element(&g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_ALTITUDE], "head_tracker_altitude");
+        break;
 
     case ROW_ADJUST_OSD_ELEMENTS:
         open_element_pos_preview();

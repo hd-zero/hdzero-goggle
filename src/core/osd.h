@@ -50,6 +50,9 @@ typedef struct {
     lv_obj_t *ant3[2];
     lv_obj_t *osd_tempe[2][3]; // top,left,bot
     lv_obj_t *clock[2][OSD_CLOCK_TOTAL];
+    lv_obj_t *head_tracker_compass[2];
+    lv_obj_t *head_tracker_altitude[2];
+    lv_obj_t *calibration_instruction[2]; // Antenna tracker calibration instructions
 } osd_hdzero_t;
 
 typedef struct
@@ -92,6 +95,7 @@ int osd_init(void);
 int osd_clear(void);
 void osd_fhd(uint8_t);
 void osd_signal_update();
+void osd_reset_armed_state();
 void osd_hdzero_update(void);
 void osd_rec_update(bool enable);
 void osd_show(bool show);
@@ -102,6 +106,8 @@ void *thread_osd(void *ptr);
 void osd_resource_path(char *buf, const char *fmt, osd_resource_t osd_resource_type, ...);
 void osd_toggle();
 void osd_analog_rssi_update_location();
+void osd_head_tracker_compass_draw(int16_t heading_deg);
+void osd_head_tracker_altitude_draw(int16_t pitch_deg);
 #ifdef __cplusplus
 }
 #endif

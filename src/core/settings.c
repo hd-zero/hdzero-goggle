@@ -82,6 +82,8 @@ const setting_t g_setting_defaults = {
         .alarm_pattern = SETTING_HT_ALARM_PATTERN_2SHORT,
         .alarm_on_arm = false,
         .alarm_on_video = false,
+        .pan_invert = true,
+        .tilt_invert = true,
     },
     .elrs = {
         .enable = false,
@@ -184,6 +186,16 @@ const setting_t g_setting_defaults = {
             {
                 .show = true,
                 .position = {.mode_4_3 = {.x = 370, .y = 50}, .mode_16_9 = {.x = 370, .y = 50}},
+            },
+            // OSD_GOGGLE_HEAD_TRACKER_COMPASS
+            {
+                .show = false,
+                .position = {.mode_4_3 = {.x = 12, .y = 49}, .mode_16_9 = {.x = 12, .y = 49}},
+            },
+            // OSD_GOGGLE_HEAD_TRACKER_ALTITUDE
+            {
+                .show = false,
+                .position = {.mode_4_3 = {.x = 1208, .y = 31}, .mode_16_9 = {.x = 1208, .y = 31}},
             },
         },
     },
@@ -414,6 +426,8 @@ void settings_load(void) {
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_TOP], "goggle_temp_top", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_TOP]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_LEFT], "goggle_temp_left", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_LEFT]);
     settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_TEMP_RIGHT], "goggle_temp_right", &g_setting_defaults.osd.element[OSD_GOGGLE_TEMP_RIGHT]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_COMPASS], "head_tracker_compass", &g_setting_defaults.osd.element[OSD_GOGGLE_HEAD_TRACKER_COMPASS]);
+    settings_load_osd_element(&g_setting.osd.element[OSD_GOGGLE_HEAD_TRACKER_ALTITUDE], "head_tracker_altitude", &g_setting_defaults.osd.element[OSD_GOGGLE_HEAD_TRACKER_ALTITUDE]);
 
     // power
     g_setting.power.voltage = ini_getl("power", "voltage_mv", g_setting_defaults.power.voltage, SETTING_INI);
@@ -451,6 +465,8 @@ void settings_load(void) {
     g_setting.ht.gyr_z = ini_getl("ht", "gyr_z", g_setting_defaults.ht.gyr_z, SETTING_INI);
     g_setting.ht.alarm_state = ini_getl("ht", "alarm_state", g_setting_defaults.ht.alarm_state, SETTING_INI);
     g_setting.ht.alarm_angle = ini_getl("ht", "alarm_angle", g_setting_defaults.ht.alarm_angle, SETTING_INI);
+    g_setting.ht.pan_invert = settings_get_bool("ht", "pan_invert", g_setting_defaults.ht.pan_invert);
+    g_setting.ht.tilt_invert = settings_get_bool("ht", "tilt_invert", g_setting_defaults.ht.tilt_invert);
 
     // elrs
     g_setting.elrs.enable = settings_get_bool("elrs", "enable", g_setting_defaults.elrs.enable);
