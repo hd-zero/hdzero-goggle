@@ -26,6 +26,8 @@
 #include "ui/page_common.h"
 #include "util/math.h"
 
+uint8_t oled_is_sleep = 0;
+
 // #define FAST_SIM
 typedef enum {
     OLED_MD_DETECTING, // regular operation, oled on
@@ -45,7 +47,11 @@ static bool is_moving = true;
 static volatile bool calibrating = false;
 static int calibration_count = 0;
 
+#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
 static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, (-90.0 + 23.0) * DEG_TO_RAD};
+#elif defined HDZBOXPRO
+static const float imu_orientation[3] = {0.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD, -90.0 * DEG_TO_RAD};
+#endif
 
 static const int ppmMaxPulse = 500;
 static const int ppmMinPulse = -500;
@@ -97,15 +103,7 @@ static void detect_motion(bool is_moving) {
 #endif
         if (is_moving) {
             // we got motion, turn oled back on, start over
-#if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
             screen.brightness(g_setting.image.oled);
-#elif defined(HDZBOXPRO)
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                screen.brightness(7);
-            } else {
-                screen.brightness(g_setting.image.oled);
-            }
-#endif
             state = OLED_MD_DETECTING;
             cnt = 0;
         }
@@ -113,6 +111,7 @@ static void detect_motion(bool is_moving) {
         cnt++;
 
         if (cnt == MOTION_DUR_1MINUTE) { // 1-min
+            oled_is_sleep = 1;
             LOGI("OLED OFF for protection.");
             beep();
             hw_screen_on(0); // Turn of display
@@ -148,17 +147,17 @@ static void detect_motion(bool is_moving) {
                 DM6302_SetChannel(g_setting.source.hdzero_band, ch & 0x7F);
             }
             if (g_hw_stat.source_mode == SOURCE_MODE_AV) {
-                rtc6715.init(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
+                if (g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_INTERNAL) {
+                    rtc6715.init(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
+                    rtc6715.set_ch(g_setting.source.analog_channel - 1);
+                } else {
+                }
             }
 
+            oled_is_sleep = 0;
             LOGI("OLED ON from protection.");
 
             screen.brightness(g_setting.image.oled);
-#ifdef HDZBOXPRO
-            if (g_source_info.source == SOURCE_AV_MODULE) {
-                screen.brightness(7);
-            }
-#endif
 
             hw_screen_on(1);
             state = OLED_MD_DETECTING;

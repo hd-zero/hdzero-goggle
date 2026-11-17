@@ -23,6 +23,7 @@ static struct Language languages[] = {
     {LANG_SIMPLIFIED_CHINESE, "zh_hans", "Simplified Chinese", NULL},
     {LANG_RUSSIAN, "ru_ru", "Russian", NULL},
     {LANG_SPANISH, "es_es", "Spanish", NULL},
+    {LANG_JAPANESE, "ja_jp", "Japanese", NULL},
     {LANG_GERMAN, "de_de", "German", NULL},
 };
 
@@ -32,6 +33,7 @@ const char *language_config_file[] = {
     "CHN.TXT",
     "RUS.TXT",
     "SPA.TXT",
+    "JPN.TXT",
     "GER.TXT",
 };
 
@@ -43,8 +45,15 @@ struct CallbackPayload {
 int init_callback(const char *section, const char *key, const char *value, void *userData) {
     struct CallbackPayload *payload = userData;
 
+    (void)section;
+
     assert(key != NULL);
     assert(value != NULL);
+
+    if (payload->index >= TRANSLATE_STRING_NUM) {
+        LOGE("Translation table is full, skipping key: %s", key);
+        return 1;
+    }
 
     const size_t englishLength = strlen(key);
     const size_t translateLength = strlen(value);
@@ -78,7 +87,7 @@ void language_init() {
         }
 
         // Load translations
-        translate_t *translations = malloc(TRANSLATE_STRING_NUM * sizeof(translate_t));
+        translate_t *translations = calloc(TRANSLATE_STRING_NUM, sizeof(translate_t));
         struct CallbackPayload payload = {.index = 0};
         ini_browse(init_callback, &payload, fileName);
 

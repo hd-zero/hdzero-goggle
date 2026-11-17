@@ -3,7 +3,7 @@
 
 #include "core/settings.h"
 
-#define TRANSLATE_STRING_NUM 300
+#define TRANSLATE_STRING_NUM 384
 #define LANG_FOLDER          "/mnt/app/language"
 
 typedef enum {
@@ -11,6 +11,7 @@ typedef enum {
     LANG_SIMPLIFIED_CHINESE,
     LANG_RUSSIAN,
     LANG_SPANISH,
+    LANG_JAPANESE,
     LANG_GERMAN,
     LANG_END,
 } lang_e;

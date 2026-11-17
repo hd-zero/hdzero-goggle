@@ -135,6 +135,7 @@ enum {
 typedef uint8_t lv_menu_builder_variant_t;
 
 extern bool g_sdcard_enable;
+extern bool g_sdcard_ready;
 extern bool g_sdcard_det_req;
 extern bool g_autoscan_exit;
 extern bool g_scanning;

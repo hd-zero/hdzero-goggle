@@ -30,7 +30,7 @@ enum {
     ROW_CALIBRATION_OFFSET,
     ROW_OSD_DISPLAY_MODE,
     ROW_WARN_TYPE,
-    ROW_POWER_ANA,
+    ROW_EXTERNAL_ANALOG_POWER,
     ROW_BACK,
 
     ROW_COUNT
@@ -126,7 +126,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
 
 #if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
     if (getHwRevision() >= HW_REV_2) {
-        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_POWER_ANA);
+        create_btn_group_item(&btn_group_power_ana, cont, 2, _lang("AnalogRX Power"), _lang("On"), _lang("Auto"), "", "", ROW_EXTERNAL_ANALOG_POWER);
         pp_power.p_arr.max = ROW_COUNT;
     } else {
         pp_power.p_arr.max = ROW_COUNT - 1;
@@ -160,7 +160,7 @@ static lv_obj_t *page_power_create(lv_obj_t *parent, panel_arr_t *arr) {
     lv_slider_set_value(slider_group_calibration_offset.slider, g_setting.power.calibration_offset, LV_ANIM_OFF);
     btn_group_set_sel(&btn_group_osd_display_mode, g_setting.power.osd_display_mode);
     btn_group_set_sel(&btn_group_warn_type, g_setting.power.warning_type);
-    btn_group_set_sel(&btn_group_power_ana, g_setting.power.power_ana);
+    btn_group_set_sel(&btn_group_power_ana, g_setting.power.external_analog_power_auto);
 
     page_power_update_cell_count();
     page_power_update_calibration_offset();
@@ -335,14 +335,13 @@ static void page_power_on_click(uint8_t key, int sel) {
         ini_putl("power", "warning_type", g_setting.power.warning_type, SETTING_INI);
         break;
 
-    case ROW_POWER_ANA:
+    case ROW_EXTERNAL_ANALOG_POWER:
         // Batch 2 goggles only
         if (getHwRevision() >= HW_REV_2) {
 #if defined(HDZGOGGLE) || defined(HDZGOGGLE2)
             btn_group_toggle_sel(&btn_group_power_ana);
-            g_setting.power.power_ana = btn_group_get_sel(&btn_group_power_ana);
-            ini_putl("power", "power_ana_rx", g_setting.power.power_ana, SETTING_INI);
-            Analog_Module_Power(1);
+            g_setting.power.external_analog_power_auto = btn_group_get_sel(&btn_group_power_ana);
+            ini_putl("power", "external_analog_power_auto", g_setting.power.external_analog_power_auto, SETTING_INI);
 #endif
         }
         break;

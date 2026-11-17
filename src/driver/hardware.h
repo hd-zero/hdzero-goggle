@@ -105,7 +105,7 @@ void Set_Saturation(uint8_t sat);
 void Set_HT_status(uint8_t is_open, uint8_t frame_period, uint8_t sync_len);
 void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2);
 
-void Analog_Module_Power(bool Force);
+void external_analog_module_power();
 
 int HDZERO_detect();
 int AV_in_detect();
@@ -114,6 +114,7 @@ int HDMI_in_detect();
 int Get_VideoLatancy_status(); // ret: 0=unlocked, 1=locked
 int Get_HAN_status();          // ret: 0=error; 1=ok
 
+void vclk_phase_init();
 void pclk_phase_init();
 
 extern uint32_t vclk_phase[VIDEO_SOURCE_NUM];

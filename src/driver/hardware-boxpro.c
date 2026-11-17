@@ -725,6 +725,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
 {
     static int det_last = -1;
     static int det_cnt = 0, det2_cnt = 0;
+    static int orbit_cnt = 0;
     int rdat, det;
     int ret = 0;
 
@@ -822,6 +823,15 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
                 } else
                     det2_cnt = 0;
                 break;
+            }
+
+            if (g_hw_stat.av_valid[g_hw_stat.is_av_in] == 2 && g_setting.osd.orbit > 0) {
+                if (orbit_cnt >= (180 >> g_setting.osd.orbit)) {
+                    TP2825_orbit(g_setting.osd.orbit);
+                    orbit_cnt = 0;
+                } else {
+                    orbit_cnt++;
+                }
             }
         }
     }
@@ -1012,7 +1022,7 @@ void Set_HT_dat(uint16_t ch0, uint16_t ch1, uint16_t ch2) {
     I2C_Write(ADDR_FPGA, 0x77, (ch2 >> 8) & 0xff);
 }
 
-void Analog_Module_Power(bool ForceSet) {
+void external_analog_module_power() {
 }
 
 int Get_VideoLatancy_status() // ret: 0=unlocked, 1=locked

@@ -54,22 +54,32 @@ static void detect_sdcard(void) {
     // repair is not currently executing.
     if (ok_to_execute) {
         g_sdcard_enable = sdcard_mounted();
+        if (!g_sdcard_enable)
+            g_sdcard_ready = false;
 
         // General Runtime behavior
         if (-1 == g_bootup_sdcard_state) {
+            g_sdcard_ready = true;
             if ((g_sdcard_enable && !sdcard_enable_last) || g_sdcard_det_req) {
                 sdcard_update_free_size();
                 g_sdcard_det_req = 0;
+                g_sdcard_ready = false;
             }
 
             // Only repair sd card when inserted
             if (sdcard_init_scan && g_sdcard_enable) {
                 if (sdcard_ready_cb) {
                     sdcard_ready_cb();
+                    g_sdcard_ready = false;
                 }
                 sdcard_init_scan = false;
             } else if (!g_sdcard_enable && sdcard_enable_last) {
+                g_sdcard_ready = false;
                 sdcard_init_scan = true;
+            }
+
+            if (record_pending && g_sdcard_ready && !sdcard_is_full()) {
+                dvr_cmd(DVR_START);
             }
 
             sdcard_enable_last = g_sdcard_enable;
@@ -239,6 +249,13 @@ static void *thread_peripheral(void *ptr) {
     return NULL;
 }
 
+static void *thread_external_analog_module_power(void *ptr) {
+    while (1) {
+        external_analog_module_power();
+        usleep(10 * 1000);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 // local
 static threads_obj_t threads_obj;
@@ -248,6 +265,7 @@ static void threads_instance(threads_obj_t *obj) {
     obj->instance[1] = thread_version;
     obj->instance[2] = thread_osd;
     obj->instance[3] = thread_rtc6715_rssi;
+    obj->instance[4] = thread_external_analog_module_power;
 }
 
 int create_threads() {

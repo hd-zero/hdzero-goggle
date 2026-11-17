@@ -160,6 +160,9 @@ int main(int argc, char *argv[]) {
     settings_init();
     settings_load();
     language_init();
+#ifdef HDZGOGGLE2
+    vclk_phase_init();
+#endif
     pclk_phase_init();
 
     // 2. Initialize communications.
@@ -210,11 +213,6 @@ int main(int argc, char *argv[]) {
 
     // 8. Synthetic counter for gif refresh
     gif_cnt = 0;
-
-    // 8.1 set initial analog module power state
-#if defined(HDZGOGGLE2) || defined(HDZBOXPRO)
-    Analog_Module_Power(0);
-#endif
 
     // Head alarm
     head_alarm_init();

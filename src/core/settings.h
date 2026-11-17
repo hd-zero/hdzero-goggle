@@ -74,7 +74,7 @@ typedef struct {
     setting_power_cell_count_mode_t cell_count_mode;
     int cell_count;
     setting_power_osd_display_mode_t osd_display_mode;
-    bool power_ana;
+    bool external_analog_power_auto;
     int calibration_offset;
 } setting_power_t;
 

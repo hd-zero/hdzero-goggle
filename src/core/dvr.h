@@ -16,6 +16,7 @@ typedef enum {
 } osd_dvr_cmd_t;
 
 extern bool dvr_is_recording;
+extern bool record_pending;
 
 void dvr_update_status();
 void dvr_select_audio_source(uint8_t audio_source);

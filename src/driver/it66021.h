@@ -3,6 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdint.h>
 
 void IT66021_srst();
 void IT66021_close();
@@ -15,6 +16,7 @@ int IT66021_Get_PCLKFREQ();
 void IT66021_edid();
 
 void IT66021_Set_Pclk(int inv, int dly);
+void IT66021_Mask_WR(uint8_t is_ring, uint8_t addr, uint8_t mask, uint8_t wdat);
 
 #ifdef __cplusplus
 }

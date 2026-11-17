@@ -99,6 +99,7 @@ float ht_get_pan_angle();
 float ht_get_tilt_angle();
 void head_alarm_init();
 
+
 // Antenna tracker functions
 void ht_antenna_tracker_on_arm_event();
 void ht_antenna_tracker_reset_calibration();
@@ -118,6 +119,9 @@ void ht_antenna_tracker_test_calibrate();
 float ht_get_drone_azimuth();
 float ht_get_drone_elevation();
 float ht_get_pan_offset();
+
+extern uint8_t oled_is_sleep;
+
 
 #ifdef __cplusplus
 }

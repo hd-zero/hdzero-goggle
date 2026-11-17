@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 
 #define THREAD_COUNT_MAX (10)
-#define THREAD_COUNT     (4)
+#define THREAD_COUNT     (5)
 
 typedef void *(*fun_thread_instance_t)(void *params);
 

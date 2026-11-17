@@ -63,12 +63,6 @@ void app_switch_to_menu() {
 
     rtc6715.init(0, 0);
     system_script(REC_STOP_LIVE);
-
-#ifdef HDZBOXPRO
-    // Restore image settings from av module
-    screen.brightness(g_setting.image.oled);
-    Set_Contrast(g_setting.image.contrast);
-#endif
 }
 
 void app_exit_menu() {
@@ -83,10 +77,6 @@ void app_exit_menu() {
 }
 
 void app_switch_to_analog(bool is_av_in) {
-#ifdef HDZGOGGLE2
-    system_exec("aww 0x0300b084 0x0001555");
-#endif
-
     dvr_update_vi_conf(VR_720P50);
     osd_fhd(0);
     osd_show(true);
@@ -99,12 +89,9 @@ void app_switch_to_analog(bool is_av_in) {
 
     if (is_av_in) {
         rtc6715.init(0, 0);
+    } else if (g_setting.source.analog_module == SETTING_SOURCES_ANALOG_MODULE_EXTERNAL) {
+        rtc6715.init(0, 0);
     } else {
-#if defined HDZBOXPRO
-        // Solve LCD residual image
-        screen.brightness(7);
-        Set_Contrast(14);
-#endif
         rtc6715.init(1, g_setting.record.audio_source == SETTING_RECORD_AUDIO_SOURCE_AV_IN);
         rtc6715.set_ch(g_setting.source.analog_channel - 1);
     }
@@ -121,15 +108,12 @@ void app_switch_to_analog(bool is_av_in) {
 }
 
 void app_switch_to_hdmi_in() {
-#if defined HDZGOGGLE2
-    system_exec("aww 0x0300b084 0x0001555");
-#endif
-
 #if defined HDZBOXPRO
     // Restore image settings from av module
     screen.brightness(g_setting.image.oled);
     Set_Contrast(g_setting.image.contrast);
 #endif
+
     rtc6715.init(0, 0);
 
     Source_HDMI_in();
@@ -166,15 +150,12 @@ void app_switch_to_hdmi_in() {
 void app_switch_to_hdzero(bool is_default) {
     int ch;
 
-#if defined HDZGOGGLE2
-    system_exec("aww 0x0300b084 0x0001555");
-#endif
-
 #if defined HDZBOXPRO
     // Restore image settings from av module
     screen.brightness(g_setting.image.oled);
     Set_Contrast(g_setting.image.contrast);
 #endif
+
     rtc6715.init(0, 0);
 
     if (is_default) {
@@ -246,12 +227,6 @@ void app_switch_to_hdzero(bool is_default) {
 
 void hdzero_switch_channel(int channel) {
     channel &= 0x7f;
-
-#if defined HDZBOXPRO
-    // Restore image settings from av module
-    screen.brightness(g_setting.image.oled);
-    Set_Contrast(g_setting.image.contrast);
-#endif
 
     LOGI("hdzero_switch_channel to bw:%d, band:%d, ch:%d, CAM_MODE=%d 4:3=%d", g_setting.source.hdzero_bw, g_setting.source.hdzero_band, channel, CAM_MODE, cam_4_3);
     DM6302_SetChannel(g_setting.source.hdzero_band, channel);
