@@ -8,13 +8,6 @@
         "--security-opt",
         "seccomp=unconfined"
     ],
-    "features": {
-        "desktop-lite": {
-            "password": "vscode",
-            "webPort": "6080",
-            "vncPort": "5901"
-        }
-    },
     "customizations": {
         "vscode": {
             // Set *default* container specific settings.json values on container create.

@@ -40,6 +40,7 @@ static int sem_timedwait_compat(sem_t *sem, const struct timespec *abs_timeout) 
 #endif
 
 #include <log/log.h>
+#include <minIni.h>
 
 #include "core/app_state.h"
 #include "core/battery.h"
@@ -142,15 +143,19 @@ static void channel_channel_hdzero(uint8_t const channel) {
         LOGE("Invalid HDZero channel %d", channel);
         return;
     }
-    if ((g_setting.scan.channel & 0xF) != channel || g_app_state != APP_STATE_VIDEO) {
-        g_setting.scan.channel = channel;
-        beep();
-        pthread_mutex_lock(&lvgl_mutex);
-        dvr_cmd(DVR_STOP);
-        app_switch_to_hdzero(true);
-        app_state_push(APP_STATE_VIDEO);
-        pthread_mutex_unlock(&lvgl_mutex);
+    // If already on this channel, ignore the backpack update
+    if ((g_setting.scan.channel & 0x7F) == channel && g_app_state == APP_STATE_VIDEO) {
+        return;
     }
+    g_setting.scan.channel = channel;
+    // Save backpack channel to settings so we boot to same channel next time
+    ini_putl("scan", "channel", g_setting.scan.channel, SETTING_INI);
+    beep();
+    pthread_mutex_lock(&lvgl_mutex);
+    dvr_cmd(DVR_STOP);
+    app_switch_to_hdzero(true);
+    app_state_push(APP_STATE_VIDEO);
+    pthread_mutex_unlock(&lvgl_mutex);
 }
 
 static void change_channel_analog(uint8_t const channel) {
@@ -158,15 +163,19 @@ static void change_channel_analog(uint8_t const channel) {
         LOGE("Invalid analog channel %d", channel);
         return;
     }
-    if (g_setting.source.analog_channel != channel || g_app_state != APP_STATE_VIDEO) {
-        g_setting.source.analog_channel = channel;
-        beep();
-        pthread_mutex_lock(&lvgl_mutex);
-        dvr_cmd(DVR_STOP);
-        app_switch_to_analog(0);
-        app_state_push(APP_STATE_VIDEO);
-        pthread_mutex_unlock(&lvgl_mutex);
+    // If already on this channel, ignore the backpack update
+    if (g_setting.source.analog_channel == channel && g_app_state == APP_STATE_VIDEO) {
+        return;
     }
+    g_setting.source.analog_channel = channel;
+    // Save backpack channel to settings so we boot to same channel next time
+    ini_putl("source", "analog_channel", g_setting.source.analog_channel, SETTING_INI);
+    beep();
+    pthread_mutex_lock(&lvgl_mutex);
+    dvr_cmd(DVR_STOP);
+    app_switch_to_analog(0);
+    app_state_push(APP_STATE_VIDEO);
+    pthread_mutex_unlock(&lvgl_mutex);
 }
 
 void elrs_init() {
