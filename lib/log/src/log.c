@@ -14,7 +14,7 @@
 static int fd_log_file = -1;
 static char offline_buffer[1 * 1024 * 1024];
 static size_t offline_offset = 0;
-static atomic_bool log_mutex_init = ATOMIC_VAR_INIT(false);
+static atomic_bool log_mutex_init = false; // was ATOMIC_VAR_INIT(false) — macro removed in C23 / modern GCC
 static pthread_mutex_t log_mutex;
 
 static const char *log_level_names[] = {
