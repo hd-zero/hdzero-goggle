@@ -56,6 +56,7 @@ typedef struct
     uint64_t    packSize;
     bool        enableAudio;
     FileNaming_t fileNaming;
+    char        label[REC_labelMAXLEN];
 } RecordParams_t;
 
 typedef struct
