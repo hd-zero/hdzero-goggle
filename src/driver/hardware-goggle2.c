@@ -892,7 +892,7 @@ int AV_in_detect() // return = 1: vtmg to V536 changed
             TP2825_Switch_Mode(g_hw_stat.av_pal_w);
             AV_Mode_Switch(g_hw_stat.av_pal_w);
 
-            if (g_hw_stat.av_pal[g_hw_stat.is_av_in])
+            if (g_hw_stat.av_pal_w)
                 I2C_Write(ADDR_FPGA, 0x80, 0x10);
             else
                 I2C_Write(ADDR_FPGA, 0x80, 0x00);
